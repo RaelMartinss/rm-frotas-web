@@ -7,4 +7,5 @@ export abstract class IAuthRepository {
   abstract register(user: RegisterUserDTO): Observable<User>;
   abstract logout(): void;
   abstract getCurrentUser(): Observable<User | null>;
+  abstract isAuthenticated(): boolean;
 }

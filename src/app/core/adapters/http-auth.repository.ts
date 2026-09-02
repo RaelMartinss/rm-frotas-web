@@ -32,4 +32,9 @@ export class HttpAuthRepository implements IAuthRepository {
   getCurrentUser(): Observable<User> {
     return this.http.get<User>(`${this.apiUrl}/me`);
   }
+
+  isAuthenticated(): boolean {
+    const token = localStorage.getItem('access_token');
+    return !!token;
+  }
 }
