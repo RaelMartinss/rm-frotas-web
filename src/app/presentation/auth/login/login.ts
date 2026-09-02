@@ -1,13 +1,27 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators
+} from '@angular/forms';
 import { IAuthRepository } from '../../../domain/repositories/auth.repository.interface';
 import { take } from 'rxjs';
+
+import { LucideLock, LucideMail, LucideEye, LucideEyeOff } from '@lucide/angular';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    LucideLock,
+    LucideMail,
+    LucideEye,
+    LucideEyeOff,
+],
   templateUrl: './login.html',
   styleUrl: './login.css'
 })
@@ -55,7 +69,9 @@ export class LoginComponent implements OnInit {
         },
         error: (err) => {
           this.isLoading.set(false);
-          this.loginError.set(err.error?.message || 'E-mail ou senha incorretos.');
+          this.loginError.set(
+            err.error?.message || 'E-mail ou senha incorretos.'
+          );
         }
       });
   }
