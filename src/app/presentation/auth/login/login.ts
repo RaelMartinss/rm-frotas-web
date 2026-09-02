@@ -1,15 +1,9 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {
-  FormBuilder,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators
-} from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { IAuthRepository } from '../../../domain/repositories/auth.repository.interface';
-import { take } from 'rxjs';
-
-import { LucideLock, LucideMail, LucideEye, LucideEyeOff } from '@lucide/angular';
+import { LucideMail, LucideLock, LucideEye, LucideEyeOff } from '@lucide/angular';
 
 @Component({
   selector: 'app-login',
@@ -17,62 +11,54 @@ import { LucideLock, LucideMail, LucideEye, LucideEyeOff } from '@lucide/angular
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    LucideLock,
     LucideMail,
+    LucideLock,
     LucideEye,
-    LucideEyeOff,
-],
-  templateUrl: './login.html',
-  styleUrl: './login.css'
+    LucideEyeOff
+  ],
+  templateUrl: './login.html'
 })
-export class LoginComponent implements OnInit {
-  loginForm!: FormGroup;
+export class LoginComponent {
+  private readonly fb = inject(FormBuilder);
+  private readonly authRepository = inject(IAuthRepository);
+  private readonly router = inject(Router);
 
-  isLoading = signal(false);
+  // Signals para controle de UI
+  isLoading = signal<boolean>(false);
   loginError = signal<string | null>(null);
-  showPassword = signal(false);
+  showPassword = signal<boolean>(false);
 
-  constructor(
-    private readonly fb: FormBuilder,
-    private readonly authRepository: IAuthRepository
-  ) {}
+  // Reactive Form
+  loginForm: FormGroup = this.fb.group({
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required, Validators.minLength(6)]]
+  });
 
-  ngOnInit(): void {
-    this.loginForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]]
-    });
-  }
-
+  // Getter de conveniência para validações no HTML (f['email'], f['password'])
   get f() {
     return this.loginForm.controls;
   }
 
   onSubmit(): void {
-    this.loginError.set(null);
-
     if (this.loginForm.invalid) {
       this.loginForm.markAllAsTouched();
       return;
     }
 
     this.isLoading.set(true);
+    this.loginError.set(null);
 
-    this.authRepository
-      .login(this.loginForm.value)
-      .pipe(take(1))
-      .subscribe({
-        next: (response) => {
-          localStorage.setItem('access_token', response.accessToken);
-          this.isLoading.set(false);
-          console.log('Login realizado com sucesso', response);
-        },
-        error: (err) => {
-          this.isLoading.set(false);
-          this.loginError.set(
-            err.error?.message || 'E-mail ou senha incorretos.'
-          );
-        }
-      });
+    this.authRepository.login(this.loginForm.value).subscribe({
+      next: () => {
+        this.isLoading.set(false);
+        this.router.navigate(['/dashboard']);
+      },
+      error: (err) => {
+        this.isLoading.set(false);
+        this.loginError.set(
+          err.error?.message || 'Falha na autenticação. Verifique seu e-mail e senha.'
+        );
+      }
+    });
   }
 }
