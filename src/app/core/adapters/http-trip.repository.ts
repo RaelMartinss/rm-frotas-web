@@ -1,16 +1,16 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import { ITripRepository } from '../../domain/repositories/trip.repository.interface';
 import { Trip, CreateTripDTO, CreateFuelSupplyDTO, FuelSupply } from '../../domain/models/trip.model';
-import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class HttpTripRepository implements ITripRepository {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = `${environment.apiUrl}/vehicles`;
+  private readonly apiUrl = `${environment.apiUrl}/trips`;
 
   getAll(): Observable<Trip[]> {
     return this.http.get<Trip[]>(this.apiUrl);
@@ -24,8 +24,16 @@ export class HttpTripRepository implements ITripRepository {
     return this.http.post<Trip>(this.apiUrl, trip);
   }
 
-  finishTrip(id: string, finalOdometer: number): Observable<Trip> {
-    return this.http.patch<Trip>(`${this.apiUrl}/${id}/finish`, { finalOdometer });
+  startTrip(id: string): Observable<Trip> {
+    return this.http.patch<Trip>(`${this.apiUrl}/${id}/start`, {});
+  }
+
+  completeTrip(id: string, finalOdometer: number): Observable<Trip> {
+    return this.http.patch<Trip>(`${this.apiUrl}/${id}/complete`, { finalOdometer });
+  }
+
+  cancelTrip(id: string): Observable<Trip> {
+    return this.http.patch<Trip>(`${this.apiUrl}/${id}/cancel`, {});
   }
 
   addFuelSupply(supply: CreateFuelSupplyDTO): Observable<FuelSupply> {

@@ -1,9 +1,9 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import { IVehicleRepository } from '../../domain/repositories/vehicle.repository.interface';
 import { Vehicle, CreateVehicleDTO } from '../../domain/models/vehicle.model';
-import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -20,15 +20,23 @@ export class HttpVehicleRepository implements IVehicleRepository {
     return this.http.get<Vehicle>(`${this.apiUrl}/${id}`);
   }
 
+  getByPlate(plate: string): Observable<Vehicle> {
+    return this.http.get<Vehicle>(`${this.apiUrl}/plate/${plate}`);
+  }
+
   create(vehicle: CreateVehicleDTO): Observable<Vehicle> {
     return this.http.post<Vehicle>(this.apiUrl, vehicle);
   }
 
-  update(id: string, vehicle: Partial<CreateVehicleDTO>): Observable<Vehicle> {
-    return this.http.patch<Vehicle>(`${this.apiUrl}/${id}`, vehicle);
+  updateKm(id: string, km: number): Observable<Vehicle> {
+    return this.http.patch<Vehicle>(`${this.apiUrl}/${id}/km`, { km });
   }
 
-  delete(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  sendToMaintenance(id: string): Observable<Vehicle> {
+    return this.http.patch<Vehicle>(`${this.apiUrl}/${id}/maintenance/send`, {});
+  }
+
+  finishMaintenance(id: string): Observable<Vehicle> {
+    return this.http.patch<Vehicle>(`${this.apiUrl}/${id}/maintenance/finish`, {});
   }
 }
