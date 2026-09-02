@@ -37,4 +37,8 @@ export class HttpAuthRepository implements IAuthRepository {
     const token = localStorage.getItem('access_token');
     return !!token;
   }
+
+  getToken(): string | null {
+    return localStorage.getItem('access_token');
+  }
 }
