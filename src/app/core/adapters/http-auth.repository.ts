@@ -10,13 +10,14 @@ import {
   UpdateProfileDTO,
   User,
 } from '../../domain/models/auth.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class HttpAuthRepository implements IAuthRepository {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = 'https://api.rmfrotas.com.br/v1/auth';
+  private readonly apiUrl = `${environment.apiUrl}/auth`;
 
   login(credentials: LoginCredentials): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, credentials).pipe(

@@ -3,13 +3,14 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ITripRepository } from '../../domain/repositories/trip.repository.interface';
 import { Trip, CreateTripDTO, CreateFuelSupplyDTO, FuelSupply } from '../../domain/models/trip.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class HttpTripRepository implements ITripRepository {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = 'https://api.rmfrotas.com.br/v1/trips';
+  private readonly apiUrl = `${environment.apiUrl}/vehicles`;
 
   getAll(): Observable<Trip[]> {
     return this.http.get<Trip[]>(this.apiUrl);

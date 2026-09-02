@@ -3,13 +3,14 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { IVehicleRepository } from '../../domain/repositories/vehicle.repository.interface';
 import { Vehicle, CreateVehicleDTO } from '../../domain/models/vehicle.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class HttpVehicleRepository implements IVehicleRepository {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = 'https://api.rmfrotas.com.br/v1/vehicles';
+  private readonly apiUrl = `${environment.apiUrl}/vehicles`;
 
   getAll(): Observable<Vehicle[]> {
     return this.http.get<Vehicle[]>(this.apiUrl);

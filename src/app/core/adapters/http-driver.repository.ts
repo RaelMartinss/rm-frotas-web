@@ -3,13 +3,14 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { IDriverRepository } from '../../domain/repositories/driver.repository.interface';
 import { Driver, CreateDriverDTO } from '../../domain/models/driver.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class HttpDriverRepository implements IDriverRepository {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = 'https://api.rmfrotas.com.br/v1/drivers';
+  private readonly apiUrl = `${environment.apiUrl}/vehicles`;
 
   getAll(): Observable<Driver[]> {
     return this.http.get<Driver[]>(this.apiUrl);
