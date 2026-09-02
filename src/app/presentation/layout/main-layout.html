@@ -1,0 +1,190 @@
+<div class="min-h-screen flex bg-slate-100 text-slate-800 font-sans">
+  <!-- SIDEBAR LATERAL -->
+  <aside
+    class="bg-[#182232] text-slate-300 w-64 flex-shrink-0 flex flex-col justify-between transition-all duration-300 z-30"
+    [class.-ml-64]="!sidebarOpen()"
+  >
+    <div>
+      <!-- LOGO -->
+      <div class="h-16 flex items-center px-6 border-b border-slate-800/80 gap-3">
+        <div class="bg-emerald-500 text-slate-950 p-2 rounded-lg font-black tracking-tighter text-lg flex items-center justify-center size-9">
+          RM
+        </div>
+        <span class="font-bold text-white tracking-wider text-sm uppercase">FROTAS</span>
+      </div>
+
+      <!-- MENUS DA SIDEBAR -->
+      <nav class="p-4 space-y-6 text-sm">
+        <div>
+          <a
+            routerLink="/dashboard"
+            routerLinkActive="bg-emerald-600/20 text-emerald-400 font-medium border-r-2 border-emerald-500"
+            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/60 transition-colors"
+          >
+            <svg lucideLayoutDashboard class="size-4"></svg>
+            <span>Início</span>
+          </a>
+        </div>
+
+        <!-- SEÇÃO: OPERAÇÃO -->
+        <div class="space-y-1">
+          <p class="px-3 text-[11px] font-bold text-slate-500 uppercase tracking-wider">Operação</p>
+
+          <a
+            routerLink="/veiculos"
+            routerLinkActive="bg-emerald-600/20 text-emerald-400 font-medium"
+            class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/60 transition-colors"
+          >
+            <svg lucideTruck class="size-4"></svg>
+            <span>Veículos</span>
+          </a>
+
+          <a
+            routerLink="/motoristas"
+            routerLinkActive="bg-emerald-600/20 text-emerald-400 font-medium"
+            class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/60 transition-colors"
+          >
+            <svg lucideUsers class="size-4"></svg>
+            <span>Motoristas</span>
+          </a>
+
+          <a
+            routerLink="/viagens"
+            routerLinkActive="bg-emerald-600/20 text-emerald-400 font-medium"
+            class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/60 transition-colors"
+          >
+            <svg lucideRoute class="size-4"></svg>
+            <span>Viagens</span>
+          </a>
+
+          <a
+            routerLink="/abastecimentos"
+            routerLinkActive="bg-emerald-600/20 text-emerald-400 font-medium"
+            class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/60 transition-colors"
+          >
+            <svg lucideFuel class="size-4"></svg>
+            <span>Abastecimentos</span>
+          </a>
+
+          <a
+            routerLink="/manutencoes"
+            routerLinkActive="bg-emerald-600/20 text-emerald-400 font-medium"
+            class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/60 transition-colors"
+          >
+            <svg lucideWrench class="size-4"></svg>
+            <span>Manutenções</span>
+          </a>
+        </div>
+
+        <!-- SEÇÃO: GESTÃO -->
+        <div class="space-y-1">
+          <p class="px-3 text-[11px] font-bold text-slate-500 uppercase tracking-wider">Gestão</p>
+
+          <a
+            routerLink="/expiracoes"
+            routerLinkActive="bg-emerald-600/20 text-emerald-400 font-medium"
+            class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/60 transition-colors"
+          >
+            <svg lucideClock class="size-4"></svg>
+            <span>Expirações</span>
+          </a>
+
+          <a
+            routerLink="/alertas"
+            routerLinkActive="bg-emerald-600/20 text-emerald-400 font-medium"
+            class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/60 transition-colors"
+          >
+            <svg lucideBell class="size-4"></svg>
+            <span>Alertas</span>
+          </a>
+
+          <a
+            routerLink="/relatorios"
+            routerLinkActive="bg-emerald-600/20 text-emerald-400 font-medium"
+            class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/60 transition-colors"
+          >
+            <svg lucideFileText class="size-4"></svg>
+            <span>Relatórios</span>
+          </a>
+        </div>
+
+        <div class="space-y-1">
+          <p class="px-3 text-[11px] font-bold text-slate-500 uppercase tracking-wider">Sistema</p>
+
+          <a
+            routerLink="/usuarios"
+            routerLinkActive="bg-emerald-600/20 text-emerald-400 font-medium"
+            class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/60 transition-colors"
+          >
+            <svg lucideUserCheck class="size-4"></svg>
+            <span>Usuários</span>
+          </a>
+
+          <a
+            routerLink="/configuracoes"
+            routerLinkActive="bg-emerald-600/20 text-emerald-400 font-medium"
+            class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/60 transition-colors"
+          >
+            <svg lucideSettings class="size-4"></svg>
+            <span>Configurações</span>
+          </a>
+        </div>
+      </nav>
+    </div>
+
+    <div class="p-4 border-t border-slate-800/80">
+      <div class="flex items-center justify-between p-2 rounded-xl bg-slate-900/50">
+        <div class="flex items-center gap-3">
+          <div class="size-9 rounded-lg bg-emerald-600 text-white font-bold flex items-center justify-center text-xs">
+            RM
+          </div>
+          <div class="text-xs">
+            <p class="font-semibold text-white">Rael Martins</p>
+            <p class="text-slate-400">Administrador</p>
+          </div>
+        </div>
+        <button
+          (click)="logout()"
+          title="Sair"
+          class="p-1.5 text-slate-400 hover:text-rose-400 rounded-lg hover:bg-slate-800 transition-colors"
+        >
+          <svg lucideLogOut class="size-4"></svg>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <div class="flex-1 flex flex-col min-w-0">
+    <header class="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between sticky top-0 z-20">
+      <div class="flex items-center gap-4">
+        <button
+          (click)="toggleSidebar()"
+          class="p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+        >
+          <svg lucideMenu class="size-5"></svg>
+        </button>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <div class="relative w-64 hidden sm:block">
+          <svg lucideSearch class="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></svg>
+          <input
+            type="text"
+            placeholder="Buscar..."
+            class="w-full bg-slate-100 text-slate-700 text-xs rounded-lg pl-9 pr-12 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 border border-transparent focus:border-emerald-500"
+          />
+          <span class="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 bg-white border border-slate-200 px-1.5 py-0.5 rounded shadow-xs">
+            Ctrl + K
+          </span>
+        </div>
+        <button class="relative p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
+          <svg lucideBell class="size-5"></svg>
+          <span class="absolute top-1.5 right-1.5 size-2 bg-emerald-500 rounded-full ring-2 ring-white"></span>
+        </button>
+      </div>
+    </header>
+    <main class="p-6 flex-1 overflow-y-auto">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>
