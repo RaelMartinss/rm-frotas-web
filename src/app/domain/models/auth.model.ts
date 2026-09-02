@@ -1,9 +1,6 @@
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: 'ADMIN' | 'MANAGER' | 'DRIVER';
-}
+import { UserRole, User } from './user.model';
+
+export type { UserRole, User };
 
 export interface LoginCredentials {
   email: string;
@@ -14,7 +11,13 @@ export interface RegisterUserDTO {
   name: string;
   email: string;
   password: string;
-  role: 'ADMIN' | 'MANAGER' | 'DRIVER';
+  role: UserRole;
+}
+
+export interface CreateUserDTO {
+  name: string;
+  email: string;
+  role: UserRole;
 }
 
 export interface AuthResponse {
@@ -24,8 +27,8 @@ export interface AuthResponse {
 }
 
 export interface UpdateProfileDTO {
-  name: string;
-  email: string;
+  name?: string;
+  email?: string;
 }
 
 export interface UpdatePasswordDTO {

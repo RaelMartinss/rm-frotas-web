@@ -23,7 +23,6 @@ import {
     ReactiveFormsModule,
     LucideUser,
     LucideLock,
-    LucideMail,
     LucideShield,
     LucideLoader2,
     LucideCheckCircle2,

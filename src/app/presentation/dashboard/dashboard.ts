@@ -26,7 +26,6 @@ import {
     LucideAlertTriangle,
     LucideFileText,
     LucideShieldAlert,
-    LucideTrendingUp,
     LucideLoader2
   ],
   templateUrl: './dashboard.html',

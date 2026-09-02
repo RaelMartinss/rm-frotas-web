@@ -26,11 +26,9 @@ import {
     CommonModule,
     ReactiveFormsModule,
     LucideNavigation,
-    LucidePlus,
     LucideLoader2,
     LucideX,
     LucideFuel,
-    LucideCheckCircle2,
     LucideMapPin,
     LucideTruck,
     LucideUser

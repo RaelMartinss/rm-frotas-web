@@ -23,13 +23,10 @@ import {
     ReactiveFormsModule,
     LucideUsers,
     LucidePlus,
-    LucideSearch,
     LucideLoader2,
     LucideX,
     LucideAlertTriangle,
-    LucideCheckCircle2,
     LucidePhone,
-    LucideIdCard
   ],
   templateUrl: './driver-list.html',
   styleUrl: './driver-list.css'

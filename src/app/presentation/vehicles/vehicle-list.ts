@@ -11,9 +11,6 @@ import {
   LucideSearch,
   LucideLoader2,
   LucideX,
-  LucideWrench,
-  LucideCheckCircle2,
-  LucideXCircle
 } from '@lucide/angular';
 
 @Component({
@@ -27,9 +24,6 @@ import {
     LucideSearch,
     LucideLoader2,
     LucideX,
-    LucideWrench,
-    LucideCheckCircle2,
-    LucideXCircle
   ],
   templateUrl: './vehicle-list.html',
   styleUrl: './vehicle-list.css'

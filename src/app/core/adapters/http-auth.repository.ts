@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { IAuthRepository } from '../../domain/repositories/auth.repository.interface';
-import { AuthResponse, LoginCredentials, RegisterUserDTO, User, UpdateProfileDTO, UpdatePasswordDTO } from '../../domain/models/auth.model';
+import { AuthResponse, LoginCredentials, RegisterUserDTO, User, UpdateProfileDTO, UpdatePasswordDTO, CreateUserDTO } from '../../domain/models/auth.model';
 
 @Injectable({
   providedIn: 'root'
@@ -52,5 +52,17 @@ export class HttpAuthRepository implements IAuthRepository {
 
   updatePassword(data: UpdatePasswordDTO): Observable<void> {
     return this.http.patch<void>(`${this.baseUrl}/me/password`, data);
+  }
+
+  getUsers(): Observable<User[]> {
+    return this.http.get<User[]>(`${this.baseUrl}/users`);
+  }
+
+  createUser(user: CreateUserDTO): Observable<User> {
+    return this.http.post<User>(`${this.baseUrl}/users`, user);
+  }
+
+  toggleUserStatus(id: string, active: boolean): Observable<User> {
+    return this.http.patch<User>(`${this.baseUrl}/users/${id}/status`, { active });
   }
 }
