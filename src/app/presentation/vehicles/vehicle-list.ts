@@ -1,6 +1,8 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { IVehicleRepository } from '../../domain/repositories/vehicle.repository.interface';
 import { Vehicle } from '../../domain/models/vehicle.model';
 import {
@@ -41,6 +43,37 @@ export class VehicleListComponent implements OnInit {
   isModalOpen = signal<boolean>(false);
   isSaving = signal<boolean>(false);
 
+  // --- FILTROS E BUSCA REATIVA ---
+  searchControl = new FormControl('', { nonNullable: true });
+  selectedStatus = signal<string>('ALL');
+
+  // Converte as mudanças do input para Signal aplicando debounce de 300ms
+  searchTerm = toSignal(
+    this.searchControl.valueChanges.pipe(
+      debounceTime(300),
+      distinctUntilChanged()
+    ),
+    { initialValue: '' }
+  );
+
+  // Signal Computado para filtrar a lista automaticamente
+  filteredVehicles = computed(() => {
+    const list = this.vehicles();
+    const term = this.searchTerm().toLowerCase().trim();
+    const status = this.selectedStatus();
+
+    return list.filter((vehicle) => {
+      const matchesSearch =
+        vehicle.plate.toLowerCase().includes(term) ||
+        vehicle.model.toLowerCase().includes(term) ||
+        vehicle.brand.toLowerCase().includes(term);
+
+      const matchesStatus = status === 'ALL' || vehicle.status === status;
+
+      return matchesSearch && matchesStatus;
+    });
+  });
+
   vehicleForm: FormGroup = this.fb.group({
     plate: ['', [Validators.required, Validators.pattern(/^[A-Z]{3}-[0-9][A-Z0-9][0-9]{2}$/i)]],
     brand: ['', [Validators.required]],
@@ -63,6 +96,10 @@ export class VehicleListComponent implements OnInit {
       },
       error: () => this.loading.set(false)
     });
+  }
+
+  setStatusFilter(status: string): void {
+    this.selectedStatus.set(status);
   }
 
   openModal(): void {

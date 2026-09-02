@@ -14,6 +14,59 @@
     </button>
   </div>
 
+  <!-- BARRA DE FILTROS E BUSCA REATIVA -->
+  <div class="flex flex-col md:flex-row gap-4 justify-between items-center bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
+    <!-- Input com Debounce de 300ms via RxJS -->
+    <div class="relative w-full md:w-80">
+      <svg lucideSearch class="size-4 absolute left-3 top-2.5 text-slate-400"></svg>
+      <input
+        type="text"
+        [formControl]="searchControl"
+        placeholder="Buscar por placa, modelo ou marca..."
+        class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 transition-colors"
+      />
+    </div>
+
+    <!-- Filtros de Status -->
+    <div class="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
+      <button
+        type="button"
+        (click)="setStatusFilter('ALL')"
+        [class]="selectedStatus() === 'ALL' ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
+        class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors shrink-0"
+      >
+        Todos
+      </button>
+
+      <button
+        type="button"
+        (click)="setStatusFilter('DISPONIVEL')"
+        [class]="selectedStatus() === 'DISPONIVEL' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
+        class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors shrink-0"
+      >
+        Disponíveis
+      </button>
+
+      <button
+        type="button"
+        (click)="setStatusFilter('EM_VIAGEM')"
+        [class]="selectedStatus() === 'EM_VIAGEM' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
+        class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors shrink-0"
+      >
+        Em Viagem
+      </button>
+
+      <button
+        type="button"
+        (click)="setStatusFilter('MANUTENCAO')"
+        [class]="selectedStatus() === 'MANUTENCAO' ? 'bg-amber-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
+        class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors shrink-0"
+      >
+        Manutenção
+      </button>
+    </div>
+  </div>
+
   <!-- TABELA DE VEÍCULOS -->
   <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
     @if (loading()) {
@@ -34,7 +87,7 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100">
-            @for (vehicle of vehicles(); track vehicle.id) {
+            @for (vehicle of filteredVehicles(); track vehicle.id) {
               <tr class="hover:bg-slate-50/50 transition-colors">
                 <td class="py-3.5 px-4">
                   <div class="font-bold text-slate-800">{{ vehicle.plate }}</div>
@@ -59,7 +112,7 @@
               </tr>
             } @empty {
               <tr>
-                <td colspan="5" class="py-8 text-center text-slate-400">Nenhum veículo cadastrado.</td>
+                <td colspan="5" class="py-8 text-center text-slate-400">Nenhum veículo encontrado para a busca selecionada.</td>
               </tr>
             }
           </tbody>
