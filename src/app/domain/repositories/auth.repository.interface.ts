@@ -8,4 +8,5 @@ export abstract class IAuthRepository {
   abstract logout(): void;
   abstract getCurrentUser(): Observable<User | null>;
   abstract isAuthenticated(): boolean;
+  abstract getToken(): string | null;
 }
