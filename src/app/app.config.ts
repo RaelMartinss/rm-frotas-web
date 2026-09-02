@@ -6,6 +6,8 @@ import { tokenInterceptor } from './core/interceptors/token.interceptor';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
 import { IAuthRepository } from './domain/repositories/auth.repository.interface';
 import { HttpAuthRepository } from './core/adapters/http-auth.repository';
+import { IDashboardRepository } from './domain/repositories/dashboard.repository.interface';
+import { HttpDashboardRepository } from './core/adapters/http-dashboard.repository';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -17,6 +19,7 @@ export const appConfig: ApplicationConfig = {
         errorInterceptor
       ])
     ),
-    { provide: IAuthRepository, useClass: HttpAuthRepository }
+    { provide: IAuthRepository, useClass: HttpAuthRepository },
+    { provide: IDashboardRepository, useClass: HttpDashboardRepository }
   ]
 };
