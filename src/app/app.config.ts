@@ -8,6 +8,8 @@ import { IAuthRepository } from './domain/repositories/auth.repository.interface
 import { HttpAuthRepository } from './core/adapters/http-auth.repository';
 import { IDashboardRepository } from './domain/repositories/dashboard.repository.interface';
 import { HttpDashboardRepository } from './core/adapters/http-dashboard.repository';
+import { IVehicleRepository } from './domain/repositories/vehicle.repository.interface';
+import { HttpVehicleRepository } from './core/adapters/http-vehicle.repository';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -20,6 +22,7 @@ export const appConfig: ApplicationConfig = {
       ])
     ),
     { provide: IAuthRepository, useClass: HttpAuthRepository },
-    { provide: IDashboardRepository, useClass: HttpDashboardRepository }
+    { provide: IDashboardRepository, useClass: HttpDashboardRepository },
+    { provide: IVehicleRepository, useClass: HttpVehicleRepository }
   ]
 };

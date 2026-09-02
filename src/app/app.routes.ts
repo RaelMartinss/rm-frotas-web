@@ -28,6 +28,11 @@ export const routes: Routes = [
     ]
   },
   {
+    path: 'veiculos',
+    loadComponent: () =>
+      import('./presentation/vehicles/vehicle-list').then((m) => m.VehicleListComponent)
+  },
+  {
     path: '**',
     redirectTo: 'dashboard'
   }
