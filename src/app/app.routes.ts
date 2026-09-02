@@ -34,6 +34,11 @@ export const routes: Routes = [
         path: 'motoristas',
         loadComponent: () =>
           import('./presentation/drivers/driver-list').then((m) => m.DriverListComponent)
+      },
+      {
+        path: 'viagens',
+        loadComponent: () =>
+          import('./presentation/trips/trip-list').then((m) => m.TripListComponent)
       }
     ]
   },

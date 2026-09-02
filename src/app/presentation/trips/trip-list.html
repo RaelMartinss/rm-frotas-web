@@ -1,0 +1,293 @@
+<div class="space-y-6">
+  <!-- CABEÇALHO -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-800">Gestão de Viagens & Abastecimentos</h1>
+      <p class="text-sm text-slate-500">Controle rotas, odômetros e abastecimentos da frota em tempo real.</p>
+    </div>
+    <button
+      (click)="openTripModal()"
+      class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs px-4 py-2.5 rounded-xl transition-colors shadow-xs"
+    >
+      <svg lucideNavigation class="size-4"></svg>
+      Nova Viagem
+    </button>
+  </div>
+
+  <!-- TABELA DE VIAGENS -->
+  <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+    @if (loading()) {
+      <div class="p-12 flex flex-col items-center justify-center gap-3 text-slate-400">
+        <svg lucideLoader2 class="size-8 animate-spin text-emerald-500"></svg>
+        <p class="text-xs">Carregando viagens...</p>
+      </div>
+    } @else {
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-50 border-b border-slate-100 text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
+            <tr>
+              <th class="py-3.5 px-4">Veículo / Motorista</th>
+              <th class="py-3.5 px-4">Rota (Origem -> Destino)</th>
+              <th class="py-3.5 px-4">Data Partida</th>
+              <th class="py-3.5 px-4">Status</th>
+              <th class="py-3.5 px-4 text-right">Ações</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            @for (trip of trips(); track trip.id) {
+              <tr class="hover:bg-slate-50/50 transition-colors">
+                <td class="py-3.5 px-4">
+                  <div class="font-bold text-slate-800 flex items-center gap-1.5">
+                    <svg lucideTruck class="size-3.5 text-slate-400"></svg>
+                    {{ trip.vehiclePlate }}
+                  </div>
+                  <div class="text-slate-500 text-[11px] flex items-center gap-1.5 mt-0.5">
+                    <svg lucideUser class="size-3 text-slate-400"></svg>
+                    {{ trip.driverName }}
+                  </div>
+                </td>
+                <td class="py-3.5 px-4 text-slate-600">
+                  <div class="flex items-center gap-1.5 font-medium">
+                    <svg lucideMapPin class="size-3.5 text-emerald-600"></svg>
+                    <span>{{ trip.origin }}</span>
+                    <span class="text-slate-300">→</span>
+                    <span>{{ trip.destination }}</span>
+                  </div>
+                </td>
+                <td class="py-3.5 px-4 text-slate-600">{{ trip.departureDate }}</td>
+                <td class="py-3.5 px-4">
+                  <span
+                    class="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider inline-flex items-center gap-1.5"
+                    [ngClass]="{
+                      'bg-blue-100 text-blue-700': trip.status === 'EM_ANDAMENTO',
+                      'bg-emerald-100 text-emerald-700': trip.status === 'CONCLUIDA',
+                      'bg-amber-100 text-amber-700': trip.status === 'PROGRAMADA',
+                      'bg-rose-100 text-rose-700': trip.status === 'CANCELADA'
+                    }"
+                  >
+                    {{ trip.status }}
+                  </span>
+                </td>
+                <td class="py-3.5 px-4 text-right">
+                  <button
+                    (click)="openSupplyModal(trip.id)"
+                    class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 font-semibold rounded-lg text-[11px] transition-colors border border-amber-200/60"
+                  >
+                    <svg lucideFuel class="size-3.5"></svg>
+                    + Abastecer
+                  </button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="5" class="py-8 text-center text-slate-400">Nenhuma viagem registrada.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</div>
+
+<!-- MODAL DE CADASTRO DE VIAGEM -->
+@if (isTripModalOpen()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in duration-150">
+      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+        <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
+          <svg lucideNavigation class="size-5 text-emerald-600"></svg>
+          Nova Viagem
+        </h2>
+        <button (click)="closeTripModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg">
+          <svg lucideX class="size-5"></svg>
+        </button>
+      </div>
+
+      <form [formGroup]="tripForm" (ngSubmit)="saveTrip()" class="p-6 space-y-4">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Veículo</label>
+            <select
+              formControlName="vehicleId"
+              class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-emerald-500"
+            >
+              <option value="">Selecione...</option>
+              @for (v of vehicles(); track v.id) {
+                <option [value]="v.id">{{ v.plate }} - {{ v.model }}</option>
+              }
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Motorista</label>
+            <select
+              formControlName="driverId"
+              class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-emerald-500"
+            >
+              <option value="">Selecione...</option>
+              @for (d of drivers(); track d.id) {
+                <option [value]="d.id">{{ d.name }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Origem</label>
+            <input
+              type="text"
+              formControlName="origin"
+              placeholder="Ex: Paragominas - PA"
+              class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-emerald-500"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Destino</label>
+            <input
+              type="text"
+              formControlName="destination"
+              placeholder="Ex: Belém - PA"
+              class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-emerald-500"
+            />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Data Partida</label>
+            <input
+              type="date"
+              formControlName="departureDate"
+              class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-emerald-500"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Odômetro Inicial (KM)</label>
+            <input
+              type="number"
+              formControlName="initialOdometer"
+              class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-emerald-500"
+            />
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
+          <button
+            type="button"
+            (click)="closeTripModal()"
+            class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            [disabled]="isSaving()"
+            class="px-4 py-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50"
+          >
+            @if (isSaving()) {
+              <svg lucideLoader2 class="size-4 animate-spin"></svg>
+            }
+            Salvar Viagem
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+<!-- MODAL DE ABASTECIMENTO -->
+@if (isSupplyModalOpen()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-150">
+      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+        <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
+          <svg lucideFuel class="size-5 text-amber-600"></svg>
+          Registrar Abastecimento
+        </h2>
+        <button (click)="closeSupplyModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg">
+          <svg lucideX class="size-5"></svg>
+        </button>
+      </div>
+
+      <form [formGroup]="supplyForm" (ngSubmit)="saveFuelSupply()" class="p-6 space-y-4">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Litros</label>
+            <input
+              type="number"
+              step="0.01"
+              formControlName="liters"
+              class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-emerald-500"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Valor Total (R$)</label>
+            <input
+              type="number"
+              step="0.01"
+              formControlName="totalValue"
+              class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-emerald-500"
+            />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Combustível</label>
+            <select
+              formControlName="fuelType"
+              class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-emerald-500"
+            >
+              <option value="DIESEL">Diesel</option>
+              <option value="GASOLINA">Gasolina</option>
+              <option value="ETANOL">Etanol</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Odômetro Atual (KM)</label>
+            <input
+              type="number"
+              formControlName="odometer"
+              class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-emerald-500"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Data</label>
+          <input
+            type="date"
+            formControlName="date"
+            class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-emerald-500"
+          />
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
+          <button
+            type="button"
+            (click)="closeSupplyModal()"
+            class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            [disabled]="isSaving()"
+            class="px-4 py-2 text-xs font-semibold text-white bg-amber-600 hover:bg-amber-700 rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50"
+          >
+            @if (isSaving()) {
+              <svg lucideLoader2 class="size-4 animate-spin"></svg>
+            }
+            Registrar Abastecimento
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

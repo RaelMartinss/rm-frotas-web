@@ -12,6 +12,8 @@ import { IVehicleRepository } from './domain/repositories/vehicle.repository.int
 import { HttpVehicleRepository } from './core/adapters/http-vehicle.repository';
 import { IDriverRepository } from './domain/repositories/driver.repository.interface';
 import { HttpDriverRepository } from './core/adapters/http-driver.repository';
+import { ITripRepository } from './domain/repositories/trip.repository.interface';
+import { HttpTripRepository } from './core/adapters/http-trip.repository';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -26,6 +28,7 @@ export const appConfig: ApplicationConfig = {
     { provide: IAuthRepository, useClass: HttpAuthRepository },
     { provide: IDashboardRepository, useClass: HttpDashboardRepository },
     { provide: IVehicleRepository, useClass: HttpVehicleRepository },
-    { provide: IDriverRepository, useClass: HttpDriverRepository }
+    { provide: IDriverRepository, useClass: HttpDriverRepository },
+    { provide: ITripRepository, useClass: HttpTripRepository }
   ]
 };
