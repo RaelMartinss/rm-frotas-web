@@ -22,3 +22,13 @@ export interface AuthResponse {
   refreshToken?: string;
   user: User;
 }
+
+export interface UpdateProfileDTO {
+  name: string;
+  email: string;
+}
+
+export interface UpdatePasswordDTO {
+  currentPassword: string;
+  newPassword: string;
+}

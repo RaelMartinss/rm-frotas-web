@@ -2,10 +2,17 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { IAuthRepository } from '../../domain/repositories/auth.repository.interface';
-import { AuthResponse, LoginCredentials, RegisterUserDTO, User } from '../../domain/models/auth.model';
+import {
+  AuthResponse,
+  LoginCredentials,
+  RegisterUserDTO,
+  UpdatePasswordDTO,
+  UpdateProfileDTO,
+  User,
+} from '../../domain/models/auth.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class HttpAuthRepository implements IAuthRepository {
   private readonly http = inject(HttpClient);
@@ -16,7 +23,7 @@ export class HttpAuthRepository implements IAuthRepository {
       tap((response) => {
         localStorage.setItem('access_token', response.accessToken);
         localStorage.setItem('user_info', JSON.stringify(response.user));
-      })
+      }),
     );
   }
 
@@ -40,5 +47,17 @@ export class HttpAuthRepository implements IAuthRepository {
 
   getToken(): string | null {
     return localStorage.getItem('access_token');
+  }
+
+  updateProfile(data: UpdateProfileDTO): Observable<User> {
+    return this.http.put<User>(`${this.apiUrl}/profile`, data).pipe(
+      tap((user) => {
+        localStorage.setItem('user_info', JSON.stringify(user));
+      }),
+    );
+  }
+
+  updatePassword(data: UpdatePasswordDTO): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/change-password`, data);
   }
 }
