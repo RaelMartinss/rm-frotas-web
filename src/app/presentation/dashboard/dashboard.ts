@@ -1,6 +1,15 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LucideTruck, LucideUsers, LucideWrench, LucideTrendingUp, LucideUser } from '@lucide/angular';
+import {
+  LucideTruck,
+  LucideCheckCircle2,
+  LucideWrench,
+  LucideXCircle,
+  LucideAlertTriangle,
+  LucideFileText,
+  LucideShieldAlert,
+  LucideTrendingUp
+} from '@lucide/angular';
 
 @Component({
   selector: 'app-dashboard',
@@ -8,10 +17,13 @@ import { LucideTruck, LucideUsers, LucideWrench, LucideTrendingUp, LucideUser } 
   imports: [
     CommonModule,
     LucideTruck,
-    LucideUsers,
+    LucideCheckCircle2,
     LucideWrench,
-    LucideTrendingUp,
-],
+    LucideXCircle,
+    LucideAlertTriangle,
+    LucideFileText,
+    LucideShieldAlert
+  ],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css'
 })

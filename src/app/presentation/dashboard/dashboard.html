@@ -1,50 +1,344 @@
 <div class="space-y-6">
+  <!-- CAVEÇALHO E SAUDAÇÃO -->
   <div>
-    <h1 class="text-2xl font-bold text-white">Dashboard Geral</h1>
-    <p class="text-gray-400 text-sm">Visão geral da frota e status operacional.</p>
+    <h1 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
+      Olá, Rael 👋
+    </h1>
+    <p class="text-sm text-slate-500">Aqui está o resumo da sua frota hoje.</p>
   </div>
 
+  <!-- 1. GRID SUPERIOR: CARDS DE INDICADORES (KPIs) -->
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-    <!-- Card 1 -->
-    <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex items-center justify-between">
-      <div>
-        <p class="text-xs font-medium text-gray-400 uppercase tracking-wider">Veículos Ativos</p>
-        <p class="text-2xl font-bold text-white mt-1">42</p>
+    <!-- Card 1: Veículos Ativos -->
+    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-semibold text-slate-500">Veículos ativos</span>
+        <div class="p-2.5 bg-emerald-100 text-emerald-600 rounded-full">
+          <svg lucideTruck class="size-5"></svg>
+        </div>
       </div>
-      <div class="p-3 bg-emerald-500/10 text-emerald-400 rounded-lg">
-        <svg lucideTruck></svg>
+      <div class="mt-2">
+        <span class="text-3xl font-bold text-slate-900">42</span>
       </div>
-    </div>
-
-    <!-- Card 2 -->
-    <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex items-center justify-between">
-      <div>
-        <p class="text-xs font-medium text-gray-400 uppercase tracking-wider">Motoristas</p>
-        <p class="text-2xl font-bold text-white mt-1">38</p>
-      </div>
-      <div class="p-3 bg-blue-500/10 text-blue-400 rounded-lg">
-        <svg lucideUsers></svg>
+      <div class="mt-4 text-xs font-medium text-emerald-600 flex items-center gap-1">
+        <span>↑ 3 desde o mês passado</span>
       </div>
     </div>
 
-    <!-- Card 3 -->
-    <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex items-center justify-between">
-      <div>
-        <p class="text-xs font-medium text-gray-400 uppercase tracking-wider">Em Manutenção</p>
-        <p class="text-2xl font-bold text-amber-400 mt-1">4</p>
+    <!-- Card 2: Disponíveis -->
+    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-semibold text-slate-500">Disponíveis</span>
+        <div class="p-2.5 bg-emerald-100 text-emerald-600 rounded-full">
+          <svg lucideCheckCircle2 class="size-5"></svg>
+        </div>
       </div>
-      <div class="p-3 bg-amber-500/10 text-amber-400 rounded-lg">
-        <svg lucideWrench></svg>
+      <div class="mt-2">
+        <span class="text-3xl font-bold text-slate-900">31</span>
+      </div>
+      <div class="mt-4 text-xs font-medium text-slate-400">
+        73% da frota
       </div>
     </div>
 
-    <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex items-center justify-between">
-      <div>
-        <p class="text-xs font-medium text-gray-400 uppercase tracking-wider">Eficiência</p>
-        <p class="text-2xl font-bold text-white mt-1">94.2%</p>
+    <!-- Card 3: Em Manutenção -->
+    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-semibold text-slate-500">Em manutenção</span>
+        <div class="p-2.5 bg-amber-100 text-amber-600 rounded-full">
+          <svg lucideWrench class="size-5"></svg>
+        </div>
       </div>
-      <div class="p-3 bg-indigo-500/10 text-indigo-400 rounded-lg">
-        <svg lucideTrendingUp></svg>
+      <div class="mt-2">
+        <span class="text-3xl font-bold text-slate-900">6</span>
+      </div>
+      <div class="mt-4 text-xs font-medium text-amber-600">
+        14% da frota
+      </div>
+    </div>
+
+    <!-- Card 4: Indisponíveis -->
+    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-semibold text-slate-500">Indisponíveis</span>
+        <div class="p-2.5 bg-rose-100 text-rose-600 rounded-full">
+          <svg lucideXCircle class="size-5"></svg>
+        </div>
+      </div>
+      <div class="mt-2">
+        <span class="text-3xl font-bold text-slate-900">5</span>
+      </div>
+      <div class="mt-4 text-xs font-medium text-rose-600">
+        13% da frota
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. GRID INTERMEDIÁRIO: EXPIRAÇÕES PRÓXIMAS & STATUS DA FROTA -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Bloco 1: Expirações Próximas -->
+    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+      <div>
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-base font-bold text-slate-800">Expirações próximas</h2>
+          <a href="#" class="text-xs font-medium text-emerald-600 hover:underline">Ver todas</a>
+        </div>
+
+        <div class="space-y-3">
+          <!-- Item 1: CNH Vencida -->
+          <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
+            <div class="flex items-center gap-3">
+              <div class="p-2 bg-rose-100 text-rose-600 rounded-lg">
+                <svg lucideAlertTriangle class="size-5"></svg>
+              </div>
+              <div>
+                <p class="text-xs font-bold text-slate-800">CNH vencida</p>
+                <p class="text-xs text-slate-500">João da Silva</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <span class="text-[11px] font-semibold text-rose-600 block">Vencida há 4 dias</span>
+              <span class="text-[11px] text-slate-400">28/08/2026</span>
+            </div>
+          </div>
+
+          <!-- Item 2: CRLV -->
+          <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
+            <div class="flex items-center gap-3">
+              <div class="p-2 bg-amber-100 text-amber-600 rounded-lg">
+                <svg lucideFileText class="size-5"></svg>
+              </div>
+              <div>
+                <p class="text-xs font-bold text-slate-800">CRLV</p>
+                <p class="text-xs text-slate-500">Toyota Corolla - ABC-1234</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <span class="text-[11px] font-semibold text-amber-600 block">Em 12 dias</span>
+              <span class="text-[11px] text-slate-400">13/09/2026</span>
+            </div>
+          </div>
+
+          <!-- Item 3: Seguro -->
+          <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
+            <div class="flex items-center gap-3">
+              <div class="p-2 bg-amber-100 text-amber-600 rounded-lg">
+                <svg lucideShieldAlert class="size-5"></svg>
+              </div>
+              <div>
+                <p class="text-xs font-bold text-slate-800">Seguro</p>
+                <p class="text-xs text-slate-500">Ford Ranger - XYZ-9876</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <span class="text-[11px] font-semibold text-amber-600 block">Em 27 dias</span>
+              <span class="text-[11px] text-slate-400">28/09/2026</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-6 pt-3 border-t border-slate-100 text-[11px] text-slate-400 flex items-center gap-2">
+        <span class="font-semibold text-rose-600">3 vencidas</span>
+        <span>•</span>
+        <span>7 vencem em 30 dias</span>
+        <span>•</span>
+        <span>12 vencem em 90 dias</span>
+      </div>
+    </div>
+
+    <!-- Bloco 2: Status da Frota (Gráfico Simulado CSS) -->
+    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+      <div>
+        <h2 class="text-base font-bold text-slate-800 mb-6">Status da frota</h2>
+
+        <div class="flex flex-col sm:flex-row items-center justify-around gap-6">
+          <!-- Gráfico de Rosca em CSS Puro -->
+          <div class="relative size-40 flex items-center justify-center">
+            <div
+              class="size-full rounded-full"
+              style="background: conic-gradient(#22c55e 0% 73%, #f59e0b 73% 87%, #ef4444 87% 100%);"
+            ></div>
+            <div class="absolute size-28 bg-white rounded-full flex flex-col items-center justify-center">
+              <span class="text-2xl font-bold text-slate-800">42</span>
+              <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Veículos</span>
+            </div>
+          </div>
+
+          <!-- Legenda -->
+          <div class="space-y-3 text-xs w-full sm:w-auto">
+            <div class="flex items-center justify-between sm:justify-start gap-4">
+              <div class="flex items-center gap-2">
+                <span class="size-2.5 rounded-full bg-emerald-500"></span>
+                <span class="text-slate-600">Disponíveis</span>
+              </div>
+              <span class="font-bold text-slate-800">73% (31)</span>
+            </div>
+
+            <div class="flex items-center justify-between sm:justify-start gap-4">
+              <div class="flex items-center gap-2">
+                <span class="size-2.5 rounded-full bg-amber-500"></span>
+                <span class="text-slate-600">Em manutenção</span>
+              </div>
+              <span class="font-bold text-slate-800">14% (6)</span>
+            </div>
+
+            <div class="flex items-center justify-between sm:justify-start gap-4">
+              <div class="flex items-center gap-2">
+                <span class="size-2.5 rounded-full bg-rose-500"></span>
+                <span class="text-slate-600">Indisponíveis</span>
+              </div>
+              <span class="font-bold text-slate-800">13% (5)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-6 pt-3 border-t border-slate-100 text-[11px] text-slate-400 text-right">
+        Total: 42 veículos
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. GRID INFERIOR: VIAGENS EM ANDAMENTO & ALERTAS RECENTES -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Tabela de Viagens em Andamento (Ocupa 2 colunas no desktop) -->
+    <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-base font-bold text-slate-800">Viagens em andamento</h2>
+        <a href="#" class="text-xs font-medium text-emerald-600 hover:underline">Ver todas</a>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <thead>
+            <tr class="border-b border-slate-100 text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
+              <th class="py-3 px-2">Motorista</th>
+              <th class="py-3 px-2">Veículo</th>
+              <th class="py-3 px-2">Trajeto</th>
+              <th class="py-3 px-2">Status</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            <!-- Linha 1 -->
+            <tr>
+              <td class="py-3 px-2 font-medium text-slate-800 flex items-center gap-2">
+                <div class="size-7 rounded-full bg-slate-200 text-slate-700 font-bold flex items-center justify-center text-[10px]">
+                  JS
+                </div>
+                João da Silva
+              </td>
+              <td class="py-3 px-2 text-slate-600">Corolla<br><span class="text-[10px] text-slate-400">ABC-1234</span></td>
+              <td class="py-3 px-2 text-slate-600">Castanhal → Belém<br><span class="text-[10px] text-slate-400">Início: 08:15</span></td>
+              <td class="py-3 px-2">
+                <span class="px-2 py-1 rounded-md bg-emerald-100 text-emerald-700 text-[10px] font-semibold">Em andamento</span>
+              </td>
+            </tr>
+
+            <!-- Linha 2 -->
+            <tr>
+              <td class="py-3 px-2 font-medium text-slate-800 flex items-center gap-2">
+                <div class="size-7 rounded-full bg-slate-200 text-slate-700 font-bold flex items-center justify-center text-[10px]">
+                  CS
+                </div>
+                Carlos Souza
+              </td>
+              <td class="py-3 px-2 text-slate-600">Hilux<br><span class="text-[10px] text-slate-400">DEF-5678</span></td>
+              <td class="py-3 px-2 text-slate-600">Belém → Ananindeua<br><span class="text-[10px] text-slate-400">Início: 09:30</span></td>
+              <td class="py-3 px-2">
+                <span class="px-2 py-1 rounded-md bg-emerald-100 text-emerald-700 text-[10px] font-semibold">Em andamento</span>
+              </td>
+            </tr>
+
+            <!-- Linha 3 -->
+            <tr>
+              <td class="py-3 px-2 font-medium text-slate-800 flex items-center gap-2">
+                <div class="size-7 rounded-full bg-slate-200 text-slate-700 font-bold flex items-center justify-center text-[10px]">
+                  ML
+                </div>
+                Marcos Lima
+              </td>
+              <td class="py-3 px-2 text-slate-600">Ducato<br><span class="text-[10px] text-slate-400">GHI-9012</span></td>
+              <td class="py-3 px-2 text-slate-600">Belém → Castanhal<br><span class="text-[10px] text-slate-400">Início: 10:45</span></td>
+              <td class="py-3 px-2">
+                <span class="px-2 py-1 rounded-md bg-blue-100 text-blue-700 text-[10px] font-semibold">Programada</span>
+              </td>
+            </tr>
+
+            <!-- Linha 4 -->
+            <tr>
+              <td class="py-3 px-2 font-medium text-slate-800 flex items-center gap-2">
+                <div class="size-7 rounded-full bg-slate-200 text-slate-700 font-bold flex items-center justify-center text-[10px]">
+                  PM
+                </div>
+                Paulo Mendes
+              </td>
+              <td class="py-3 px-2 text-slate-600">Ranger<br><span class="text-[10px] text-slate-400">JKL-3456</span></td>
+              <td class="py-3 px-2 text-slate-600">Ananindeua → Belém<br><span class="text-[10px] text-slate-400">Início: 11:00</span></td>
+              <td class="py-3 px-2">
+                <span class="px-2 py-1 rounded-md bg-blue-100 text-blue-700 text-[10px] font-semibold">Programada</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Lista de Alertas Recentes -->
+    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+      <div>
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-base font-bold text-slate-800">Alertas recentes</h2>
+          <a href="#" class="text-xs font-medium text-emerald-600 hover:underline">Ver todos</a>
+        </div>
+
+        <div class="space-y-4">
+          <!-- Alerta 1 -->
+          <div class="flex items-start gap-3">
+            <div class="p-2 bg-rose-100 text-rose-600 rounded-lg shrink-0 mt-0.5">
+              <svg lucideAlertTriangle class="size-4"></svg>
+            </div>
+            <div class="flex-1">
+              <div class="flex items-center justify-between">
+                <p class="text-xs font-bold text-slate-800">CNH vencida</p>
+                <span class="text-[10px] text-slate-400">Há 4 dias</span>
+              </div>
+              <p class="text-xs text-slate-500">João da Silva</p>
+            </div>
+          </div>
+
+          <!-- Alerta 2 -->
+          <div class="flex items-start gap-3">
+            <div class="p-2 bg-amber-100 text-amber-600 rounded-lg shrink-0 mt-0.5">
+              <svg lucideWrench class="size-4"></svg>
+            </div>
+            <div class="flex-1">
+              <div class="flex items-center justify-between">
+                <p class="text-xs font-bold text-slate-800">Manutenção preventiva</p>
+                <span class="text-[10px] text-slate-400">Em 12 dias</span>
+              </div>
+              <p class="text-xs text-slate-500">Corolla ABC-1234</p>
+            </div>
+          </div>
+
+          <!-- Alerta 3 -->
+          <div class="flex items-start gap-3">
+            <div class="p-2 bg-amber-100 text-amber-600 rounded-lg shrink-0 mt-0.5">
+              <svg lucideShieldAlert class="size-4"></svg>
+            </div>
+            <div class="flex-1">
+              <div class="flex items-center justify-between">
+                <p class="text-xs font-bold text-slate-800">Seguro vencendo</p>
+                <span class="text-[10px] text-slate-400">Em 27 dias</span>
+              </div>
+              <p class="text-xs text-slate-500">Ranger XYZ-9876</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-6 pt-3 border-t border-slate-100 text-center">
+        <a href="#" class="text-xs font-medium text-emerald-600 hover:underline">Ver todos os alertas</a>
       </div>
     </div>
   </div>
