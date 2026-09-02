@@ -24,13 +24,13 @@ export const routes: Routes = [
         path: 'dashboard',
         loadComponent: () =>
           import('./presentation/dashboard/dashboard').then((m) => m.DashboardComponent)
+      },
+      {
+        path: 'veiculos',
+        loadComponent: () =>
+          import('./presentation/vehicles/vehicle-list').then((m) => m.VehicleListComponent)
       }
     ]
-  },
-  {
-    path: 'veiculos',
-    loadComponent: () =>
-      import('./presentation/vehicles/vehicle-list').then((m) => m.VehicleListComponent)
   },
   {
     path: '**',
