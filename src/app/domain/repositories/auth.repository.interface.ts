@@ -4,8 +4,9 @@ import { AuthResponse, CreateUserDTO, LoginCredentials, RegisterUserDTO, UpdateP
 
 export abstract class IAuthRepository {
   abstract login(credentials: LoginCredentials): Observable<AuthResponse>;
+  abstract refresh(): Observable<AuthResponse>;
   abstract register(user: RegisterUserDTO): Observable<User>;
-  abstract logout(): void;
+  abstract logout(): Observable<void>;
   abstract getCurrentUser(): Observable<User | null>;
   abstract isAuthenticated(): boolean;
   abstract getToken(): string | null;
@@ -15,3 +16,4 @@ export abstract class IAuthRepository {
   abstract createUser(user: CreateUserDTO): Observable<User>;
   abstract toggleUserStatus(id: string, active: boolean): Observable<User>;
 }
+

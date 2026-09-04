@@ -1,14 +1,16 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
+import { IAuthRepository } from '../../domain/repositories/auth.repository.interface';
 
 export const guestGuard: CanActivateFn = (route, state) => {
   const router = inject(Router);
-  const token = localStorage.getItem('access_token');
+  const authRepository = inject(IAuthRepository);
 
-  if (!token) {
+  if (!authRepository.isAuthenticated()) {
     return true;
   }
 
-  // Se já tiver token, redireciona para a dashboard
+  // Se já estiver autenticado, redireciona para a dashboard
   return router.createUrlTree(['/dashboard']);
 };
+

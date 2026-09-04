@@ -1,11 +1,13 @@
-import { ApplicationConfig, provideZonelessChangeDetection } from '@angular/core';
+import { ApplicationConfig, provideZonelessChangeDetection, provideAppInitializer, inject } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { firstValueFrom, of, catchError } from 'rxjs';
 import { routes } from './app.routes';
 import { tokenInterceptor } from './core/interceptors/token.interceptor';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
 import { IAuthRepository } from './domain/repositories/auth.repository.interface';
 import { HttpAuthRepository } from './core/adapters/http-auth.repository';
+import { AuthStateService } from './core/services/auth-state.service';
 import { IDashboardRepository } from './domain/repositories/dashboard.repository.interface';
 import { HttpDashboardRepository } from './core/adapters/http-dashboard.repository';
 import { IVehicleRepository } from './domain/repositories/vehicle.repository.interface';
@@ -29,6 +31,19 @@ export const appConfig: ApplicationConfig = {
     { provide: IDashboardRepository, useClass: HttpDashboardRepository },
     { provide: IVehicleRepository, useClass: HttpVehicleRepository },
     { provide: IDriverRepository, useClass: HttpDriverRepository },
-    { provide: ITripRepository, useClass: HttpTripRepository }
+    { provide: ITripRepository, useClass: HttpTripRepository },
+    provideAppInitializer(() => {
+      const authRepository = inject(IAuthRepository);
+      const authState = inject(AuthStateService);
+
+      return firstValueFrom(
+        authRepository.refresh().pipe(
+          catchError(() => of(null))
+        )
+      ).finally(() => {
+        authState.setInitialized();
+      });
+    })
   ]
 };
+

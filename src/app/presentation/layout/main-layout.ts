@@ -1,6 +1,7 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
+import { IAuthRepository } from '../../domain/repositories/auth.repository.interface';
 import {
   LucideTruck,
   LucideLayoutDashboard,
@@ -46,6 +47,9 @@ import {
   styleUrl: './main-layout.css'
 })
 export class MainLayoutComponent {
+  private readonly authRepository = inject(IAuthRepository);
+  private readonly router = inject(Router);
+
   sidebarOpen = signal(true);
 
   toggleSidebar(): void {
@@ -53,7 +57,10 @@ export class MainLayoutComponent {
   }
 
   logout(): void {
-    localStorage.removeItem('access_token');
-    window.location.href = '/login';
+    this.authRepository.logout().subscribe({
+      next: () => this.router.navigate(['/login']),
+      error: () => this.router.navigate(['/login'])
+    });
   }
 }
+
