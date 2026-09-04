@@ -25,6 +25,7 @@ export class HttpVehicleRepository implements IVehicleRepository {
   }
 
   create(vehicle: CreateVehicleDTO): Observable<Vehicle> {
+    console.log('Creating vehicle:', vehicle);
     return this.http.post<Vehicle>(this.apiUrl, vehicle);
   }
 

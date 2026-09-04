@@ -4,6 +4,7 @@ import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } 
 import { toSignal } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { IVehicleRepository } from '../../domain/repositories/vehicle.repository.interface';
+import { ToastService } from '../../core/services/toast.service';
 import { Vehicle } from '../../domain/models/vehicle.model';
 import {
   LucideTruck,
@@ -11,6 +12,7 @@ import {
   LucideSearch,
   LucideLoader2,
   LucideX,
+  LucideAlertCircle
 } from '@lucide/angular';
 
 @Component({
@@ -24,18 +26,21 @@ import {
     LucideSearch,
     LucideLoader2,
     LucideX,
+    LucideAlertCircle
   ],
   templateUrl: './vehicle-list.html',
   styleUrl: './vehicle-list.css'
 })
 export class VehicleListComponent implements OnInit {
   private readonly vehicleRepository = inject(IVehicleRepository);
+  private readonly toastService = inject(ToastService);
   private readonly fb = inject(FormBuilder);
 
   vehicles = signal<Vehicle[]>([]);
   loading = signal<boolean>(true);
   isModalOpen = signal<boolean>(false);
   isSaving = signal<boolean>(false);
+  errorMessage = signal<string | null>(null);
 
   // --- FILTROS E BUSCA REATIVA ---
   searchControl = new FormControl('', { nonNullable: true });
@@ -60,7 +65,7 @@ export class VehicleListComponent implements OnInit {
       const matchesSearch =
         vehicle.plate.toLowerCase().includes(term) ||
         vehicle.model.toLowerCase().includes(term) ||
-        vehicle.brand.toLowerCase().includes(term);
+        (vehicle.brand && vehicle.brand.toLowerCase().includes(term));
 
       const matchesStatus = status === 'ALL' || vehicle.status === status;
 
@@ -69,12 +74,15 @@ export class VehicleListComponent implements OnInit {
   });
 
   vehicleForm: FormGroup = this.fb.group({
-    plate: ['', [Validators.required, Validators.pattern(/^[A-Z]{3}-[0-9][A-Z0-9][0-9]{2}$/i)]],
+    plate: ['', [
+      Validators.required,
+      Validators.pattern(/^[A-Z]{3}-?[0-9][A-Z0-9][0-9]{2}$/i)
+    ]],
     brand: ['', [Validators.required]],
     model: ['', [Validators.required]],
-    year: [new Date().getFullYear(), [Validators.required, Validators.min(1990)]],
-    mileage: [0, [Validators.required, Validators.min(0)]],
-    crlvExpiration: ['', [Validators.required]]
+    year: [new Date().getFullYear(), [Validators.required, Validators.min(1900)]],
+    currentKm: [0, [Validators.required, Validators.min(0)]],
+    crlvExpiration: ['']
   });
 
   ngOnInit(): void {
@@ -88,7 +96,10 @@ export class VehicleListComponent implements OnInit {
         this.vehicles.set(data);
         this.loading.set(false);
       },
-      error: () => this.loading.set(false)
+      error: (err) => {
+        this.loading.set(false);
+        this.toastService.error('Erro ao carregar lista de veículos.');
+      }
     });
   }
 
@@ -97,17 +108,22 @@ export class VehicleListComponent implements OnInit {
   }
 
   openModal(): void {
-    this.vehicleForm.reset({ year: new Date().getFullYear(), mileage: 0 });
+    this.errorMessage.set(null);
+    this.vehicleForm.reset({ year: new Date().getFullYear(), currentKm: 0, crlvExpiration: '' });
     this.isModalOpen.set(true);
   }
 
   closeModal(): void {
     this.isModalOpen.set(false);
+    this.errorMessage.set(null);
   }
 
   saveVehicle(): void {
+    this.errorMessage.set(null);
+
     if (this.vehicleForm.invalid) {
       this.vehicleForm.markAllAsTouched();
+      this.toastService.error('Por favor, preencha todos os campos obrigatórios corretamente.');
       return;
     }
 
@@ -118,9 +134,19 @@ export class VehicleListComponent implements OnInit {
       next: (newVehicle) => {
         this.vehicles.update((list) => [newVehicle, ...list]);
         this.isSaving.set(false);
+        this.toastService.success('Veículo cadastrado com sucesso!');
         this.closeModal();
       },
-      error: () => this.isSaving.set(false)
+      error: (err) => {
+        this.isSaving.set(false);
+        let msg = 'Erro ao cadastrar veículo. Verifique os dados informados.';
+        if (err.error?.message) {
+          msg = Array.isArray(err.error.message) ? err.error.message.join(', ') : err.error.message;
+        }
+        this.errorMessage.set(msg);
+        this.toastService.error(`Veículo não cadastrado: ${msg}`);
+      }
     });
   }
 }
+

@@ -94,7 +94,7 @@
                   <div class="text-slate-500 text-[11px]">{{ vehicle.brand }} {{ vehicle.model }}</div>
                 </td>
                 <td class="py-3.5 px-4 text-slate-600">{{ vehicle.year }}</td>
-                <td class="py-3.5 px-4 text-slate-600 font-mono">{{ vehicle.mileage | number }} km</td>
+                <td class="py-3.5 px-4 text-slate-600 font-mono">{{ vehicle.currentKm | number }} km</td>
                 <td class="py-3.5 px-4 text-slate-600">{{ vehicle.crlvExpiration }}</td>
                 <td class="py-3.5 px-4">
                   <span
@@ -131,71 +131,136 @@
           <svg lucideTruck class="size-5 text-emerald-600"></svg>
           Cadastrar Novo Veículo
         </h2>
-        <button (click)="closeModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg">
+        <button (click)="closeModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg transition-colors">
           <svg lucideX class="size-5"></svg>
         </button>
       </div>
 
       <form [formGroup]="vehicleForm" (ngSubmit)="saveVehicle()" class="p-6 space-y-4">
+        @if (errorMessage()) {
+          <div class="p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-start gap-2 text-rose-800 text-xs">
+            <svg lucideAlertCircle class="size-4 text-rose-600 shrink-0 mt-0.5"></svg>
+            <div class="flex-1">
+              <span class="font-semibold">Erro no cadastro:</span> {{ errorMessage() }}
+            </div>
+          </div>
+        }
+
         <div class="grid grid-cols-2 gap-4">
+          <!-- Placa -->
           <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">Placa</label>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">
+              Placa <span class="text-rose-500">*</span>
+            </label>
             <input
               type="text"
               formControlName="plate"
-              placeholder="ABC-1234"
-              class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 uppercase focus:outline-none focus:border-emerald-500"
+              placeholder="ABC-1234 ou ABC1D23"
+              class="w-full bg-slate-50 border rounded-lg px-3 py-2 text-xs text-slate-800 uppercase focus:outline-none focus:border-emerald-500 transition-colors"
+              [class.border-rose-400]="vehicleForm.get('plate')?.invalid && vehicleForm.get('plate')?.touched"
+              [class.bg-rose-50]="vehicleForm.get('plate')?.invalid && vehicleForm.get('plate')?.touched"
+              [class.border-slate-200]="!(vehicleForm.get('plate')?.invalid && vehicleForm.get('plate')?.touched)"
             />
+            @if (vehicleForm.get('plate')?.touched && vehicleForm.get('plate')?.errors?.['required']) {
+              <p class="text-[10px] text-rose-500 mt-1 font-medium">Campo obrigatório.</p>
+            } @else if (vehicleForm.get('plate')?.touched && vehicleForm.get('plate')?.errors?.['pattern']) {
+              <p class="text-[10px] text-rose-500 mt-1 font-medium">Formato inválido. Use ABC1234 ou ABC-1234.</p>
+            }
           </div>
 
+          <!-- Ano -->
           <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">Ano</label>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">
+              Ano de Fabricação <span class="text-rose-500">*</span>
+            </label>
             <input
               type="number"
               formControlName="year"
-              class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-emerald-500"
+              placeholder="2024"
+              class="w-full bg-slate-50 border rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 transition-colors"
+              [class.border-rose-400]="vehicleForm.get('year')?.invalid && vehicleForm.get('year')?.touched"
+              [class.bg-rose-50]="vehicleForm.get('year')?.invalid && vehicleForm.get('year')?.touched"
+              [class.border-slate-200]="!(vehicleForm.get('year')?.invalid && vehicleForm.get('year')?.touched)"
             />
+            @if (vehicleForm.get('year')?.touched && vehicleForm.get('year')?.errors?.['required']) {
+              <p class="text-[10px] text-rose-500 mt-1 font-medium">Campo obrigatório.</p>
+            } @else if (vehicleForm.get('year')?.touched && vehicleForm.get('year')?.errors?.['min']) {
+              <p class="text-[10px] text-rose-500 mt-1 font-medium">Ano deve ser maior que 1900.</p>
+            }
           </div>
         </div>
 
         <div class="grid grid-cols-2 gap-4">
+          <!-- Marca -->
           <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">Marca</label>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">
+              Marca <span class="text-rose-500">*</span>
+            </label>
             <input
               type="text"
               formControlName="brand"
-              placeholder="Ex: Toyota"
-              class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-emerald-500"
+              placeholder="Ex: Scania, Volvo, Ford"
+              class="w-full bg-slate-50 border rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 transition-colors"
+              [class.border-rose-400]="vehicleForm.get('brand')?.invalid && vehicleForm.get('brand')?.touched"
+              [class.bg-rose-50]="vehicleForm.get('brand')?.invalid && vehicleForm.get('brand')?.touched"
+              [class.border-slate-200]="!(vehicleForm.get('brand')?.invalid && vehicleForm.get('brand')?.touched)"
             />
+            @if (vehicleForm.get('brand')?.touched && vehicleForm.get('brand')?.errors?.['required']) {
+              <p class="text-[10px] text-rose-500 mt-1 font-medium">Campo obrigatório.</p>
+            }
           </div>
 
+          <!-- Modelo -->
           <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">Modelo</label>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">
+              Modelo <span class="text-rose-500">*</span>
+            </label>
             <input
               type="text"
               formControlName="model"
-              placeholder="Ex: Corolla"
-              class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-emerald-500"
+              placeholder="Ex: R 450, FH 540, Cargo"
+              class="w-full bg-slate-50 border rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 transition-colors"
+              [class.border-rose-400]="vehicleForm.get('model')?.invalid && vehicleForm.get('model')?.touched"
+              [class.bg-rose-50]="vehicleForm.get('model')?.invalid && vehicleForm.get('model')?.touched"
+              [class.border-slate-200]="!(vehicleForm.get('model')?.invalid && vehicleForm.get('model')?.touched)"
             />
+            @if (vehicleForm.get('model')?.touched && vehicleForm.get('model')?.errors?.['required']) {
+              <p class="text-[10px] text-rose-500 mt-1 font-medium">Campo obrigatório.</p>
+            }
           </div>
         </div>
 
         <div class="grid grid-cols-2 gap-4">
+          <!-- Quilometragem Inicial -->
           <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">Quilometragem Inicial</label>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">
+              KM Inicial <span class="text-rose-500">*</span>
+            </label>
             <input
               type="number"
-              formControlName="mileage"
-              class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-emerald-500"
+              formControlName="currentKm"
+              placeholder="0"
+              class="w-full bg-slate-50 border rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 transition-colors"
+              [class.border-rose-400]="vehicleForm.get('currentKm')?.invalid && vehicleForm.get('currentKm')?.touched"
+              [class.bg-rose-50]="vehicleForm.get('currentKm')?.invalid && vehicleForm.get('currentKm')?.touched"
+              [class.border-slate-200]="!(vehicleForm.get('currentKm')?.invalid && vehicleForm.get('currentKm')?.touched)"
             />
+            @if (vehicleForm.get('currentKm')?.touched && vehicleForm.get('currentKm')?.errors?.['required']) {
+              <p class="text-[10px] text-rose-500 mt-1 font-medium">Campo obrigatório.</p>
+            } @else if (vehicleForm.get('currentKm')?.touched && vehicleForm.get('currentKm')?.errors?.['min']) {
+              <p class="text-[10px] text-rose-500 mt-1 font-medium">KM não pode ser negativo.</p>
+            }
           </div>
 
+          <!-- Vencimento CRLV -->
           <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">Vencimento CRLV</label>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">
+              Vencimento CRLV
+            </label>
             <input
               type="date"
               formControlName="crlvExpiration"
-              class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-emerald-500"
+              class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 transition-colors"
             />
           </div>
         </div>
@@ -223,3 +288,4 @@
     </div>
   </div>
 }
+

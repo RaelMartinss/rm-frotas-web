@@ -4,6 +4,7 @@ import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } 
 import { toSignal } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { IAuthRepository } from '../../../domain/repositories/auth.repository.interface';
+import { ToastService } from '../../../core/services/toast.service';
 import { User, UserRole } from '../../../domain/models/auth.model';
 import {
   LucideUsers,
@@ -13,7 +14,8 @@ import {
   LucideX,
   LucideCheckCircle2,
   LucideXCircle,
-  LucideShieldAlert
+  LucideShieldAlert,
+  LucideAlertCircle
 } from '@lucide/angular';
 
 @Component({
@@ -28,18 +30,21 @@ import {
     LucideX,
     LucideCheckCircle2,
     LucideXCircle,
-    LucideShieldAlert
+    LucideShieldAlert,
+    LucideAlertCircle
   ],
   templateUrl: './user-list.html'
 })
 export class UserListComponent implements OnInit {
   private readonly authRepository = inject(IAuthRepository);
+  private readonly toastService = inject(ToastService);
   private readonly fb = inject(FormBuilder);
 
   users = signal<User[]>([]);
   loading = signal<boolean>(true);
   isModalOpen = signal<boolean>(false);
   isSaving = signal<boolean>(false);
+  errorMessage = signal<string | null>(null);
 
   // Busca e Filtros Reativos
   searchControl = new FormControl('', { nonNullable: true });
@@ -86,7 +91,10 @@ export class UserListComponent implements OnInit {
         this.users.set(data);
         this.loading.set(false);
       },
-      error: () => this.loading.set(false)
+      error: () => {
+        this.loading.set(false);
+        this.toastService.error('Erro ao carregar lista de usuários.');
+      }
     });
   }
 
@@ -95,17 +103,22 @@ export class UserListComponent implements OnInit {
   }
 
   openModal(): void {
+    this.errorMessage.set(null);
     this.userForm.reset({ role: 'OPERATOR' });
     this.isModalOpen.set(true);
   }
 
   closeModal(): void {
     this.isModalOpen.set(false);
+    this.errorMessage.set(null);
   }
 
   saveUser(): void {
+    this.errorMessage.set(null);
+
     if (this.userForm.invalid) {
       this.userForm.markAllAsTouched();
+      this.toastService.error('Por favor, preencha todos os campos obrigatórios corretamente.');
       return;
     }
 
@@ -114,9 +127,18 @@ export class UserListComponent implements OnInit {
       next: (newUser) => {
         this.users.update((list) => [newUser, ...list]);
         this.isSaving.set(false);
+        this.toastService.success('Usuário cadastrado com sucesso!');
         this.closeModal();
       },
-      error: () => this.isSaving.set(false)
+      error: (err) => {
+        this.isSaving.set(false);
+        let reason = 'Verifique os dados informados.';
+        if (err.error?.message) {
+          reason = Array.isArray(err.error.message) ? err.error.message.join(', ') : err.error.message;
+        }
+        this.errorMessage.set(reason);
+        this.toastService.error(`Usuário não cadastrado. Motivo: ${reason}`);
+      }
     });
   }
 
@@ -127,7 +149,12 @@ export class UserListComponent implements OnInit {
         this.users.update((list) =>
           list.map((u) => (u.id === updatedUser.id ? updatedUser : u))
         );
+        this.toastService.success(updatedUser.isActive ? 'Usuário ativado com sucesso!' : 'Usuário desativado com sucesso!');
+      },
+      error: () => {
+        this.toastService.error('Erro ao alterar status do usuário.');
       }
     });
   }
 }
+
