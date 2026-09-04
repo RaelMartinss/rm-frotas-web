@@ -39,11 +39,10 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
             catchError((refreshErr) => {
               authState.isRefreshing = false;
               authState.clear();
-              router.navigate(['/login'], {
-                queryParams: { expired: 'true' },
-              });
+              router.navigate(['/login']);
               return throwError(() => refreshErr);
             })
+
           );
         } else {
           // Já existe um refresh em andamento: aguarda a conclusão e reenvia
