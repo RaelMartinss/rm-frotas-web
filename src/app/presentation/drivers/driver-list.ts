@@ -75,7 +75,20 @@ export class DriverListComponent implements OnInit {
     this.isModalOpen.set(false);
   }
 
+  getCnhNumber(driver: Driver): string {
+    return driver.cnh?.number || driver.cnhNumber || '-';
+  }
+
+  getCnhCategory(driver: Driver): string {
+    return driver.cnh?.category || driver.cnhCategory || '-';
+  }
+
+  getCnhExpiration(driver: Driver): string {
+    return driver.cnh?.expirationDate || driver.cnhExpiration || '';
+  }
+
   isCnhExpired(expirationDateStr: string): boolean {
+    if (!expirationDateStr) return false;
     const expirationDate = new Date(expirationDateStr);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -83,12 +96,65 @@ export class DriverListComponent implements OnInit {
   }
 
   isCnhExpiringSoon(expirationDateStr: string): boolean {
+    if (!expirationDateStr) return false;
     const expirationDate = new Date(expirationDateStr);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const diffTime = expirationDate.getTime() - today.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return diffDays >= 0 && diffDays <= 30;
+  }
+
+  getDriverStatusLabel(status: string): string {
+    switch (status) {
+      case 'ACTIVE':
+      case 'DISPONIVEL':
+        return 'Ativo';
+      case 'INACTIVE':
+      case 'FOLGA':
+        return 'Inativo';
+      case 'SUSPENDED':
+      case 'AFASTADO':
+        return 'Suspenso';
+      case 'EM_VIAGEM':
+        return 'Em viagem';
+      default:
+        return status || 'Ativo';
+    }
+  }
+
+  getDriverStatusClass(status: string): string {
+    switch (status) {
+      case 'ACTIVE':
+      case 'DISPONIVEL':
+        return 'bg-emerald-50 text-emerald-700 border-emerald-200/70';
+      case 'EM_VIAGEM':
+        return 'bg-blue-50 text-blue-700 border-blue-200/70';
+      case 'INACTIVE':
+      case 'FOLGA':
+        return 'bg-amber-50 text-amber-700 border-amber-200/70';
+      case 'SUSPENDED':
+      case 'AFASTADO':
+      default:
+        return 'bg-rose-50 text-rose-700 border-rose-200/70';
+    }
+  }
+
+  getDriverStatusDotClass(status: string): string {
+    switch (status) {
+      case 'ACTIVE':
+      case 'DISPONIVEL':
+        return 'bg-emerald-500';
+      case 'EM_VIAGEM':
+        return 'bg-blue-500';
+      case 'INACTIVE':
+      case 'FOLGA':
+        return 'bg-amber-500';
+      case 'SUSPENDED':
+      case 'AFASTADO':
+      default:
+        return 'bg-rose-500';
+    }
   }
 
   saveDriver(): void {
@@ -100,7 +166,16 @@ export class DriverListComponent implements OnInit {
     this.isSaving.set(true);
     const formValue = this.driverForm.value;
 
-    this.driverRepository.create(formValue).subscribe({
+    const payload = {
+      name: formValue.name,
+      cpf: formValue.cpf.replace(/\D/g, ''),
+      cnhNumber: formValue.cnhNumber,
+      cnhCategory: formValue.cnhCategory,
+      cnhExpirationDate: formValue.cnhExpiration,
+      phone: formValue.phone,
+    };
+
+    this.driverRepository.create(payload as any).subscribe({
       next: (newDriver) => {
         this.drivers.update((list) => [newDriver, ...list]);
         this.isSaving.set(false);

@@ -67,11 +67,70 @@ export class VehicleListComponent implements OnInit {
         vehicle.model.toLowerCase().includes(term) ||
         (vehicle.brand && vehicle.brand.toLowerCase().includes(term));
 
-      const matchesStatus = status === 'ALL' || vehicle.status === status;
+      let matchesStatus = status === 'ALL';
+      if (!matchesStatus) {
+        if (status === 'AVAILABLE') {
+          matchesStatus = vehicle.status === 'AVAILABLE' || vehicle.status === 'DISPONIVEL';
+        } else if (status === 'IN_USE') {
+          matchesStatus = vehicle.status === 'IN_USE' || vehicle.status === 'EM_VIAGEM';
+        } else if (status === 'IN_MAINTENANCE') {
+          matchesStatus = vehicle.status === 'IN_MAINTENANCE' || vehicle.status === 'MANUTENCAO';
+        } else {
+          matchesStatus = vehicle.status === status;
+        }
+      }
 
       return matchesSearch && matchesStatus;
     });
   });
+
+  getStatusLabel(status: string): string {
+    switch (status) {
+      case 'AVAILABLE':
+      case 'DISPONIVEL':
+        return 'Disponível';
+      case 'IN_USE':
+      case 'EM_VIAGEM':
+        return 'Em viagem';
+      case 'IN_MAINTENANCE':
+      case 'MANUTENCAO':
+        return 'Em manutenção';
+      default:
+        return status || 'Indisponível';
+    }
+  }
+
+  getStatusClass(status: string): string {
+    switch (status) {
+      case 'AVAILABLE':
+      case 'DISPONIVEL':
+        return 'bg-emerald-50 text-emerald-700 border-emerald-200/70';
+      case 'IN_USE':
+      case 'EM_VIAGEM':
+        return 'bg-blue-50 text-blue-700 border-blue-200/70';
+      case 'IN_MAINTENANCE':
+      case 'MANUTENCAO':
+        return 'bg-amber-50 text-amber-700 border-amber-200/70';
+      default:
+        return 'bg-rose-50 text-rose-700 border-rose-200/70';
+    }
+  }
+
+  getStatusDotClass(status: string): string {
+    switch (status) {
+      case 'AVAILABLE':
+      case 'DISPONIVEL':
+        return 'bg-emerald-500';
+      case 'IN_USE':
+      case 'EM_VIAGEM':
+        return 'bg-blue-500';
+      case 'IN_MAINTENANCE':
+      case 'MANUTENCAO':
+        return 'bg-amber-500';
+      default:
+        return 'bg-rose-500';
+    }
+  }
 
   vehicleForm: FormGroup = this.fb.group({
     plate: ['', [

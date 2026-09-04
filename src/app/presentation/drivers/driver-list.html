@@ -42,38 +42,34 @@
                 </td>
                 <td class="py-3.5 px-4 text-slate-600 flex items-center gap-1.5">
                   <svg lucidePhone class="size-3.5 text-slate-400"></svg>
-                  <span>{{ driver.phone }}</span>
+                  <span>{{ driver.phone || '-' }}</span>
                 </td>
                 <td class="py-3.5 px-4 text-slate-600">
-                  <span class="font-mono font-semibold text-slate-800">{{ driver.cnhNumber }}</span>
+                  <span class="font-mono font-semibold text-slate-800">{{ getCnhNumber(driver) }}</span>
                   <span class="ml-2 px-1.5 py-0.5 bg-slate-100 text-slate-700 font-bold rounded text-[10px]">
-                    Cat. {{ driver.cnhCategory }}
+                    Cat. {{ getCnhCategory(driver) }}
                   </span>
                 </td>
                 <td class="py-3.5 px-4">
                   <div class="flex items-center gap-1.5">
-                    @if (isCnhExpired(driver.cnhExpiration)) {
+                    @if (isCnhExpired(getCnhExpiration(driver))) {
                       <svg lucideAlertTriangle class="size-4 text-rose-500 shrink-0"></svg>
-                      <span class="font-semibold text-rose-600">{{ driver.cnhExpiration }} (Vencida)</span>
-                    } @else if (isCnhExpiringSoon(driver.cnhExpiration)) {
+                      <span class="font-semibold text-rose-600">{{ (getCnhExpiration(driver) | date:'dd/MM/yyyy') || '-' }} (Vencida)</span>
+                    } @else if (isCnhExpiringSoon(getCnhExpiration(driver))) {
                       <svg lucideAlertTriangle class="size-4 text-amber-500 shrink-0"></svg>
-                      <span class="font-semibold text-amber-600">{{ driver.cnhExpiration }} (Vence em breve)</span>
+                      <span class="font-semibold text-amber-600">{{ (getCnhExpiration(driver) | date:'dd/MM/yyyy') || '-' }} (Vence em breve)</span>
                     } @else {
-                      <span class="text-slate-600">{{ driver.cnhExpiration }}</span>
+                      <span class="text-slate-600">{{ (getCnhExpiration(driver) | date:'dd/MM/yyyy') || '-' }}</span>
                     }
                   </div>
                 </td>
                 <td class="py-3.5 px-4">
                   <span
-                    class="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider inline-flex items-center gap-1.5"
-                    [ngClass]="{
-                      'bg-emerald-100 text-emerald-700': driver.status === 'DISPONIVEL',
-                      'bg-blue-100 text-blue-700': driver.status === 'EM_VIAGEM',
-                      'bg-amber-100 text-amber-700': driver.status === 'FOLGA',
-                      'bg-rose-100 text-rose-700': driver.status === 'AFASTADO'
-                    }"
+                    class="px-2.5 py-1 rounded-full text-[11px] font-semibold inline-flex items-center gap-1.5 border shadow-2xs"
+                    [ngClass]="getDriverStatusClass(driver.status)"
                   >
-                    {{ driver.status }}
+                    <span class="size-1.5 rounded-full" [ngClass]="getDriverStatusDotClass(driver.status)"></span>
+                    {{ getDriverStatusLabel(driver.status) }}
                   </span>
                 </td>
               </tr>

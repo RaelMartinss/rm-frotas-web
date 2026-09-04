@@ -4,13 +4,17 @@ import { IDashboardRepository } from '../../domain/repositories/dashboard.reposi
 import { DashboardSummary } from '../../domain/models/dashboard.model';
 import {
   LucideTruck,
+  LucideCar,
+  LucideCheck,
   LucideCheckCircle2,
   LucideWrench,
   LucideXCircle,
+  LucideAlertCircle,
   LucideAlertTriangle,
   LucideFileText,
   LucideShieldAlert,
   LucideTrendingUp,
+  LucideArrowUp,
   LucideLoader2
 } from '@lucide/angular';
 
@@ -20,12 +24,17 @@ import {
   imports: [
     CommonModule,
     LucideTruck,
+    LucideCar,
+    LucideCheck,
     LucideCheckCircle2,
     LucideWrench,
     LucideXCircle,
+    LucideAlertCircle,
     LucideAlertTriangle,
     LucideFileText,
     LucideShieldAlert,
+    LucideTrendingUp,
+    LucideArrowUp,
     LucideLoader2
   ],
   templateUrl: './dashboard.html',

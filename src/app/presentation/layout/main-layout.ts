@@ -41,6 +41,7 @@ import {
     LucideSettings,
     LucideMenu,
     LucideSearch,
+    LucideChevronDown,
     LucideLogOut
   ],
   templateUrl: './main-layout.html',

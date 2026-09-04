@@ -1,126 +1,180 @@
-<div class="min-h-screen grid grid-cols-1 md:grid-cols-2 bg-brand-dark-bg font-sans antialiased">
-
-  <!-- Coluna Esquerda: Branding & Assets -->
-  <div class="hidden md:flex flex-col items-center justify-center p-12 lg:p-16 border-r border-gray-800">
-    <img src="assets/images/logo.png" alt="RM Frotas Logo" class="h-20 lg:h-24 mb-6">
-    <p class="text-3xl lg:text-4xl font-bold text-white text-center leading-tight">
-      Gestão inteligente da sua <span class="text-brand-green">frota</span>
-    </p>
-    <p class="text-brand-text-muted mt-4 text-center text-lg max-w-sm">
-      Controle, acompanhe e otimize sua operação com eficiência e segurança.
-    </p>
-
-    <div class="relative mt-12 w-full max-w-md">
-      <img src="assets/images/vehicles-login.png" alt="Caminhão e SUV" class="w-full h-auto">
-      <div class="absolute inset-0 bg-brand-green/20 blur-3xl rounded-full scale-125 -z-10"></div>
-    </div>
-
-    <p class="text-brand-text-muted mt-auto text-sm">
-      &copy; 2025 RM Frotas. Todos os direitos reservados.
-    </p>
+<div
+  class="min-h-screen w-full bg-[#040812] flex items-center justify-center p-4 sm:p-8 lg:p-12 xl:p-16 relative selection:bg-emerald-500 selection:text-white overflow-x-hidden"
+>
+  <!-- Imagem de Fundo Adaptável: redimensiona e se adapta em desktop/laptop, oculta em telas pequenas -->
+  <div class="hidden lg:block absolute inset-0 z-0 overflow-hidden pointer-events-none">
+    <img
+      src="/images/login-bg.png"
+      alt="RM Frotas Background"
+      class="w-full h-full object-cover object-center select-none"
+    />
+    <div class="absolute inset-0 bg-black/10"></div>
   </div>
 
-  <!-- Coluna Direita: Formulário Card -->
-  <div class="flex items-center justify-center p-8 md:p-12 lg:p-16">
-    <div class="bg-white rounded-3xl shadow-2xl p-8 md:p-10 lg:p-12 w-full max-w-md">
+  <div class="relative z-10 w-full max-w-7xl min-h-[640px] flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-16 py-6 px-2 sm:px-6 lg:px-10">
 
-      <div class="text-center mb-10">
-        <div class="flex justify-center mb-3">
-          <span class="inline-flex items-center justify-center h-16 w-16 rounded-full bg-brand-green/10 border-4 border-white shadow-inner">
-            <svg class="h-8 w-8 text-brand-green" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-            </svg>
-          </span>
+    <!-- LADO ESQUERDO: Espaço reservado para visualização limpa do branding da imagem de fundo no desktop -->
+    <div class="hidden lg:block lg:w-1/2"></div>
+
+    <!-- Mobile Branding: Exibido em telas pequenas onde a imagem de fundo é desativada -->
+    <div class="lg:hidden flex flex-col items-center text-center text-white mb-4">
+      <img
+        src="/images/logo.png"
+        alt="RM Frotas"
+        class="h-12 w-auto object-contain drop-shadow-md mb-3"
+      />
+      <h1 class="text-2xl font-extrabold tracking-tight">
+        Gestão inteligente da sua <span class="text-emerald-500 font-black">frota</span>
+      </h1>
+      <p class="text-slate-400 text-xs mt-1 max-w-xs leading-relaxed">
+        Controle, acompanhe e otimize sua operação com eficiência e segurança.
+      </p>
+    </div>
+
+    <!-- LADO DIREITO: CARD DE LOGIN (Fiel ao Protótipo) -->
+    <div class="w-full lg:w-auto flex justify-center lg:justify-end lg:pr-2 xl:pr-6">
+      <div
+        class="bg-white rounded-[28px] shadow-[0_25px_60px_-15px_rgba(0,0,0,0.65),0_12px_28px_-8px_rgba(0,0,0,0.35)] p-8 sm:p-10 w-full max-w-[440px] border border-slate-100 ring-1 ring-black/[0.04] animate-in fade-in zoom-in-95 duration-200"
+      >
+
+        <!-- Títulos do Card -->
+        <div class="text-center mb-7">
+          <h2 class="text-2xl font-extrabold text-slate-900 tracking-tight">Acesse sua conta</h2>
+          <p class="text-xs text-slate-500 mt-1.5 font-normal">
+            Entre para gerenciar sua frota com mais eficiência
+          </p>
         </div>
-        <h1 class="text-3xl font-extrabold text-brand-text-main">Acesse sua conta</h1>
-        <p class="text-brand-text-muted mt-2">
-          Entre para gerenciar sua frota com mais eficiência
-        </p>
-      </div>
 
-      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-6">
-
-        <div *ngIf="loginError()" class="bg-red-50 border border-red-300 text-red-700 p-4 rounded-xl text-sm font-medium">
-          {{ loginError() }}
-        </div>
-
-        <div>
-          <label for="email" class="block text-sm font-medium text-brand-text-muted mb-1.5">E-mail</label>
-          <div class="relative">
-            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <svg lucideMail [size]="16"></svg>
-            </div>
-            <input type="email" id="email" formControlName="email"
-              placeholder="seu@email.com"
-              class="w-full pl-11 pr-4 py-3 border border-brand-border rounded-xl focus:ring-2 focus:ring-brand-green focus:border-brand-green transition-all"
-              [ngClass]="{'border-red-500 focus:ring-red-300': f['email'].touched && f['email'].invalid}"
-            >
+        <!-- Mensagem de Erro de Login -->
+        @if (loginError()) {
+          <div class="mb-5 p-3.5 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-xs font-medium leading-relaxed">
+            {{ loginError() }}
           </div>
-          <p *ngIf="f['email'].touched && f['email'].hasError('required')" class="text-red-600 text-xs mt-1">E-mail é obrigatório.</p>
-          <p *ngIf="f['email'].touched && f['email'].hasError('email')" class="text-red-600 text-xs mt-1">Insira um e-mail válido.</p>
-        </div>
+        }
 
-        <div>
-          <label for="password" class="block text-sm font-medium text-brand-text-muted mb-1.5">Senha</label>
-          <div class="relative">
-            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <svg lucideLock [size]="16"></svg>
+        <!-- Formulário -->
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-4">
+          <!-- Campo E-mail -->
+          <div>
+            <label for="email" class="block text-xs font-semibold text-slate-700 mb-1.5">
+              E-mail
+            </label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                <svg lucideMail class="size-4"></svg>
+              </div>
+              <input
+                type="email"
+                id="email"
+                formControlName="email"
+                placeholder="seu@email.com"
+                class="w-full pl-10 pr-3.5 py-2.5 bg-white border rounded-xl text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 transition-all"
+                [class.border-rose-400]="f['email'].touched && f['email'].invalid"
+                [class.border-slate-200]="!(f['email'].touched && f['email'].invalid)"
+              />
             </div>
-            <input [type]="showPassword() ? 'text' : 'password'" id="password" formControlName="password"
-              placeholder="Digite sua senha"
-              class="w-full pl-11 pr-12 py-3 border border-brand-border rounded-xl focus:ring-2 focus:ring-brand-green focus:border-brand-green transition-all"
-              [ngClass]="{'border-red-500 focus:ring-red-300': f['password'].touched && f['password'].invalid}"
+            @if (f['email'].touched && f['email'].hasError('required')) {
+              <p class="text-[10px] text-rose-500 mt-1 font-medium">E-mail é obrigatório.</p>
+            } @else if (f['email'].touched && f['email'].hasError('email')) {
+              <p class="text-[10px] text-rose-500 mt-1 font-medium">Insira um e-mail válido.</p>
+            }
+          </div>
+
+          <!-- Campo Senha -->
+          <div>
+            <label for="password" class="block text-xs font-semibold text-slate-700 mb-1.5">
+              Senha
+            </label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                <svg lucideLock class="size-4"></svg>
+              </div>
+              <input
+                [type]="showPassword() ? 'text' : 'password'"
+                id="password"
+                formControlName="password"
+                placeholder="Digite sua senha"
+                class="w-full pl-10 pr-12 py-2.5 bg-white border rounded-xl text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 transition-all"
+                [class.border-rose-400]="f['password'].touched && f['password'].invalid"
+                [class.border-slate-200]="!(f['password'].touched && f['password'].invalid)"
+              />
+              <button
+                type="button"
+                (click)="showPassword.set(!showPassword())"
+                class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-slate-800 focus:text-emerald-600 transition-colors cursor-pointer group"
+                tabindex="-1"
+                [title]="showPassword() ? 'Ocultar senha' : 'Exibir senha'"
+              >
+                <span class="p-1 rounded-md group-hover:bg-slate-100 transition-colors flex items-center justify-center">
+                  @if (!showPassword()) {
+                    <svg lucideEye class="size-4.5 stroke-[2.2] text-slate-500 group-hover:text-slate-800"></svg>
+                  } @else {
+                    <svg lucideEyeOff class="size-4.5 stroke-[2.2] text-emerald-600"></svg>
+                  }
+                </span>
+              </button>
+            </div>
+            @if (f['password'].touched && f['password'].hasError('required')) {
+              <p class="text-[10px] text-rose-500 mt-1 font-medium">Senha é obrigatória.</p>
+            } @else if (f['password'].touched && f['password'].hasError('minlength')) {
+              <p class="text-[10px] text-rose-500 mt-1 font-medium">A senha deve ter no mínimo 6 caracteres.</p>
+            }
+          </div>
+
+          <!-- Lembrar-me e Esqueci minha senha -->
+          <div class="flex items-center justify-between pt-1">
+            <label class="flex items-center gap-2 cursor-pointer text-xs text-slate-600 select-none">
+              <input
+                type="checkbox"
+                class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 size-3.5 cursor-pointer"
+              />
+              <span>Lembrar-me</span>
+            </label>
+            <a
+              href="#"
+              (click)="$event.preventDefault()"
+              class="text-xs font-semibold text-blue-600 hover:text-blue-700 hover:underline transition-colors"
             >
-            <button type="button" (click)="showPassword.set(!showPassword())"
-              class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600">
-              <svg lucideEye *ngIf="!showPassword()" [size]="16"></svg>
-              <svg lucideEyeOff *ngIf="showPassword()" [size]="16"></svg>
+              Esqueci minha senha
+            </a>
+          </div>
+
+          <!-- Botão Entrar -->
+          <div class="pt-3">
+            <button
+              type="submit"
+              [disabled]="isLoading()"
+              class="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold text-sm rounded-xl transition-all shadow-md shadow-emerald-600/20 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+            >
+              @if (isLoading()) {
+                <svg lucideLoader2 class="size-4 animate-spin"></svg>
+                <span>Autenticando...</span>
+              } @else {
+                <span>Entrar</span>
+              }
             </button>
           </div>
-          <p *ngIf="f['password'].touched && f['password'].hasError('required')" class="text-red-600 text-xs mt-1">Senha é obrigatória.</p>
-          <p *ngIf="f['password'].touched && f['password'].hasError('minlength')" class="text-red-600 text-xs mt-1">Mínimo de 6 caracteres.</p>
-        </div>
+        </form>
 
-        <div class="flex items-center justify-between">
-          <div class="flex items-center">
-            <input id="remember-me" name="remember-me" type="checkbox" class="h-4 w-4 text-brand-green focus:ring-brand-green border-brand-border rounded">
-            <label for="remember-me" class="ml-2 block text-sm text-brand-text-muted">Lembrar-me</label>
-          </div>
-          <div class="text-sm">
-            <a href="#" class="font-semibold text-brand-green hover:text-brand-green-hover transition">Esqueci minha senha</a>
-          </div>
-        </div>
-
-        <div>
-          <button type="submit"
-            class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-lg font-semibold text-white bg-brand-green hover:bg-brand-green-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-green transition-all"
-            [ngClass]="{'opacity-60 cursor-not-allowed': isLoading()}"
-            [disabled]="isLoading()"
+        <!-- Rodapé do Card -->
+        <div class="mt-8 text-center text-xs text-slate-500 font-normal">
+          Não tem uma conta?
+          <a
+            href="#"
+            (click)="$event.preventDefault()"
+            class="font-semibold text-blue-600 hover:text-blue-700 hover:underline transition-colors ml-1"
           >
-            <svg *ngIf="isLoading()" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-            {{ isLoading() ? 'Autenticando...' : 'Entrar' }}
-          </button>
+            Fale com um administrador
+          </a>
         </div>
-      </form>
 
-      <div class="mt-8 relative">
-        <div class="absolute inset-0 flex items-center" aria-hidden="true"><div class="w-full border-t border-brand-border"></div></div>
-        <div class="relative flex justify-center text-sm"><span class="px-3 bg-white text-brand-text-muted">ou continue com</span></div>
       </div>
-
-      <div class="mt-6 grid grid-cols gap-4">
-        <button class="flex items-center justify-center gap-3 py-2.5 border border-brand-border rounded-xl text-sm font-medium hover:bg-gray-50 transition">
-          <img src="https://authjs.dev/img/providers/google.svg" alt="Google" class="h-5"> Entrar com Google
-        </button>
-        <!-- <button class="flex items-center justify-center gap-3 py-2.5 border border-brand-border rounded-xl text-sm font-medium hover:bg-gray-50 transition">
-          <img src="https://authjs.dev/img/providers/microsoft.svg" alt="Microsoft" class="h-5"> Entrar com Microsoft
-        </button> -->
-      </div>
-
-      <div class="mt-10 text-center text-sm text-brand-text-muted">
-        Não tem uma conta? <a href="#" class="font-semibold text-brand-green hover:text-brand-green-hover transition">Fale com um administrador</a>
-      </div>
-
     </div>
+
+  </div>
+
+  <!-- Copyright Dinâmico no Rodapé Inferior -->
+  <div class="lg:hidden absolute bottom-3 text-center w-full text-[11px] text-slate-500 pointer-events-none">
+    &copy; {{ currentYear }} <strong class="text-slate-400 font-medium">RM Frotas</strong>. Todos os direitos reservados.
   </div>
 </div>

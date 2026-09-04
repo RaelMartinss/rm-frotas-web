@@ -10,7 +10,7 @@ import { environment } from '../../../environments/environment';
 })
 export class HttpDriverRepository implements IDriverRepository {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = `${environment.apiUrl}/vehicles`;
+  private readonly apiUrl = `${environment.apiUrl}/drivers`;
 
   getAll(): Observable<Driver[]> {
     return this.http.get<Driver[]>(this.apiUrl);

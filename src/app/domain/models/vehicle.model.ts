@@ -1,3 +1,12 @@
+export type VehicleStatus =
+  | 'AVAILABLE'
+  | 'IN_USE'
+  | 'IN_MAINTENANCE'
+  | 'DISPONIVEL'
+  | 'EM_VIAGEM'
+  | 'MANUTENCAO'
+  | 'INDISPONIVEL';
+
 export interface Vehicle {
   id: string;
   plate: string;
@@ -6,7 +15,7 @@ export interface Vehicle {
   year: number;
   currentKm: number;
   crlvExpiration: string;
-  status: 'DISPONIVEL' | 'EM_VIAGEM' | 'MANUTENCAO' | 'INDISPONIVEL';
+  status: VehicleStatus;
 }
 
 export interface CreateVehicleDTO {

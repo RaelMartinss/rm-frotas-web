@@ -1,4 +1,20 @@
-export type TripStatus = 'PROGRAMADA' | 'EM_ANDAMENTO' | 'CONCLUIDA' | 'CANCELADA';
+export type TripStatus =
+  | 'PLANNED'
+  | 'IN_PROGRESS'
+  | 'COMPLETED'
+  | 'CANCELLED'
+  | 'PROGRAMADA'
+  | 'EM_ANDAMENTO'
+  | 'CONCLUIDA'
+  | 'CANCELADA';
+
+export interface LocationDTO {
+  address: string;
+  city: string;
+  state: string;
+  latitude?: number;
+  longitude?: number;
+}
 
 export interface FuelSupply {
   id: string;
@@ -13,26 +29,34 @@ export interface FuelSupply {
 export interface Trip {
   id: string;
   vehicleId: string;
-  vehiclePlate: string;
+  vehiclePlate?: string;
   driverId: string;
-  driverName: string;
+  driverName?: string;
   origin: string;
   destination: string;
-  departureDate: string;
+  originAddress?: string;
+  originCity?: string;
+  originState?: string;
+  destinationAddress?: string;
+  destinationCity?: string;
+  destinationState?: string;
+  departureDate?: string;
   returnDate?: string;
+  startedAt?: string;
+  completedAt?: string;
+  createdAt?: string;
+  updatedAt?: string;
   status: TripStatus;
-  initialOdometer: number;
+  initialOdometer?: number;
   finalOdometer?: number;
-  fuelSupplies: FuelSupply[];
+  fuelSupplies?: FuelSupply[];
 }
 
 export interface CreateTripDTO {
   vehicleId: string;
   driverId: string;
-  origin: string;
-  destination: string;
-  departureDate: string;
-  initialOdometer: number;
+  origin: LocationDTO;
+  destination: LocationDTO;
 }
 
 export interface CreateFuelSupplyDTO {
@@ -43,3 +67,4 @@ export interface CreateFuelSupplyDTO {
   odometer: number;
   date: string;
 }
+

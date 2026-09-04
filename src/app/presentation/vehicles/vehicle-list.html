@@ -33,34 +33,34 @@
         type="button"
         (click)="setStatusFilter('ALL')"
         [class]="selectedStatus() === 'ALL' ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
-        class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors shrink-0"
+        class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors shrink-0 cursor-pointer"
       >
         Todos
       </button>
 
       <button
         type="button"
-        (click)="setStatusFilter('DISPONIVEL')"
-        [class]="selectedStatus() === 'DISPONIVEL' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
-        class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors shrink-0"
+        (click)="setStatusFilter('AVAILABLE')"
+        [class]="selectedStatus() === 'AVAILABLE' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
+        class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors shrink-0 cursor-pointer"
       >
         Disponíveis
       </button>
 
       <button
         type="button"
-        (click)="setStatusFilter('EM_VIAGEM')"
-        [class]="selectedStatus() === 'EM_VIAGEM' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
-        class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors shrink-0"
+        (click)="setStatusFilter('IN_USE')"
+        [class]="selectedStatus() === 'IN_USE' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
+        class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors shrink-0 cursor-pointer"
       >
         Em Viagem
       </button>
 
       <button
         type="button"
-        (click)="setStatusFilter('MANUTENCAO')"
-        [class]="selectedStatus() === 'MANUTENCAO' ? 'bg-amber-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
-        class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors shrink-0"
+        (click)="setStatusFilter('IN_MAINTENANCE')"
+        [class]="selectedStatus() === 'IN_MAINTENANCE' ? 'bg-amber-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
+        class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors shrink-0 cursor-pointer"
       >
         Manutenção
       </button>
@@ -95,18 +95,16 @@
                 </td>
                 <td class="py-3.5 px-4 text-slate-600">{{ vehicle.year }}</td>
                 <td class="py-3.5 px-4 text-slate-600 font-mono">{{ vehicle.currentKm | number }} km</td>
-                <td class="py-3.5 px-4 text-slate-600">{{ vehicle.crlvExpiration }}</td>
+                <td class="py-3.5 px-4 text-slate-600">
+                  {{ (vehicle.crlvExpiration | date:'dd/MM/yyyy') || '-' }}
+                </td>
                 <td class="py-3.5 px-4">
                   <span
-                    class="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider inline-flex items-center gap-1.5"
-                    [ngClass]="{
-                      'bg-emerald-100 text-emerald-700': vehicle.status === 'DISPONIVEL',
-                      'bg-blue-100 text-blue-700': vehicle.status === 'EM_VIAGEM',
-                      'bg-amber-100 text-amber-700': vehicle.status === 'MANUTENCAO',
-                      'bg-rose-100 text-rose-700': vehicle.status === 'INDISPONIVEL'
-                    }"
+                    class="px-2.5 py-1 rounded-full text-[11px] font-semibold inline-flex items-center gap-1.5 border shadow-2xs"
+                    [ngClass]="getStatusClass(vehicle.status)"
                   >
-                    {{ vehicle.status }}
+                    <span class="size-1.5 rounded-full" [ngClass]="getStatusDotClass(vehicle.status)"></span>
+                    {{ getStatusLabel(vehicle.status) }}
                   </span>
                 </td>
               </tr>

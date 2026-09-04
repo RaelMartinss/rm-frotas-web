@@ -3,7 +3,14 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { IAuthRepository } from '../../../domain/repositories/auth.repository.interface';
-import { LucideMail, LucideLock, LucideEye, LucideEyeOff } from '@lucide/angular';
+import {
+  LucideMail,
+  LucideLock,
+  LucideEye,
+  LucideEyeOff,
+  LucideShieldCheck,
+  LucideLoader2
+} from '@lucide/angular';
 
 @Component({
   selector: 'app-login',
@@ -14,10 +21,13 @@ import { LucideMail, LucideLock, LucideEye, LucideEyeOff } from '@lucide/angular
     LucideMail,
     LucideLock,
     LucideEye,
-    LucideEyeOff
+    LucideEyeOff,
+    LucideShieldCheck,
+    LucideLoader2
   ],
   templateUrl: './login.html'
 })
+
 export class LoginComponent {
   private readonly fb = inject(FormBuilder);
   private readonly authRepository = inject(IAuthRepository);
@@ -27,6 +37,7 @@ export class LoginComponent {
   isLoading = signal<boolean>(false);
   loginError = signal<string | null>(null);
   showPassword = signal<boolean>(false);
+  readonly currentYear = new Date().getFullYear();
 
   // Reactive Form
   loginForm: FormGroup = this.fb.group({

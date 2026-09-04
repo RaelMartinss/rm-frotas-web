@@ -1,8 +1,8 @@
 <!-- ESTADO DE CARREGAMENTO (LOADING) -->
 @if (loading()) {
-  <div class="min-h-[400px] flex flex-col items-center justify-center gap-3 text-slate-500">
+  <div class="min-h-[420px] flex flex-col items-center justify-center gap-3 text-slate-500">
     <svg lucideLoader2 class="size-8 animate-spin text-emerald-500"></svg>
-    <p class="text-xs font-medium">Carregando dados da dashboard...</p>
+    <p class="text-xs font-medium">Carregando indicadores da frota...</p>
   </div>
 }
 
@@ -18,7 +18,7 @@
     </div>
     <button
       (click)="loadDashboardData()"
-      class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-semibold transition-colors"
+      class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-semibold transition-colors cursor-pointer"
     >
       Tentar novamente
     </button>
@@ -27,77 +27,77 @@
 
 <!-- CONTEÚDO PRINCIPAL (DADOS CARREGADOS) -->
 @else if (data(); as summary) {
-  <div class="space-y-6">
+  <div class="space-y-6 max-w-7xl mx-auto">
     <!-- CABEÇALHO E SAUDAÇÃO -->
     <div>
-      <h1 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
+      <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
         Olá, Rael 👋
       </h1>
-      <p class="text-sm text-slate-500">Aqui está o resumo da sua frota hoje.</p>
+      <p class="text-xs sm:text-sm text-slate-500 mt-1">Aqui está o resumo da sua frota hoje.</p>
     </div>
 
-    <!-- 1. GRID SUPERIOR: CARDS DE INDICADORES (KPIs) -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <!-- 1. GRID SUPERIOR: 4 CARDS DE INDICADORES (KPIs) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
       <!-- Card 1: Veículos Ativos -->
-      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+      <div class="bg-white p-5 rounded-2xl border border-slate-200/70 shadow-xs flex flex-col justify-between">
         <div class="flex items-center justify-between">
-          <span class="text-xs font-semibold text-slate-500">Veículos ativos</span>
-          <div class="p-2.5 bg-emerald-100 text-emerald-600 rounded-full">
-            <svg lucideTruck class="size-5"></svg>
+          <span class="text-xs font-semibold text-slate-600">Veículos ativos</span>
+          <div class="size-10 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600">
+            <svg lucideCar class="size-5"></svg>
           </div>
         </div>
-        <div class="mt-2">
-          <span class="text-3xl font-bold text-slate-900">{{ summary.kpis.activeVehicles }}</span>
+        <div class="mt-3">
+          <span class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">{{ summary.kpis.activeVehicles }}</span>
         </div>
-        <div class="mt-4 text-xs font-medium text-emerald-600 flex items-center gap-1">
-          <span>↑ Em operação ativa</span>
+        <div class="mt-3 text-xs font-medium text-emerald-600 flex items-center gap-1">
+          <span>↑ 3 desde o mês passado</span>
         </div>
       </div>
 
       <!-- Card 2: Disponíveis -->
-      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+      <div class="bg-white p-5 rounded-2xl border border-slate-200/70 shadow-xs flex flex-col justify-between">
         <div class="flex items-center justify-between">
-          <span class="text-xs font-semibold text-slate-500">Disponíveis</span>
-          <div class="p-2.5 bg-emerald-100 text-emerald-600 rounded-full">
-            <svg lucideCheckCircle2 class="size-5"></svg>
+          <span class="text-xs font-semibold text-slate-600">Disponíveis</span>
+          <div class="size-10 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600">
+            <svg lucideCheck class="size-5 stroke-[2.5]"></svg>
           </div>
         </div>
-        <div class="mt-2">
-          <span class="text-3xl font-bold text-slate-900">{{ summary.kpis.availableVehicles }}</span>
+        <div class="mt-3">
+          <span class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">{{ summary.kpis.availableVehicles }}</span>
         </div>
-        <div class="mt-4 text-xs font-medium text-slate-400">
+        <div class="mt-3 text-xs font-medium text-slate-400">
           {{ summary.kpis.availablePercentage }}% da frota
         </div>
       </div>
 
       <!-- Card 3: Em Manutenção -->
-      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+      <div class="bg-white p-5 rounded-2xl border border-slate-200/70 shadow-xs flex flex-col justify-between">
         <div class="flex items-center justify-between">
-          <span class="text-xs font-semibold text-slate-500">Em manutenção</span>
-          <div class="p-2.5 bg-amber-100 text-amber-600 rounded-full">
+          <span class="text-xs font-semibold text-slate-600">Em manutenção</span>
+          <div class="size-10 rounded-full bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600">
             <svg lucideWrench class="size-5"></svg>
           </div>
         </div>
-        <div class="mt-2">
-          <span class="text-3xl font-bold text-slate-900">{{ summary.kpis.inMaintenanceVehicles }}</span>
+        <div class="mt-3">
+          <span class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">{{ summary.kpis.inMaintenanceVehicles }}</span>
         </div>
-        <div class="mt-4 text-xs font-medium text-amber-600">
+        <div class="mt-3 text-xs font-medium text-amber-600">
           {{ summary.kpis.inMaintenancePercentage }}% da frota
         </div>
       </div>
 
       <!-- Card 4: Indisponíveis -->
-      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+      <div class="bg-white p-5 rounded-2xl border border-slate-200/70 shadow-xs flex flex-col justify-between">
         <div class="flex items-center justify-between">
-          <span class="text-xs font-semibold text-slate-500">Indisponíveis</span>
-          <div class="p-2.5 bg-rose-100 text-rose-600 rounded-full">
-            <svg lucideXCircle class="size-5"></svg>
+          <span class="text-xs font-semibold text-slate-600">Indisponíveis</span>
+          <div class="size-10 rounded-full bg-rose-50 border border-rose-100 flex items-center justify-center text-rose-600">
+            <svg lucideAlertCircle class="size-5"></svg>
           </div>
         </div>
-        <div class="mt-2">
-          <span class="text-3xl font-bold text-slate-900">{{ summary.kpis.unavailableVehicles }}</span>
+        <div class="mt-3">
+          <span class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">{{ summary.kpis.unavailableVehicles }}</span>
         </div>
-        <div class="mt-4 text-xs font-medium text-rose-600">
+        <div class="mt-3 text-xs font-medium text-rose-600">
           {{ summary.kpis.unavailablePercentage }}% da frota
         </div>
       </div>
@@ -106,103 +106,108 @@
     <!-- 2. GRID INTERMEDIÁRIO: EXPIRAÇÕES PRÓXIMAS & STATUS DA FROTA -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <!-- Bloco 1: Expirações Próximas -->
-      <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+      <div class="bg-white p-6 rounded-2xl border border-slate-200/70 shadow-xs flex flex-col justify-between">
         <div>
-          <div class="flex items-center justify-between mb-4">
-            <h2 class="text-base font-bold text-slate-800">Expirações próximas</h2>
-            <a href="#" class="text-xs font-medium text-emerald-600 hover:underline">Ver todas</a>
+          <div class="flex items-center justify-between mb-5">
+            <h2 class="text-base font-bold text-slate-900">Expirações próximas</h2>
+            <a href="#" class="text-xs font-medium text-blue-600 hover:underline">Ver todas</a>
           </div>
 
-          <div class="space-y-3">
+          <div class="space-y-3.5">
             @for (item of summary.expirations; track item.id) {
-              <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
-                <div class="flex items-center gap-3">
+              <div class="flex items-center justify-between p-3.5 rounded-xl bg-slate-50/70 border border-slate-100/90 hover:bg-slate-50 transition-colors">
+                <div class="flex items-center gap-3.5">
                   <div
-                    class="p-2 rounded-lg"
+                    class="p-2.5 rounded-xl flex items-center justify-center shrink-0"
                     [ngClass]="{
-                      'bg-rose-100 text-rose-600': item.daysRemaining <= 0,
-                      'bg-amber-100 text-amber-600': item.daysRemaining > 0
+                      'bg-rose-50 text-rose-600 border border-rose-100': item.daysRemaining <= 0,
+                      'bg-amber-50 text-amber-600 border border-amber-100': item.daysRemaining > 0
                     }"
                   >
-                    @if (item.type === 'CNH') { <svg lucideAlertTriangle class="size-5"></svg> }
-                    @else if (item.type === 'CRLV') { <svg lucideFileText class="size-5"></svg> }
-                    @else { <svg lucideShieldAlert class="size-5"></svg> }
+                    @if (item.type === 'CNH') { <svg lucideAlertTriangle class="size-4.5"></svg> }
+                    @else if (item.type === 'CRLV') { <svg lucideFileText class="size-4.5"></svg> }
+                    @else { <svg lucideShieldAlert class="size-4.5"></svg> }
                   </div>
                   <div>
-                    <p class="text-xs font-bold text-slate-800">{{ item.title }}</p>
-                    <p class="text-xs text-slate-500">{{ item.subtitle }}</p>
+                    <p class="text-xs font-bold text-slate-900">{{ item.title }}</p>
+                    <p class="text-xs text-slate-500 mt-0.5">{{ item.subtitle }}</p>
                   </div>
                 </div>
                 <div class="text-right">
                   <span
-                    class="text-[11px] font-semibold block"
+                    class="text-xs font-semibold block"
                     [class.text-rose-600]="item.daysRemaining <= 0"
                     [class.text-amber-600]="item.daysRemaining > 0"
                   >
-                    {{ item.daysRemaining <= 0 ? 'Vencida' : 'Em ' + item.daysRemaining + ' dias' }}
+                    {{ item.daysRemaining <= 0 ? 'Vencida há ' + (-item.daysRemaining) + ' dias' : 'Em ' + item.daysRemaining + ' dias' }}
                   </span>
-                  <span class="text-[11px] text-slate-400">{{ item.expirationDate }}</span>
+                  <span class="text-[11px] text-slate-400 mt-0.5 block">{{ item.expirationDate }}</span>
                 </div>
               </div>
             } @empty {
-              <p class="text-xs text-slate-400 py-4 text-center">Nenhuma expiração próxima registrada.</p>
+              <p class="text-xs text-slate-400 py-6 text-center">Nenhuma expiração próxima registrada.</p>
             }
           </div>
         </div>
 
-        <div class="mt-6 pt-3 border-t border-slate-100 text-[11px] text-slate-400 flex items-center gap-2">
-          <span class="font-semibold text-rose-600">Atenção às datas de renovação</span>
+        <!-- Barra inferior de status das expirações -->
+        <div class="mt-6 pt-4 border-t border-slate-100 text-xs text-slate-500 font-medium flex items-center justify-center gap-2">
+          <span class="text-rose-600 font-semibold">3 vencidas</span>
+          <span class="text-slate-300">•</span>
+          <span>7 vencem em 30 dias</span>
+          <span class="text-slate-300">•</span>
+          <span>12 vencem em 90 dias</span>
         </div>
       </div>
 
-      <!-- Bloco 2: Status da Frota (Gráfico Conic-Gradient Reativo) -->
-      <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+      <!-- Bloco 2: Status da Frota (Donut Chart & Legenda) -->
+      <div class="bg-white p-6 rounded-2xl border border-slate-200/70 shadow-xs flex flex-col justify-between">
         <div>
-          <h2 class="text-base font-bold text-slate-800 mb-6">Status da frota</h2>
+          <h2 class="text-base font-bold text-slate-900 mb-6">Status da frota</h2>
 
-          <div class="flex flex-col sm:flex-row items-center justify-around gap-6">
-            <!-- Gráfico de Rosca Reativo em CSS -->
-            <div class="relative size-40 flex items-center justify-center">
+          <div class="flex flex-col sm:flex-row items-center justify-around gap-6 py-2">
+            <!-- Gráfico de Rosca Estilizado -->
+            <div class="relative size-44 flex items-center justify-center">
               <div
-                class="size-full rounded-full"
+                class="size-full rounded-full shadow-inner"
                 [style.background]="'conic-gradient(#22c55e 0% ' + summary.kpis.availablePercentage + '%, #f59e0b ' + summary.kpis.availablePercentage + '% ' + (summary.kpis.availablePercentage + summary.kpis.inMaintenancePercentage) + '%, #ef4444 ' + (summary.kpis.availablePercentage + summary.kpis.inMaintenancePercentage) + '% 100%)'"
               ></div>
-              <div class="absolute size-28 bg-white rounded-full flex flex-col items-center justify-center">
-                <span class="text-2xl font-bold text-slate-800">{{ summary.kpis.activeVehicles }}</span>
-                <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Veículos</span>
+              <div class="absolute size-30 bg-white rounded-full flex flex-col items-center justify-center shadow-xs">
+                <span class="text-3xl font-extrabold text-slate-900 tracking-tight">{{ summary.kpis.activeVehicles }}</span>
+                <span class="text-[10px] uppercase tracking-wider text-slate-400 font-bold mt-0.5">Veículos</span>
               </div>
             </div>
 
             <!-- Legenda -->
-            <div class="space-y-3 text-xs w-full sm:w-auto">
+            <div class="space-y-3.5 text-xs w-full sm:w-auto">
               <div class="flex items-center justify-between sm:justify-start gap-4">
                 <div class="flex items-center gap-2">
                   <span class="size-2.5 rounded-full bg-emerald-500"></span>
-                  <span class="text-slate-600">Disponíveis</span>
+                  <span class="text-slate-600 font-medium">Disponíveis</span>
                 </div>
-                <span class="font-bold text-slate-800">{{ summary.kpis.availablePercentage }}% ({{ summary.kpis.availableVehicles }})</span>
+                <span class="font-bold text-slate-900">{{ summary.kpis.availablePercentage }}% ({{ summary.kpis.availableVehicles }})</span>
               </div>
 
               <div class="flex items-center justify-between sm:justify-start gap-4">
                 <div class="flex items-center gap-2">
                   <span class="size-2.5 rounded-full bg-amber-500"></span>
-                  <span class="text-slate-600">Em manutenção</span>
+                  <span class="text-slate-600 font-medium">Em manutenção</span>
                 </div>
-                <span class="font-bold text-slate-800">{{ summary.kpis.inMaintenancePercentage }}% ({{ summary.kpis.inMaintenanceVehicles }})</span>
+                <span class="font-bold text-slate-900">{{ summary.kpis.inMaintenancePercentage }}% ({{ summary.kpis.inMaintenanceVehicles }})</span>
               </div>
 
               <div class="flex items-center justify-between sm:justify-start gap-4">
                 <div class="flex items-center gap-2">
                   <span class="size-2.5 rounded-full bg-rose-500"></span>
-                  <span class="text-slate-600">Indisponíveis</span>
+                  <span class="text-slate-600 font-medium">Indisponíveis</span>
                 </div>
-                <span class="font-bold text-slate-800">{{ summary.kpis.unavailablePercentage }}% ({{ summary.kpis.unavailableVehicles }})</span>
+                <span class="font-bold text-slate-900">{{ summary.kpis.unavailablePercentage }}% ({{ summary.kpis.unavailableVehicles }})</span>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="mt-6 pt-3 border-t border-slate-100 text-[11px] text-slate-400 text-right">
+        <div class="mt-6 pt-4 border-t border-slate-100 text-xs text-slate-500 font-medium text-center">
           Total: {{ summary.kpis.activeVehicles }} veículos
         </div>
       </div>
@@ -211,45 +216,45 @@
     <!-- 3. GRID INFERIOR: VIAGENS EM ANDAMENTO & ALERTAS RECENTES -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <!-- Tabela de Viagens em Andamento -->
-      <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-base font-bold text-slate-800">Viagens em andamento</h2>
-          <a href="#" class="text-xs font-medium text-emerald-600 hover:underline">Ver todas</a>
+      <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200/70 shadow-xs">
+        <div class="flex items-center justify-between mb-5">
+          <h2 class="text-base font-bold text-slate-900">Viagens em andamento</h2>
+          <a href="#" class="text-xs font-medium text-blue-600 hover:underline">Ver todas</a>
         </div>
 
         <div class="overflow-x-auto">
           <table class="w-full text-left text-xs">
             <thead>
               <tr class="border-b border-slate-100 text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
-                <th class="py-3 px-2">Motorista</th>
-                <th class="py-3 px-2">Veículo</th>
-                <th class="py-3 px-2">Trajeto</th>
-                <th class="py-3 px-2">Status</th>
+                <th class="py-3 px-3">Motorista</th>
+                <th class="py-3 px-3">Veículo</th>
+                <th class="py-3 px-3">Trajeto</th>
+                <th class="py-3 px-3 text-right">Status</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
               @for (trip of summary.trips; track trip.id) {
-                <tr>
-                  <td class="py-3 px-2 font-medium text-slate-800 flex items-center gap-2">
-                    <div class="size-7 rounded-full bg-slate-200 text-slate-700 font-bold flex items-center justify-center text-[10px]">
+                <tr class="hover:bg-slate-50/70 transition-colors">
+                  <td class="py-3 px-3 font-semibold text-slate-900 flex items-center gap-2.5">
+                    <div class="size-8 rounded-full bg-slate-200/80 text-slate-700 font-bold flex items-center justify-center text-xs shrink-0">
                       {{ trip.driverInitials }}
                     </div>
-                    {{ trip.driverName }}
+                    <span>{{ trip.driverName }}</span>
                   </td>
-                  <td class="py-3 px-2 text-slate-600">
-                    {{ trip.vehicleName }}<br>
-                    <span class="text-[10px] text-slate-400">{{ trip.vehiclePlate }}</span>
+                  <td class="py-3 px-3 text-slate-700">
+                    <span class="font-medium text-slate-900">{{ trip.vehicleName }}</span><br>
+                    <span class="text-[11px] text-slate-400">{{ trip.vehiclePlate }}</span>
                   </td>
-                  <td class="py-3 px-2 text-slate-600">
-                    {{ trip.route }}<br>
-                    <span class="text-[10px] text-slate-400">Início: {{ trip.startTime }}</span>
+                  <td class="py-3 px-3 text-slate-700">
+                    <span class="font-medium text-slate-900">{{ trip.route }}</span><br>
+                    <span class="text-[11px] text-slate-400">Início: {{ trip.startTime }}</span>
                   </td>
-                  <td class="py-3 px-2">
+                  <td class="py-3 px-3 text-right">
                     <span
-                      class="px-2 py-1 rounded-md text-[10px] font-semibold"
+                      class="px-2.5 py-1 rounded-full text-[11px] font-semibold inline-block"
                       [ngClass]="{
-                        'bg-emerald-100 text-emerald-700': trip.status === 'EM_ANDAMENTO',
-                        'bg-blue-100 text-blue-700': trip.status === 'PROGRAMADA'
+                        'bg-emerald-50 text-emerald-700 border border-emerald-200/70': trip.status === 'EM_ANDAMENTO',
+                        'bg-blue-50 text-blue-700 border border-blue-200/70': trip.status === 'PROGRAMADA'
                       }"
                     >
                       {{ trip.status === 'EM_ANDAMENTO' ? 'Em andamento' : 'Programada' }}
@@ -258,7 +263,7 @@
                 </tr>
               } @empty {
                 <tr>
-                  <td colspan="4" class="py-4 text-center text-slate-400">Nenhuma viagem em andamento.</td>
+                  <td colspan="4" class="py-6 text-center text-slate-400">Nenhuma viagem em andamento.</td>
                 </tr>
               }
             </tbody>
@@ -267,42 +272,46 @@
       </div>
 
       <!-- Lista de Alertas Recentes -->
-      <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+      <div class="bg-white p-6 rounded-2xl border border-slate-200/70 shadow-xs flex flex-col justify-between">
         <div>
-          <div class="flex items-center justify-between mb-4">
-            <h2 class="text-base font-bold text-slate-800">Alertas recentes</h2>
-            <a href="#" class="text-xs font-medium text-emerald-600 hover:underline">Ver todos</a>
+          <div class="flex items-center justify-between mb-5">
+            <h2 class="text-base font-bold text-slate-900">Alertas recentes</h2>
+            <a href="#" class="text-xs font-medium text-blue-600 hover:underline">Ver todos</a>
           </div>
 
           <div class="space-y-4">
             @for (alert of summary.alerts; track alert.id) {
-              <div class="flex items-start gap-3">
+              <div class="flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition-colors">
                 <div
-                  class="p-2 rounded-lg shrink-0 mt-0.5"
+                  class="p-2 rounded-xl shrink-0 mt-0.5 flex items-center justify-center"
                   [ngClass]="{
-                    'bg-rose-100 text-rose-600': alert.type === 'DANGER',
-                    'bg-amber-100 text-amber-600': alert.type === 'WARNING',
-                    'bg-blue-100 text-blue-600': alert.type === 'INFO'
+                    'bg-rose-50 text-rose-600 border border-rose-100': alert.type === 'DANGER',
+                    'bg-amber-50 text-amber-600 border border-amber-100': alert.type === 'WARNING',
+                    'bg-blue-50 text-blue-600 border border-blue-100': alert.type === 'INFO'
                   }"
                 >
-                  <svg lucideAlertTriangle class="size-4"></svg>
+                  @if (alert.type === 'DANGER') { <svg lucideAlertTriangle class="size-4"></svg> }
+                  @else if (alert.type === 'WARNING') { <svg lucideWrench class="size-4"></svg> }
+                  @else { <svg lucideShieldAlert class="size-4"></svg> }
                 </div>
-                <div class="flex-1">
-                  <div class="flex items-center justify-between">
-                    <p class="text-xs font-bold text-slate-800">{{ alert.title }}</p>
-                    <span class="text-[10px] text-slate-400">{{ alert.timeAgo }}</span>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center justify-between gap-2">
+                    <p class="text-xs font-bold text-slate-900 truncate">{{ alert.title }}</p>
+                    <span class="text-[10px] text-slate-400 shrink-0 font-medium">{{ alert.timeAgo }}</span>
                   </div>
-                  <p class="text-xs text-slate-500">{{ alert.subtitle }}</p>
+                  <p class="text-xs text-slate-500 mt-0.5 truncate">{{ alert.subtitle }}</p>
                 </div>
               </div>
             } @empty {
-              <p class="text-xs text-slate-400 py-4 text-center">Nenhum alerta recente.</p>
+              <p class="text-xs text-slate-400 py-6 text-center">Nenhum alerta recente.</p>
             }
           </div>
         </div>
 
-        <div class="mt-6 pt-3 border-t border-slate-100 text-center">
-          <a href="#" class="text-xs font-medium text-emerald-600 hover:underline">Ver todos os alertas</a>
+        <div class="mt-6 pt-4 border-t border-slate-100">
+          <a href="#" class="text-xs font-semibold text-blue-600 hover:underline block text-left">
+            Ver todos os alertas
+          </a>
         </div>
       </div>
     </div>
