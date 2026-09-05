@@ -44,6 +44,36 @@ export const routes: Routes = [
         path: 'perfil',
         loadComponent: () =>
           import('./presentation/profile/profile').then((m) => m.ProfileComponent)
+      },
+      {
+        path: 'profile',
+        redirectTo: 'perfil',
+        pathMatch: 'full'
+      },
+      {
+        path: 'vehicles',
+        redirectTo: 'veiculos',
+        pathMatch: 'full'
+      },
+      {
+        path: 'drivers',
+        redirectTo: 'motoristas',
+        pathMatch: 'full'
+      },
+      {
+        path: 'trips',
+        redirectTo: 'viagens',
+        pathMatch: 'full'
+      },
+      {
+        path: 'usuarios',
+        redirectTo: 'perfil',
+        pathMatch: 'full'
+      },
+      {
+        path: 'configuracoes',
+        redirectTo: 'perfil',
+        pathMatch: 'full'
       }
     ]
   },
