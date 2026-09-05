@@ -19,6 +19,9 @@ import {
   LucideTruck,
   LucideUser,
   LucideAlertCircle,
+  LucidePlay,
+  LucideBan,
+  LucideCheck,
 } from '@lucide/angular';
 
 @Component({
@@ -37,6 +40,9 @@ import {
     LucideUser,
     LucideAlertCircle,
     LucideCheckCircle2,
+    LucidePlay,
+    LucideBan,
+    LucideCheck,
   ],
   templateUrl: './trip-list.html',
   styleUrl: './trip-list.css'
@@ -57,8 +63,13 @@ export class TripListComponent implements OnInit {
   isTripModalOpen = signal<boolean>(false);
   isSupplyModalOpen = signal<boolean>(false);
   isSaving = signal<boolean>(false);
+  actionLoadingId = signal<string | null>(null);
   errorMessage = signal<string | null>(null);
   selectedTripId = signal<string | null>(null);
+
+  // Modais de Confirmação de Ações
+  tripToCancel = signal<Trip | null>(null);
+  tripToComplete = signal<Trip | null>(null);
 
   readonly states = [
     'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA',
@@ -211,6 +222,98 @@ export class TripListComponent implements OnInit {
     this.selectedTripId.set(null);
   }
 
+  // --- AÇÕES DO CICLO DE VIDA DA VIAGEM ---
+
+  startTrip(trip: Trip): void {
+    this.actionLoadingId.set(trip.id);
+    this.tripRepository.startTrip(trip.id).subscribe({
+      next: (updatedTrip) => {
+        this.trips.update((list) =>
+          list.map((t) => (t.id === trip.id ? { ...t, status: 'IN_PROGRESS' as const, startedAt: updatedTrip.startedAt } : t))
+        );
+        this.actionLoadingId.set(null);
+        this.toastService.success('Viagem iniciada com sucesso! Veículo em trânsito.');
+        this.loadData();
+      },
+      error: (err) => {
+        this.actionLoadingId.set(null);
+        let msg = 'Erro ao iniciar viagem.';
+        if (err.error?.message) {
+          msg = Array.isArray(err.error.message) ? err.error.message.join(', ') : err.error.message;
+        }
+        this.toastService.error(msg);
+      }
+    });
+  }
+
+  openCompleteModal(trip: Trip): void {
+    this.tripToComplete.set(trip);
+  }
+
+  closeCompleteModal(): void {
+    this.tripToComplete.set(null);
+  }
+
+  confirmCompleteTrip(): void {
+    const trip = this.tripToComplete();
+    if (!trip) return;
+
+    this.actionLoadingId.set(trip.id);
+    this.tripRepository.completeTrip(trip.id).subscribe({
+      next: (updatedTrip) => {
+        this.trips.update((list) =>
+          list.map((t) => (t.id === trip.id ? { ...t, status: 'COMPLETED' as const, completedAt: updatedTrip.completedAt } : t))
+        );
+        this.actionLoadingId.set(null);
+        this.closeCompleteModal();
+        this.toastService.success('Viagem concluída com sucesso! Veículo liberado.');
+        this.loadData();
+      },
+      error: (err) => {
+        this.actionLoadingId.set(null);
+        let msg = 'Erro ao concluir viagem.';
+        if (err.error?.message) {
+          msg = Array.isArray(err.error.message) ? err.error.message.join(', ') : err.error.message;
+        }
+        this.toastService.error(msg);
+      }
+    });
+  }
+
+  openCancelModal(trip: Trip): void {
+    this.tripToCancel.set(trip);
+  }
+
+  closeCancelModal(): void {
+    this.tripToCancel.set(null);
+  }
+
+  confirmCancelTrip(): void {
+    const trip = this.tripToCancel();
+    if (!trip) return;
+
+    this.actionLoadingId.set(trip.id);
+    this.tripRepository.cancelTrip(trip.id).subscribe({
+      next: () => {
+        this.trips.update((list) =>
+          list.map((t) => (t.id === trip.id ? { ...t, status: 'CANCELLED' as const } : t))
+        );
+        this.actionLoadingId.set(null);
+        this.closeCancelModal();
+        this.toastService.info('Viagem cancelada com sucesso.');
+        this.loadData();
+      },
+      error: (err) => {
+        this.actionLoadingId.set(null);
+        let msg = 'Erro ao cancelar viagem.';
+        if (err.error?.message) {
+          msg = Array.isArray(err.error.message) ? err.error.message.join(', ') : err.error.message;
+        }
+        this.toastService.error(msg);
+      }
+    });
+  }
+
   saveTrip(): void {
     this.errorMessage.set(null);
 
@@ -287,4 +390,5 @@ export class TripListComponent implements OnInit {
     });
   }
 }
+
 

@@ -30,8 +30,8 @@ export class HttpTripRepository implements ITripRepository {
     return this.http.patch<Trip>(`${this.apiUrl}/${id}/start`, {});
   }
 
-  completeTrip(id: string, finalOdometer: number): Observable<Trip> {
-    return this.http.patch<Trip>(`${this.apiUrl}/${id}/complete`, { finalOdometer });
+  completeTrip(id: string): Observable<Trip> {
+    return this.http.patch<Trip>(`${this.apiUrl}/${id}/complete`, {});
   }
 
   cancelTrip(id: string): Observable<Trip> {
