@@ -84,6 +84,7 @@
               <th class="py-3.5 px-4">Quilometragem</th>
               <th class="py-3.5 px-4">Venc. CRLV</th>
               <th class="py-3.5 px-4">Status</th>
+              <th class="py-3.5 px-4 text-right">Ações</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100">
@@ -95,8 +96,19 @@
                 </td>
                 <td class="py-3.5 px-4 text-slate-600">{{ vehicle.year }}</td>
                 <td class="py-3.5 px-4 text-slate-600 font-mono">{{ vehicle.currentKm | number }} km</td>
-                <td class="py-3.5 px-4 text-slate-600">
-                  {{ (vehicle.crlvExpiration | date:'dd/MM/yyyy') || '-' }}
+                <td class="py-3.5 px-4">
+                  @if (vehicle.crlvExpiration) {
+                    <div class="flex items-center gap-1.5">
+                      <span class="text-slate-600">{{ vehicle.crlvExpiration | date:'dd/MM/yyyy' }}</span>
+                      @if (isCrlvExpired(vehicle.crlvExpiration)) {
+                        <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-700">Vencido</span>
+                      } @else if (isCrlvExpiringSoon(vehicle.crlvExpiration)) {
+                        <span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-100 text-amber-700">A vencer</span>
+                      }
+                    </div>
+                  } @else {
+                    <span class="text-slate-400">-</span>
+                  }
                 </td>
                 <td class="py-3.5 px-4">
                   <span
@@ -107,10 +119,53 @@
                     {{ getStatusLabel(vehicle.status) }}
                   </span>
                 </td>
+                <td class="py-3.5 px-4 text-right">
+                  <div class="inline-flex items-center justify-end gap-1.5">
+                    <!-- Enviar para Manutenção (Apenas quando disponível) -->
+                    @if (isAvailable(vehicle)) {
+                      <button
+                        (click)="openSendMaintenanceModal(vehicle)"
+                        title="Enviar para Manutenção"
+                        class="p-1.5 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors cursor-pointer"
+                      >
+                        <svg lucideWrench class="size-4"></svg>
+                      </button>
+                    }
+
+                    <!-- Finalizar Manutenção (Apenas quando em manutenção) -->
+                    @if (isInMaintenance(vehicle)) {
+                      <button
+                        (click)="openFinishMaintenanceModal(vehicle)"
+                        title="Finalizar Manutenção"
+                        class="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors cursor-pointer"
+                      >
+                        <svg lucideCheckCircle2 class="size-4"></svg>
+                      </button>
+                    }
+
+                    <!-- Atualizar KM -->
+                    <button
+                      (click)="openUpdateKmModal(vehicle)"
+                      title="Atualizar Quilometragem"
+                      class="p-1.5 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+                    >
+                      <svg lucideGauge class="size-4"></svg>
+                    </button>
+
+                    <!-- Ficha / Detalhes -->
+                    <button
+                      (click)="openDetailsModal(vehicle)"
+                      title="Ver Ficha do Veículo"
+                      class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer"
+                    >
+                      <svg lucideEye class="size-4"></svg>
+                    </button>
+                  </div>
+                </td>
               </tr>
             } @empty {
               <tr>
-                <td colspan="5" class="py-8 text-center text-slate-400">Nenhum veículo encontrado para a busca selecionada.</td>
+                <td colspan="6" class="py-8 text-center text-slate-400">Nenhum veículo encontrado para a busca selecionada.</td>
               </tr>
             }
           </tbody>
@@ -129,7 +184,7 @@
           <svg lucideTruck class="size-5 text-emerald-600"></svg>
           Cadastrar Novo Veículo
         </h2>
-        <button (click)="closeModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg transition-colors">
+        <button (click)="closeModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg transition-colors cursor-pointer">
           <svg lucideX class="size-5"></svg>
         </button>
       </div>
@@ -267,14 +322,14 @@
           <button
             type="button"
             (click)="closeModal()"
-            class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+            class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
           >
             Cancelar
           </button>
           <button
             type="submit"
             [disabled]="isSaving()"
-            class="px-4 py-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50"
+            class="px-4 py-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50 cursor-pointer"
           >
             @if (isSaving()) {
               <svg lucideLoader2 class="size-4 animate-spin"></svg>
@@ -283,6 +338,309 @@
           </button>
         </div>
       </form>
+    </div>
+  </div>
+}
+
+<!-- MODAL: ENVIAR PARA MANUTENÇÃO -->
+@if (isSendMaintenanceModalOpen() && selectedVehicle()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-150">
+      <div class="p-6 text-center space-y-4">
+        <div class="size-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto border border-amber-200">
+          <svg lucideWrench class="size-6"></svg>
+        </div>
+        <div>
+          <h3 class="text-base font-bold text-slate-800">Enviar para Manutenção</h3>
+          <p class="text-xs text-slate-500 mt-1">
+            Deseja registrar o envio do veículo para a oficina? Ele ficará indisponível para novas viagens.
+          </p>
+        </div>
+
+        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200/70 text-left space-y-2">
+          <div class="flex justify-between items-center text-xs">
+            <span class="text-slate-500">Placa:</span>
+            <span class="font-bold text-slate-800">{{ selectedVehicle()?.plate }}</span>
+          </div>
+          <div class="flex justify-between items-center text-xs">
+            <span class="text-slate-500">Modelo:</span>
+            <span class="font-semibold text-slate-700">{{ selectedVehicle()?.brand }} {{ selectedVehicle()?.model }}</span>
+          </div>
+          <div class="flex justify-between items-center text-xs">
+            <span class="text-slate-500">KM Atual:</span>
+            <span class="font-mono text-slate-700">{{ selectedVehicle()?.currentKm | number }} km</span>
+          </div>
+        </div>
+
+        @if (actionError()) {
+          <div class="p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-center gap-2 text-rose-800 text-xs text-left">
+            <svg lucideAlertCircle class="size-4 text-rose-600 shrink-0"></svg>
+            <span>{{ actionError() }}</span>
+          </div>
+        }
+
+        <div class="flex items-center gap-3 pt-2">
+          <button
+            type="button"
+            (click)="closeSendMaintenanceModal()"
+            [disabled]="isActionLoading()"
+            class="flex-1 py-2.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+          >
+            Voltar
+          </button>
+          <button
+            type="button"
+            (click)="confirmSendMaintenance()"
+            [disabled]="isActionLoading()"
+            class="flex-1 py-2.5 text-xs font-semibold text-white bg-amber-600 hover:bg-amber-700 rounded-xl transition-colors flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer shadow-xs"
+          >
+            @if (isActionLoading()) {
+              <svg lucideLoader2 class="size-4 animate-spin"></svg>
+            }
+            Confirmar Envio
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- MODAL: FINALIZAR MANUTENÇÃO -->
+@if (isFinishMaintenanceModalOpen() && selectedVehicle()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-150">
+      <div class="p-6 text-center space-y-4">
+        <div class="size-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto border border-emerald-200">
+          <svg lucideCheckCircle2 class="size-6"></svg>
+        </div>
+        <div>
+          <h3 class="text-base font-bold text-slate-800">Finalizar Manutenção</h3>
+          <p class="text-xs text-slate-500 mt-1">
+            Os serviços foram concluídos? O veículo retornará ao status <strong>Disponível</strong>.
+          </p>
+        </div>
+
+        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200/70 text-left space-y-2">
+          <div class="flex justify-between items-center text-xs">
+            <span class="text-slate-500">Placa:</span>
+            <span class="font-bold text-slate-800">{{ selectedVehicle()?.plate }}</span>
+          </div>
+          <div class="flex justify-between items-center text-xs">
+            <span class="text-slate-500">Modelo:</span>
+            <span class="font-semibold text-slate-700">{{ selectedVehicle()?.brand }} {{ selectedVehicle()?.model }}</span>
+          </div>
+        </div>
+
+        @if (actionError()) {
+          <div class="p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-center gap-2 text-rose-800 text-xs text-left">
+            <svg lucideAlertCircle class="size-4 text-rose-600 shrink-0"></svg>
+            <span>{{ actionError() }}</span>
+          </div>
+        }
+
+        <div class="flex items-center gap-3 pt-2">
+          <button
+            type="button"
+            (click)="closeFinishMaintenanceModal()"
+            [disabled]="isActionLoading()"
+            class="flex-1 py-2.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+          >
+            Voltar
+          </button>
+          <button
+            type="button"
+            (click)="confirmFinishMaintenance()"
+            [disabled]="isActionLoading()"
+            class="flex-1 py-2.5 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-colors flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer shadow-xs"
+          >
+            @if (isActionLoading()) {
+              <svg lucideLoader2 class="size-4 animate-spin"></svg>
+            }
+            Liberar Veículo
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- MODAL: ATUALIZAR QUILOMETRAGEM -->
+@if (isUpdateKmModalOpen() && selectedVehicle()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-150">
+      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+        <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
+          <svg lucideGauge class="size-5 text-blue-600"></svg>
+          Atualizar Quilometragem
+        </h2>
+        <button (click)="closeUpdateKmModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg transition-colors cursor-pointer">
+          <svg lucideX class="size-5"></svg>
+        </button>
+      </div>
+
+      <form [formGroup]="updateKmForm" (ngSubmit)="confirmUpdateKm()" class="p-6 space-y-4">
+        @if (actionError()) {
+          <div class="p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-center gap-2 text-rose-800 text-xs">
+            <svg lucideAlertCircle class="size-4 text-rose-600 shrink-0"></svg>
+            <span>{{ actionError() }}</span>
+          </div>
+        }
+
+        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200/70 space-y-1 text-xs">
+          <div class="text-slate-500">Veículo selecionado:</div>
+          <div class="font-bold text-slate-800">{{ selectedVehicle()?.plate }} - {{ selectedVehicle()?.brand }} {{ selectedVehicle()?.model }}</div>
+          <div class="text-slate-600 pt-1">
+            KM Registrado Atual: <span class="font-mono font-bold text-blue-600">{{ selectedVehicle()?.currentKm | number }} km</span>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">
+            Nova Quilometragem Acumulada <span class="text-rose-500">*</span>
+          </label>
+          <input
+            type="number"
+            formControlName="currentKm"
+            placeholder="Ex: 50000"
+            class="w-full bg-slate-50 border rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-blue-500 transition-colors"
+            [class.border-rose-400]="updateKmForm.get('currentKm')?.invalid && updateKmForm.get('currentKm')?.touched"
+            [class.border-slate-200]="!(updateKmForm.get('currentKm')?.invalid && updateKmForm.get('currentKm')?.touched)"
+          />
+          @if (updateKmForm.get('currentKm')?.touched && updateKmForm.get('currentKm')?.errors?.['min']) {
+            <p class="text-[10px] text-rose-500 mt-1 font-medium">
+              A nova quilometragem não pode ser menor que a atual ({{ selectedVehicle()?.currentKm | number }} km).
+            </p>
+          }
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
+          <button
+            type="button"
+            (click)="closeUpdateKmModal()"
+            [disabled]="isActionLoading()"
+            class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            [disabled]="isActionLoading()"
+            class="px-4 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50 cursor-pointer shadow-xs"
+          >
+            @if (isActionLoading()) {
+              <svg lucideLoader2 class="size-4 animate-spin"></svg>
+            }
+            Atualizar KM
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+<!-- MODAL: FICHA / DETALHES DO VEÍCULO -->
+@if (isDetailsModalOpen() && selectedVehicle()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in duration-150">
+      <!-- HEADER DO MODAL -->
+      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+        <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
+          <svg lucideTruck class="size-5 text-slate-700"></svg>
+          Ficha Técnica do Veículo
+        </h2>
+        <button (click)="closeDetailsModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg transition-colors cursor-pointer">
+          <svg lucideX class="size-5"></svg>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-6">
+        <!-- PLACA MERCOSUL DESIGN -->
+        <div class="flex justify-center">
+          <div class="w-56 border-2 border-slate-800 rounded-xl overflow-hidden shadow-sm bg-white">
+            <div class="bg-blue-700 text-white px-3 py-1 flex items-center justify-between text-[10px] font-bold tracking-wider">
+              <span>BRASIL</span>
+              <div class="size-2 rounded-full bg-yellow-400"></div>
+            </div>
+            <div class="py-2 text-center font-extrabold text-2xl tracking-widest text-slate-900 font-mono">
+              {{ selectedVehicle()?.plate }}
+            </div>
+          </div>
+        </div>
+
+        <!-- CARDS DE INFORMAÇÃO -->
+        <div class="grid grid-cols-2 gap-3">
+          <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/70">
+            <div class="text-[11px] text-slate-400 font-medium">Marca & Modelo</div>
+            <div class="text-sm font-bold text-slate-800 mt-0.5">{{ selectedVehicle()?.brand }} {{ selectedVehicle()?.model }}</div>
+          </div>
+
+          <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/70">
+            <div class="text-[11px] text-slate-400 font-medium">Ano de Fabricação</div>
+            <div class="text-sm font-bold text-slate-800 mt-0.5">{{ selectedVehicle()?.year }}</div>
+          </div>
+
+          <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/70">
+            <div class="text-[11px] text-slate-400 font-medium">Odômetro Atual</div>
+            <div class="text-sm font-bold text-slate-800 mt-0.5 font-mono">{{ selectedVehicle()?.currentKm | number }} km</div>
+          </div>
+
+          <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/70">
+            <div class="text-[11px] text-slate-400 font-medium">Status Operacional</div>
+            <div class="mt-1">
+              <span
+                class="px-2.5 py-1 rounded-full text-[11px] font-semibold inline-flex items-center gap-1.5 border shadow-2xs"
+                [ngClass]="getStatusClass(selectedVehicle()!.status)"
+              >
+                <span class="size-1.5 rounded-full" [ngClass]="getStatusDotClass(selectedVehicle()!.status)"></span>
+                {{ getStatusLabel(selectedVehicle()!.status) }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- VENCIMENTO CRLV CARD -->
+        <div class="p-4 rounded-xl border flex items-center justify-between"
+          [ngClass]="isCrlvExpired(selectedVehicle()?.crlvExpiration) ? 'bg-rose-50/50 border-rose-200' : (isCrlvExpiringSoon(selectedVehicle()?.crlvExpiration) ? 'bg-amber-50/50 border-amber-200' : 'bg-slate-50 border-slate-200/70')"
+        >
+          <div class="flex items-center gap-3">
+            <div class="size-9 rounded-lg flex items-center justify-center"
+              [ngClass]="isCrlvExpired(selectedVehicle()?.crlvExpiration) ? 'bg-rose-100 text-rose-600' : (isCrlvExpiringSoon(selectedVehicle()?.crlvExpiration) ? 'bg-amber-100 text-amber-600' : 'bg-slate-200 text-slate-600')"
+            >
+              <svg lucideCalendar class="size-5"></svg>
+            </div>
+            <div>
+              <div class="text-xs font-bold text-slate-800">Licenciamento / CRLV</div>
+              <div class="text-[11px] text-slate-500">
+                {{ (selectedVehicle()?.crlvExpiration | date:'dd/MM/yyyy') || 'Não informado' }}
+              </div>
+            </div>
+          </div>
+
+          @if (isCrlvExpired(selectedVehicle()?.crlvExpiration)) {
+            <span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-100 text-rose-700 border border-rose-200">
+              Vencido
+            </span>
+          } @else if (isCrlvExpiringSoon(selectedVehicle()?.crlvExpiration)) {
+            <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-700 border border-amber-200">
+              Próximo do Vencimento
+            </span>
+          } @else if (selectedVehicle()?.crlvExpiration) {
+            <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-700 border border-emerald-200">
+              Regular
+            </span>
+          }
+        </div>
+
+        <div class="pt-2 flex justify-end">
+          <button
+            type="button"
+            (click)="closeDetailsModal()"
+            class="px-5 py-2.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer"
+          >
+            Fechar
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 }
