@@ -29,20 +29,35 @@
 @else if (data(); as summary) {
   <div class="space-y-6 max-w-7xl mx-auto">
     <!-- CABEÇALHO E SAUDAÇÃO -->
-    <div>
-      <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
-        Olá, Rael 👋
-      </h1>
-      <p class="text-xs sm:text-sm text-slate-500 mt-1">Aqui está o resumo da sua frota hoje.</p>
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
+          Olá, {{ userFirstName() }} 👋
+        </h1>
+        <p class="text-xs sm:text-sm text-slate-500 mt-1">Aqui está o panorama operacional da sua frota hoje.</p>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <a
+          [routerLink]="['/trips']"
+          class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs px-4 py-2.5 rounded-xl transition-colors shadow-xs"
+        >
+          <svg lucideNavigation class="size-4"></svg>
+          Nova Viagem
+        </a>
+      </div>
     </div>
 
     <!-- 1. GRID SUPERIOR: 4 CARDS DE INDICADORES (KPIs) -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
       <!-- Card 1: Veículos Ativos -->
-      <div class="bg-white p-5 rounded-2xl border border-slate-200/70 shadow-xs flex flex-col justify-between">
+      <a
+        [routerLink]="['/vehicles']"
+        class="bg-white p-5 rounded-2xl border border-slate-200/70 shadow-xs flex flex-col justify-between hover:border-emerald-300 transition-colors group cursor-pointer"
+      >
         <div class="flex items-center justify-between">
-          <span class="text-xs font-semibold text-slate-600">Veículos ativos</span>
-          <div class="size-10 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600">
+          <span class="text-xs font-semibold text-slate-600 group-hover:text-emerald-700 transition-colors">Veículos cadastrados</span>
+          <div class="size-10 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 group-hover:scale-105 transition-transform">
             <svg lucideCar class="size-5"></svg>
           </div>
         </div>
@@ -50,31 +65,37 @@
           <span class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">{{ summary.kpis.activeVehicles }}</span>
         </div>
         <div class="mt-3 text-xs font-medium text-emerald-600 flex items-center gap-1">
-          <span>↑ 3 desde o mês passado</span>
+          <span>Ver frota completa →</span>
         </div>
-      </div>
+      </a>
 
       <!-- Card 2: Disponíveis -->
-      <div class="bg-white p-5 rounded-2xl border border-slate-200/70 shadow-xs flex flex-col justify-between">
+      <a
+        [routerLink]="['/vehicles']"
+        class="bg-white p-5 rounded-2xl border border-slate-200/70 shadow-xs flex flex-col justify-between hover:border-emerald-300 transition-colors group cursor-pointer"
+      >
         <div class="flex items-center justify-between">
-          <span class="text-xs font-semibold text-slate-600">Disponíveis</span>
-          <div class="size-10 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600">
+          <span class="text-xs font-semibold text-slate-600 group-hover:text-emerald-700 transition-colors">Disponíveis</span>
+          <div class="size-10 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 group-hover:scale-105 transition-transform">
             <svg lucideCheck class="size-5 stroke-[2.5]"></svg>
           </div>
         </div>
         <div class="mt-3">
           <span class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">{{ summary.kpis.availableVehicles }}</span>
         </div>
-        <div class="mt-3 text-xs font-medium text-slate-400">
-          {{ summary.kpis.availablePercentage }}% da frota
+        <div class="mt-3 text-xs font-medium text-slate-500">
+          {{ summary.kpis.availablePercentage }}% da frota ativa
         </div>
-      </div>
+      </a>
 
       <!-- Card 3: Em Manutenção -->
-      <div class="bg-white p-5 rounded-2xl border border-slate-200/70 shadow-xs flex flex-col justify-between">
+      <a
+        [routerLink]="['/vehicles']"
+        class="bg-white p-5 rounded-2xl border border-slate-200/70 shadow-xs flex flex-col justify-between hover:border-amber-300 transition-colors group cursor-pointer"
+      >
         <div class="flex items-center justify-between">
-          <span class="text-xs font-semibold text-slate-600">Em manutenção</span>
-          <div class="size-10 rounded-full bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600">
+          <span class="text-xs font-semibold text-slate-600 group-hover:text-amber-700 transition-colors">Em manutenção</span>
+          <div class="size-10 rounded-full bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600 group-hover:scale-105 transition-transform">
             <svg lucideWrench class="size-5"></svg>
           </div>
         </div>
@@ -84,23 +105,26 @@
         <div class="mt-3 text-xs font-medium text-amber-600">
           {{ summary.kpis.inMaintenancePercentage }}% da frota
         </div>
-      </div>
+      </a>
 
-      <!-- Card 4: Indisponíveis -->
-      <div class="bg-white p-5 rounded-2xl border border-slate-200/70 shadow-xs flex flex-col justify-between">
+      <!-- Card 4: Em Viagem / Indisponíveis -->
+      <a
+        [routerLink]="['/trips']"
+        class="bg-white p-5 rounded-2xl border border-slate-200/70 shadow-xs flex flex-col justify-between hover:border-blue-300 transition-colors group cursor-pointer"
+      >
         <div class="flex items-center justify-between">
-          <span class="text-xs font-semibold text-slate-600">Indisponíveis</span>
-          <div class="size-10 rounded-full bg-rose-50 border border-rose-100 flex items-center justify-center text-rose-600">
-            <svg lucideAlertCircle class="size-5"></svg>
+          <span class="text-xs font-semibold text-slate-600 group-hover:text-blue-700 transition-colors">Em viagem / Uso</span>
+          <div class="size-10 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 group-hover:scale-105 transition-transform">
+            <svg lucideTruck class="size-5"></svg>
           </div>
         </div>
         <div class="mt-3">
           <span class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">{{ summary.kpis.unavailableVehicles }}</span>
         </div>
-        <div class="mt-3 text-xs font-medium text-rose-600">
+        <div class="mt-3 text-xs font-medium text-blue-600">
           {{ summary.kpis.unavailablePercentage }}% da frota
         </div>
-      </div>
+      </a>
     </div>
 
     <!-- 2. GRID INTERMEDIÁRIO: EXPIRAÇÕES PRÓXIMAS & STATUS DA FROTA -->
@@ -109,13 +133,23 @@
       <div class="bg-white p-6 rounded-2xl border border-slate-200/70 shadow-xs flex flex-col justify-between">
         <div>
           <div class="flex items-center justify-between mb-5">
-            <h2 class="text-base font-bold text-slate-900">Expirações próximas</h2>
-            <a href="#" class="text-xs font-medium text-blue-600 hover:underline">Ver todas</a>
+            <div class="flex items-center gap-2">
+              <h2 class="text-base font-bold text-slate-900">Documentos e Expirações</h2>
+              @if (expiredExpirationsCount() > 0) {
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-700">
+                  {{ expiredExpirationsCount() }} urgente
+                </span>
+              }
+            </div>
+            <a [routerLink]="['/drivers']" class="text-xs font-medium text-emerald-600 hover:underline">Ver motoristas</a>
           </div>
 
-          <div class="space-y-3.5">
+          <div class="space-y-3">
             @for (item of summary.expirations; track item.id) {
-              <div class="flex items-center justify-between p-3.5 rounded-xl bg-slate-50/70 border border-slate-100/90 hover:bg-slate-50 transition-colors">
+              <a
+                [routerLink]="item.type === 'CNH' ? ['/drivers'] : ['/vehicles']"
+                class="flex items-center justify-between p-3.5 rounded-xl bg-slate-50/70 border border-slate-100/90 hover:bg-slate-100/70 transition-colors cursor-pointer block"
+              >
                 <div class="flex items-center gap-3.5">
                   <div
                     class="p-2.5 rounded-xl flex items-center justify-center shrink-0"
@@ -143,34 +177,44 @@
                   </span>
                   <span class="text-[11px] text-slate-400 mt-0.5 block">{{ item.expirationDate }}</span>
                 </div>
-              </div>
+              </a>
             } @empty {
-              <p class="text-xs text-slate-400 py-6 text-center">Nenhuma expiração próxima registrada.</p>
+              <div class="text-center py-8">
+                <div class="size-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-2">
+                  <svg lucideCheck class="size-5"></svg>
+                </div>
+                <p class="text-xs font-semibold text-slate-700">Tudo em dia!</p>
+                <p class="text-[11px] text-slate-400 mt-0.5">Nenhum documento vencido ou próximo do vencimento nos próximos 60 dias.</p>
+              </div>
             }
           </div>
         </div>
 
-        <!-- Barra inferior de status das expirações -->
+        <!-- Barra inferior de status das expirações DINÂMICA -->
         <div class="mt-6 pt-4 border-t border-slate-100 text-xs text-slate-500 font-medium flex items-center justify-center gap-2">
-          <span class="text-rose-600 font-semibold">3 vencidas</span>
+          @if (expiredExpirationsCount() > 0) {
+            <span class="text-rose-600 font-semibold">{{ expiredExpirationsCount() }} vencido(s)</span>
+          } @else {
+            <span class="text-emerald-600 font-semibold">0 vencidos</span>
+          }
           <span class="text-slate-300">•</span>
-          <span>7 vencem em 30 dias</span>
+          <span>{{ expiringIn30DaysCount() }} vencem em 30 dias</span>
           <span class="text-slate-300">•</span>
-          <span>12 vencem em 90 dias</span>
+          <span>{{ expiringIn60DaysCount() }} vencem em 60 dias</span>
         </div>
       </div>
 
       <!-- Bloco 2: Status da Frota (Donut Chart & Legenda) -->
       <div class="bg-white p-6 rounded-2xl border border-slate-200/70 shadow-xs flex flex-col justify-between">
         <div>
-          <h2 class="text-base font-bold text-slate-900 mb-6">Status da frota</h2>
+          <h2 class="text-base font-bold text-slate-900 mb-6">Status Operacional da Frota</h2>
 
           <div class="flex flex-col sm:flex-row items-center justify-around gap-6 py-2">
             <!-- Gráfico de Rosca Estilizado -->
             <div class="relative size-44 flex items-center justify-center">
               <div
                 class="size-full rounded-full shadow-inner"
-                [style.background]="'conic-gradient(#22c55e 0% ' + summary.kpis.availablePercentage + '%, #f59e0b ' + summary.kpis.availablePercentage + '% ' + (summary.kpis.availablePercentage + summary.kpis.inMaintenancePercentage) + '%, #ef4444 ' + (summary.kpis.availablePercentage + summary.kpis.inMaintenancePercentage) + '% 100%)'"
+                [style.background]="summary.kpis.activeVehicles > 0 ? ('conic-gradient(#10b981 0% ' + summary.kpis.availablePercentage + '%, #f59e0b ' + summary.kpis.availablePercentage + '% ' + (summary.kpis.availablePercentage + summary.kpis.inMaintenancePercentage) + '%, #3b82f6 ' + (summary.kpis.availablePercentage + summary.kpis.inMaintenancePercentage) + '% 100%)') : '#f1f5f9'"
               ></div>
               <div class="absolute size-30 bg-white rounded-full flex flex-col items-center justify-center shadow-xs">
                 <span class="text-3xl font-extrabold text-slate-900 tracking-tight">{{ summary.kpis.activeVehicles }}</span>
@@ -180,35 +224,35 @@
 
             <!-- Legenda -->
             <div class="space-y-3.5 text-xs w-full sm:w-auto">
-              <div class="flex items-center justify-between sm:justify-start gap-4">
+              <a [routerLink]="['/vehicles']" class="flex items-center justify-between sm:justify-start gap-4 hover:opacity-80 transition-opacity">
                 <div class="flex items-center gap-2">
                   <span class="size-2.5 rounded-full bg-emerald-500"></span>
                   <span class="text-slate-600 font-medium">Disponíveis</span>
                 </div>
                 <span class="font-bold text-slate-900">{{ summary.kpis.availablePercentage }}% ({{ summary.kpis.availableVehicles }})</span>
-              </div>
+              </a>
 
-              <div class="flex items-center justify-between sm:justify-start gap-4">
+              <a [routerLink]="['/vehicles']" class="flex items-center justify-between sm:justify-start gap-4 hover:opacity-80 transition-opacity">
                 <div class="flex items-center gap-2">
                   <span class="size-2.5 rounded-full bg-amber-500"></span>
                   <span class="text-slate-600 font-medium">Em manutenção</span>
                 </div>
                 <span class="font-bold text-slate-900">{{ summary.kpis.inMaintenancePercentage }}% ({{ summary.kpis.inMaintenanceVehicles }})</span>
-              </div>
+              </a>
 
-              <div class="flex items-center justify-between sm:justify-start gap-4">
+              <a [routerLink]="['/trips']" class="flex items-center justify-between sm:justify-start gap-4 hover:opacity-80 transition-opacity">
                 <div class="flex items-center gap-2">
-                  <span class="size-2.5 rounded-full bg-rose-500"></span>
-                  <span class="text-slate-600 font-medium">Indisponíveis</span>
+                  <span class="size-2.5 rounded-full bg-blue-500"></span>
+                  <span class="text-slate-600 font-medium">Em viagem</span>
                 </div>
                 <span class="font-bold text-slate-900">{{ summary.kpis.unavailablePercentage }}% ({{ summary.kpis.unavailableVehicles }})</span>
-              </div>
+              </a>
             </div>
           </div>
         </div>
 
         <div class="mt-6 pt-4 border-t border-slate-100 text-xs text-slate-500 font-medium text-center">
-          Total: {{ summary.kpis.activeVehicles }} veículos
+          Total de {{ summary.kpis.activeVehicles }} veículos cadastrados
         </div>
       </div>
     </div>
@@ -218,8 +262,8 @@
       <!-- Tabela de Viagens em Andamento -->
       <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200/70 shadow-xs">
         <div class="flex items-center justify-between mb-5">
-          <h2 class="text-base font-bold text-slate-900">Viagens em andamento</h2>
-          <a href="#" class="text-xs font-medium text-blue-600 hover:underline">Ver todas</a>
+          <h2 class="text-base font-bold text-slate-900">Viagens em Andamento / Planejadas</h2>
+          <a [routerLink]="['/trips']" class="text-xs font-medium text-emerald-600 hover:underline">Ver todas</a>
         </div>
 
         <div class="overflow-x-auto">
@@ -243,7 +287,7 @@
                   </td>
                   <td class="py-3 px-3 text-slate-700">
                     <span class="font-medium text-slate-900">{{ trip.vehicleName }}</span><br>
-                    <span class="text-[11px] text-slate-400">{{ trip.vehiclePlate }}</span>
+                    <span class="text-[11px] text-slate-400 font-mono">{{ trip.vehiclePlate }}</span>
                   </td>
                   <td class="py-3 px-3 text-slate-700">
                     <span class="font-medium text-slate-900">{{ trip.route }}</span><br>
@@ -253,8 +297,8 @@
                     <span
                       class="px-2.5 py-1 rounded-full text-[11px] font-semibold inline-block"
                       [ngClass]="{
-                        'bg-emerald-50 text-emerald-700 border border-emerald-200/70': trip.status === 'EM_ANDAMENTO',
-                        'bg-blue-50 text-blue-700 border border-blue-200/70': trip.status === 'PROGRAMADA'
+                        'bg-blue-50 text-blue-700 border border-blue-200/70': trip.status === 'EM_ANDAMENTO',
+                        'bg-amber-50 text-amber-700 border border-amber-200/70': trip.status === 'PROGRAMADA'
                       }"
                     >
                       {{ trip.status === 'EM_ANDAMENTO' ? 'Em andamento' : 'Programada' }}
@@ -263,7 +307,7 @@
                 </tr>
               } @empty {
                 <tr>
-                  <td colspan="4" class="py-6 text-center text-slate-400">Nenhuma viagem em andamento.</td>
+                  <td colspan="4" class="py-8 text-center text-slate-400">Nenhuma viagem em andamento no momento.</td>
                 </tr>
               }
             </tbody>
@@ -275,13 +319,13 @@
       <div class="bg-white p-6 rounded-2xl border border-slate-200/70 shadow-xs flex flex-col justify-between">
         <div>
           <div class="flex items-center justify-between mb-5">
-            <h2 class="text-base font-bold text-slate-900">Alertas recentes</h2>
-            <a href="#" class="text-xs font-medium text-blue-600 hover:underline">Ver todos</a>
+            <h2 class="text-base font-bold text-slate-900">Alertas Recentes</h2>
+            <a [routerLink]="['/vehicles']" class="text-xs font-medium text-emerald-600 hover:underline">Ver frota</a>
           </div>
 
-          <div class="space-y-4">
+          <div class="space-y-3">
             @for (alert of summary.alerts; track alert.id) {
-              <div class="flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition-colors">
+              <div class="flex items-start gap-3 p-3 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-slate-50 transition-colors">
                 <div
                   class="p-2 rounded-xl shrink-0 mt-0.5 flex items-center justify-center"
                   [ngClass]="{
@@ -299,7 +343,7 @@
                     <p class="text-xs font-bold text-slate-900 truncate">{{ alert.title }}</p>
                     <span class="text-[10px] text-slate-400 shrink-0 font-medium">{{ alert.timeAgo }}</span>
                   </div>
-                  <p class="text-xs text-slate-500 mt-0.5 truncate">{{ alert.subtitle }}</p>
+                  <p class="text-xs text-slate-500 mt-0.5">{{ alert.subtitle }}</p>
                 </div>
               </div>
             } @empty {
@@ -309,11 +353,12 @@
         </div>
 
         <div class="mt-6 pt-4 border-t border-slate-100">
-          <a href="#" class="text-xs font-semibold text-blue-600 hover:underline block text-left">
-            Ver todos os alertas
+          <a [routerLink]="['/drivers']" class="text-xs font-semibold text-emerald-600 hover:underline block text-left">
+            Verificar situação dos condutores →
           </a>
         </div>
       </div>
     </div>
   </div>
 }
+
