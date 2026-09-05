@@ -7,11 +7,64 @@
     </div>
     <button
       (click)="openModal()"
-      class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs px-4 py-2.5 rounded-xl transition-colors shadow-xs"
+      class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs px-4 py-2.5 rounded-xl transition-colors shadow-xs cursor-pointer"
     >
       <svg lucidePlus class="size-4"></svg>
       Novo Motorista
     </button>
+  </div>
+
+  <!-- BARRA DE FILTROS E BUSCA REATIVA -->
+  <div class="flex flex-col md:flex-row gap-4 justify-between items-center bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
+    <!-- Input com Debounce de 300ms via RxJS -->
+    <div class="relative w-full md:w-80">
+      <svg lucideSearch class="size-4 absolute left-3 top-2.5 text-slate-400"></svg>
+      <input
+        type="text"
+        [formControl]="searchControl"
+        placeholder="Buscar por nome, CPF ou CNH..."
+        class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 transition-colors"
+      />
+    </div>
+
+    <!-- Filtros de Status -->
+    <div class="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
+      <button
+        type="button"
+        (click)="setStatusFilter('ALL')"
+        [class]="selectedStatus() === 'ALL' ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
+        class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors shrink-0 cursor-pointer"
+      >
+        Todos
+      </button>
+
+      <button
+        type="button"
+        (click)="setStatusFilter('ACTIVE')"
+        [class]="selectedStatus() === 'ACTIVE' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
+        class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors shrink-0 cursor-pointer"
+      >
+        Ativos
+      </button>
+
+      <button
+        type="button"
+        (click)="setStatusFilter('INACTIVE')"
+        [class]="selectedStatus() === 'INACTIVE' ? 'bg-slate-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
+        class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors shrink-0 cursor-pointer"
+      >
+        Inativos
+      </button>
+
+      <button
+        type="button"
+        (click)="setStatusFilter('SUSPENDED')"
+        [class]="selectedStatus() === 'SUSPENDED' ? 'bg-rose-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
+        class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors shrink-0 cursor-pointer"
+      >
+        Suspensos
+      </button>
+    </div>
   </div>
 
   <!-- TABELA DE MOTORISTAS -->
@@ -31,18 +84,21 @@
               <th class="py-3.5 px-4">CNH / Categoria</th>
               <th class="py-3.5 px-4">Vencimento CNH</th>
               <th class="py-3.5 px-4">Status</th>
+              <th class="py-3.5 px-4 text-right">Ações</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100">
-            @for (driver of drivers(); track driver.id) {
+            @for (driver of filteredDrivers(); track driver.id) {
               <tr class="hover:bg-slate-50/50 transition-colors">
                 <td class="py-3.5 px-4">
                   <div class="font-bold text-slate-800">{{ driver.name }}</div>
                   <div class="text-slate-500 text-[11px] font-mono">{{ driver.cpf }}</div>
                 </td>
-                <td class="py-3.5 px-4 text-slate-600 flex items-center gap-1.5">
-                  <svg lucidePhone class="size-3.5 text-slate-400"></svg>
-                  <span>{{ driver.phone || '-' }}</span>
+                <td class="py-3.5 px-4 text-slate-600">
+                  <div class="flex items-center gap-1.5">
+                    <svg lucidePhone class="size-3.5 text-slate-400"></svg>
+                    <span>{{ driver.phone || '-' }}</span>
+                  </div>
                 </td>
                 <td class="py-3.5 px-4 text-slate-600">
                   <span class="font-mono font-semibold text-slate-800">{{ getCnhNumber(driver) }}</span>
@@ -72,10 +128,64 @@
                     {{ getDriverStatusLabel(driver.status) }}
                   </span>
                 </td>
+                <td class="py-3.5 px-4 text-right">
+                  <div class="inline-flex items-center justify-end gap-1.5">
+                    <!-- Ativar Motorista (Quando Inativo ou Suspenso) -->
+                    @if (isInactive(driver) || isSuspended(driver)) {
+                      <button
+                        (click)="openStatusConfirmModal(driver, 'activate')"
+                        title="Ativar Motorista"
+                        class="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors cursor-pointer"
+                      >
+                        <svg lucideUserCheck class="size-4"></svg>
+                      </button>
+                    }
+
+                    <!-- Desativar Motorista (Quando Ativo) -->
+                    @if (isActive(driver)) {
+                      <button
+                        (click)="openStatusConfirmModal(driver, 'deactivate')"
+                        title="Desativar Motorista"
+                        class="p-1.5 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+                      >
+                        <svg lucideBan class="size-4"></svg>
+                      </button>
+                    }
+
+                    <!-- Suspender Motorista (Quando Ativo) -->
+                    @if (isActive(driver)) {
+                      <button
+                        (click)="openStatusConfirmModal(driver, 'suspend')"
+                        title="Suspender Motorista"
+                        class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                      >
+                        <svg lucidePauseCircle class="size-4"></svg>
+                      </button>
+                    }
+
+                    <!-- Atualizar CNH -->
+                    <button
+                      (click)="openUpdateCnhModal(driver)"
+                      title="Atualizar / Renovar CNH"
+                      class="p-1.5 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors cursor-pointer"
+                    >
+                      <svg lucideIdCard class="size-4"></svg>
+                    </button>
+
+                    <!-- Ver Ficha / Detalhes -->
+                    <button
+                      (click)="openDetailsModal(driver)"
+                      title="Ver Perfil do Motorista"
+                      class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer"
+                    >
+                      <svg lucideEye class="size-4"></svg>
+                    </button>
+                  </div>
+                </td>
               </tr>
             } @empty {
               <tr>
-                <td colspan="5" class="py-8 text-center text-slate-400">Nenhum motorista cadastrado.</td>
+                <td colspan="6" class="py-8 text-center text-slate-400">Nenhum motorista encontrado para a busca selecionada.</td>
               </tr>
             }
           </tbody>
@@ -85,7 +195,7 @@
   </div>
 </div>
 
-<!-- MODAL DE CADASTRO DE MOTORISTA -->
+<!-- MODAL: CADASTRO DE MOTORISTA -->
 @if (isModalOpen()) {
   <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
     <div class="bg-white rounded-2xl border border-slate-200 shadow-xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in duration-150">
@@ -94,31 +204,56 @@
           <svg lucideUsers class="size-5 text-emerald-600"></svg>
           Cadastrar Novo Motorista
         </h2>
-        <button (click)="closeModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg">
+        <button (click)="closeModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg cursor-pointer">
           <svg lucideX class="size-5"></svg>
         </button>
       </div>
 
       <form [formGroup]="driverForm" (ngSubmit)="saveDriver()" class="p-6 space-y-4">
+        @if (errorMessage()) {
+          <div class="p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-start gap-2 text-rose-800 text-xs">
+            <svg lucideAlertCircle class="size-4 text-rose-600 shrink-0 mt-0.5"></svg>
+            <div class="flex-1">
+              <span class="font-semibold">Erro no cadastro:</span> {{ errorMessage() }}
+            </div>
+          </div>
+        }
+
         <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">Nome Completo</label>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">
+            Nome Completo <span class="text-rose-500">*</span>
+          </label>
           <input
             type="text"
             formControlName="name"
             placeholder="Ex: João da Silva"
-            class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-emerald-500"
+            class="w-full bg-slate-50 border rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 transition-colors"
+            [class.border-rose-400]="driverForm.get('name')?.invalid && driverForm.get('name')?.touched"
+            [class.border-slate-200]="!(driverForm.get('name')?.invalid && driverForm.get('name')?.touched)"
           />
+          @if (driverForm.get('name')?.touched && driverForm.get('name')?.errors?.['required']) {
+            <p class="text-[10px] text-rose-500 mt-1 font-medium">Campo obrigatório.</p>
+          }
         </div>
 
         <div class="grid grid-cols-2 gap-4">
           <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">CPF</label>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">
+              CPF <span class="text-rose-500">*</span>
+            </label>
             <input
               type="text"
               formControlName="cpf"
               placeholder="000.000.000-00"
-              class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-emerald-500"
+              class="w-full bg-slate-50 border rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 transition-colors"
+              [class.border-rose-400]="driverForm.get('cpf')?.invalid && driverForm.get('cpf')?.touched"
+              [class.border-slate-200]="!(driverForm.get('cpf')?.invalid && driverForm.get('cpf')?.touched)"
             />
+            @if (driverForm.get('cpf')?.touched && driverForm.get('cpf')?.errors?.['required']) {
+              <p class="text-[10px] text-rose-500 mt-1 font-medium">Campo obrigatório.</p>
+            } @else if (driverForm.get('cpf')?.touched && driverForm.get('cpf')?.errors?.['pattern']) {
+              <p class="text-[10px] text-rose-500 mt-1 font-medium">CPF inválido. Use 11 dígitos ou formato 000.000.000-00.</p>
+            }
           </div>
 
           <div>
@@ -127,27 +262,38 @@
               type="text"
               formControlName="phone"
               placeholder="(91) 99999-9999"
-              class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-emerald-500"
+              class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 transition-colors"
             />
           </div>
         </div>
 
         <div class="grid grid-cols-3 gap-3">
           <div class="col-span-2">
-            <label class="block text-xs font-semibold text-slate-700 mb-1">Número da CNH</label>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">
+              Número da CNH <span class="text-rose-500">*</span>
+            </label>
             <input
               type="text"
               formControlName="cnhNumber"
               placeholder="12345678900"
-              class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-emerald-500"
+              class="w-full bg-slate-50 border rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 transition-colors"
+              [class.border-rose-400]="driverForm.get('cnhNumber')?.invalid && driverForm.get('cnhNumber')?.touched"
+              [class.border-slate-200]="!(driverForm.get('cnhNumber')?.invalid && driverForm.get('cnhNumber')?.touched)"
             />
+            @if (driverForm.get('cnhNumber')?.touched && driverForm.get('cnhNumber')?.errors?.['required']) {
+              <p class="text-[10px] text-rose-500 mt-1 font-medium">Campo obrigatório.</p>
+            } @else if (driverForm.get('cnhNumber')?.touched && driverForm.get('cnhNumber')?.errors?.['pattern']) {
+              <p class="text-[10px] text-rose-500 mt-1 font-medium">A CNH deve conter 11 dígitos.</p>
+            }
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">Categoria</label>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">
+              Categoria <span class="text-rose-500">*</span>
+            </label>
             <select
               formControlName="cnhCategory"
-              class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-emerald-500"
+              class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 transition-colors"
             >
               @for (cat of cnhCategories; track cat) {
                 <option [value]="cat">Cat. {{ cat }}</option>
@@ -157,26 +303,33 @@
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">Vencimento da CNH</label>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">
+            Vencimento da CNH <span class="text-rose-500">*</span>
+          </label>
           <input
             type="date"
             formControlName="cnhExpiration"
-            class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-emerald-500"
+            class="w-full bg-slate-50 border rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 transition-colors"
+            [class.border-rose-400]="driverForm.get('cnhExpiration')?.invalid && driverForm.get('cnhExpiration')?.touched"
+            [class.border-slate-200]="!(driverForm.get('cnhExpiration')?.invalid && driverForm.get('cnhExpiration')?.touched)"
           />
+          @if (driverForm.get('cnhExpiration')?.touched && driverForm.get('cnhExpiration')?.errors?.['required']) {
+            <p class="text-[10px] text-rose-500 mt-1 font-medium">Campo obrigatório.</p>
+          }
         </div>
 
         <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
           <button
             type="button"
             (click)="closeModal()"
-            class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+            class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
           >
             Cancelar
           </button>
           <button
             type="submit"
             [disabled]="isSaving()"
-            class="px-4 py-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50"
+            class="px-4 py-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50 cursor-pointer"
           >
             @if (isSaving()) {
               <svg lucideLoader2 class="size-4 animate-spin"></svg>
@@ -188,3 +341,301 @@
     </div>
   </div>
 }
+
+<!-- MODAL: CONFIRMAR ALTERAÇÃO DE STATUS -->
+@if (isStatusConfirmModalOpen() && selectedDriver()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-150">
+      <div class="p-6 text-center space-y-4">
+        <div class="size-12 rounded-2xl flex items-center justify-center mx-auto border"
+          [ngClass]="pendingStatusAction() === 'activate' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : (pendingStatusAction() === 'deactivate' ? 'bg-slate-100 text-slate-600 border-slate-200' : 'bg-rose-50 text-rose-600 border-rose-200')"
+        >
+          @if (pendingStatusAction() === 'activate') {
+            <svg lucideUserCheck class="size-6"></svg>
+          } @else if (pendingStatusAction() === 'deactivate') {
+            <svg lucideBan class="size-6"></svg>
+          } @else {
+            <svg lucidePauseCircle class="size-6"></svg>
+          }
+        </div>
+
+        <div>
+          <h3 class="text-base font-bold text-slate-800">
+            @if (pendingStatusAction() === 'activate') {
+              Ativar Motorista
+            } @else if (pendingStatusAction() === 'deactivate') {
+              Desativar Motorista
+            } @else {
+              Suspender Motorista
+            }
+          </h3>
+          <p class="text-xs text-slate-500 mt-1">
+            @if (pendingStatusAction() === 'activate') {
+              Deseja reativar o motorista? Ele ficará disponível para novas viagens.
+            } @else if (pendingStatusAction() === 'deactivate') {
+              Deseja desativar o cadastro do motorista?
+            } @else {
+              Deseja suspender temporariamente o motorista? Ele não poderá ser escalado para viagens.
+            }
+          </p>
+        </div>
+
+        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200/70 text-left space-y-2 text-xs">
+          <div class="flex justify-between items-center">
+            <span class="text-slate-500">Motorista:</span>
+            <span class="font-bold text-slate-800">{{ selectedDriver()?.name }}</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-slate-500">CPF:</span>
+            <span class="font-mono text-slate-700">{{ selectedDriver()?.cpf }}</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-slate-500">Status Atual:</span>
+            <span class="font-semibold">{{ getDriverStatusLabel(selectedDriver()!.status) }}</span>
+          </div>
+        </div>
+
+        @if (actionError()) {
+          <div class="p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-center gap-2 text-rose-800 text-xs text-left">
+            <svg lucideAlertCircle class="size-4 text-rose-600 shrink-0"></svg>
+            <span>{{ actionError() }}</span>
+          </div>
+        }
+
+        <div class="flex items-center gap-3 pt-2">
+          <button
+            type="button"
+            (click)="closeStatusConfirmModal()"
+            [disabled]="isActionLoading()"
+            class="flex-1 py-2.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            (click)="confirmStatusChange()"
+            [disabled]="isActionLoading()"
+            [ngClass]="pendingStatusAction() === 'activate' ? 'bg-emerald-600 hover:bg-emerald-700' : (pendingStatusAction() === 'deactivate' ? 'bg-slate-700 hover:bg-slate-800' : 'bg-rose-600 hover:bg-rose-700')"
+            class="flex-1 py-2.5 text-xs font-semibold text-white rounded-xl transition-colors flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer shadow-xs"
+          >
+            @if (isActionLoading()) {
+              <svg lucideLoader2 class="size-4 animate-spin"></svg>
+            }
+            Confirmar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- MODAL: ATUALIZAR / RENOVAR CNH -->
+@if (isUpdateCnhModalOpen() && selectedDriver()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-150">
+      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+        <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
+          <svg lucideIdCard class="size-5 text-indigo-600"></svg>
+          Atualizar / Renovar CNH
+        </h2>
+        <button (click)="closeUpdateCnhModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg transition-colors cursor-pointer">
+          <svg lucideX class="size-5"></svg>
+        </button>
+      </div>
+
+      <form [formGroup]="updateCnhForm" (ngSubmit)="confirmUpdateCnh()" class="p-6 space-y-4">
+        @if (actionError()) {
+          <div class="p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-center gap-2 text-rose-800 text-xs">
+            <svg lucideAlertCircle class="size-4 text-rose-600 shrink-0"></svg>
+            <span>{{ actionError() }}</span>
+          </div>
+        }
+
+        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200/70 space-y-1 text-xs">
+          <div class="text-slate-500">Condutor:</div>
+          <div class="font-bold text-slate-800">{{ selectedDriver()?.name }}</div>
+          <div class="text-slate-600">CPF: <span class="font-mono">{{ selectedDriver()?.cpf }}</span></div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-3">
+          <div class="col-span-2">
+            <label class="block text-xs font-semibold text-slate-700 mb-1">
+              Número da CNH <span class="text-rose-500">*</span>
+            </label>
+            <input
+              type="text"
+              formControlName="cnhNumber"
+              placeholder="12345678900"
+              class="w-full bg-slate-50 border rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-indigo-500 transition-colors"
+              [class.border-rose-400]="updateCnhForm.get('cnhNumber')?.invalid && updateCnhForm.get('cnhNumber')?.touched"
+              [class.border-slate-200]="!(updateCnhForm.get('cnhNumber')?.invalid && updateCnhForm.get('cnhNumber')?.touched)"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">
+              Categoria <span class="text-rose-500">*</span>
+            </label>
+            <select
+              formControlName="cnhCategory"
+              class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-indigo-500 transition-colors"
+            >
+              @for (cat of cnhCategories; track cat) {
+                <option [value]="cat">Cat. {{ cat }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">
+            Nova Data de Vencimento <span class="text-rose-500">*</span>
+          </label>
+          <input
+            type="date"
+            formControlName="cnhExpirationDate"
+            class="w-full bg-slate-50 border rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-indigo-500 transition-colors"
+            [class.border-rose-400]="updateCnhForm.get('cnhExpirationDate')?.invalid && updateCnhForm.get('cnhExpirationDate')?.touched"
+            [class.border-slate-200]="!(updateCnhForm.get('cnhExpirationDate')?.invalid && updateCnhForm.get('cnhExpirationDate')?.touched)"
+          />
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
+          <button
+            type="button"
+            (click)="closeUpdateCnhModal()"
+            [disabled]="isActionLoading()"
+            class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            [disabled]="isActionLoading()"
+            class="px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50 cursor-pointer shadow-xs"
+          >
+            @if (isActionLoading()) {
+              <svg lucideLoader2 class="size-4 animate-spin"></svg>
+            }
+            Salvar CNH
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+<!-- MODAL: FICHA / DETALHES DO MOTORISTA -->
+@if (isDetailsModalOpen() && selectedDriver()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in duration-150">
+      <!-- HEADER DO MODAL -->
+      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+        <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
+          <svg lucideIdCard class="size-5 text-indigo-600"></svg>
+          Ficha do Condutor
+        </h2>
+        <button (click)="closeDetailsModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg transition-colors cursor-pointer">
+          <svg lucideX class="size-5"></svg>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-6">
+        <!-- HEADER COM AVATAR E DADOS PRINCIPAIS -->
+        <div class="flex items-center gap-4">
+          <div class="size-14 rounded-2xl bg-indigo-50 text-indigo-600 border border-indigo-200 flex items-center justify-center text-xl font-bold">
+            {{ selectedDriver()?.name?.charAt(0) || 'M' }}
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-slate-800">{{ selectedDriver()?.name }}</h3>
+            <div class="flex items-center gap-2 mt-1">
+              <span
+                class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold inline-flex items-center gap-1.5 border"
+                [ngClass]="getDriverStatusClass(selectedDriver()!.status)"
+              >
+                <span class="size-1.5 rounded-full" [ngClass]="getDriverStatusDotClass(selectedDriver()!.status)"></span>
+                {{ getDriverStatusLabel(selectedDriver()!.status) }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- CARDS DE INFORMAÇÃO -->
+        <div class="grid grid-cols-2 gap-3 text-xs">
+          <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/70">
+            <div class="text-[11px] text-slate-400 font-medium">CPF do Condutor</div>
+            <div class="text-sm font-bold text-slate-800 mt-0.5 font-mono">{{ selectedDriver()?.cpf }}</div>
+          </div>
+
+          <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/70">
+            <div class="text-[11px] text-slate-400 font-medium">Telefone / WhatsApp</div>
+            <div class="text-sm font-bold text-slate-800 mt-0.5">{{ selectedDriver()?.phone || 'Não informado' }}</div>
+          </div>
+        </div>
+
+        <!-- CARTEIRA DE MOTORISTA (CNH) CARD -->
+        <div class="p-4 bg-gradient-to-br from-indigo-50/50 to-blue-50/30 rounded-2xl border border-indigo-100 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-indigo-950 uppercase tracking-wider">Carteira Nacional de Habilitação</span>
+            <span class="px-2 py-0.5 bg-indigo-600 text-white text-[11px] font-bold rounded-md shadow-2xs">
+              Cat. {{ getCnhCategory(selectedDriver()!) }}
+            </span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 text-xs pt-1">
+            <div>
+              <span class="text-[10px] text-slate-400 block font-medium">Nº DO REGISTRO</span>
+              <span class="font-mono font-bold text-slate-800 text-sm">{{ getCnhNumber(selectedDriver()!) }}</span>
+            </div>
+            <div>
+              <span class="text-[10px] text-slate-400 block font-medium">VALIDADE</span>
+              <span class="font-bold text-slate-800 text-sm">
+                {{ (getCnhExpiration(selectedDriver()!) | date:'dd/MM/yyyy') || 'Não informada' }}
+              </span>
+            </div>
+          </div>
+
+          <div class="pt-2 border-t border-indigo-100 flex items-center justify-between">
+            <div class="flex items-center gap-1.5 text-xs">
+              @if (isCnhExpired(getCnhExpiration(selectedDriver()!))) {
+                <span class="px-2 py-0.5 bg-rose-100 text-rose-700 font-bold rounded text-[10px] border border-rose-200 flex items-center gap-1">
+                  <svg lucideAlertTriangle class="size-3"></svg>
+                  CNH Vencida
+                </span>
+              } @else if (isCnhExpiringSoon(getCnhExpiration(selectedDriver()!))) {
+                <span class="px-2 py-0.5 bg-amber-100 text-amber-700 font-semibold rounded text-[10px] border border-amber-200 flex items-center gap-1">
+                  <svg lucideAlertTriangle class="size-3"></svg>
+                  Vencimento Próximo
+                </span>
+              } @else {
+                <span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 font-semibold rounded text-[10px] border border-emerald-200 flex items-center gap-1">
+                  <svg lucideCheck class="size-3"></svg>
+                  Habilitação Regular
+                </span>
+              }
+            </div>
+
+            <button
+              type="button"
+              (click)="closeDetailsModal(); openUpdateCnhModal(selectedDriver()!)"
+              class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition-colors cursor-pointer"
+            >
+              Renovar CNH →
+            </button>
+          </div>
+        </div>
+
+        <div class="pt-2 flex justify-end">
+          <button
+            type="button"
+            (click)="closeDetailsModal()"
+            class="px-5 py-2.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer"
+          >
+            Fechar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+

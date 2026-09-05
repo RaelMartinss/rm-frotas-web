@@ -1,7 +1,10 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { IDriverRepository } from '../../domain/repositories/driver.repository.interface';
+import { ToastService } from '../../core/services/toast.service';
 import { Driver, CnhCategory } from '../../domain/models/driver.model';
 import {
   LucideUsers,
@@ -12,7 +15,14 @@ import {
   LucideAlertTriangle,
   LucideCheckCircle2,
   LucidePhone,
-  LucideIdCard
+  LucideIdCard,
+  LucideEye,
+  LucideAlertCircle,
+  LucideCheck,
+  LucideBan,
+  LucidePauseCircle,
+  LucideCalendar,
+  LucideUserCheck
 } from '@lucide/angular';
 
 @Component({
@@ -23,32 +33,102 @@ import {
     ReactiveFormsModule,
     LucideUsers,
     LucidePlus,
+    LucideSearch,
     LucideLoader2,
     LucideX,
     LucideAlertTriangle,
+    LucideCheckCircle2,
     LucidePhone,
+    LucideIdCard,
+    LucideEye,
+    LucideAlertCircle,
+    LucideCheck,
+    LucideBan,
+    LucidePauseCircle,
+    LucideCalendar,
+    LucideUserCheck
   ],
   templateUrl: './driver-list.html',
   styleUrl: './driver-list.css'
 })
 export class DriverListComponent implements OnInit {
   private readonly driverRepository = inject(IDriverRepository);
+  private readonly toastService = inject(ToastService);
   private readonly fb = inject(FormBuilder);
 
   drivers = signal<Driver[]>([]);
   loading = signal<boolean>(true);
+
+  // Modais de Criação e Ações
   isModalOpen = signal<boolean>(false);
   isSaving = signal<boolean>(false);
+  errorMessage = signal<string | null>(null);
+
+  selectedDriver = signal<Driver | null>(null);
+  isUpdateCnhModalOpen = signal<boolean>(false);
+  isDetailsModalOpen = signal<boolean>(false);
+  isStatusConfirmModalOpen = signal<boolean>(false);
+  pendingStatusAction = signal<'activate' | 'deactivate' | 'suspend' | null>(null);
+
+  isActionLoading = signal<boolean>(false);
+  actionError = signal<string | null>(null);
 
   cnhCategories: CnhCategory[] = ['A', 'B', 'C', 'D', 'E', 'AB', 'AC', 'AD', 'AE'];
+
+  // --- FILTROS E BUSCA REATIVA ---
+  searchControl = new FormControl('', { nonNullable: true });
+  selectedStatus = signal<string>('ALL');
+
+  searchTerm = toSignal(
+    this.searchControl.valueChanges.pipe(
+      debounceTime(300),
+      distinctUntilChanged()
+    ),
+    { initialValue: '' }
+  );
+
+  filteredDrivers = computed(() => {
+    const list = this.drivers();
+    const term = this.searchTerm().toLowerCase().trim();
+    const status = this.selectedStatus();
+
+    return list.filter((driver) => {
+      const cnhNum = this.getCnhNumber(driver).toLowerCase();
+      const matchesSearch =
+        driver.name.toLowerCase().includes(term) ||
+        driver.cpf.toLowerCase().includes(term) ||
+        cnhNum.includes(term);
+
+      let matchesStatus = status === 'ALL';
+      if (!matchesStatus) {
+        if (status === 'ACTIVE') {
+          matchesStatus = driver.status === 'ACTIVE' || driver.status === 'DISPONIVEL';
+        } else if (status === 'INACTIVE') {
+          matchesStatus = driver.status === 'INACTIVE' || driver.status === 'FOLGA';
+        } else if (status === 'SUSPENDED') {
+          matchesStatus = driver.status === 'SUSPENDED' || driver.status === 'AFASTADO';
+        } else {
+          matchesStatus = driver.status === status;
+        }
+      }
+
+      return matchesSearch && matchesStatus;
+    });
+  });
 
   driverForm: FormGroup = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(3)]],
     cpf: ['', [Validators.required, Validators.pattern(/^\d{3}\.\d{3}\.\d{3}-\d{2}$|^\d{11}$/)]],
-    phone: ['', [Validators.required]],
+    phone: [''],
     cnhNumber: ['', [Validators.required, Validators.pattern(/^\d{11}$/)]],
     cnhCategory: ['D', [Validators.required]],
     cnhExpiration: ['', [Validators.required]]
+  });
+
+  updateCnhForm: FormGroup = this.fb.group({
+    cnhNumber: ['', [Validators.required, Validators.pattern(/^\d{11}$/)]],
+    cnhCategory: ['D', [Validators.required]],
+    cnhExpirationDate: ['', [Validators.required]]
   });
 
   ngOnInit(): void {
@@ -62,17 +142,26 @@ export class DriverListComponent implements OnInit {
         this.drivers.set(data);
         this.loading.set(false);
       },
-      error: () => this.loading.set(false)
+      error: () => {
+        this.loading.set(false);
+        this.toastService.error('Erro ao carregar lista de motoristas.');
+      }
     });
   }
 
+  setStatusFilter(status: string): void {
+    this.selectedStatus.set(status);
+  }
+
   openModal(): void {
+    this.errorMessage.set(null);
     this.driverForm.reset({ cnhCategory: 'D' });
     this.isModalOpen.set(true);
   }
 
   closeModal(): void {
     this.isModalOpen.set(false);
+    this.errorMessage.set(null);
   }
 
   getCnhNumber(driver: Driver): string {
@@ -87,7 +176,7 @@ export class DriverListComponent implements OnInit {
     return driver.cnh?.expirationDate || driver.cnhExpiration || '';
   }
 
-  isCnhExpired(expirationDateStr: string): boolean {
+  isCnhExpired(expirationDateStr?: string): boolean {
     if (!expirationDateStr) return false;
     const expirationDate = new Date(expirationDateStr);
     const today = new Date();
@@ -95,7 +184,7 @@ export class DriverListComponent implements OnInit {
     return expirationDate < today;
   }
 
-  isCnhExpiringSoon(expirationDateStr: string): boolean {
+  isCnhExpiringSoon(expirationDateStr?: string): boolean {
     if (!expirationDateStr) return false;
     const expirationDate = new Date(expirationDateStr);
     const today = new Date();
@@ -132,7 +221,7 @@ export class DriverListComponent implements OnInit {
         return 'bg-blue-50 text-blue-700 border-blue-200/70';
       case 'INACTIVE':
       case 'FOLGA':
-        return 'bg-amber-50 text-amber-700 border-amber-200/70';
+        return 'bg-slate-100 text-slate-700 border-slate-200';
       case 'SUSPENDED':
       case 'AFASTADO':
       default:
@@ -149,7 +238,7 @@ export class DriverListComponent implements OnInit {
         return 'bg-blue-500';
       case 'INACTIVE':
       case 'FOLGA':
-        return 'bg-amber-500';
+        return 'bg-slate-500';
       case 'SUSPENDED':
       case 'AFASTADO':
       default:
@@ -157,9 +246,24 @@ export class DriverListComponent implements OnInit {
     }
   }
 
+  isActive(driver: Driver): boolean {
+    return driver.status === 'ACTIVE' || driver.status === 'DISPONIVEL';
+  }
+
+  isInactive(driver: Driver): boolean {
+    return driver.status === 'INACTIVE' || driver.status === 'FOLGA';
+  }
+
+  isSuspended(driver: Driver): boolean {
+    return driver.status === 'SUSPENDED' || driver.status === 'AFASTADO';
+  }
+
   saveDriver(): void {
+    this.errorMessage.set(null);
+
     if (this.driverForm.invalid) {
       this.driverForm.markAllAsTouched();
+      this.toastService.error('Por favor, preencha todos os campos obrigatórios corretamente.');
       return;
     }
 
@@ -179,9 +283,144 @@ export class DriverListComponent implements OnInit {
       next: (newDriver) => {
         this.drivers.update((list) => [newDriver, ...list]);
         this.isSaving.set(false);
+        this.toastService.success('Motorista cadastrado com sucesso!');
         this.closeModal();
       },
-      error: () => this.isSaving.set(false)
+      error: (err) => {
+        this.isSaving.set(false);
+        let msg = 'Erro ao cadastrar motorista. Verifique os dados informados.';
+        if (err.error?.message) {
+          msg = Array.isArray(err.error.message) ? err.error.message.join(', ') : err.error.message;
+        }
+        this.errorMessage.set(msg);
+        this.toastService.error(`Motorista não cadastrado: ${msg}`);
+      }
     });
+  }
+
+  // --- AÇÕES: MUDANÇA DE STATUS ---
+  openStatusConfirmModal(driver: Driver, action: 'activate' | 'deactivate' | 'suspend'): void {
+    this.selectedDriver.set(driver);
+    this.pendingStatusAction.set(action);
+    this.actionError.set(null);
+    this.isStatusConfirmModalOpen.set(true);
+  }
+
+  closeStatusConfirmModal(): void {
+    this.isStatusConfirmModalOpen.set(false);
+    this.selectedDriver.set(null);
+    this.pendingStatusAction.set(null);
+    this.actionError.set(null);
+  }
+
+  confirmStatusChange(): void {
+    const driver = this.selectedDriver();
+    const action = this.pendingStatusAction();
+    if (!driver || !action) return;
+
+    this.isActionLoading.set(true);
+    this.actionError.set(null);
+
+    let request$;
+    let successMessage = '';
+
+    if (action === 'activate') {
+      request$ = this.driverRepository.activate(driver.id);
+      successMessage = `Motorista ${driver.name} ativado com sucesso!`;
+    } else if (action === 'deactivate') {
+      request$ = this.driverRepository.deactivate(driver.id);
+      successMessage = `Motorista ${driver.name} desativado com sucesso.`;
+    } else {
+      request$ = this.driverRepository.suspend(driver.id);
+      successMessage = `Motorista ${driver.name} suspenso.`;
+    }
+
+    request$.subscribe({
+      next: (updatedDriver) => {
+        this.drivers.update((list) =>
+          list.map((d) => (d.id === updatedDriver.id ? updatedDriver : d))
+        );
+        this.isActionLoading.set(false);
+        this.toastService.success(successMessage);
+        this.closeStatusConfirmModal();
+      },
+      error: (err) => {
+        this.isActionLoading.set(false);
+        const msg = err.error?.message || 'Erro ao alterar status do motorista.';
+        this.actionError.set(msg);
+        this.toastService.error(msg);
+      }
+    });
+  }
+
+  // --- AÇÕES: ATUALIZAR / RENOVAR CNH ---
+  openUpdateCnhModal(driver: Driver): void {
+    this.selectedDriver.set(driver);
+    this.actionError.set(null);
+
+    const currentExp = this.getCnhExpiration(driver);
+    const dateFormatted = currentExp ? currentExp.split('T')[0] : '';
+
+    this.updateCnhForm.reset({
+      cnhNumber: this.getCnhNumber(driver) === '-' ? '' : this.getCnhNumber(driver),
+      cnhCategory: this.getCnhCategory(driver) === '-' ? 'D' : this.getCnhCategory(driver),
+      cnhExpirationDate: dateFormatted
+    });
+
+    this.isUpdateCnhModalOpen.set(true);
+  }
+
+  closeUpdateCnhModal(): void {
+    this.isUpdateCnhModalOpen.set(false);
+    this.selectedDriver.set(null);
+    this.actionError.set(null);
+  }
+
+  confirmUpdateCnh(): void {
+    const driver = this.selectedDriver();
+    if (!driver) return;
+
+    if (this.updateCnhForm.invalid) {
+      this.updateCnhForm.markAllAsTouched();
+      this.toastService.error('Preencha os dados da CNH corretamente.');
+      return;
+    }
+
+    this.isActionLoading.set(true);
+    this.actionError.set(null);
+
+    const formValue = this.updateCnhForm.value;
+
+    this.driverRepository.updateCnh(driver.id, {
+      cnhNumber: formValue.cnhNumber,
+      cnhCategory: formValue.cnhCategory,
+      cnhExpirationDate: formValue.cnhExpirationDate
+    }).subscribe({
+      next: (updatedDriver) => {
+        this.drivers.update((list) =>
+          list.map((d) => (d.id === updatedDriver.id ? updatedDriver : d))
+        );
+        this.isActionLoading.set(false);
+        this.toastService.success(`CNH de ${driver.name} atualizada com sucesso!`);
+        this.closeUpdateCnhModal();
+      },
+      error: (err) => {
+        this.isActionLoading.set(false);
+        const msg = err.error?.message || 'Erro ao atualizar dados da CNH.';
+        this.actionError.set(msg);
+        this.toastService.error(msg);
+      }
+    });
+  }
+
+  // --- AÇÕES: DETALHES / FICHA DO MOTORISTA ---
+  openDetailsModal(driver: Driver): void {
+    this.selectedDriver.set(driver);
+    this.isDetailsModalOpen.set(true);
+  }
+
+  closeDetailsModal(): void {
+    this.isDetailsModalOpen.set(false);
+    this.selectedDriver.set(null);
   }
 }

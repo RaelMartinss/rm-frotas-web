@@ -1,10 +1,20 @@
 import { Observable } from 'rxjs';
-import { Driver, CreateDriverDTO } from '../models/driver.model';
+import { Driver, CreateDriverDTO, CnhCategory } from '../models/driver.model';
+
+export interface UpdateDriverCnhDTO {
+  cnhNumber: string;
+  cnhCategory: CnhCategory;
+  cnhExpirationDate: string;
+}
 
 export abstract class IDriverRepository {
   abstract getAll(): Observable<Driver[]>;
   abstract getById(id: string): Observable<Driver>;
   abstract create(driver: CreateDriverDTO): Observable<Driver>;
   abstract update(id: string, driver: Partial<CreateDriverDTO>): Observable<Driver>;
+  abstract activate(id: string): Observable<Driver>;
+  abstract deactivate(id: string): Observable<Driver>;
+  abstract suspend(id: string): Observable<Driver>;
+  abstract updateCnh(id: string, data: UpdateDriverCnhDTO): Observable<Driver>;
   abstract delete(id: string): Observable<void>;
 }
