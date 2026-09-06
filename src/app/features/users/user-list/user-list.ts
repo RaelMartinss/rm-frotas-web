@@ -14,7 +14,11 @@ import {
   LucideX,
   LucideCheckCircle2,
   LucideXCircle,
-  LucideAlertCircle
+  LucideAlertCircle,
+  LucideChevronLeft,
+  LucideChevronRight,
+  LucideChevronsLeft,
+  LucideChevronsRight
 } from '@lucide/angular';
 
 @Component({
@@ -30,7 +34,11 @@ import {
     LucideX,
     LucideCheckCircle2,
     LucideXCircle,
-    LucideAlertCircle
+    LucideAlertCircle,
+    LucideChevronLeft,
+    LucideChevronRight,
+    LucideChevronsLeft,
+    LucideChevronsRight
   ],
   templateUrl: './user-list.html'
 })
@@ -44,6 +52,11 @@ export class UserListComponent implements OnInit {
   isModalOpen = signal<boolean>(false);
   isSaving = signal<boolean>(false);
   errorMessage = signal<string | null>(null);
+
+  // --- PAGINAÇÃO (MÁXIMO 10 POR PÁGINA) ---
+  currentPage = signal<number>(1);
+  pageSize = signal<number>(10);
+  pageSizeOptions: number[] = [10, 25, 50];
 
   // Busca e Filtros Reativos
   searchControl = new FormControl('', { nonNullable: true });
@@ -69,10 +82,6 @@ export class UserListComponent implements OnInit {
     () => this.users().filter((u) => u.role === 'DRIVER').length
   );
 
-  clearSearch(): void {
-    this.searchControl.setValue('');
-  }
-
   filteredUsers = computed(() => {
     const list = this.users();
     const term = this.searchTerm().toLowerCase().trim();
@@ -89,6 +98,81 @@ export class UserListComponent implements OnInit {
     });
   });
 
+  totalItems = computed(() => this.filteredUsers().length);
+  totalPages = computed(() => Math.ceil(this.totalItems() / this.pageSize()) || 1);
+
+  startIndex = computed(() => {
+    if (this.totalItems() === 0) return 0;
+    return (this.currentPage() - 1) * this.pageSize() + 1;
+  });
+
+  endIndex = computed(() => {
+    return Math.min(this.currentPage() * this.pageSize(), this.totalItems());
+  });
+
+  displayedUsers = computed(() => {
+    const start = (this.currentPage() - 1) * this.pageSize();
+    return this.filteredUsers().slice(start, start + this.pageSize());
+  });
+
+  // Gera lista de páginas com elipses
+  pageNumbers = computed(() => {
+    const total = this.totalPages();
+    const current = this.currentPage();
+    const delta = 1;
+    const range: (number | string)[] = [];
+
+    if (total <= 7) {
+      for (let i = 1; i <= total; i++) range.push(i);
+      return range;
+    }
+
+    const left = Math.max(2, current - delta);
+    const right = Math.min(total - 1, current + delta);
+
+    range.push(1);
+    if (left > 2) range.push('...');
+    for (let i = left; i <= right; i++) range.push(i);
+    if (right < total - 1) range.push('...');
+    range.push(total);
+
+    return range;
+  });
+
+  clearSearch(): void {
+    this.searchControl.setValue('');
+    this.currentPage.set(1);
+  }
+
+  setRoleFilter(role: string): void {
+    this.selectedRole.set(role);
+    this.currentPage.set(1);
+  }
+
+  setPage(page: number | string): void {
+    if (typeof page !== 'number' || page < 1 || page > this.totalPages() || page === this.currentPage()) {
+      return;
+    }
+    this.currentPage.set(page);
+  }
+
+  nextPage(): void {
+    if (this.currentPage() < this.totalPages()) {
+      this.setPage(this.currentPage() + 1);
+    }
+  }
+
+  prevPage(): void {
+    if (this.currentPage() > 1) {
+      this.setPage(this.currentPage() - 1);
+    }
+  }
+
+  setPageSize(newSize: number): void {
+    this.pageSize.set(newSize);
+    this.currentPage.set(1);
+  }
+
   userForm: FormGroup = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(3)]],
     email: ['', [Validators.required, Validators.email]],
@@ -97,6 +181,12 @@ export class UserListComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    this.searchControl.valueChanges
+      .pipe(debounceTime(350), distinctUntilChanged())
+      .subscribe(() => {
+        this.currentPage.set(1);
+      });
+
     this.loadUsers();
   }
 
@@ -112,10 +202,6 @@ export class UserListComponent implements OnInit {
         this.toastService.error('Erro ao carregar lista de usuários.');
       }
     });
-  }
-
-  setRoleFilter(role: string): void {
-    this.selectedRole.set(role);
   }
 
   openModal(): void {
@@ -178,5 +264,3 @@ export class UserListComponent implements OnInit {
     });
   }
 }
-
-
