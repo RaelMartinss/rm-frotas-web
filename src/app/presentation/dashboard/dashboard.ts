@@ -87,6 +87,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
     );
   });
 
+  // Limita a exibição dos cards da dashboard em até 4 itens para manter layout compacto sem scroll excessivo
+  topTrips = computed(() => {
+    return this.data()?.trips.slice(0, 4) || [];
+  });
+
+  topExpirations = computed(() => {
+    return this.data()?.expirations.slice(0, 4) || [];
+  });
+
   ngOnInit(): void {
     this.loadDashboardData();
   }
