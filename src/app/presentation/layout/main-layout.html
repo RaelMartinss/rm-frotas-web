@@ -1,7 +1,15 @@
-<div class="min-h-screen flex bg-slate-100 text-slate-800 font-sans">
+<div class="min-h-screen flex bg-slate-100 text-slate-800 font-sans relative">
+  <!-- BACKDROP MOBILE PARA SIDEBAR -->
+  @if (sidebarOpen()) {
+    <div
+      class="fixed inset-0 bg-slate-950/40 backdrop-blur-xs z-25 lg:hidden"
+      (click)="toggleSidebar()"
+    ></div>
+  }
+
   <!-- SIDEBAR LATERAL -->
   <aside
-    class="bg-[#0f172a] text-slate-300 w-64 flex-shrink-0 flex flex-col justify-between transition-all duration-300 z-30"
+    class="bg-[#0f172a] text-slate-300 w-64 flex-shrink-0 flex flex-col justify-between transition-all duration-300 z-30 fixed lg:static inset-y-0 left-0"
     [class.-ml-64]="!sidebarOpen()"
   >
     <div>
@@ -166,8 +174,8 @@
   <!-- ÁREA DE CONTEÚDO PRINCIPAL -->
   <div class="flex-1 flex flex-col min-w-0">
     <!-- CABEÇALHO SUPERIOR -->
-    <header class="h-16 bg-white border-b border-slate-200/80 px-6 flex items-center justify-between sticky top-0 z-20">
-      <div class="flex items-center gap-4">
+    <header class="h-16 bg-white border-b border-slate-200/80 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-20">
+      <div class="flex items-center gap-3 sm:gap-4">
         <button
           (click)="toggleSidebar()"
           class="p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
@@ -175,35 +183,271 @@
         >
           <svg lucideMenu class="size-5"></svg>
         </button>
-      </div>
 
-      <div class="flex items-center gap-4">
-        <!-- Barra de Busca -->
-        <div class="relative w-64 sm:w-72 hidden sm:block">
-          <svg lucideSearch class="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></svg>
-          <input
-            type="text"
-            placeholder="Buscar..."
-            class="w-full bg-slate-50 text-slate-700 text-xs rounded-xl pl-9 pr-14 py-2 border border-slate-200/80 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all placeholder:text-slate-400"
-          />
-          <span class="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-mono text-slate-400 bg-white border border-slate-200 px-1.5 py-0.5 rounded shadow-2xs">
-            Ctrl + K
-          </span>
-        </div>
-
-        <!-- Botão de Notificações com Badge -->
-        <button class="relative p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer" title="Notificações">
-          <svg lucideBell class="size-5"></svg>
-          <span class="absolute -top-0.5 -right-0.5 size-4 bg-emerald-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center ring-2 ring-white">
-            3
+        <!-- Botão de Trigger da Command Palette (Desktop & Mobile) -->
+        <button
+          (click)="toggleCommandPalette()"
+          class="flex items-center gap-2.5 px-3.5 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100/80 border border-slate-200/80 text-slate-400 hover:text-slate-600 transition-all text-xs cursor-pointer text-left w-48 sm:w-72 shadow-2xs group"
+          title="Abrir Command Palette (Ctrl + K)"
+        >
+          <svg lucideSearch class="size-4 text-slate-400 group-hover:text-emerald-600 transition-colors shrink-0"></svg>
+          <span class="truncate flex-1 text-slate-500 group-hover:text-slate-700">Buscar ou executar...</span>
+          <span class="hidden sm:inline-flex items-center gap-0.5 text-[10px] font-mono text-slate-400 bg-white border border-slate-200 px-1.5 py-0.5 rounded shadow-2xs">
+            Ctrl K
           </span>
         </button>
+      </div>
+
+      <div class="flex items-center gap-2 sm:gap-4 relative">
+        <!-- Botão de Notificações com Badge -->
+        <button
+          (click)="toggleNotifications()"
+          class="relative p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+          [class.bg-slate-100]="notificationsOpen()"
+          title="Notificações da Frota"
+        >
+          <svg lucideBell class="size-5"></svg>
+          @if (unreadNotificationsCount() > 0) {
+            <span class="absolute 1 top-1.5 right-1.5 size-4 bg-rose-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center ring-2 ring-white animate-pulse">
+              {{ unreadNotificationsCount() }}
+            </span>
+          }
+        </button>
+
+        <!-- DROPDOWN FLUTUANTE DE NOTIFICAÇÕES -->
+        @if (notificationsOpen()) {
+          <!-- Backdrop Invisível para fechar ao clicar fora -->
+          <div class="fixed inset-0 z-40 bg-transparent" (click)="closeNotifications()"></div>
+
+          <div
+            class="absolute right-0 top-12 w-80 sm:w-96 bg-white border border-slate-200/90 rounded-2xl shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150"
+          >
+            <!-- Header do Dropdown -->
+            <div class="px-4 py-3 bg-slate-50/80 border-b border-slate-100 flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-bold text-slate-900">Notificações da Frota</span>
+                @if (unreadNotificationsCount() > 0) {
+                  <span class="text-[10px] font-semibold bg-rose-50 text-rose-600 px-2 py-0.5 rounded-full border border-rose-200/50">
+                    {{ unreadNotificationsCount() }} pendentes
+                  </span>
+                }
+              </div>
+              @if (unreadNotificationsCount() > 0) {
+                <button
+                  (click)="markAllNotificationsAsRead()"
+                  class="text-[11px] text-emerald-600 hover:text-emerald-700 font-medium hover:underline cursor-pointer flex items-center gap-1"
+                >
+                  <svg lucideCheck class="size-3"></svg>
+                  Marcar lidas
+                </button>
+              }
+            </div>
+
+            <!-- Lista de Notificações -->
+            <div class="max-h-80 overflow-y-auto divide-y divide-slate-100">
+              @for (notif of notifications(); track notif.id) {
+                <a
+                  [routerLink]="notif.link"
+                  (click)="markNotificationAsRead(notif.id); closeNotifications()"
+                  class="p-3.5 flex gap-3 hover:bg-slate-50 transition-colors cursor-pointer group"
+                  [class.bg-slate-50/40]="!notif.read"
+                >
+                  <!-- Ícone por tipo -->
+                  <div class="mt-0.5 shrink-0">
+                    @if (notif.type === 'CRITICAL') {
+                      <div class="size-7 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center border border-rose-200/60">
+                        <svg lucideShieldAlert class="size-4"></svg>
+                      </div>
+                    } @else if (notif.type === 'WARNING') {
+                      <div class="size-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-200/60">
+                        <svg lucideAlertTriangle class="size-4"></svg>
+                      </div>
+                    } @else {
+                      <div class="size-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-200/60">
+                        <svg lucideWrench class="size-4"></svg>
+                      </div>
+                    }
+                  </div>
+
+                  <!-- Conteúdo -->
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center justify-between gap-1 mb-0.5">
+                      <p class="text-xs font-semibold text-slate-800 group-hover:text-emerald-600 transition-colors truncate">
+                        {{ notif.title }}
+                      </p>
+                      <span class="text-[10px] text-slate-400 whitespace-nowrap">{{ notif.time }}</span>
+                    </div>
+                    <p class="text-[11px] text-slate-500 leading-snug line-clamp-2">
+                      {{ notif.message }}
+                    </p>
+                  </div>
+                </a>
+              } @empty {
+                <div class="py-8 text-center text-slate-400 text-xs">
+                  Nenhuma notificação recente.
+                </div>
+              }
+            </div>
+
+            <!-- Footer do Dropdown -->
+            <div class="p-2.5 bg-slate-50/60 border-t border-slate-100 text-center">
+              <a
+                routerLink="/alertas"
+                (click)="closeNotifications()"
+                class="text-xs font-semibold text-slate-700 hover:text-emerald-600 transition-colors inline-flex items-center gap-1.5"
+              >
+                <span>Ver central completa de alertas</span>
+                <svg lucideArrowRight class="size-3.5"></svg>
+              </a>
+            </div>
+          </div>
+        }
       </div>
     </header>
 
     <!-- CONTAINER DA VIEW -->
-    <main class="p-6 sm:p-8 flex-1 overflow-y-auto bg-slate-50/60">
+    <main class="p-4 sm:p-6 lg:p-8 flex-1 overflow-y-auto bg-slate-50/60">
       <router-outlet></router-outlet>
     </main>
   </div>
 </div>
+
+<!-- ========================================== -->
+<!-- 🔍 COMMAND PALETTE SPOTLIGHT MODAL (Ctrl+K) -->
+<!-- ========================================== -->
+@if (commandPaletteOpen()) {
+  <div
+    class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-start justify-center pt-12 sm:pt-20 p-4 animate-in fade-in duration-150"
+    (click)="closeCommandPalette()"
+  >
+    <div
+      class="w-full max-w-2xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col animate-in zoom-in-95 duration-150"
+      (click)="$event.stopPropagation()"
+    >
+      <!-- Campo de Busca da Paleta -->
+      <div class="p-4 border-b border-slate-100 flex items-center gap-3 bg-slate-50/50">
+        <svg lucideSearch class="size-5 text-slate-400 shrink-0"></svg>
+        <input
+          #paletteInput
+          type="text"
+          [ngModel]="searchQuery()"
+          (ngModelChange)="onSearchInput($event)"
+          placeholder="O que você deseja fazer ou buscar? (ex: veículos, motoristas, relatórios...)"
+          class="w-full bg-transparent text-sm text-slate-800 placeholder:text-slate-400 focus:outline-hidden"
+        />
+        @if (searchQuery()) {
+          <button
+            (click)="onSearchInput('')"
+            class="p-1 text-slate-400 hover:text-slate-600 rounded-md hover:bg-slate-200/50 cursor-pointer"
+          >
+            <svg lucideX class="size-4"></svg>
+          </button>
+        }
+        <kbd class="hidden sm:inline-flex text-[10px] font-mono text-slate-400 bg-white border border-slate-200 px-1.5 py-0.5 rounded shadow-2xs">
+          ESC
+        </kbd>
+      </div>
+
+      <!-- Lista de Comandos / Sugestões -->
+      <div class="max-h-80 sm:max-h-96 overflow-y-auto p-2 divide-y divide-slate-100">
+        @for (item of filteredCommands(); track item.id; let idx = $index) {
+          <div
+            (click)="executeCommand(item)"
+            (mouseenter)="selectedIndex.set(idx)"
+            class="flex items-center justify-between p-3 rounded-xl cursor-pointer transition-colors"
+            [class.bg-emerald-50]="selectedIndex() === idx"
+            [class.text-emerald-950]="selectedIndex() === idx"
+            [class.hover:bg-slate-50]="selectedIndex() !== idx"
+          >
+            <div class="flex items-center gap-3 min-w-0">
+              <div
+                class="size-8 rounded-lg flex items-center justify-center shrink-0 border"
+                [class.bg-emerald-500]="selectedIndex() === idx"
+                [class.text-white]="selectedIndex() === idx"
+                [class.border-emerald-600]="selectedIndex() === idx"
+                [class.bg-slate-100]="selectedIndex() !== idx"
+                [class.text-slate-600]="selectedIndex() !== idx"
+                [class.border-slate-200]="selectedIndex() !== idx"
+              >
+                @if (item.icon === 'dashboard') { <svg lucideLayoutDashboard class="size-4"></svg> }
+                @else if (item.icon === 'truck') { <svg lucideTruck class="size-4"></svg> }
+                @else if (item.icon === 'users') { <svg lucideUsers class="size-4"></svg> }
+                @else if (item.icon === 'route') { <svg lucideRoute class="size-4"></svg> }
+                @else if (item.icon === 'fuel') { <svg lucideFuel class="size-4"></svg> }
+                @else if (item.icon === 'wrench') { <svg lucideWrench class="size-4"></svg> }
+                @else if (item.icon === 'clock') { <svg lucideClock class="size-4"></svg> }
+                @else if (item.icon === 'bell') { <svg lucideBell class="size-4"></svg> }
+                @else if (item.icon === 'file-text') { <svg lucideFileText class="size-4"></svg> }
+                @else if (item.icon === 'user-check') { <svg lucideUserCheck class="size-4"></svg> }
+                @else if (item.icon === 'settings') { <svg lucideSettings class="size-4"></svg> }
+                @else if (item.icon === 'user') { <svg lucideUser class="size-4"></svg> }
+                @else if (item.icon === 'plus') { <svg lucidePlusCircle class="size-4"></svg> }
+                @else if (item.icon === 'logout') { <svg lucideLogOut class="size-4"></svg> }
+                @else { <svg lucideSparkles class="size-4"></svg> }
+              </div>
+
+              <div class="min-w-0">
+                <p class="text-xs font-bold text-slate-800 truncate" [class.text-emerald-900]="selectedIndex() === idx">
+                  {{ item.title }}
+                </p>
+                @if (item.subtitle) {
+                  <p class="text-[11px] text-slate-500 truncate" [class.text-emerald-700/80]="selectedIndex() === idx">
+                    {{ item.subtitle }}
+                  </p>
+                }
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2 shrink-0 ml-3">
+              <span
+                class="text-[10px] font-medium px-2 py-0.5 rounded-full border"
+                [class.bg-emerald-100]="selectedIndex() === idx"
+                [class.text-emerald-800]="selectedIndex() === idx"
+                [class.border-emerald-200]="selectedIndex() === idx"
+                [class.bg-slate-100]="selectedIndex() !== idx"
+                [class.text-slate-500]="selectedIndex() !== idx"
+                [class.border-slate-200]="selectedIndex() !== idx"
+              >
+                {{ item.category }}
+              </span>
+
+              @if (selectedIndex() === idx) {
+                <span class="text-[11px] font-mono text-emerald-700 flex items-center gap-1 font-semibold">
+                  <span>Enter</span>
+                  <svg lucideCornerDownLeft class="size-3"></svg>
+                </span>
+              }
+            </div>
+          </div>
+        } @empty {
+          <div class="py-12 text-center text-slate-400">
+            <svg lucideSearch class="size-8 mx-auto mb-2 text-slate-300"></svg>
+            <p class="text-xs font-semibold text-slate-600">Nenhum resultado para "{{ searchQuery() }}"</p>
+            <p class="text-[11px] text-slate-400 mt-0.5">Tente pesquisar por veículos, motoristas, viagens ou relatórios.</p>
+          </div>
+        }
+      </div>
+
+      <!-- Rodapé com Dicas de Navegação -->
+      <div class="p-3 bg-slate-50/80 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400 px-4">
+        <div class="flex items-center gap-4">
+          <span class="inline-flex items-center gap-1">
+            <kbd class="px-1.5 py-0.5 bg-white border border-slate-200 rounded font-mono text-[10px] shadow-2xs">↑</kbd>
+            <kbd class="px-1.5 py-0.5 bg-white border border-slate-200 rounded font-mono text-[10px] shadow-2xs">↓</kbd>
+            Navegar
+          </span>
+          <span class="inline-flex items-center gap-1">
+            <kbd class="px-1.5 py-0.5 bg-white border border-slate-200 rounded font-mono text-[10px] shadow-2xs">↵</kbd>
+            Selecionar
+          </span>
+          <span class="inline-flex items-center gap-1">
+            <kbd class="px-1.5 py-0.5 bg-white border border-slate-200 rounded font-mono text-[10px] shadow-2xs">ESC</kbd>
+            Fechar
+          </span>
+        </div>
+        <span class="font-medium text-slate-500">RM Frotas Enterprise</span>
+      </div>
+    </div>
+  </div>
+}
+
