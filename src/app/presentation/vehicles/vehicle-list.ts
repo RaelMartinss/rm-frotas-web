@@ -18,7 +18,11 @@ import {
   LucideCheckCircle2,
   LucideGauge,
   LucideEye,
-  LucideCalendar
+  LucideCalendar,
+  LucideChevronLeft,
+  LucideChevronRight,
+  LucideChevronsLeft,
+  LucideChevronsRight
 } from '@lucide/angular';
 
 @Component({
@@ -38,7 +42,11 @@ import {
     LucideCheckCircle2,
     LucideGauge,
     LucideEye,
-    LucideCalendar
+    LucideCalendar,
+    LucideChevronLeft,
+    LucideChevronRight,
+    LucideChevronsLeft,
+    LucideChevronsRight
   ],
   templateUrl: './vehicle-list.html',
   styleUrl: './vehicle-list.css'
@@ -50,6 +58,13 @@ export class VehicleListComponent implements OnInit {
 
   vehicles = signal<Vehicle[]>([]);
   loading = signal<boolean>(true);
+
+  // --- PAGINAÇÃO SERVER-SIDE (OFFSET / LIMIT) ---
+  currentPage = signal<number>(1);
+  pageSize = signal<number>(10); // Inicializa com 10 registros
+  totalItems = signal<number>(0);
+  totalPages = signal<number>(1);
+  pageSizeOptions: number[] = [10, 25, 50];
 
   // Modais de Criação e Ações
   isModalOpen = signal<boolean>(false);
@@ -64,11 +79,10 @@ export class VehicleListComponent implements OnInit {
   isActionLoading = signal<boolean>(false);
   actionError = signal<string | null>(null);
 
-  // --- FILTROS E BUSCA REATIVA ---
+  // --- FILTROS E BUSCA REATIVA COM SERVER-SIDE QUERY ---
   searchControl = new FormControl('', { nonNullable: true });
   selectedStatus = signal<string>('ALL');
 
-  // Converte as mudanças do input para Signal aplicando debounce de 300ms
   searchTerm = toSignal(
     this.searchControl.valueChanges.pipe(
       debounceTime(300),
@@ -77,67 +91,76 @@ export class VehicleListComponent implements OnInit {
     { initialValue: '' }
   );
 
-  // Counts computados para os chips de filtro
-  totalCount = computed(() => this.vehicles().length);
-  availableCount = computed(() => this.vehicles().filter((v) => this.isAvailable(v)).length);
-  inUseCount = computed(
-    () => this.vehicles().filter((v) => v.status === 'IN_USE' || v.status === 'EM_VIAGEM').length
-  );
-  inMaintenanceCount = computed(
-    () => this.vehicles().filter((v) => this.isInMaintenance(v)).length
-  );
-
-  // Limite de renderização progressiva (Infinite Scroll / Smooth Chunking)
-  displayLimit = signal<number>(50);
-
-  // Signal Computado para filtrar a lista automaticamente
-  filteredVehicles = computed(() => {
-    const list = this.vehicles();
-    const term = this.searchTerm().toLowerCase().trim();
-    const status = this.selectedStatus();
-
-    return list.filter((vehicle) => {
-      const matchesSearch =
-        vehicle.plate.toLowerCase().includes(term) ||
-        vehicle.model.toLowerCase().includes(term) ||
-        (vehicle.brand && vehicle.brand.toLowerCase().includes(term));
-
-      let matchesStatus = status === 'ALL';
-      if (!matchesStatus) {
-        if (status === 'AVAILABLE') {
-          matchesStatus = vehicle.status === 'AVAILABLE' || vehicle.status === 'DISPONIVEL';
-        } else if (status === 'IN_USE') {
-          matchesStatus = vehicle.status === 'IN_USE' || vehicle.status === 'EM_VIAGEM';
-        } else if (status === 'IN_MAINTENANCE') {
-          matchesStatus = vehicle.status === 'IN_MAINTENANCE' || vehicle.status === 'MANUTENCAO';
-        } else {
-          matchesStatus = vehicle.status === status;
-        }
-      }
-
-      return matchesSearch && matchesStatus;
-    });
+  // Computed ranges para exibição na barra de paginação
+  startIndex = computed(() => {
+    if (this.totalItems() === 0) return 0;
+    return (this.currentPage() - 1) * this.pageSize() + 1;
   });
 
-  // Lista fatiada para exibição fluida e 60fps no DOM sem congelar o navegador
-  displayedVehicles = computed(() => {
-    return this.filteredVehicles().slice(0, this.displayLimit());
+  endIndex = computed(() => {
+    return Math.min(this.currentPage() * this.pageSize(), this.totalItems());
   });
 
-  hasMore = computed(() => {
-    return this.displayedVehicles().length < this.filteredVehicles().length;
+  // Gera lista de páginas com elipses (ex: [1, 2, 3, '...', 10])
+  pageNumbers = computed(() => {
+    const total = this.totalPages();
+    const current = this.currentPage();
+    const delta = 1; // páginas visíveis ao redor da atual
+    const range: (number | string)[] = [];
+
+    if (total <= 7) {
+      for (let i = 1; i <= total; i++) range.push(i);
+      return range;
+    }
+
+    const left = Math.max(2, current - delta);
+    const right = Math.min(total - 1, current + delta);
+
+    range.push(1);
+    if (left > 2) range.push('...');
+    for (let i = left; i <= right; i++) range.push(i);
+    if (right < total - 1) range.push('...');
+    range.push(total);
+
+    return range;
   });
 
-  remainingCount = computed(() => {
-    return Math.max(0, this.filteredVehicles().length - this.displayedVehicles().length);
-  });
-
-  loadMore(): void {
-    this.displayLimit.update((limit) => limit + 50);
+  clearSearch(): void {
+    this.searchControl.setValue('');
+    this.currentPage.set(1);
+    this.loadVehicles();
   }
 
-  showAll(): void {
-    this.displayLimit.set(this.filteredVehicles().length);
+  setStatusFilter(status: string): void {
+    this.selectedStatus.set(status);
+    this.currentPage.set(1);
+    this.loadVehicles();
+  }
+
+  setPage(page: number | string): void {
+    if (typeof page !== 'number' || page < 1 || page > this.totalPages() || page === this.currentPage()) {
+      return;
+    }
+    this.currentPage.set(page);
+    this.loadVehicles();
+  }
+
+  nextPage(): void {
+    if (this.currentPage() < this.totalPages()) {
+      this.setPage(this.currentPage() + 1);
+    }
+  }
+
+  prevPage(): void {
+    if (this.currentPage() > 1) {
+      this.setPage(this.currentPage() - 1);
+    }
+  }
+
+  setPageSize(newSize: number): void {
+    this.pageSize.set(newSize);
+    this.currentPage.set(1);
+    this.loadVehicles();
   }
 
   getStatusLabel(status: string): string {
@@ -212,35 +235,39 @@ export class VehicleListComponent implements OnInit {
     currentKm: [0, [Validators.required, Validators.min(0)]]
   });
 
-  clearSearch(): void {
-    this.searchControl.setValue('');
-    this.displayLimit.set(50);
-  }
-
   ngOnInit(): void {
-    this.searchControl.valueChanges.subscribe(() => {
-      this.displayLimit.set(50);
-    });
+    this.searchControl.valueChanges
+      .pipe(debounceTime(350), distinctUntilChanged())
+      .subscribe(() => {
+        this.currentPage.set(1);
+        this.loadVehicles();
+      });
+
     this.loadVehicles();
   }
 
   loadVehicles(): void {
     this.loading.set(true);
-    this.vehicleRepository.getAll().subscribe({
-      next: (data) => {
-        this.vehicles.set(data);
-        this.loading.set(false);
-      },
-      error: () => {
-        this.loading.set(false);
-        this.toastService.error('Erro ao carregar lista de veículos.');
-      }
-    });
-  }
 
-  setStatusFilter(status: string): void {
-    this.selectedStatus.set(status);
-    this.displayLimit.set(50);
+    this.vehicleRepository
+      .getAll({
+        page: this.currentPage(),
+        limit: this.pageSize(),
+        search: this.searchControl.value,
+        status: this.selectedStatus(),
+      })
+      .subscribe({
+        next: (response) => {
+          this.vehicles.set(response.data || []);
+          this.totalItems.set(response.total || 0);
+          this.totalPages.set(response.totalPages || 1);
+          this.loading.set(false);
+        },
+        error: () => {
+          this.loading.set(false);
+          this.toastService.error('Erro ao carregar lista de veículos.');
+        }
+      });
   }
 
   openModal(): void {
@@ -268,10 +295,11 @@ export class VehicleListComponent implements OnInit {
 
     this.vehicleRepository.create(formValue).subscribe({
       next: (newVehicle) => {
-        this.vehicles.update((list) => [newVehicle, ...list]);
         this.isSaving.set(false);
-        this.toastService.success('Veículo cadastrado com sucesso!');
+        this.toastService.success(`Veículo ${newVehicle.plate} cadastrado com sucesso!`);
         this.closeModal();
+        this.currentPage.set(1);
+        this.loadVehicles();
       },
       error: (err) => {
         this.isSaving.set(false);
@@ -306,13 +334,11 @@ export class VehicleListComponent implements OnInit {
     this.actionError.set(null);
 
     this.vehicleRepository.sendToMaintenance(vehicle.id).subscribe({
-      next: (updatedVehicle) => {
-        this.vehicles.update((list) =>
-          list.map((v) => (v.id === updatedVehicle.id ? updatedVehicle : v))
-        );
+      next: () => {
         this.isActionLoading.set(false);
         this.toastService.success(`Veículo ${vehicle.plate} enviado para manutenção!`);
         this.closeSendMaintenanceModal();
+        this.loadVehicles();
       },
       error: (err) => {
         this.isActionLoading.set(false);
@@ -344,13 +370,11 @@ export class VehicleListComponent implements OnInit {
     this.actionError.set(null);
 
     this.vehicleRepository.finishMaintenance(vehicle.id).subscribe({
-      next: (updatedVehicle) => {
-        this.vehicles.update((list) =>
-          list.map((v) => (v.id === updatedVehicle.id ? updatedVehicle : v))
-        );
+      next: () => {
         this.isActionLoading.set(false);
         this.toastService.success(`Manutenção finalizada! Veículo ${vehicle.plate} disponível.`);
         this.closeFinishMaintenanceModal();
+        this.loadVehicles();
       },
       error: (err) => {
         this.isActionLoading.set(false);
@@ -395,13 +419,11 @@ export class VehicleListComponent implements OnInit {
     this.actionError.set(null);
 
     this.vehicleRepository.updateKm(vehicle.id, newKm).subscribe({
-      next: (updatedVehicle) => {
-        this.vehicles.update((list) =>
-          list.map((v) => (v.id === updatedVehicle.id ? updatedVehicle : v))
-        );
+      next: () => {
         this.isActionLoading.set(false);
         this.toastService.success(`Quilometragem do veículo ${vehicle.plate} atualizada para ${newKm} km!`);
         this.closeUpdateKmModal();
+        this.loadVehicles();
       },
       error: (err) => {
         this.isActionLoading.set(false);
@@ -441,4 +463,3 @@ export class VehicleListComponent implements OnInit {
     return diffDays >= 0 && diffDays <= 30;
   }
 }
-

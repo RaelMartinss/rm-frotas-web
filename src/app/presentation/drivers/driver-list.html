@@ -8,7 +8,7 @@
           Equipe Operacional
         </span>
         <span class="text-xs text-slate-400">•</span>
-        <span class="text-xs text-slate-500 font-medium">{{ totalCount() }} motoristas cadastrados</span>
+        <span class="text-xs text-slate-500 font-medium">{{ totalItems() | number }} motoristas cadastrados</span>
       </div>
       <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Gestão de Motoristas</h1>
       <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Cadastre e acompanhe a situação das CNHs e condutores da frota.</p>
@@ -44,7 +44,7 @@
       }
     </div>
 
-    <!-- Chips de Filtro com Contadores -->
+    <!-- Chips de Filtro de Status -->
     <div class="flex items-center gap-1.5 overflow-x-auto pb-1 lg:pb-0">
       <button
         type="button"
@@ -53,9 +53,6 @@
         [ngClass]="selectedStatus() === 'ALL' ? 'bg-slate-900 text-white border-slate-900 shadow-2xs' : 'bg-slate-50 text-slate-600 border-slate-200/80 hover:bg-slate-100'"
       >
         <span>Todos</span>
-        <span class="px-1.5 py-0.2 rounded-md text-[10px]" [ngClass]="selectedStatus() === 'ALL' ? 'bg-slate-800 text-slate-300' : 'bg-slate-200 text-slate-600'">
-          {{ totalCount() }}
-        </span>
       </button>
 
       <button
@@ -66,9 +63,6 @@
       >
         <span class="size-1.5 rounded-full" [ngClass]="selectedStatus() === 'ACTIVE' ? 'bg-white' : 'bg-emerald-500'"></span>
         <span>Ativos</span>
-        <span class="px-1.5 py-0.2 rounded-md text-[10px]" [ngClass]="selectedStatus() === 'ACTIVE' ? 'bg-emerald-700 text-white' : 'bg-emerald-50 text-emerald-700'">
-          {{ activeCount() }}
-        </span>
       </button>
 
       <button
@@ -79,9 +73,6 @@
       >
         <span class="size-1.5 rounded-full" [ngClass]="selectedStatus() === 'IN_TRIP' ? 'bg-white' : 'bg-blue-500'"></span>
         <span>Em Viagem</span>
-        <span class="px-1.5 py-0.2 rounded-md text-[10px]" [ngClass]="selectedStatus() === 'IN_TRIP' ? 'bg-blue-700 text-white' : 'bg-blue-50 text-blue-700'">
-          {{ inTripCount() }}
-        </span>
       </button>
 
       <button
@@ -91,9 +82,6 @@
         [ngClass]="selectedStatus() === 'INACTIVE' ? 'bg-slate-700 text-white border-slate-700 shadow-2xs' : 'bg-slate-50 text-slate-600 border-slate-200/80 hover:bg-slate-100'"
       >
         <span>Inativos</span>
-        <span class="px-1.5 py-0.2 rounded-md text-[10px]" [ngClass]="selectedStatus() === 'INACTIVE' ? 'bg-slate-800 text-slate-300' : 'bg-slate-200 text-slate-600'">
-          {{ inactiveCount() }}
-        </span>
       </button>
 
       <button
@@ -103,9 +91,6 @@
         [ngClass]="selectedStatus() === 'SUSPENDED' ? 'bg-rose-600 text-white border-rose-600 shadow-2xs' : 'bg-slate-50 text-slate-600 border-slate-200/80 hover:bg-slate-100'"
       >
         <span>Suspensos</span>
-        <span class="px-1.5 py-0.2 rounded-md text-[10px]" [ngClass]="selectedStatus() === 'SUSPENDED' ? 'bg-rose-700 text-white' : 'bg-rose-50 text-rose-700'">
-          {{ suspendedCount() }}
-        </span>
       </button>
     </div>
   </div>
@@ -116,7 +101,7 @@
       <!-- SKELETON TABLE SHIMMER -->
       <div class="p-4 space-y-3 animate-pulse">
         <div class="h-8 bg-slate-100 rounded-xl"></div>
-        @for (i of [1, 2, 3, 4, 5]; track i) {
+        @for (i of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]; track i) {
           <div class="flex items-center justify-between py-3 px-2 border-b border-slate-100">
             <div class="flex items-center gap-3 w-1/4">
               <div class="size-8 rounded-full bg-slate-200"></div>
@@ -147,7 +132,7 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100">
-            @for (driver of displayedDrivers(); track driver.id) {
+            @for (driver of drivers(); track driver.id) {
               <tr class="hover:bg-slate-50/80 transition-colors">
                 <td class="py-3.5 px-4">
                   <div class="flex items-center gap-3">
@@ -276,33 +261,99 @@
         </table>
       </div>
 
-      <!-- FOOTER DE CARREGAMENTO PROGRESSIVO FLUIDO -->
-      @if (filteredDrivers().length > 0) {
-        <div class="px-5 py-3.5 bg-slate-50/90 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+      <!-- BARRA DE PAGINAÇÃO SERVER-SIDE -->
+      @if (totalItems() > 0) {
+        <div class="px-5 py-3.5 bg-slate-50/90 border-t border-slate-100 flex flex-col md:flex-row items-center justify-between gap-4 text-xs">
+          <!-- Resumo de Itens -->
           <div class="text-slate-500 font-medium">
-            Exibindo <span class="font-bold text-slate-800">{{ displayedDrivers().length }}</span> de <span class="font-bold text-slate-800">{{ filteredDrivers().length }}</span> motoristas carregados na memória
+            Mostrando <span class="font-bold text-slate-800">{{ startIndex() }}</span> a
+            <span class="font-bold text-slate-800">{{ endIndex() }}</span> de
+            <span class="font-bold text-slate-800">{{ totalItems() | number }}</span> motoristas
           </div>
 
-          @if (hasMore()) {
+          <div class="flex flex-wrap items-center gap-4">
+            <!-- Seletor de Limite por Página -->
             <div class="flex items-center gap-2">
+              <span class="text-slate-500 text-[11px]">Itens por página:</span>
+              <div class="inline-flex rounded-lg border border-slate-200 bg-white p-0.5 shadow-2xs">
+                @for (size of pageSizeOptions; track size) {
+                  <button
+                    type="button"
+                    (click)="setPageSize(size)"
+                    class="px-2.5 py-1 rounded-md text-xs font-semibold transition-all cursor-pointer"
+                    [ngClass]="pageSize() === size ? 'bg-slate-900 text-white shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'"
+                  >
+                    {{ size }}
+                  </button>
+                }
+              </div>
+            </div>
+
+            <!-- Controles de Navegação de Página -->
+            <div class="flex items-center gap-1">
+              <!-- Primeira Página -->
               <button
                 type="button"
-                (click)="loadMore()"
-                class="px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-700 font-semibold rounded-lg border border-slate-200 transition-colors shadow-2xs cursor-pointer"
+                (click)="setPage(1)"
+                [disabled]="currentPage() === 1"
+                title="Primeira página"
+                class="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:hover:bg-white transition-colors cursor-pointer disabled:cursor-not-allowed shadow-2xs"
               >
-                Mostrar mais (+50)
+                <svg lucideChevronsLeft class="size-3.5"></svg>
               </button>
+
+              <!-- Página Anterior -->
               <button
                 type="button"
-                (click)="showAll()"
-                class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-lg transition-colors shadow-2xs cursor-pointer"
+                (click)="prevPage()"
+                [disabled]="currentPage() === 1"
+                title="Página anterior"
+                class="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:hover:bg-white transition-colors cursor-pointer disabled:cursor-not-allowed shadow-2xs"
               >
-                Exibir todos ({{ remainingCount() }})
+                <svg lucideChevronLeft class="size-3.5"></svg>
+              </button>
+
+              <!-- Números de Página -->
+              <div class="flex items-center gap-1 px-1">
+                @for (pageNum of pageNumbers(); track $index) {
+                  @if (pageNum === '...') {
+                    <span class="px-2 py-1 text-slate-400 text-xs font-mono">...</span>
+                  } @else {
+                    <button
+                      type="button"
+                      (click)="setPage(pageNum)"
+                      class="min-w-[30px] h-7.5 px-2 rounded-lg text-xs font-semibold transition-all cursor-pointer"
+                      [ngClass]="currentPage() === pageNum ? 'bg-emerald-600 text-white shadow-2xs' : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-100'"
+                    >
+                      {{ pageNum }}
+                    </button>
+                  }
+                }
+              </div>
+
+              <!-- Próxima Página -->
+              <button
+                type="button"
+                (click)="nextPage()"
+                [disabled]="currentPage() === totalPages()"
+                title="Próxima página"
+                class="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:hover:bg-white transition-colors cursor-pointer disabled:cursor-not-allowed shadow-2xs"
+              >
+                <svg lucideChevronRight class="size-3.5"></svg>
+              </button>
+
+              <!-- Última Página -->
+              <button
+                type="button"
+                (click)="setPage(totalPages())"
+                [disabled]="currentPage() === totalPages()"
+                title="Última página"
+                class="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:hover:bg-white transition-colors cursor-pointer disabled:cursor-not-allowed shadow-2xs"
+              >
+                <svg lucideChevronsRight class="size-3.5"></svg>
               </button>
             </div>
-          } @else {
-            <span class="text-slate-400 text-[11px]">Todos os motoristas filtrados estão em exibição</span>
-          }
+          </div>
         </div>
       }
     }

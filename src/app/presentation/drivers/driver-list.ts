@@ -21,7 +21,11 @@ import {
   LucideCheck,
   LucideBan,
   LucidePauseCircle,
-  LucideUserCheck
+  LucideUserCheck,
+  LucideChevronLeft,
+  LucideChevronRight,
+  LucideChevronsLeft,
+  LucideChevronsRight
 } from '@lucide/angular';
 
 @Component({
@@ -46,7 +50,11 @@ import {
     LucideCheck,
     LucideBan,
     LucidePauseCircle,
-    LucideUserCheck
+    LucideUserCheck,
+    LucideChevronLeft,
+    LucideChevronRight,
+    LucideChevronsLeft,
+    LucideChevronsRight
   ],
   templateUrl: './driver-list.html',
   styleUrl: './driver-list.css'
@@ -58,6 +66,13 @@ export class DriverListComponent implements OnInit {
 
   drivers = signal<Driver[]>([]);
   loading = signal<boolean>(true);
+
+  // --- PAGINAÇÃO SERVER-SIDE (OFFSET / LIMIT) ---
+  currentPage = signal<number>(1);
+  pageSize = signal<number>(10); // Inicializa com 10 registros
+  totalItems = signal<number>(0);
+  totalPages = signal<number>(1);
+  pageSizeOptions: number[] = [10, 25, 50];
 
   // Modais de Criação e Ações
   isModalOpen = signal<boolean>(false);
@@ -75,7 +90,7 @@ export class DriverListComponent implements OnInit {
 
   cnhCategories: CnhCategory[] = ['A', 'B', 'C', 'D', 'E', 'AB', 'AC', 'AD', 'AE'];
 
-  // --- FILTROS E BUSCA REATIVA ---
+  // --- FILTROS E BUSCA REATIVA COM SERVER-SIDE QUERY ---
   searchControl = new FormControl('', { nonNullable: true });
   selectedStatus = signal<string>('ALL');
 
@@ -87,73 +102,76 @@ export class DriverListComponent implements OnInit {
     { initialValue: '' }
   );
 
-  // Counts computados para os chips de filtro
-  totalCount = computed(() => this.drivers().length);
-  activeCount = computed(() => this.drivers().filter((d) => this.isActive(d)).length);
-  inTripCount = computed(
-    () => this.drivers().filter((d) => d.status === 'EM_VIAGEM').length
-  );
-  inactiveCount = computed(() => this.drivers().filter((d) => this.isInactive(d)).length);
-  suspendedCount = computed(() => this.drivers().filter((d) => this.isSuspended(d)).length);
+  // Computed ranges para exibição na barra de paginação
+  startIndex = computed(() => {
+    if (this.totalItems() === 0) return 0;
+    return (this.currentPage() - 1) * this.pageSize() + 1;
+  });
 
-  // Limite de renderização progressiva (Smooth Chunking)
-  displayLimit = signal<number>(50);
+  endIndex = computed(() => {
+    return Math.min(this.currentPage() * this.pageSize(), this.totalItems());
+  });
+
+  // Gera lista de páginas com elipses (ex: [1, 2, 3, '...', 10])
+  pageNumbers = computed(() => {
+    const total = this.totalPages();
+    const current = this.currentPage();
+    const delta = 1;
+    const range: (number | string)[] = [];
+
+    if (total <= 7) {
+      for (let i = 1; i <= total; i++) range.push(i);
+      return range;
+    }
+
+    const left = Math.max(2, current - delta);
+    const right = Math.min(total - 1, current + delta);
+
+    range.push(1);
+    if (left > 2) range.push('...');
+    for (let i = left; i <= right; i++) range.push(i);
+    if (right < total - 1) range.push('...');
+    range.push(total);
+
+    return range;
+  });
 
   clearSearch(): void {
     this.searchControl.setValue('');
-    this.displayLimit.set(50);
+    this.currentPage.set(1);
+    this.loadDrivers();
   }
 
-  filteredDrivers = computed(() => {
-    const list = this.drivers();
-    const term = this.searchTerm().toLowerCase().trim();
-    const status = this.selectedStatus();
-
-    return list.filter((driver) => {
-      const cnhNum = this.getCnhNumber(driver).toLowerCase();
-      const matchesSearch =
-        driver.name.toLowerCase().includes(term) ||
-        driver.cpf.toLowerCase().includes(term) ||
-        cnhNum.includes(term);
-
-      let matchesStatus = status === 'ALL';
-      if (!matchesStatus) {
-        if (status === 'ACTIVE') {
-          matchesStatus = driver.status === 'ACTIVE' || driver.status === 'DISPONIVEL';
-        } else if (status === 'IN_TRIP') {
-          matchesStatus = driver.status === 'EM_VIAGEM';
-        } else if (status === 'INACTIVE') {
-          matchesStatus = driver.status === 'INACTIVE' || driver.status === 'FOLGA';
-        } else if (status === 'SUSPENDED') {
-          matchesStatus = driver.status === 'SUSPENDED' || driver.status === 'AFASTADO';
-        } else {
-          matchesStatus = driver.status === status;
-        }
-      }
-
-      return matchesSearch && matchesStatus;
-    });
-  });
-
-  // Lista fatiada para exibição fluida e 60fps
-  displayedDrivers = computed(() => {
-    return this.filteredDrivers().slice(0, this.displayLimit());
-  });
-
-  hasMore = computed(() => {
-    return this.displayedDrivers().length < this.filteredDrivers().length;
-  });
-
-  remainingCount = computed(() => {
-    return Math.max(0, this.filteredDrivers().length - this.displayedDrivers().length);
-  });
-
-  loadMore(): void {
-    this.displayLimit.update((limit) => limit + 50);
+  setStatusFilter(status: string): void {
+    this.selectedStatus.set(status);
+    this.currentPage.set(1);
+    this.loadDrivers();
   }
 
-  showAll(): void {
-    this.displayLimit.set(this.filteredDrivers().length);
+  setPage(page: number | string): void {
+    if (typeof page !== 'number' || page < 1 || page > this.totalPages() || page === this.currentPage()) {
+      return;
+    }
+    this.currentPage.set(page);
+    this.loadDrivers();
+  }
+
+  nextPage(): void {
+    if (this.currentPage() < this.totalPages()) {
+      this.setPage(this.currentPage() + 1);
+    }
+  }
+
+  prevPage(): void {
+    if (this.currentPage() > 1) {
+      this.setPage(this.currentPage() - 1);
+    }
+  }
+
+  setPageSize(newSize: number): void {
+    this.pageSize.set(newSize);
+    this.currentPage.set(1);
+    this.loadDrivers();
   }
 
   driverForm: FormGroup = this.fb.group({
@@ -172,29 +190,37 @@ export class DriverListComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.searchControl.valueChanges.subscribe(() => {
-      this.displayLimit.set(50);
-    });
-    this.loadDrivers();
-  }
+    this.searchControl.valueChanges
+      .pipe(debounceTime(350), distinctUntilChanged())
+      .subscribe(() => {
+        this.currentPage.set(1);
+        this.loadDrivers();
+      });
 
-  setStatusFilter(status: string): void {
-    this.selectedStatus.set(status);
-    this.displayLimit.set(50);
+    this.loadDrivers();
   }
 
   loadDrivers(): void {
     this.loading.set(true);
-    this.driverRepository.getAll().subscribe({
-      next: (data) => {
-        this.drivers.set(data);
-        this.loading.set(false);
-      },
-      error: () => {
-        this.loading.set(false);
-        this.toastService.error('Erro ao carregar lista de motoristas.');
-      }
-    });
+    this.driverRepository
+      .getAll({
+        page: this.currentPage(),
+        limit: this.pageSize(),
+        search: this.searchControl.value,
+        status: this.selectedStatus(),
+      })
+      .subscribe({
+        next: (response) => {
+          this.drivers.set(response.data || []);
+          this.totalItems.set(response.total || 0);
+          this.totalPages.set(response.totalPages || 1);
+          this.loading.set(false);
+        },
+        error: () => {
+          this.loading.set(false);
+          this.toastService.error('Erro ao carregar lista de motoristas.');
+        }
+      });
   }
 
   openModal(): void {
@@ -324,11 +350,12 @@ export class DriverListComponent implements OnInit {
     };
 
     this.driverRepository.create(payload as any).subscribe({
-      next: (newDriver) => {
-        this.drivers.update((list) => [newDriver, ...list]);
+      next: () => {
         this.isSaving.set(false);
         this.toastService.success('Motorista cadastrado com sucesso!');
         this.closeModal();
+        this.currentPage.set(1);
+        this.loadDrivers();
       },
       error: (err) => {
         this.isSaving.set(false);

@@ -8,7 +8,7 @@
           Logística & Despacho
         </span>
         <span class="text-xs text-slate-400">•</span>
-        <span class="text-xs text-slate-500 font-medium">{{ totalCount() }} viagens registradas</span>
+        <span class="text-xs text-slate-500 font-medium">{{ totalItems() | number }} viagens registradas</span>
       </div>
       <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Gestão de Viagens</h1>
       <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Controle rotas em tempo real, condutores alocados e histórico de abastecimentos.</p>
@@ -44,7 +44,7 @@
       }
     </div>
 
-    <!-- Chips de Filtro de Viagens com Contadores -->
+    <!-- Chips de Filtro de Viagens -->
     <div class="flex items-center gap-1.5 overflow-x-auto pb-1 lg:pb-0">
       <button
         type="button"
@@ -53,9 +53,6 @@
         [ngClass]="selectedStatus() === 'ALL' ? 'bg-slate-900 text-white border-slate-900 shadow-2xs' : 'bg-slate-50 text-slate-600 border-slate-200/80 hover:bg-slate-100'"
       >
         <span>Todas</span>
-        <span class="px-1.5 py-0.2 rounded-md text-[10px]" [ngClass]="selectedStatus() === 'ALL' ? 'bg-slate-800 text-slate-300' : 'bg-slate-200 text-slate-600'">
-          {{ totalCount() }}
-        </span>
       </button>
 
       <button
@@ -66,9 +63,6 @@
       >
         <span class="size-1.5 rounded-full" [ngClass]="selectedStatus() === 'IN_PROGRESS' ? 'bg-white' : 'bg-blue-500 animate-pulse'"></span>
         <span>Em Andamento</span>
-        <span class="px-1.5 py-0.2 rounded-md text-[10px]" [ngClass]="selectedStatus() === 'IN_PROGRESS' ? 'bg-blue-700 text-white' : 'bg-blue-50 text-blue-700'">
-          {{ inProgressCount() }}
-        </span>
       </button>
 
       <button
@@ -79,9 +73,6 @@
       >
         <span class="size-1.5 rounded-full" [ngClass]="selectedStatus() === 'PLANNED' ? 'bg-white' : 'bg-amber-500'"></span>
         <span>Programadas</span>
-        <span class="px-1.5 py-0.2 rounded-md text-[10px]" [ngClass]="selectedStatus() === 'PLANNED' ? 'bg-amber-700 text-white' : 'bg-amber-50 text-amber-700'">
-          {{ plannedCount() }}
-        </span>
       </button>
 
       <button
@@ -90,10 +81,8 @@
         class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shrink-0 cursor-pointer border"
         [ngClass]="selectedStatus() === 'COMPLETED' ? 'bg-emerald-600 text-white border-emerald-600 shadow-2xs' : 'bg-slate-50 text-slate-600 border-slate-200/80 hover:bg-slate-100'"
       >
+        <span class="size-1.5 rounded-full" [ngClass]="selectedStatus() === 'COMPLETED' ? 'bg-white' : 'bg-emerald-500'"></span>
         <span>Concluídas</span>
-        <span class="px-1.5 py-0.2 rounded-md text-[10px]" [ngClass]="selectedStatus() === 'COMPLETED' ? 'bg-emerald-700 text-white' : 'bg-emerald-50 text-emerald-700'">
-          {{ completedCount() }}
-        </span>
       </button>
 
       <button
@@ -102,10 +91,8 @@
         class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shrink-0 cursor-pointer border"
         [ngClass]="selectedStatus() === 'CANCELLED' ? 'bg-rose-600 text-white border-rose-600 shadow-2xs' : 'bg-slate-50 text-slate-600 border-slate-200/80 hover:bg-slate-100'"
       >
+        <span class="size-1.5 rounded-full" [ngClass]="selectedStatus() === 'CANCELLED' ? 'bg-white' : 'bg-rose-500'"></span>
         <span>Canceladas</span>
-        <span class="px-1.5 py-0.2 rounded-md text-[10px]" [ngClass]="selectedStatus() === 'CANCELLED' ? 'bg-rose-700 text-white' : 'bg-rose-50 text-rose-700'">
-          {{ cancelledCount() }}
-        </span>
       </button>
     </div>
   </div>
@@ -116,7 +103,7 @@
       <!-- SKELETON TABLE SHIMMER -->
       <div class="p-4 space-y-3 animate-pulse">
         <div class="h-8 bg-slate-100 rounded-xl"></div>
-        @for (i of [1, 2, 3, 4, 5]; track i) {
+        @for (i of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]; track i) {
           <div class="flex items-center justify-between py-3 px-2 border-b border-slate-100">
             <div class="space-y-1.5 w-1/4">
               <div class="h-4 bg-slate-200 rounded w-24"></div>
@@ -142,7 +129,7 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100">
-            @for (trip of filteredTrips(); track trip.id) {
+            @for (trip of trips(); track trip.id) {
               <tr class="hover:bg-slate-50/80 transition-colors">
                 <td class="py-3.5 px-4">
                   <div class="font-bold text-slate-800 flex items-center gap-1.5 font-mono">
@@ -177,13 +164,12 @@
                 </td>
                 <td class="py-3.5 px-4 text-right">
                   <div class="flex items-center justify-end gap-1.5">
-                    <!-- Se Programada: Iniciar, Abastecer, Cancelar -->
                     @if (trip.status === 'PLANNED' || trip.status === 'PROGRAMADA') {
                       <button
                         (click)="startTrip(trip)"
                         [disabled]="actionLoadingId() === trip.id"
                         class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold rounded-lg text-[11px] transition-colors border border-emerald-200/70 cursor-pointer disabled:opacity-50 shadow-2xs"
-                        title="Iniciar Viagem (aloca o veículo como Em Viagem)"
+                        title="Iniciar Viagem"
                       >
                         @if (actionLoadingId() === trip.id) {
                           <svg lucideLoader2 class="size-3.5 animate-spin"></svg>
@@ -210,14 +196,12 @@
                         <svg lucideBan class="size-3.5"></svg>
                       </button>
                     }
-
-                    <!-- Se Em Andamento: Concluir, Abastecer, Cancelar -->
                     @else if (trip.status === 'IN_PROGRESS' || trip.status === 'EM_ANDAMENTO') {
                       <button
                         (click)="openCompleteModal(trip)"
                         [disabled]="actionLoadingId() === trip.id"
                         class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold rounded-lg text-[11px] transition-colors border border-blue-200/70 cursor-pointer disabled:opacity-50 shadow-2xs"
-                        title="Concluir Viagem (libera o veículo)"
+                        title="Concluir Viagem"
                       >
                         @if (actionLoadingId() === trip.id) {
                           <svg lucideLoader2 class="size-3.5 animate-spin"></svg>
@@ -226,33 +210,20 @@
                         }
                         Concluir
                       </button>
-
                       <button
                         (click)="openSupplyModal(trip.id)"
                         class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 font-semibold rounded-lg text-[11px] transition-colors border border-amber-200/60 cursor-pointer"
-                        title="Registrar Abastecimento"
                       >
                         <svg lucideFuel class="size-3.5"></svg>
                         Abastecer
                       </button>
-
-                      <button
-                        (click)="openCancelModal(trip)"
-                        class="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg transition-colors border border-rose-200/70 cursor-pointer"
-                        title="Cancelar Viagem"
-                      >
-                        <svg lucideBan class="size-3.5"></svg>
-                      </button>
                     }
-
-                    <!-- Se Concluída ou Cancelada -->
                     @else if (trip.status === 'COMPLETED' || trip.status === 'CONCLUIDA') {
                       <span class="inline-flex items-center gap-1 px-2.5 py-1 text-slate-400 font-medium text-[11px] bg-slate-50 rounded-lg border border-slate-200/60">
                         <svg lucideCheck class="size-3 text-emerald-500"></svg>
                         Finalizada
                       </span>
                     }
-
                     @else if (trip.status === 'CANCELLED' || trip.status === 'CANCELADA') {
                       <span class="inline-flex items-center gap-1 px-2.5 py-1 text-slate-400 font-medium text-[11px] bg-slate-50 rounded-lg border border-slate-200/60">
                         <svg lucideBan class="size-3 text-rose-400"></svg>
@@ -284,6 +255,90 @@
           </tbody>
         </table>
       </div>
+
+      <!-- BARRA DE PAGINAÇÃO SERVER-SIDE -->
+      @if (totalItems() > 0) {
+        <div class="px-5 py-3.5 bg-slate-50/90 border-t border-slate-100 flex flex-col md:flex-row items-center justify-between gap-4 text-xs">
+          <div class="text-slate-500 font-medium">
+            Mostrando <span class="font-bold text-slate-800">{{ startIndex() }}</span> a
+            <span class="font-bold text-slate-800">{{ endIndex() }}</span> de
+            <span class="font-bold text-slate-800">{{ totalItems() | number }}</span> viagens
+          </div>
+
+          <div class="flex flex-wrap items-center gap-4">
+            <div class="flex items-center gap-2">
+              <span class="text-slate-500 text-[11px]">Itens por página:</span>
+              <div class="inline-flex rounded-lg border border-slate-200 bg-white p-0.5 shadow-2xs">
+                @for (size of pageSizeOptions; track size) {
+                  <button
+                    type="button"
+                    (click)="setPageSize(size)"
+                    class="px-2.5 py-1 rounded-md text-xs font-semibold transition-all cursor-pointer"
+                    [ngClass]="pageSize() === size ? 'bg-slate-900 text-white shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'"
+                  >
+                    {{ size }}
+                  </button>
+                }
+              </div>
+            </div>
+
+            <div class="flex items-center gap-1">
+              <button
+                type="button"
+                (click)="setPage(1)"
+                [disabled]="currentPage() === 1"
+                title="Primeira página"
+                class="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:hover:bg-white transition-colors cursor-pointer disabled:cursor-not-allowed shadow-2xs"
+              >
+                <svg lucideChevronsLeft class="size-3.5"></svg>
+              </button>
+              <button
+                type="button"
+                (click)="prevPage()"
+                [disabled]="currentPage() === 1"
+                title="Página anterior"
+                class="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:hover:bg-white transition-colors cursor-pointer disabled:cursor-not-allowed shadow-2xs"
+              >
+                <svg lucideChevronLeft class="size-3.5"></svg>
+              </button>
+              <div class="flex items-center gap-1 px-1">
+                @for (pageNum of pageNumbers(); track $index) {
+                  @if (pageNum === '...') {
+                    <span class="px-2 py-1 text-slate-400 text-xs font-mono">...</span>
+                  } @else {
+                    <button
+                      type="button"
+                      (click)="setPage(pageNum)"
+                      class="min-w-[30px] h-7.5 px-2 rounded-lg text-xs font-semibold transition-all cursor-pointer"
+                      [ngClass]="currentPage() === pageNum ? 'bg-emerald-600 text-white shadow-2xs' : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-100'"
+                    >
+                      {{ pageNum }}
+                    </button>
+                  }
+                }
+              </div>
+              <button
+                type="button"
+                (click)="nextPage()"
+                [disabled]="currentPage() === totalPages()"
+                title="Próxima página"
+                class="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:hover:bg-white transition-colors cursor-pointer disabled:cursor-not-allowed shadow-2xs"
+              >
+                <svg lucideChevronRight class="size-3.5"></svg>
+              </button>
+              <button
+                type="button"
+                (click)="setPage(totalPages())"
+                [disabled]="currentPage() === totalPages()"
+                title="Última página"
+                class="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:hover:bg-white transition-colors cursor-pointer disabled:cursor-not-allowed shadow-2xs"
+              >
+                <svg lucideChevronsRight class="size-3.5"></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      }
     }
   </div>
 </div>

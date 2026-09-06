@@ -1,8 +1,9 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { IDriverRepository, UpdateDriverCnhDTO } from '../../domain/repositories/driver.repository.interface';
 import { Driver, CreateDriverDTO } from '../../domain/models/driver.model';
+import { PaginatedResponse, PaginationParams } from '../../domain/models/pagination.model';
 import { environment } from '../../../environments/environment';
 
 @Injectable({
@@ -12,8 +13,17 @@ export class HttpDriverRepository implements IDriverRepository {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = `${environment.apiUrl}/drivers`;
 
-  getAll(): Observable<Driver[]> {
-    return this.http.get<Driver[]>(this.apiUrl);
+  getAll(params?: PaginationParams): Observable<PaginatedResponse<Driver>> {
+    let httpParams = new HttpParams();
+
+    if (params) {
+      if (params.page !== undefined) httpParams = httpParams.set('page', params.page.toString());
+      if (params.limit !== undefined) httpParams = httpParams.set('limit', params.limit.toString());
+      if (params.search && params.search.trim()) httpParams = httpParams.set('search', params.search.trim());
+      if (params.status && params.status !== 'ALL') httpParams = httpParams.set('status', params.status);
+    }
+
+    return this.http.get<PaginatedResponse<Driver>>(this.apiUrl, { params: httpParams });
   }
 
   getById(id: string): Observable<Driver> {

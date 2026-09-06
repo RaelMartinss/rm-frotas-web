@@ -1,8 +1,9 @@
 import { Observable } from 'rxjs';
 import { Vehicle, CreateVehicleDTO } from '../models/vehicle.model';
+import { PaginatedResponse, PaginationParams } from '../models/pagination.model';
 
 export abstract class IVehicleRepository {
-  abstract getAll(): Observable<Vehicle[]>;
+  abstract getAll(params?: PaginationParams): Observable<PaginatedResponse<Vehicle>>;
   abstract getById(id: string): Observable<Vehicle>;
   abstract getByPlate(plate: string): Observable<Vehicle>;
   abstract create(vehicle: CreateVehicleDTO): Observable<Vehicle>;

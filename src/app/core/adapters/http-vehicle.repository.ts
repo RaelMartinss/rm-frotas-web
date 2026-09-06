@@ -1,9 +1,10 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { IVehicleRepository } from '../../domain/repositories/vehicle.repository.interface';
 import { Vehicle, CreateVehicleDTO } from '../../domain/models/vehicle.model';
+import { PaginatedResponse, PaginationParams } from '../../domain/models/pagination.model';
 
 @Injectable({
   providedIn: 'root'
@@ -12,8 +13,17 @@ export class HttpVehicleRepository implements IVehicleRepository {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = `${environment.apiUrl}/vehicles`;
 
-  getAll(): Observable<Vehicle[]> {
-    return this.http.get<Vehicle[]>(this.apiUrl);
+  getAll(params?: PaginationParams): Observable<PaginatedResponse<Vehicle>> {
+    let httpParams = new HttpParams();
+
+    if (params) {
+      if (params.page !== undefined) httpParams = httpParams.set('page', params.page.toString());
+      if (params.limit !== undefined) httpParams = httpParams.set('limit', params.limit.toString());
+      if (params.search && params.search.trim()) httpParams = httpParams.set('search', params.search.trim());
+      if (params.status && params.status !== 'ALL') httpParams = httpParams.set('status', params.status);
+    }
+
+    return this.http.get<PaginatedResponse<Vehicle>>(this.apiUrl, { params: httpParams });
   }
 
   getById(id: string): Observable<Vehicle> {
@@ -25,7 +35,6 @@ export class HttpVehicleRepository implements IVehicleRepository {
   }
 
   create(vehicle: CreateVehicleDTO): Observable<Vehicle> {
-    console.log('Creating vehicle:', vehicle);
     return this.http.post<Vehicle>(this.apiUrl, vehicle);
   }
 

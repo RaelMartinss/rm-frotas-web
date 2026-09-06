@@ -1,5 +1,6 @@
 import { Observable } from 'rxjs';
 import { Driver, CreateDriverDTO, CnhCategory } from '../models/driver.model';
+import { PaginatedResponse, PaginationParams } from '../models/pagination.model';
 
 export interface UpdateDriverCnhDTO {
   cnhNumber: string;
@@ -8,7 +9,7 @@ export interface UpdateDriverCnhDTO {
 }
 
 export abstract class IDriverRepository {
-  abstract getAll(): Observable<Driver[]>;
+  abstract getAll(params?: PaginationParams): Observable<PaginatedResponse<Driver>>;
   abstract getById(id: string): Observable<Driver>;
   abstract create(driver: CreateDriverDTO): Observable<Driver>;
   abstract update(id: string, driver: Partial<CreateDriverDTO>): Observable<Driver>;

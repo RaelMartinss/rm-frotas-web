@@ -22,7 +22,11 @@ import {
   LucidePlay,
   LucideBan,
   LucideCheck,
-  LucideSearch
+  LucideSearch,
+  LucideChevronLeft,
+  LucideChevronRight,
+  LucideChevronsLeft,
+  LucideChevronsRight
 } from '@lucide/angular';
 
 @Component({
@@ -42,7 +46,11 @@ import {
     LucidePlay,
     LucideBan,
     LucideCheck,
-    LucideSearch
+    LucideSearch,
+    LucideChevronLeft,
+    LucideChevronRight,
+    LucideChevronsLeft,
+    LucideChevronsRight
   ],
   templateUrl: './trip-list.html',
   styleUrl: './trip-list.css'
@@ -59,7 +67,14 @@ export class TripListComponent implements OnInit {
   drivers = signal<Driver[]>([]);
   loading = signal<boolean>(true);
 
-  // Busca e Filtros Reativos
+  // --- PAGINAÇÃO SERVER-SIDE (OFFSET / LIMIT) ---
+  currentPage = signal<number>(1);
+  pageSize = signal<number>(10); // Inicializa com 10 registros
+  totalItems = signal<number>(0);
+  totalPages = signal<number>(1);
+  pageSizeOptions: number[] = [10, 25, 50];
+
+  // Busca e Filtros Reativos com Server-Side Query
   searchControl = new FormControl('', { nonNullable: true });
   selectedStatus = signal<string>('ALL');
 
@@ -71,62 +86,76 @@ export class TripListComponent implements OnInit {
     { initialValue: '' }
   );
 
-  totalCount = computed(() => this.trips().length);
-  inProgressCount = computed(
-    () => this.trips().filter((t) => t.status === 'IN_PROGRESS' || t.status === 'EM_ANDAMENTO').length
-  );
-  plannedCount = computed(
-    () => this.trips().filter((t) => t.status === 'PLANNED' || t.status === 'PROGRAMADA').length
-  );
-  completedCount = computed(
-    () => this.trips().filter((t) => t.status === 'COMPLETED' || t.status === 'CONCLUIDA').length
-  );
-  cancelledCount = computed(
-    () => this.trips().filter((t) => t.status === 'CANCELLED' || t.status === 'CANCELADA').length
-  );
+  // Computed ranges para exibição na barra de paginação
+  startIndex = computed(() => {
+    if (this.totalItems() === 0) return 0;
+    return (this.currentPage() - 1) * this.pageSize() + 1;
+  });
 
-  filteredTrips = computed(() => {
-    const list = this.trips();
-    const term = this.searchTerm().toLowerCase().trim();
-    const status = this.selectedStatus();
+  endIndex = computed(() => {
+    return Math.min(this.currentPage() * this.pageSize(), this.totalItems());
+  });
 
-    return list.filter((trip) => {
-      const driverName = this.getDriverName(trip.driverId).toLowerCase();
-      const vehiclePlate = this.getVehiclePlate(trip.vehicleId).toLowerCase();
-      const origin = (trip.origin || '').toLowerCase();
-      const destination = (trip.destination || '').toLowerCase();
+  // Gera lista de páginas com elipses (ex: [1, 2, 3, '...', 10])
+  pageNumbers = computed(() => {
+    const total = this.totalPages();
+    const current = this.currentPage();
+    const delta = 1;
+    const range: (number | string)[] = [];
 
-      const matchesSearch =
-        driverName.includes(term) ||
-        vehiclePlate.includes(term) ||
-        origin.includes(term) ||
-        destination.includes(term);
+    if (total <= 7) {
+      for (let i = 1; i <= total; i++) range.push(i);
+      return range;
+    }
 
-      let matchesStatus = status === 'ALL';
-      if (!matchesStatus) {
-        if (status === 'IN_PROGRESS') {
-          matchesStatus = trip.status === 'IN_PROGRESS' || trip.status === 'EM_ANDAMENTO';
-        } else if (status === 'PLANNED') {
-          matchesStatus = trip.status === 'PLANNED' || trip.status === 'PROGRAMADA';
-        } else if (status === 'COMPLETED') {
-          matchesStatus = trip.status === 'COMPLETED' || trip.status === 'CONCLUIDA';
-        } else if (status === 'CANCELLED') {
-          matchesStatus = trip.status === 'CANCELLED' || trip.status === 'CANCELADA';
-        } else {
-          matchesStatus = trip.status === status;
-        }
-      }
+    const left = Math.max(2, current - delta);
+    const right = Math.min(total - 1, current + delta);
 
-      return matchesSearch && matchesStatus;
-    });
+    range.push(1);
+    if (left > 2) range.push('...');
+    for (let i = left; i <= right; i++) range.push(i);
+    if (right < total - 1) range.push('...');
+    range.push(total);
+
+    return range;
   });
 
   clearSearch(): void {
     this.searchControl.setValue('');
+    this.currentPage.set(1);
+    this.loadTrips();
   }
 
   setStatusFilter(status: string): void {
     this.selectedStatus.set(status);
+    this.currentPage.set(1);
+    this.loadTrips();
+  }
+
+  setPage(page: number | string): void {
+    if (typeof page !== 'number' || page < 1 || page > this.totalPages() || page === this.currentPage()) {
+      return;
+    }
+    this.currentPage.set(page);
+    this.loadTrips();
+  }
+
+  nextPage(): void {
+    if (this.currentPage() < this.totalPages()) {
+      this.setPage(this.currentPage() + 1);
+    }
+  }
+
+  prevPage(): void {
+    if (this.currentPage() > 1) {
+      this.setPage(this.currentPage() - 1);
+    }
+  }
+
+  setPageSize(newSize: number): void {
+    this.pageSize.set(newSize);
+    this.currentPage.set(1);
+    this.loadTrips();
   }
 
   // Estados dos Modais e Requisições
@@ -168,34 +197,59 @@ export class TripListComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.loadData();
+    this.searchControl.valueChanges
+      .pipe(debounceTime(350), distinctUntilChanged())
+      .subscribe(() => {
+        this.currentPage.set(1);
+        this.loadTrips();
+      });
+
+    this.loadTrips();
+    this.loadAuxiliaryData();
   }
 
-  loadData(): void {
+  loadTrips(): void {
     this.loading.set(true);
-    this.tripRepository.getAll().subscribe({
-      next: (data) => {
-        this.trips.set(data);
-        this.loading.set(false);
-      },
-      error: (err) => {
-        this.loading.set(false);
-        this.toastService.error('Erro ao carregar lista de viagens.');
-      }
-    });
+    this.tripRepository
+      .getAll({
+        page: this.currentPage(),
+        limit: this.pageSize(),
+        search: this.searchControl.value,
+        status: this.selectedStatus(),
+      })
+      .subscribe({
+        next: (response) => {
+          this.trips.set(response.data || []);
+          this.totalItems.set(response.total || 0);
+          this.totalPages.set(response.totalPages || 1);
+          this.loading.set(false);
+        },
+        error: () => {
+          this.loading.set(false);
+          this.toastService.error('Erro ao carregar lista de viagens.');
+        }
+      });
+  }
 
-    this.vehicleRepository.getAll().subscribe((v) => this.vehicles.set(v));
-    this.driverRepository.getAll().subscribe((d) => this.drivers.set(d));
+  loadAuxiliaryData(): void {
+    this.vehicleRepository.getAll({ limit: 100 }).subscribe({
+      next: (response) => this.vehicles.set(response.data || []),
+      error: () => {}
+    });
+    this.driverRepository.getAll({ limit: 100 }).subscribe({
+      next: (response) => this.drivers.set(response.data || []),
+      error: () => {}
+    });
   }
 
   getVehiclePlate(vehicleId: string): string {
     const v = this.vehicles().find((item) => item.id === vehicleId);
-    return v ? `${v.plate} (${v.model})` : 'Veículo ' + vehicleId.slice(0, 8);
+    return v ? `${v.plate} (${v.model})` : 'Veículo ' + (vehicleId ? vehicleId.slice(0, 8) : '-');
   }
 
   getDriverName(driverId: string): string {
     const d = this.drivers().find((item) => item.id === driverId);
-    return d ? d.name : 'Motorista ' + driverId.slice(0, 8);
+    return d ? d.name : 'Motorista ' + (driverId ? driverId.slice(0, 8) : '-');
   }
 
   getStatusLabel(status: string): string {
@@ -297,13 +351,10 @@ export class TripListComponent implements OnInit {
   startTrip(trip: Trip): void {
     this.actionLoadingId.set(trip.id);
     this.tripRepository.startTrip(trip.id).subscribe({
-      next: (updatedTrip) => {
-        this.trips.update((list) =>
-          list.map((t) => (t.id === trip.id ? { ...t, status: 'IN_PROGRESS' as const, startedAt: updatedTrip.startedAt } : t))
-        );
+      next: () => {
         this.actionLoadingId.set(null);
         this.toastService.success('Viagem iniciada com sucesso! Veículo em trânsito.');
-        this.loadData();
+        this.loadTrips();
       },
       error: (err) => {
         this.actionLoadingId.set(null);
@@ -330,14 +381,11 @@ export class TripListComponent implements OnInit {
 
     this.actionLoadingId.set(trip.id);
     this.tripRepository.completeTrip(trip.id).subscribe({
-      next: (updatedTrip) => {
-        this.trips.update((list) =>
-          list.map((t) => (t.id === trip.id ? { ...t, status: 'COMPLETED' as const, completedAt: updatedTrip.completedAt } : t))
-        );
+      next: () => {
         this.actionLoadingId.set(null);
         this.closeCompleteModal();
         this.toastService.success('Viagem concluída com sucesso! Veículo liberado.');
-        this.loadData();
+        this.loadTrips();
       },
       error: (err) => {
         this.actionLoadingId.set(null);
@@ -365,13 +413,10 @@ export class TripListComponent implements OnInit {
     this.actionLoadingId.set(trip.id);
     this.tripRepository.cancelTrip(trip.id).subscribe({
       next: () => {
-        this.trips.update((list) =>
-          list.map((t) => (t.id === trip.id ? { ...t, status: 'CANCELLED' as const } : t))
-        );
         this.actionLoadingId.set(null);
         this.closeCancelModal();
         this.toastService.info('Viagem cancelada com sucesso.');
-        this.loadData();
+        this.loadTrips();
       },
       error: (err) => {
         this.actionLoadingId.set(null);
@@ -412,11 +457,12 @@ export class TripListComponent implements OnInit {
     };
 
     this.tripRepository.create(payload).subscribe({
-      next: (newTrip) => {
-        this.trips.update((list) => [newTrip, ...list]);
+      next: () => {
         this.isSaving.set(false);
         this.toastService.success('Viagem criada com sucesso!');
         this.closeTripModal();
+        this.currentPage.set(1);
+        this.loadTrips();
       },
       error: (err) => {
         this.isSaving.set(false);
@@ -447,7 +493,7 @@ export class TripListComponent implements OnInit {
         this.isSaving.set(false);
         this.toastService.success('Abastecimento registrado com sucesso!');
         this.closeSupplyModal();
-        this.loadData();
+        this.loadTrips();
       },
       error: (err) => {
         this.isSaving.set(false);
@@ -460,5 +506,3 @@ export class TripListComponent implements OnInit {
     });
   }
 }
-
-
