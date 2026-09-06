@@ -6,6 +6,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { IDriverRepository } from '../../domain/repositories/driver.repository.interface';
 import { ToastService } from '../../core/services/toast.service';
 import { Driver, CnhCategory } from '../../domain/models/driver.model';
+import { CpfMaskDirective, PhoneMaskDirective, CnhMaskDirective } from '../shared/directives/input-mask.directives';
 import {
   LucideUsers,
   LucidePlus,
@@ -29,6 +30,9 @@ import {
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    CpfMaskDirective,
+    PhoneMaskDirective,
+    CnhMaskDirective,
     LucideUsers,
     LucidePlus,
     LucideSearch,

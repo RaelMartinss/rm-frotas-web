@@ -6,6 +6,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { IVehicleRepository } from '../../domain/repositories/vehicle.repository.interface';
 import { ToastService } from '../../core/services/toast.service';
 import { Vehicle } from '../../domain/models/vehicle.model';
+import { PlateMaskDirective } from '../shared/directives/input-mask.directives';
 import {
   LucideTruck,
   LucidePlus,
@@ -26,6 +27,7 @@ import {
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    PlateMaskDirective,
     LucideTruck,
     LucidePlus,
     LucideSearch,
