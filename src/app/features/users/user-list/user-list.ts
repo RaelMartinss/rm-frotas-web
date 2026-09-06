@@ -15,7 +15,8 @@ import {
   LucideCheckCircle2,
   LucideXCircle,
   LucideShieldAlert,
-  LucideAlertCircle
+  LucideAlertCircle,
+  LucideKeyRound
 } from '@lucide/angular';
 
 @Component({
@@ -24,6 +25,7 @@ import {
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    LucideUsers,
     LucideUserPlus,
     LucideSearch,
     LucideLoader2,
@@ -31,7 +33,8 @@ import {
     LucideCheckCircle2,
     LucideXCircle,
     LucideShieldAlert,
-    LucideAlertCircle
+    LucideAlertCircle,
+    LucideKeyRound
   ],
   templateUrl: './user-list.html'
 })
@@ -77,7 +80,8 @@ export class UserListComponent implements OnInit {
   userForm: FormGroup = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(3)]],
     email: ['', [Validators.required, Validators.email]],
-    role: ['OPERATOR' as UserRole, [Validators.required]]
+    role: ['FLEET_MANAGER' as UserRole, [Validators.required]],
+    password: ['Mudar@123', [Validators.minLength(6)]]
   });
 
   ngOnInit(): void {
@@ -104,7 +108,12 @@ export class UserListComponent implements OnInit {
 
   openModal(): void {
     this.errorMessage.set(null);
-    this.userForm.reset({ role: 'OPERATOR' });
+    this.userForm.reset({
+      name: '',
+      email: '',
+      role: 'FLEET_MANAGER',
+      password: 'Mudar@123'
+    });
     this.isModalOpen.set(true);
   }
 
@@ -127,7 +136,7 @@ export class UserListComponent implements OnInit {
       next: (newUser) => {
         this.users.update((list) => [newUser, ...list]);
         this.isSaving.set(false);
-        this.toastService.success('Usuário cadastrado com sucesso!');
+        this.toastService.success('Novo usuário cadastrado com sucesso!');
         this.closeModal();
       },
       error: (err) => {
@@ -149,7 +158,7 @@ export class UserListComponent implements OnInit {
         this.users.update((list) =>
           list.map((u) => (u.id === updatedUser.id ? updatedUser : u))
         );
-        this.toastService.success(updatedUser.isActive ? 'Usuário ativado com sucesso!' : 'Usuário desativado com sucesso!');
+        this.toastService.success(updatedUser.isActive ? 'Usuário ativado com sucesso!' : 'Acesso do usuário suspenso.');
       },
       error: () => {
         this.toastService.error('Erro ao alterar status do usuário.');
@@ -157,4 +166,5 @@ export class UserListComponent implements OnInit {
     });
   }
 }
+
 

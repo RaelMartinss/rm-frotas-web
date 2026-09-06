@@ -2,15 +2,15 @@
   <!-- CABEÇALHO -->
   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
     <div>
-      <h1 class="text-2xl font-bold text-slate-800">Gestão de Operadores</h1>
-      <p class="text-sm text-slate-500">Cadastre e gerencie as permissões dos usuários do RM Frotas.</p>
+      <h1 class="text-2xl font-bold text-slate-800">Gestão de Usuários</h1>
+      <p class="text-sm text-slate-500">Cadastre e gerencie as contas e permissões de acesso ao RM Frotas.</p>
     </div>
     <button
       (click)="openModal()"
-      class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs px-4 py-2.5 rounded-xl transition-colors shadow-xs"
+      class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition-all shadow-xs cursor-pointer"
     >
       <svg lucideUserPlus class="size-4"></svg>
-      Novo Operador
+      Novo Usuário
     </button>
   </div>
 
@@ -31,27 +31,27 @@
         type="button"
         (click)="setRoleFilter('ALL')"
         [class]="selectedRole() === 'ALL' ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
-        class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors shrink-0"
+        class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors shrink-0 cursor-pointer"
       >
         Todos
       </button>
 
       <button
         type="button"
-        (click)="setRoleFilter('ADMIN')"
-        [class]="selectedRole() === 'ADMIN' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
-        class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors shrink-0"
+        (click)="setRoleFilter('FLEET_MANAGER')"
+        [class]="selectedRole() === 'FLEET_MANAGER' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
+        class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors shrink-0 cursor-pointer"
       >
-        Administradores
+        Gestores de Frota
       </button>
 
       <button
         type="button"
-        (click)="setRoleFilter('OPERATOR')"
-        [class]="selectedRole() === 'OPERATOR' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
-        class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors shrink-0"
+        (click)="setRoleFilter('DRIVER')"
+        [class]="selectedRole() === 'DRIVER' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
+        class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors shrink-0 cursor-pointer"
       >
-        Operadores
+        Motoristas
       </button>
     </div>
   </div>
@@ -69,8 +69,8 @@
           <thead class="bg-slate-50 border-b border-slate-100 text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
             <tr>
               <th class="py-3.5 px-4">Usuário / E-mail</th>
-              <th class="py-3.5 px-4">Papel (Role)</th>
-              <th class="py-3.5 px-4">Status</th>
+              <th class="py-3.5 px-4">Perfil de Acesso</th>
+              <th class="py-3.5 px-4">Status da Conta</th>
               <th class="py-3.5 px-4 text-right">Ações</th>
             </tr>
           </thead>
@@ -78,20 +78,26 @@
             @for (user of filteredUsers(); track user.id) {
               <tr class="hover:bg-slate-50/50 transition-colors">
                 <td class="py-3.5 px-4">
-                  <div class="font-bold text-slate-800">{{ user.name }}</div>
-                  <div class="text-slate-500 text-[11px]">{{ user.email }}</div>
+                  <div class="flex items-center gap-3">
+                    <div class="size-8 rounded-full bg-slate-100 text-slate-700 font-bold flex items-center justify-center text-[11px]">
+                      {{ user.name.substring(0, 2).toUpperCase() }}
+                    </div>
+                    <div>
+                      <div class="font-bold text-slate-800">{{ user.name }}</div>
+                      <div class="text-slate-500 text-[11px]">{{ user.email }}</div>
+                    </div>
+                  </div>
                 </td>
                 <td class="py-3.5 px-4">
-                  <span
-                    class="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider"
-                    [ngClass]="{
-                      'bg-purple-100 text-purple-700': user.role === 'ADMIN',
-                      'bg-blue-100 text-blue-700': user.role === 'OPERATOR',
-                      'bg-emerald-100 text-emerald-700': user.role === 'MANAGER'
-                    }"
-                  >
-                    {{ user.role }}
-                  </span>
+                  @if (user.role === 'FLEET_MANAGER' || user.role === 'ADMIN' || user.role === 'MANAGER') {
+                    <span class="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+                      Gestor de Frota
+                    </span>
+                  } @else {
+                    <span class="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-blue-700 border border-blue-200/60">
+                      Motorista
+                    </span>
+                  }
                 </td>
                 <td class="py-3.5 px-4">
                   <span
@@ -104,20 +110,23 @@
                 <td class="py-3.5 px-4 text-right">
                   <button
                     (click)="toggleStatus(user)"
-                    [title]="user.isActive ? 'Desativar acesso' : 'Ativar acesso'"
-                    class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+                    [title]="user.isActive ? 'Suspender acesso' : 'Ativar acesso'"
+                    class="px-2.5 py-1.5 rounded-lg text-xs font-semibold inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+                    [class]="user.isActive ? 'text-rose-600 hover:bg-rose-50 border border-rose-200/60' : 'text-emerald-600 hover:bg-emerald-50 border border-emerald-200/60'"
                   >
                     @if (user.isActive) {
-                      <svg lucideXCircle class="size-4 text-rose-500"></svg>
+                      <svg lucideXCircle class="size-3.5 text-rose-500"></svg>
+                      <span>Suspender</span>
                     } @else {
-                      <svg lucideCheckCircle2 class="size-4 text-emerald-500"></svg>
+                      <svg lucideCheckCircle2 class="size-3.5 text-emerald-500"></svg>
+                      <span>Ativar</span>
                     }
                   </button>
                 </td>
               </tr>
             } @empty {
               <tr>
-                <td colspan="4" class="py-8 text-center text-slate-400">Nenhum operador encontrado.</td>
+                <td colspan="4" class="py-8 text-center text-slate-400">Nenhum usuário encontrado.</td>
               </tr>
             }
           </tbody>
@@ -129,14 +138,14 @@
 
 <!-- MODAL DE CADASTRO -->
 @if (isModalOpen()) {
-  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-150">
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-150">
       <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
         <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
           <svg lucideUserPlus class="size-5 text-emerald-600"></svg>
-          Cadastrar Novo Operador
+          Cadastrar Novo Usuário
         </h2>
-        <button (click)="closeModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg transition-colors">
+        <button (click)="closeModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg transition-colors cursor-pointer">
           <svg lucideX class="size-5"></svg>
         </button>
       </div>
@@ -158,8 +167,8 @@
           <input
             type="text"
             formControlName="name"
-            placeholder="Ex: João Silva"
-            class="w-full bg-slate-50 border rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 transition-colors"
+            placeholder="Ex: Carlos Silva"
+            class="w-full bg-slate-50 border rounded-xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 transition-colors"
             [class.border-rose-400]="userForm.get('name')?.invalid && userForm.get('name')?.touched"
             [class.bg-rose-50]="userForm.get('name')?.invalid && userForm.get('name')?.touched"
             [class.border-slate-200]="!(userForm.get('name')?.invalid && userForm.get('name')?.touched)"
@@ -178,8 +187,8 @@
           <input
             type="email"
             formControlName="email"
-            placeholder="operador@empresa.com.br"
-            class="w-full bg-slate-50 border rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 transition-colors"
+            placeholder="usuario@empresa.com.br"
+            class="w-full bg-slate-50 border rounded-xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 transition-colors"
             [class.border-rose-400]="userForm.get('email')?.invalid && userForm.get('email')?.touched"
             [class.bg-rose-50]="userForm.get('email')?.invalid && userForm.get('email')?.touched"
             [class.border-slate-200]="!(userForm.get('email')?.invalid && userForm.get('email')?.touched)"
@@ -193,44 +202,52 @@
 
         <div>
           <label class="block text-xs font-semibold text-slate-700 mb-1">
-            Nível de Permissão <span class="text-rose-500">*</span>
+            Perfil de Acesso <span class="text-rose-500">*</span>
           </label>
           <select
             formControlName="role"
-            class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 transition-colors"
+            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 transition-colors"
           >
-            <option value="OPERATOR">Operador (Lançamentos e Pátio)</option>
-            <option value="MANAGER">Gerente de Frota</option>
-            <option value="ADMIN">Administrador Geral</option>
+            <option value="FLEET_MANAGER">Gestor de Frota (Acesso Total / Painel)</option>
+            <option value="DRIVER">Motorista (Acesso Operacional de Viagens)</option>
           </select>
         </div>
 
-        <div class="p-3 bg-amber-50 border border-amber-200/60 rounded-xl flex items-start gap-2 text-amber-800 text-[11px]">
-          <svg lucideShieldAlert class="size-4 text-amber-600 shrink-0 mt-0.5"></svg>
-          <span>A senha inicial padrão será enviada ao e-mail do operador, exigindo a troca no primeiro acesso.</span>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">
+            Senha Inicial de Acesso
+          </label>
+          <input
+            type="text"
+            formControlName="password"
+            placeholder="Padrão: Mudar@123"
+            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 transition-colors"
+          />
+          <p class="text-[10px] text-slate-400 mt-1">O usuário poderá alterar sua senha após o primeiro login.</p>
         </div>
 
         <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
           <button
             type="button"
             (click)="closeModal()"
-            class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+            class="px-4 py-2.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
           >
             Cancelar
           </button>
           <button
             type="submit"
             [disabled]="isSaving()"
-            class="px-4 py-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50"
+            class="px-5 py-2.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-all shadow-xs flex items-center gap-2 disabled:opacity-50 cursor-pointer"
           >
             @if (isSaving()) {
               <svg lucideLoader2 class="size-4 animate-spin"></svg>
             }
-            Cadastrar
+            Cadastrar Usuário
           </button>
         </div>
       </form>
     </div>
   </div>
 }
+
 

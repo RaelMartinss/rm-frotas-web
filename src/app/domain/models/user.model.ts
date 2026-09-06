@@ -1,10 +1,11 @@
-export type UserRole = 'ADMIN' | 'MANAGER' | 'OPERATOR' | 'DRIVER';
+export type UserRole = 'FLEET_MANAGER' | 'DRIVER' | 'ADMIN' | 'OPERATOR' | 'MANAGER';
 
 export interface UserProps {
   id: string;
   name: string;
   email: string;
   role: UserRole;
+  status?: string;
   isActive?: boolean;
   mustChangePassword?: boolean;
   avatarUrl?: string;
@@ -16,6 +17,7 @@ export class User {
   readonly name: string;
   readonly email: string;
   readonly role: UserRole;
+  readonly status: string;
   readonly isActive: boolean;
   readonly mustChangePassword?: boolean;
   readonly avatarUrl?: string;
@@ -26,7 +28,8 @@ export class User {
     this.name = props.name;
     this.email = props.email;
     this.role = props.role;
-    this.isActive = props.isActive ?? true;
+    this.status = props.status ?? (props.isActive === false ? 'INACTIVE' : 'ACTIVE');
+    this.isActive = props.isActive ?? (this.status === 'ACTIVE');
     this.mustChangePassword = props.mustChangePassword;
     this.avatarUrl = props.avatarUrl;
     this.createdAt = props.createdAt;

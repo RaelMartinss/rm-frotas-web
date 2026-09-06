@@ -67,7 +67,12 @@ export const routes: Routes = [
       },
       {
         path: 'usuarios',
-        redirectTo: 'perfil',
+        loadComponent: () =>
+          import('./features/users/user-list/user-list').then((m) => m.UserListComponent)
+      },
+      {
+        path: 'users',
+        redirectTo: 'usuarios',
         pathMatch: 'full'
       },
       {
