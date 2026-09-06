@@ -1,313 +1,401 @@
-<!-- ESTADO DE CARREGAMENTO (LOADING) -->
+<!-- ESTADO DE CARREGAMENTO (SKELETON LOADERS COM SHIMMER) -->
 @if (loading()) {
-  <div class="min-h-[420px] flex flex-col items-center justify-center gap-3 text-slate-500">
-    <svg lucideLoader2 class="size-8 animate-spin text-emerald-500"></svg>
-    <p class="text-xs font-medium">Carregando indicadores da frota...</p>
+  <div class="space-y-6 max-w-7xl mx-auto animate-pulse">
+    <!-- Skeleton: Cabeçalho -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2">
+      <div class="space-y-2">
+        <div class="h-3 w-40 bg-slate-200 rounded-full"></div>
+        <div class="h-7 w-64 bg-slate-200 rounded-lg"></div>
+        <div class="h-4 w-80 bg-slate-200 rounded-md"></div>
+      </div>
+      <div class="flex items-center gap-3">
+        <div class="h-10 w-28 bg-slate-200 rounded-xl"></div>
+        <div class="h-10 w-32 bg-slate-200 rounded-xl"></div>
+      </div>
+    </div>
+
+    <!-- Skeleton: 4 Cards de KPI -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+      @for (i of [1, 2, 3, 4]; track i) {
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+          <div class="flex justify-between items-center">
+            <div class="h-3.5 w-24 bg-slate-200 rounded"></div>
+            <div class="h-5 w-16 bg-slate-200 rounded-full"></div>
+          </div>
+          <div class="h-9 w-16 bg-slate-200 rounded-lg"></div>
+          <div class="space-y-1.5 pt-1">
+            <div class="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+              <div class="h-full bg-slate-200 w-2/3"></div>
+            </div>
+            <div class="h-3 w-28 bg-slate-200 rounded"></div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Skeleton: Gráficos -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div class="lg:col-span-5 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+        <div class="h-5 w-36 bg-slate-200 rounded"></div>
+        <div class="size-48 mx-auto rounded-full border-8 border-slate-100 bg-slate-50 flex items-center justify-center">
+          <div class="size-24 rounded-full bg-white"></div>
+        </div>
+        <div class="h-4 w-full bg-slate-200 rounded"></div>
+      </div>
+      <div class="lg:col-span-7 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+        <div class="h-5 w-48 bg-slate-200 rounded"></div>
+        <div class="h-52 bg-slate-50 rounded-xl"></div>
+      </div>
+    </div>
+
+    <!-- Skeleton: Tabela Inferior -->
+    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-3">
+      <div class="h-5 w-44 bg-slate-200 rounded"></div>
+      <div class="h-10 bg-slate-100 rounded-lg"></div>
+      <div class="h-10 bg-slate-50 rounded-lg"></div>
+      <div class="h-10 bg-slate-50 rounded-lg"></div>
+    </div>
   </div>
 }
 
 <!-- ESTADO DE ERRO -->
 @else if (error()) {
-  <div class="p-6 bg-rose-50 border border-rose-200 rounded-2xl text-rose-700 flex items-center justify-between">
-    <div class="flex items-center gap-3">
-      <svg lucideAlertTriangle class="size-6 text-rose-500"></svg>
+  <div class="p-6 bg-rose-50 border border-rose-200 rounded-2xl text-rose-800 flex items-center justify-between max-w-4xl mx-auto shadow-xs">
+    <div class="flex items-center gap-4">
+      <div class="size-10 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center shrink-0">
+        <svg lucideAlertTriangle class="size-5"></svg>
+      </div>
       <div>
-        <p class="text-sm font-bold">Erro ao carregar dados</p>
-        <p class="text-xs text-rose-600">{{ error() }}</p>
+        <p class="text-sm font-bold">Falha na sincronização de dados</p>
+        <p class="text-xs text-rose-600 mt-0.5">{{ error() }}</p>
       </div>
     </div>
     <button
       (click)="loadDashboardData()"
-      class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-semibold transition-colors cursor-pointer"
+      class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-semibold transition-colors shadow-xs cursor-pointer"
     >
       Tentar novamente
     </button>
   </div>
 }
 
-<!-- CONTEÚDO PRINCIPAL (DADOS CARREGADOS) -->
+<!-- CONTEÚDO PRINCIPAL EXECUTIVO (DADOS CARREGADOS) -->
 @else if (data(); as summary) {
   <div class="space-y-6 max-w-7xl mx-auto">
-    <!-- CABEÇALHO E SAUDAÇÃO -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <!-- CABEÇALHO EXECUTIVO -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-200/70 pb-5">
       <div>
-        <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
-          Olá, {{ userFirstName() }} 👋
+        <div class="flex items-center gap-2 mb-1">
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+            <span class="size-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            Operação em Tempo Real
+          </span>
+          <span class="text-xs text-slate-400">•</span>
+          <span class="text-xs text-slate-500 font-medium">{{ currentFormattedDate() }}</span>
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+          Painel de Controle da Frota
         </h1>
-        <p class="text-xs sm:text-sm text-slate-500 mt-1">Aqui está o panorama operacional da sua frota hoje.</p>
+        <p class="text-xs sm:text-sm text-slate-500 mt-0.5">
+          Visão consolidada de disponibilidade de ativos, rotas ativas e conformidade documental.
+        </p>
       </div>
 
+      <!-- AÇÕES RÁPIDAS -->
       <div class="flex items-center gap-3">
+        <button
+          (click)="loadDashboardData(true)"
+          [disabled]="refreshing()"
+          title="Sincronizar dados agora"
+          class="inline-flex items-center gap-2 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs px-3.5 py-2.5 rounded-xl border border-slate-200/80 shadow-2xs transition-colors cursor-pointer disabled:opacity-60"
+        >
+          <svg
+            lucideRefreshCw
+            class="size-3.5 text-slate-500"
+            [class.animate-spin]="refreshing()"
+          ></svg>
+          <span>{{ refreshing() ? 'Sincronizando...' : 'Atualizar' }}</span>
+        </button>
+
         <a
           [routerLink]="['/trips']"
-          class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs px-4 py-2.5 rounded-xl transition-colors shadow-xs"
+          class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs px-4 py-2.5 rounded-xl transition-all shadow-xs hover:shadow-sm cursor-pointer"
         >
           <svg lucideNavigation class="size-4"></svg>
-          Nova Viagem
+          <span>Nova Viagem</span>
         </a>
       </div>
     </div>
 
-    <!-- 1. GRID SUPERIOR: 4 CARDS DE INDICADORES (KPIs) -->
+    <!-- 1. GRID SUPERIOR: 4 CARDS DE KPI ENTERPRISE COM BARRAS DE CAPACIDADE -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-      <!-- Card 1: Veículos Ativos -->
+      <!-- Card 1: Total da Frota -->
       <a
         [routerLink]="['/vehicles']"
-        class="bg-white p-5 rounded-2xl border border-slate-200/70 shadow-xs flex flex-col justify-between hover:border-emerald-300 transition-colors group cursor-pointer"
+        class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs hover:shadow-xs hover:border-slate-300 transition-all flex flex-col justify-between group cursor-pointer"
       >
-        <div class="flex items-center justify-between">
-          <span class="text-xs font-semibold text-slate-600 group-hover:text-emerald-700 transition-colors">Veículos cadastrados</span>
-          <div class="size-10 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 group-hover:scale-105 transition-transform">
-            <svg lucideCar class="size-5"></svg>
+        <div>
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Frota Total</span>
+            <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
+              100%
+            </span>
+          </div>
+          <div class="mt-3 flex items-baseline gap-2">
+            <span class="text-3xl font-extrabold text-slate-900 tracking-tight">{{ summary.kpis.activeVehicles }}</span>
+            <span class="text-xs text-slate-400 font-medium">veículos</span>
           </div>
         </div>
-        <div class="mt-3">
-          <span class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">{{ summary.kpis.activeVehicles }}</span>
-        </div>
-        <div class="mt-3 text-xs font-medium text-emerald-600 flex items-center gap-1">
-          <span>Ver frota completa →</span>
+
+        <div class="mt-4 pt-3 border-t border-slate-100">
+          <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden mb-2">
+            <div class="bg-slate-800 h-full rounded-full w-full"></div>
+          </div>
+          <div class="flex items-center justify-between text-[11px] text-slate-500 font-medium">
+            <span>Ativos cadastrados</span>
+            <span class="text-emerald-600 font-semibold group-hover:translate-x-0.5 transition-transform">Ver todos →</span>
+          </div>
         </div>
       </a>
 
-      <!-- Card 2: Disponíveis -->
+      <!-- Card 2: Prontos / Disponíveis -->
       <a
         [routerLink]="['/vehicles']"
-        class="bg-white p-5 rounded-2xl border border-slate-200/70 shadow-xs flex flex-col justify-between hover:border-emerald-300 transition-colors group cursor-pointer"
+        class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs hover:shadow-xs hover:border-emerald-300 transition-all flex flex-col justify-between group cursor-pointer"
       >
-        <div class="flex items-center justify-between">
-          <span class="text-xs font-semibold text-slate-600 group-hover:text-emerald-700 transition-colors">Disponíveis</span>
-          <div class="size-10 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 group-hover:scale-105 transition-transform">
-            <svg lucideCheck class="size-5 stroke-[2.5]"></svg>
+        <div>
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-emerald-700 uppercase tracking-wider">Disponíveis</span>
+            <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/70">
+              {{ summary.kpis.availablePercentage }}%
+            </span>
+          </div>
+          <div class="mt-3 flex items-baseline gap-2">
+            <span class="text-3xl font-extrabold text-emerald-600 tracking-tight">{{ summary.kpis.availableVehicles }}</span>
+            <span class="text-xs text-slate-400 font-medium">aptos para saída</span>
           </div>
         </div>
-        <div class="mt-3">
-          <span class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">{{ summary.kpis.availableVehicles }}</span>
-        </div>
-        <div class="mt-3 text-xs font-medium text-slate-500">
-          {{ summary.kpis.availablePercentage }}% da frota ativa
+
+        <div class="mt-4 pt-3 border-t border-slate-100">
+          <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden mb-2">
+            <div
+              class="bg-emerald-500 h-full rounded-full transition-all duration-500"
+              [style.width.%]="summary.kpis.availablePercentage"
+            ></div>
+          </div>
+          <div class="flex items-center justify-between text-[11px] text-slate-500 font-medium">
+            <span>Capacidade livre</span>
+            <span class="text-emerald-600 font-semibold group-hover:translate-x-0.5 transition-transform">Alocar →</span>
+          </div>
         </div>
       </a>
 
       <!-- Card 3: Em Manutenção -->
       <a
         [routerLink]="['/vehicles']"
-        class="bg-white p-5 rounded-2xl border border-slate-200/70 shadow-xs flex flex-col justify-between hover:border-amber-300 transition-colors group cursor-pointer"
+        class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs hover:shadow-xs hover:border-amber-300 transition-all flex flex-col justify-between group cursor-pointer"
       >
-        <div class="flex items-center justify-between">
-          <span class="text-xs font-semibold text-slate-600 group-hover:text-amber-700 transition-colors">Em manutenção</span>
-          <div class="size-10 rounded-full bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600 group-hover:scale-105 transition-transform">
-            <svg lucideWrench class="size-5"></svg>
+        <div>
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-amber-700 uppercase tracking-wider">Em Manutenção</span>
+            <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200/70">
+              {{ summary.kpis.inMaintenancePercentage }}%
+            </span>
+          </div>
+          <div class="mt-3 flex items-baseline gap-2">
+            <span class="text-3xl font-extrabold text-amber-600 tracking-tight">{{ summary.kpis.inMaintenanceVehicles }}</span>
+            <span class="text-xs text-slate-400 font-medium">em revisão</span>
           </div>
         </div>
-        <div class="mt-3">
-          <span class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">{{ summary.kpis.inMaintenanceVehicles }}</span>
-        </div>
-        <div class="mt-3 text-xs font-medium text-amber-600">
-          {{ summary.kpis.inMaintenancePercentage }}% da frota
+
+        <div class="mt-4 pt-3 border-t border-slate-100">
+          <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden mb-2">
+            <div
+              class="bg-amber-500 h-full rounded-full transition-all duration-500"
+              [style.width.%]="summary.kpis.inMaintenancePercentage"
+            ></div>
+          </div>
+          <div class="flex items-center justify-between text-[11px] text-slate-500 font-medium">
+            <span>Paradas técnicas</span>
+            <span class="text-amber-600 font-semibold group-hover:translate-x-0.5 transition-transform">Oficinas →</span>
+          </div>
         </div>
       </a>
 
-      <!-- Card 4: Em Viagem / Indisponíveis -->
+      <!-- Card 4: Em Operação / Viagem -->
       <a
         [routerLink]="['/trips']"
-        class="bg-white p-5 rounded-2xl border border-slate-200/70 shadow-xs flex flex-col justify-between hover:border-blue-300 transition-colors group cursor-pointer"
+        class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs hover:shadow-xs hover:border-blue-300 transition-all flex flex-col justify-between group cursor-pointer"
       >
-        <div class="flex items-center justify-between">
-          <span class="text-xs font-semibold text-slate-600 group-hover:text-blue-700 transition-colors">Em viagem / Uso</span>
-          <div class="size-10 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 group-hover:scale-105 transition-transform">
-            <svg lucideTruck class="size-5"></svg>
+        <div>
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-blue-700 uppercase tracking-wider">Em Trânsito</span>
+            <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200/70">
+              {{ summary.kpis.unavailablePercentage }}%
+            </span>
+          </div>
+          <div class="mt-3 flex items-baseline gap-2">
+            <span class="text-3xl font-extrabold text-blue-600 tracking-tight">{{ summary.kpis.unavailableVehicles }}</span>
+            <span class="text-xs text-slate-400 font-medium">em rota</span>
           </div>
         </div>
-        <div class="mt-3">
-          <span class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">{{ summary.kpis.unavailableVehicles }}</span>
-        </div>
-        <div class="mt-3 text-xs font-medium text-blue-600">
-          {{ summary.kpis.unavailablePercentage }}% da frota
+
+        <div class="mt-4 pt-3 border-t border-slate-100">
+          <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden mb-2">
+            <div
+              class="bg-blue-500 h-full rounded-full transition-all duration-500"
+              [style.width.%]="summary.kpis.unavailablePercentage"
+            ></div>
+          </div>
+          <div class="flex items-center justify-between text-[11px] text-slate-500 font-medium">
+            <span>Viagens em curso</span>
+            <span class="text-blue-600 font-semibold group-hover:translate-x-0.5 transition-transform">Rastrear →</span>
+          </div>
         </div>
       </a>
     </div>
 
-    <!-- 2. GRID INTERMEDIÁRIO: EXPIRAÇÕES PRÓXIMAS & STATUS DA FROTA -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <!-- Bloco 1: Expirações Próximas -->
-      <div class="bg-white p-6 rounded-2xl border border-slate-200/70 shadow-xs flex flex-col justify-between">
+    <!-- 2. GRID INTERMEDIÁRIO: GRÁFICOS ANALÍTICOS (CHART.JS) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <!-- Gráfico 1: Status da Frota (Doughnut Chart) -->
+      <div class="lg:col-span-5 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col justify-between">
         <div>
-          <div class="flex items-center justify-between mb-5">
-            <div class="flex items-center gap-2">
-              <h2 class="text-base font-bold text-slate-900">Documentos e Expirações</h2>
-              @if (expiredExpirationsCount() > 0) {
-                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-700">
-                  {{ expiredExpirationsCount() }} urgente
-                </span>
-              }
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h2 class="text-sm font-bold text-slate-900 tracking-tight">Disponibilidade Operacional</h2>
+              <p class="text-[11px] text-slate-400">Distribuição percentual dos ativos</p>
             </div>
-            <a [routerLink]="['/drivers']" class="text-xs font-medium text-emerald-600 hover:underline">Ver motoristas</a>
+            <span class="text-xs font-semibold text-slate-500 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200/60">
+              {{ summary.kpis.activeVehicles }} Veículos
+            </span>
           </div>
 
-          <div class="space-y-3">
-            @for (item of summary.expirations; track item.id) {
-              <a
-                [routerLink]="item.type === 'CNH' ? ['/drivers'] : ['/vehicles']"
-                class="flex items-center justify-between p-3.5 rounded-xl bg-slate-50/70 border border-slate-100/90 hover:bg-slate-100/70 transition-colors cursor-pointer block"
-              >
-                <div class="flex items-center gap-3.5">
-                  <div
-                    class="p-2.5 rounded-xl flex items-center justify-center shrink-0"
-                    [ngClass]="{
-                      'bg-rose-50 text-rose-600 border border-rose-100': item.daysRemaining <= 0,
-                      'bg-amber-50 text-amber-600 border border-amber-100': item.daysRemaining > 0
-                    }"
-                  >
-                    @if (item.type === 'CNH') { <svg lucideAlertTriangle class="size-4.5"></svg> }
-                    @else if (item.type === 'CRLV') { <svg lucideFileText class="size-4.5"></svg> }
-                    @else { <svg lucideShieldAlert class="size-4.5"></svg> }
-                  </div>
-                  <div>
-                    <p class="text-xs font-bold text-slate-900">{{ item.title }}</p>
-                    <p class="text-xs text-slate-500 mt-0.5">{{ item.subtitle }}</p>
-                  </div>
-                </div>
-                <div class="text-right">
-                  <span
-                    class="text-xs font-semibold block"
-                    [class.text-rose-600]="item.daysRemaining <= 0"
-                    [class.text-amber-600]="item.daysRemaining > 0"
-                  >
-                    {{ item.daysRemaining <= 0 ? 'Vencida há ' + (-item.daysRemaining) + ' dias' : 'Em ' + item.daysRemaining + ' dias' }}
-                  </span>
-                  <span class="text-[11px] text-slate-400 mt-0.5 block">{{ item.expirationDate }}</span>
-                </div>
-              </a>
-            } @empty {
-              <div class="text-center py-8">
-                <div class="size-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-2">
-                  <svg lucideCheck class="size-5"></svg>
-                </div>
-                <p class="text-xs font-semibold text-slate-700">Tudo em dia!</p>
-                <p class="text-[11px] text-slate-400 mt-0.5">Nenhum documento vencido ou próximo do vencimento nos próximos 60 dias.</p>
+          <!-- Contêiner do Canvas com Centro customizado -->
+          <div class="relative h-56 w-full flex items-center justify-center my-2">
+            <canvas #statusChartCanvas></canvas>
+            <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+              <span class="text-2xl font-black text-slate-900 tracking-tight">{{ summary.kpis.activeVehicles }}</span>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Ativos</span>
+            </div>
+          </div>
+
+          <!-- Legenda Estruturada -->
+          <div class="grid grid-cols-3 gap-2 mt-4 pt-4 border-t border-slate-100 text-center">
+            <div class="p-2 rounded-xl bg-slate-50/70 border border-slate-100">
+              <div class="flex items-center justify-center gap-1.5 text-[11px] text-slate-600 font-medium mb-0.5">
+                <span class="size-2 rounded-full bg-emerald-500"></span>
+                <span>Livres</span>
               </div>
-            }
-          </div>
-        </div>
+              <span class="text-xs font-bold text-slate-900">{{ summary.kpis.availableVehicles }}</span>
+            </div>
 
-        <!-- Barra inferior de status das expirações DINÂMICA -->
-        <div class="mt-6 pt-4 border-t border-slate-100 text-xs text-slate-500 font-medium flex items-center justify-center gap-2">
-          @if (expiredExpirationsCount() > 0) {
-            <span class="text-rose-600 font-semibold">{{ expiredExpirationsCount() }} vencido(s)</span>
-          } @else {
-            <span class="text-emerald-600 font-semibold">0 vencidos</span>
-          }
-          <span class="text-slate-300">•</span>
-          <span>{{ expiringIn30DaysCount() }} vencem em 30 dias</span>
-          <span class="text-slate-300">•</span>
-          <span>{{ expiringIn60DaysCount() }} vencem em 60 dias</span>
+            <div class="p-2 rounded-xl bg-slate-50/70 border border-slate-100">
+              <div class="flex items-center justify-center gap-1.5 text-[11px] text-slate-600 font-medium mb-0.5">
+                <span class="size-2 rounded-full bg-amber-500"></span>
+                <span>Oficina</span>
+              </div>
+              <span class="text-xs font-bold text-slate-900">{{ summary.kpis.inMaintenanceVehicles }}</span>
+            </div>
+
+            <div class="p-2 rounded-xl bg-slate-50/70 border border-slate-100">
+              <div class="flex items-center justify-center gap-1.5 text-[11px] text-slate-600 font-medium mb-0.5">
+                <span class="size-2 rounded-full bg-blue-500"></span>
+                <span>Em Rota</span>
+              </div>
+              <span class="text-xs font-bold text-slate-900">{{ summary.kpis.unavailableVehicles }}</span>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- Bloco 2: Status da Frota (Donut Chart & Legenda) -->
-      <div class="bg-white p-6 rounded-2xl border border-slate-200/70 shadow-xs flex flex-col justify-between">
+      <!-- Gráfico 2: Atividade Operacional Semanal (Bar Chart) -->
+      <div class="lg:col-span-7 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col justify-between">
         <div>
-          <h2 class="text-base font-bold text-slate-900 mb-6">Status Operacional da Frota</h2>
-
-          <div class="flex flex-col sm:flex-row items-center justify-around gap-6 py-2">
-            <!-- Gráfico de Rosca Estilizado -->
-            <div class="relative size-44 flex items-center justify-center">
-              <div
-                class="size-full rounded-full shadow-inner"
-                [style.background]="summary.kpis.activeVehicles > 0 ? ('conic-gradient(#10b981 0% ' + summary.kpis.availablePercentage + '%, #f59e0b ' + summary.kpis.availablePercentage + '% ' + (summary.kpis.availablePercentage + summary.kpis.inMaintenancePercentage) + '%, #3b82f6 ' + (summary.kpis.availablePercentage + summary.kpis.inMaintenancePercentage) + '% 100%)') : '#f1f5f9'"
-              ></div>
-              <div class="absolute size-30 bg-white rounded-full flex flex-col items-center justify-center shadow-xs">
-                <span class="text-3xl font-extrabold text-slate-900 tracking-tight">{{ summary.kpis.activeVehicles }}</span>
-                <span class="text-[10px] uppercase tracking-wider text-slate-400 font-bold mt-0.5">Veículos</span>
-              </div>
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h2 class="text-sm font-bold text-slate-900 tracking-tight">Movimentação Semanal de Viagens</h2>
+              <p class="text-[11px] text-slate-400">Volume de saídas e conclusões nos últimos 7 dias</p>
             </div>
-
-            <!-- Legenda -->
-            <div class="space-y-3.5 text-xs w-full sm:w-auto">
-              <a [routerLink]="['/vehicles']" class="flex items-center justify-between sm:justify-start gap-4 hover:opacity-80 transition-opacity">
-                <div class="flex items-center gap-2">
-                  <span class="size-2.5 rounded-full bg-emerald-500"></span>
-                  <span class="text-slate-600 font-medium">Disponíveis</span>
-                </div>
-                <span class="font-bold text-slate-900">{{ summary.kpis.availablePercentage }}% ({{ summary.kpis.availableVehicles }})</span>
-              </a>
-
-              <a [routerLink]="['/vehicles']" class="flex items-center justify-between sm:justify-start gap-4 hover:opacity-80 transition-opacity">
-                <div class="flex items-center gap-2">
-                  <span class="size-2.5 rounded-full bg-amber-500"></span>
-                  <span class="text-slate-600 font-medium">Em manutenção</span>
-                </div>
-                <span class="font-bold text-slate-900">{{ summary.kpis.inMaintenancePercentage }}% ({{ summary.kpis.inMaintenanceVehicles }})</span>
-              </a>
-
-              <a [routerLink]="['/trips']" class="flex items-center justify-between sm:justify-start gap-4 hover:opacity-80 transition-opacity">
-                <div class="flex items-center gap-2">
-                  <span class="size-2.5 rounded-full bg-blue-500"></span>
-                  <span class="text-slate-600 font-medium">Em viagem</span>
-                </div>
-                <span class="font-bold text-slate-900">{{ summary.kpis.unavailablePercentage }}% ({{ summary.kpis.unavailableVehicles }})</span>
-              </a>
+            <div class="flex items-center gap-1.5 text-xs text-slate-500">
+              <span class="size-2 rounded-full bg-emerald-500"></span>
+              <span class="text-[11px] font-medium text-slate-600">Semana Atual</span>
             </div>
+          </div>
+
+          <div class="h-64 w-full pt-2">
+            <canvas #activityChartCanvas></canvas>
           </div>
         </div>
 
-        <div class="mt-6 pt-4 border-t border-slate-100 text-xs text-slate-500 font-medium text-center">
-          Total de {{ summary.kpis.activeVehicles }} veículos cadastrados
+        <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Média diária: <strong>~7 viagens</strong></span>
+          <a [routerLink]="['/trips']" class="text-emerald-600 font-semibold hover:underline">Histórico operacional completo →</a>
         </div>
       </div>
     </div>
 
-    <!-- 3. GRID INFERIOR: VIAGENS EM ANDAMENTO & ALERTAS RECENTES -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <!-- Tabela de Viagens em Andamento -->
-      <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200/70 shadow-xs">
-        <div class="flex items-center justify-between mb-5">
-          <h2 class="text-base font-bold text-slate-900">Viagens em Andamento / Planejadas</h2>
-          <a [routerLink]="['/trips']" class="text-xs font-medium text-emerald-600 hover:underline">Ver todas</a>
+    <!-- 3. GRID INFERIOR: VIAGENS EM CURSO & ALERTA DE DOCUMENTOS -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <!-- Tabela de Viagens em Curso (Col 7) -->
+      <div class="lg:col-span-7 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-2xs">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h2 class="text-sm font-bold text-slate-900 tracking-tight">Viagens em Curso & Planejadas</h2>
+            <p class="text-[11px] text-slate-400">Monitoramento instantâneo de rotas</p>
+          </div>
+          <a [routerLink]="['/trips']" class="text-xs font-semibold text-emerald-600 hover:text-emerald-700">
+            Ver todas ({{ summary.trips.length }}) →
+          </a>
         </div>
 
         <div class="overflow-x-auto">
           <table class="w-full text-left text-xs">
             <thead>
               <tr class="border-b border-slate-100 text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
-                <th class="py-3 px-3">Motorista</th>
-                <th class="py-3 px-3">Veículo</th>
-                <th class="py-3 px-3">Trajeto</th>
-                <th class="py-3 px-3 text-right">Status</th>
+                <th class="py-2.5 px-3">Condutor</th>
+                <th class="py-2.5 px-3">Veículo / Placa</th>
+                <th class="py-2.5 px-3">Origem / Destino</th>
+                <th class="py-2.5 px-3 text-right">Status</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
               @for (trip of summary.trips; track trip.id) {
-                <tr class="hover:bg-slate-50/70 transition-colors">
-                  <td class="py-3 px-3 font-semibold text-slate-900 flex items-center gap-2.5">
-                    <div class="size-8 rounded-full bg-slate-200/80 text-slate-700 font-bold flex items-center justify-center text-xs shrink-0">
-                      {{ trip.driverInitials }}
+                <tr class="hover:bg-slate-50/80 transition-colors">
+                  <td class="py-3 px-3 font-semibold text-slate-900">
+                    <div class="flex items-center gap-2.5">
+                      <div class="size-7 rounded-full bg-slate-900 text-white font-bold flex items-center justify-center text-[10px] shrink-0">
+                        {{ trip.driverInitials }}
+                      </div>
+                      <span class="truncate max-w-[120px]">{{ trip.driverName }}</span>
                     </div>
-                    <span>{{ trip.driverName }}</span>
                   </td>
                   <td class="py-3 px-3 text-slate-700">
-                    <span class="font-medium text-slate-900">{{ trip.vehicleName }}</span><br>
-                    <span class="text-[11px] text-slate-400 font-mono">{{ trip.vehiclePlate }}</span>
+                    <span class="font-medium text-slate-900 block truncate max-w-[130px]">{{ trip.vehicleName }}</span>
+                    <span class="text-[10px] text-slate-400 font-mono">{{ trip.vehiclePlate }}</span>
                   </td>
                   <td class="py-3 px-3 text-slate-700">
-                    <span class="font-medium text-slate-900">{{ trip.route }}</span><br>
-                    <span class="text-[11px] text-slate-400">Início: {{ trip.startTime }}</span>
+                    <span class="font-medium text-slate-900 block truncate max-w-[160px]">{{ trip.route }}</span>
+                    <span class="text-[10px] text-slate-400">Saída: {{ trip.startTime }}</span>
                   </td>
                   <td class="py-3 px-3 text-right">
-                    <span
-                      class="px-2.5 py-1 rounded-full text-[11px] font-semibold inline-block"
-                      [ngClass]="{
-                        'bg-blue-50 text-blue-700 border border-blue-200/70': trip.status === 'EM_ANDAMENTO',
-                        'bg-amber-50 text-amber-700 border border-amber-200/70': trip.status === 'PROGRAMADA'
-                      }"
-                    >
-                      {{ trip.status === 'EM_ANDAMENTO' ? 'Em andamento' : 'Programada' }}
-                    </span>
+                    @if (trip.status === 'EM_ANDAMENTO') {
+                      <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-200/60">
+                        <span class="size-1.5 rounded-full bg-blue-500 animate-pulse"></span>
+                        Em curso
+                      </span>
+                    } @else {
+                      <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-200/60">
+                        <span class="size-1.5 rounded-full bg-amber-500"></span>
+                        Programada
+                      </span>
+                    }
                   </td>
                 </tr>
               } @empty {
                 <tr>
-                  <td colspan="4" class="py-8 text-center text-slate-400">Nenhuma viagem em andamento no momento.</td>
+                  <td colspan="4" class="py-8 text-center text-slate-400 text-xs">
+                    Nenhuma viagem em trânsito no momento.
+                  </td>
                 </tr>
               }
             </tbody>
@@ -315,50 +403,73 @@
         </div>
       </div>
 
-      <!-- Lista de Alertas Recentes -->
-      <div class="bg-white p-6 rounded-2xl border border-slate-200/70 shadow-xs flex flex-col justify-between">
+      <!-- Bloco de Expirações & Conformidade Documental (Col 5) -->
+      <div class="lg:col-span-5 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col justify-between">
         <div>
-          <div class="flex items-center justify-between mb-5">
-            <h2 class="text-base font-bold text-slate-900">Alertas Recentes</h2>
-            <a [routerLink]="['/vehicles']" class="text-xs font-medium text-emerald-600 hover:underline">Ver frota</a>
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h2 class="text-sm font-bold text-slate-900 tracking-tight">Conformidade & Expirações</h2>
+              <p class="text-[11px] text-slate-400">CNH, CRLV e Vistorias</p>
+            </div>
+            @if (expiredExpirationsCount() > 0) {
+              <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200/80">
+                {{ expiredExpirationsCount() }} urgente(s)
+              </span>
+            }
           </div>
 
-          <div class="space-y-3">
-            @for (alert of summary.alerts; track alert.id) {
-              <div class="flex items-start gap-3 p-3 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-slate-50 transition-colors">
-                <div
-                  class="p-2 rounded-xl shrink-0 mt-0.5 flex items-center justify-center"
-                  [ngClass]="{
-                    'bg-rose-50 text-rose-600 border border-rose-100': alert.type === 'DANGER',
-                    'bg-amber-50 text-amber-600 border border-amber-100': alert.type === 'WARNING',
-                    'bg-blue-50 text-blue-600 border border-blue-100': alert.type === 'INFO'
-                  }"
-                >
-                  @if (alert.type === 'DANGER') { <svg lucideAlertTriangle class="size-4"></svg> }
-                  @else if (alert.type === 'WARNING') { <svg lucideWrench class="size-4"></svg> }
-                  @else { <svg lucideShieldAlert class="size-4"></svg> }
-                </div>
-                <div class="flex-1 min-w-0">
-                  <div class="flex items-center justify-between gap-2">
-                    <p class="text-xs font-bold text-slate-900 truncate">{{ alert.title }}</p>
-                    <span class="text-[10px] text-slate-400 shrink-0 font-medium">{{ alert.timeAgo }}</span>
+          <div class="space-y-2.5">
+            @for (item of summary.expirations; track item.id) {
+              <a
+                [routerLink]="item.type === 'CNH' ? ['/drivers'] : ['/vehicles']"
+                class="flex items-center justify-between p-3 rounded-xl bg-slate-50/80 border border-slate-100 hover:bg-slate-100/80 transition-colors cursor-pointer block"
+              >
+                <div class="flex items-center gap-3">
+                  <div
+                    class="size-8 rounded-lg flex items-center justify-center shrink-0 text-xs font-bold"
+                    [ngClass]="{
+                      'bg-rose-100 text-rose-700 border border-rose-200': item.daysRemaining <= 0,
+                      'bg-amber-100 text-amber-700 border border-amber-200': item.daysRemaining > 0
+                    }"
+                  >
+                    {{ item.type }}
                   </div>
-                  <p class="text-xs text-slate-500 mt-0.5">{{ alert.subtitle }}</p>
+                  <div>
+                    <p class="text-xs font-bold text-slate-900 truncate max-w-[140px]">{{ item.title }}</p>
+                    <p class="text-[10px] text-slate-500 truncate max-w-[140px]">{{ item.subtitle }}</p>
+                  </div>
                 </div>
-              </div>
+
+                <div class="text-right shrink-0">
+                  <span
+                    class="text-[11px] font-bold block"
+                    [class.text-rose-600]="item.daysRemaining <= 0"
+                    [class.text-amber-600]="item.daysRemaining > 0"
+                  >
+                    {{ item.daysRemaining <= 0 ? 'Vencida há ' + (-item.daysRemaining) + 'd' : 'Em ' + item.daysRemaining + ' dias' }}
+                  </span>
+                  <span class="text-[10px] text-slate-400">{{ item.expirationDate }}</span>
+                </div>
+              </a>
             } @empty {
-              <p class="text-xs text-slate-400 py-6 text-center">Nenhum alerta recente.</p>
+              <div class="text-center py-8">
+                <div class="size-9 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-2">
+                  <svg lucideCheck class="size-4"></svg>
+                </div>
+                <p class="text-xs font-semibold text-slate-700">Documentação em dia</p>
+                <p class="text-[10px] text-slate-400 mt-0.5">Nenhum documento crítico a expirar em 60 dias.</p>
+              </div>
             }
           </div>
         </div>
 
-        <div class="mt-6 pt-4 border-t border-slate-100">
-          <a [routerLink]="['/drivers']" class="text-xs font-semibold text-emerald-600 hover:underline block text-left">
-            Verificar situação dos condutores →
-          </a>
+        <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+          <span class="text-slate-500 font-medium">Controle de Condutores</span>
+          <a [routerLink]="['/drivers']" class="text-emerald-600 font-semibold hover:underline">Ver motoristas →</a>
         </div>
       </div>
     </div>
   </div>
 }
+
 
