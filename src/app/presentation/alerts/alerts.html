@@ -1,0 +1,365 @@
+<div class="space-y-6 max-w-7xl mx-auto">
+  <!-- CABEÇALHO EXECUTIVO -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-200/70 pb-5">
+    <div>
+      <div class="flex items-center gap-2 mb-1">
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-rose-50 text-rose-700 border border-rose-200/60">
+          <span class="size-1.5 rounded-full bg-rose-500 animate-ping"></span>
+          Monitoramento Operacional
+        </span>
+        <span class="text-xs text-slate-400">•</span>
+        <span class="text-xs text-slate-500 font-medium">{{ totalActiveAlerts() }} alertas pendentes</span>
+      </div>
+      <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Central de Alertas</h1>
+      <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Avisos em tempo real de documentos vencidos, manutenções e ocorrências de frota.</p>
+    </div>
+
+    @if (totalActiveAlerts() > 0) {
+      <button
+        (click)="resolveAllAlerts()"
+        class="inline-flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs px-4 py-2.5 rounded-xl transition-all border border-slate-200 shadow-2xs cursor-pointer"
+      >
+        <svg lucideCheck class="size-4 text-emerald-600"></svg>
+        <span>Marcar Todos como Resolvidos</span>
+      </button>
+    }
+  </div>
+
+  <!-- CARDS DE MÉTRICAS / KPIS -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+    <!-- Total de Alertas -->
+    <div
+      (click)="setSeverityFilter('ALL')"
+      class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs flex items-center justify-between cursor-pointer hover:border-slate-400 transition-colors"
+      [class.ring-2]="selectedSeverityFilter() === 'ALL'"
+      [class.ring-slate-900]="selectedSeverityFilter() === 'ALL'"
+    >
+      <div>
+        <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">Total de Alertas</span>
+        <span class="text-2xl font-bold text-slate-900 mt-0.5 block">{{ totalActiveAlerts() }}</span>
+        <span class="text-[11px] text-slate-500 mt-0.5 block">Pendências ativas</span>
+      </div>
+      <div class="size-11 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center border border-slate-200/60">
+        <svg lucideBell class="size-5"></svg>
+      </div>
+    </div>
+
+    <!-- Críticos (DANGER) -->
+    <div
+      (click)="setSeverityFilter('DANGER')"
+      class="bg-white p-4 rounded-2xl border border-rose-200/80 shadow-2xs flex items-center justify-between cursor-pointer hover:border-rose-400 transition-colors"
+      [class.ring-2]="selectedSeverityFilter() === 'DANGER'"
+      [class.ring-rose-500]="selectedSeverityFilter() === 'DANGER'"
+    >
+      <div>
+        <span class="text-[11px] font-semibold text-rose-600 uppercase tracking-wider block">Críticos (Urgente)</span>
+        <span class="text-2xl font-bold text-rose-700 mt-0.5 block">{{ dangerCount() }}</span>
+        <span class="text-[11px] text-rose-500 mt-0.5 block">Exigem intervenção rápida</span>
+      </div>
+      <div class="size-11 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center border border-rose-200/60">
+        <svg lucideShieldAlert class="size-5"></svg>
+      </div>
+    </div>
+
+    <!-- Atenção (WARNING) -->
+    <div
+      (click)="setSeverityFilter('WARNING')"
+      class="bg-white p-4 rounded-2xl border border-amber-200/80 shadow-2xs flex items-center justify-between cursor-pointer hover:border-amber-400 transition-colors"
+      [class.ring-2]="selectedSeverityFilter() === 'WARNING'"
+      [class.ring-amber-500]="selectedSeverityFilter() === 'WARNING'"
+    >
+      <div>
+        <span class="text-[11px] font-semibold text-amber-600 uppercase tracking-wider block">Atenção (Próximos)</span>
+        <span class="text-2xl font-bold text-amber-700 mt-0.5 block">{{ warningCount() }}</span>
+        <span class="text-[11px] text-amber-500 mt-0.5 block">Vencimentos em breve</span>
+      </div>
+      <div class="size-11 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-200/60">
+        <svg lucideAlertTriangle class="size-5"></svg>
+      </div>
+    </div>
+
+    <!-- Informativos (INFO) -->
+    <div
+      (click)="setSeverityFilter('INFO')"
+      class="bg-white p-4 rounded-2xl border border-blue-200/80 shadow-2xs flex items-center justify-between cursor-pointer hover:border-blue-400 transition-colors"
+      [class.ring-2]="selectedSeverityFilter() === 'INFO'"
+      [class.ring-blue-500]="selectedSeverityFilter() === 'INFO'"
+    >
+      <div>
+        <span class="text-[11px] font-semibold text-blue-600 uppercase tracking-wider block">Informativos</span>
+        <span class="text-2xl font-bold text-blue-700 mt-0.5 block">{{ infoCount() }}</span>
+        <span class="text-[11px] text-blue-500 mt-0.5 block">Status de operação</span>
+      </div>
+      <div class="size-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-200/60">
+        <svg lucideInfo class="size-5"></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- BARRA DE CONTROLE: BUSCA E FILTROS -->
+  <div class="flex flex-col lg:flex-row gap-3 justify-between items-stretch lg:items-center bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-2xs">
+    <!-- Input com Debounce e Botão Limpar -->
+    <div class="relative flex-1 max-w-md">
+      <svg lucideSearch class="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></svg>
+      <input
+        type="text"
+        [formControl]="searchControl"
+        placeholder="Buscar por alerta, veículo, motorista..."
+        class="w-full bg-slate-50 text-slate-800 text-xs rounded-xl pl-9 pr-8 py-2 border border-slate-200 focus:outline-hidden focus:border-emerald-500 transition-colors placeholder:text-slate-400"
+      />
+      @if (searchTerm()) {
+        <button
+          (click)="clearSearch()"
+          class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
+          title="Limpar busca"
+        >
+          <svg lucideX class="size-3.5"></svg>
+        </button>
+      }
+    </div>
+
+    <!-- Chips de Filtro por Severidade -->
+    <div class="flex items-center gap-1.5 overflow-x-auto pb-1 lg:pb-0">
+      <button
+        type="button"
+        (click)="setSeverityFilter('ALL')"
+        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shrink-0 cursor-pointer border"
+        [ngClass]="selectedSeverityFilter() === 'ALL' ? 'bg-slate-900 text-white border-slate-900 shadow-2xs' : 'bg-slate-50 text-slate-600 border-slate-200/80 hover:bg-slate-100'"
+      >
+        <span>Todos</span>
+      </button>
+
+      <button
+        type="button"
+        (click)="setSeverityFilter('DANGER')"
+        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shrink-0 cursor-pointer border"
+        [ngClass]="selectedSeverityFilter() === 'DANGER' ? 'bg-rose-600 text-white border-rose-600 shadow-2xs' : 'bg-slate-50 text-slate-600 border-slate-200/80 hover:bg-slate-100'"
+      >
+        <span class="size-1.5 rounded-full" [ngClass]="selectedSeverityFilter() === 'DANGER' ? 'bg-white' : 'bg-rose-500'"></span>
+        <span>Críticos</span>
+        <span class="px-1.5 py-0.2 rounded-md text-[10px]" [ngClass]="selectedSeverityFilter() === 'DANGER' ? 'bg-rose-700 text-white' : 'bg-rose-50 text-rose-700'">
+          {{ dangerCount() }}
+        </span>
+      </button>
+
+      <button
+        type="button"
+        (click)="setSeverityFilter('WARNING')"
+        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shrink-0 cursor-pointer border"
+        [ngClass]="selectedSeverityFilter() === 'WARNING' ? 'bg-amber-600 text-white border-amber-600 shadow-2xs' : 'bg-slate-50 text-slate-600 border-slate-200/80 hover:bg-slate-100'"
+      >
+        <span class="size-1.5 rounded-full" [ngClass]="selectedSeverityFilter() === 'WARNING' ? 'bg-white' : 'bg-amber-500'"></span>
+        <span>Atenção</span>
+        <span class="px-1.5 py-0.2 rounded-md text-[10px]" [ngClass]="selectedSeverityFilter() === 'WARNING' ? 'bg-amber-700 text-white' : 'bg-amber-50 text-amber-700'">
+          {{ warningCount() }}
+        </span>
+      </button>
+
+      <button
+        type="button"
+        (click)="setSeverityFilter('INFO')"
+        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shrink-0 cursor-pointer border"
+        [ngClass]="selectedSeverityFilter() === 'INFO' ? 'bg-blue-600 text-white border-blue-600 shadow-2xs' : 'bg-slate-50 text-slate-600 border-slate-200/80 hover:bg-slate-100'"
+      >
+        <span class="size-1.5 rounded-full" [ngClass]="selectedSeverityFilter() === 'INFO' ? 'bg-white' : 'bg-blue-500'"></span>
+        <span>Informativos</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- LISTA DE ALERTAS (EM FORMATO DE CARDS EMPILHADOS) -->
+  <div class="bg-white rounded-2xl border border-slate-200/80 shadow-2xs overflow-hidden">
+    @if (loading()) {
+      <div class="p-6 space-y-4 animate-pulse">
+        @for (i of [1, 2, 3, 4, 5]; track i) {
+          <div class="h-20 bg-slate-100 rounded-xl"></div>
+        }
+      </div>
+    } @else {
+      <div class="divide-y divide-slate-100">
+        @for (alert of displayedAlerts(); track alert.id) {
+          <div
+            class="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors hover:bg-slate-50/70"
+            [class.opacity-60]="alert.resolved"
+          >
+            <!-- Ícone + Conteúdo do Alerta -->
+            <div class="flex items-start gap-3.5">
+              <!-- Ícone dinâmico por severidade -->
+              @if (alert.type === 'DANGER') {
+                <div class="size-10 rounded-xl bg-rose-50 text-rose-600 border border-rose-200/70 flex items-center justify-center shrink-0 mt-0.5">
+                  <svg lucideShieldAlert class="size-5"></svg>
+                </div>
+              } @else if (alert.type === 'WARNING') {
+                <div class="size-10 rounded-xl bg-amber-50 text-amber-600 border border-amber-200/70 flex items-center justify-center shrink-0 mt-0.5">
+                  <svg lucideAlertTriangle class="size-5"></svg>
+                </div>
+              } @else {
+                <div class="size-10 rounded-xl bg-blue-50 text-blue-600 border border-blue-200/70 flex items-center justify-center shrink-0 mt-0.5">
+                  <svg lucideInfo class="size-5"></svg>
+                </div>
+              }
+
+              <div class="space-y-1">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span
+                    class="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider border"
+                    [ngClass]="alert.type === 'DANGER' ? 'bg-rose-50 text-rose-700 border-rose-200' : (alert.type === 'WARNING' ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-blue-50 text-blue-700 border-blue-200')"
+                  >
+                    {{ alert.category }}
+                  </span>
+                  <span class="text-xs text-slate-400">•</span>
+                  <span class="text-xs font-semibold text-slate-400">{{ alert.timeAgo }}</span>
+                  @if (alert.resolved) {
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      Resolvido
+                    </span>
+                  }
+                </div>
+
+                <h3 class="text-sm font-bold text-slate-900">{{ alert.title }}</h3>
+                <p class="text-xs text-slate-600 leading-relaxed">{{ alert.description }}</p>
+              </div>
+            </div>
+
+            <!-- Ações do Alerta -->
+            <div class="flex items-center gap-2 shrink-0 self-end sm:self-center">
+              @if (!alert.resolved) {
+                <button
+                  (click)="resolveAlert(alert)"
+                  title="Marcar como resolvido"
+                  class="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl border border-slate-200 hover:border-emerald-200 transition-colors cursor-pointer"
+                >
+                  <svg lucideCheck class="size-4"></svg>
+                </button>
+              }
+
+              @if (alert.link) {
+                <button
+                  (click)="navigateTo(alert.link)"
+                  class="inline-flex items-center gap-1.5 px-3 py-2 bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs rounded-xl transition-colors shadow-2xs cursor-pointer"
+                >
+                  <span>{{ alert.actionText || 'Ver Detalhes' }}</span>
+                  <svg lucideArrowRight class="size-3.5"></svg>
+                </button>
+              }
+            </div>
+          </div>
+        } @empty {
+          <div class="py-16 text-center text-slate-400 p-6">
+            <div class="size-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-3 border border-emerald-200/60">
+              <svg lucideCheckCircle2 class="size-6"></svg>
+            </div>
+            <h4 class="text-sm font-bold text-slate-800">Nenhum alerta pendente</h4>
+            <p class="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
+              A frota está operando sem pendências de documentação ou inconformidades no filtro selecionado.
+            </p>
+            @if (searchTerm() || selectedSeverityFilter() !== 'ALL') {
+              <button
+                (click)="clearSearch()"
+                class="mt-4 text-xs font-semibold text-emerald-600 hover:underline cursor-pointer"
+              >
+                Limpar filtros de busca
+              </button>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- BARRA DE PAGINAÇÃO SERVER-SIDE / MAXIMUM 10 -->
+      @if (totalItems() > 0) {
+        <div class="px-5 py-3.5 bg-slate-50/90 border-t border-slate-100 flex flex-col md:flex-row items-center justify-between gap-4 text-xs">
+          <!-- Resumo de Itens -->
+          <div class="text-slate-500 font-medium">
+            Mostrando <span class="font-bold text-slate-800">{{ startIndex() }}</span> a
+            <span class="font-bold text-slate-800">{{ endIndex() }}</span> de
+            <span class="font-bold text-slate-800">{{ totalItems() | number }}</span> alertas
+          </div>
+
+          <div class="flex flex-wrap items-center gap-4">
+            <!-- Seletor de Limite por Página -->
+            <div class="flex items-center gap-2">
+              <span class="text-slate-500 text-[11px]">Itens por página:</span>
+              <div class="inline-flex rounded-lg border border-slate-200 bg-white p-0.5 shadow-2xs">
+                @for (size of pageSizeOptions; track size) {
+                  <button
+                    type="button"
+                    (click)="setPageSize(size)"
+                    class="px-2.5 py-1 rounded-md text-xs font-semibold transition-all cursor-pointer"
+                    [ngClass]="pageSize() === size ? 'bg-slate-900 text-white shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'"
+                  >
+                    {{ size }}
+                  </button>
+                }
+              </div>
+            </div>
+
+            <!-- Controles de Navegação de Página -->
+            <div class="flex items-center gap-1">
+              <!-- Primeira Página -->
+              <button
+                type="button"
+                (click)="setPage(1)"
+                [disabled]="currentPage() === 1"
+                title="Primeira página"
+                class="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:hover:bg-white transition-colors cursor-pointer disabled:cursor-not-allowed shadow-2xs"
+              >
+                <svg lucideChevronsLeft class="size-3.5"></svg>
+              </button>
+
+              <!-- Página Anterior -->
+              <button
+                type="button"
+                (click)="prevPage()"
+                [disabled]="currentPage() === 1"
+                title="Página anterior"
+                class="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:hover:bg-white transition-colors cursor-pointer disabled:cursor-not-allowed shadow-2xs"
+              >
+                <svg lucideChevronLeft class="size-3.5"></svg>
+              </button>
+
+              <!-- Números de Página -->
+              <div class="flex items-center gap-1 px-1">
+                @for (pageNum of pageNumbers(); track $index) {
+                  @if (pageNum === '...') {
+                    <span class="px-2 py-1 text-slate-400 text-xs font-mono">...</span>
+                  } @else {
+                    <button
+                      type="button"
+                      (click)="setPage(pageNum)"
+                      class="min-w-[30px] h-7.5 px-2 rounded-lg text-xs font-semibold transition-all cursor-pointer"
+                      [ngClass]="currentPage() === pageNum ? 'bg-emerald-600 text-white shadow-2xs' : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-100'"
+                    >
+                      {{ pageNum }}
+                    </button>
+                  }
+                }
+              </div>
+
+              <!-- Próxima Página -->
+              <button
+                type="button"
+                (click)="nextPage()"
+                [disabled]="currentPage() === totalPages()"
+                title="Próxima página"
+                class="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:hover:bg-white transition-colors cursor-pointer disabled:cursor-not-allowed shadow-2xs"
+              >
+                <svg lucideChevronRight class="size-3.5"></svg>
+              </button>
+
+              <!-- Última Página -->
+              <button
+                type="button"
+                (click)="setPage(totalPages())"
+                [disabled]="currentPage() === totalPages()"
+                title="Última página"
+                class="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:hover:bg-white transition-colors cursor-pointer disabled:cursor-not-allowed shadow-2xs"
+              >
+                <svg lucideChevronsRight class="size-3.5"></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+    }
+  </div>
+</div>

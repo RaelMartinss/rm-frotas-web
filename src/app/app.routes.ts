@@ -76,6 +76,41 @@ export const routes: Routes = [
         pathMatch: 'full'
       },
       {
+        path: 'expiracoes',
+        loadComponent: () =>
+          import('./presentation/expirations/expirations').then((m) => m.ExpirationsComponent)
+      },
+      {
+        path: 'expirations',
+        redirectTo: 'expiracoes',
+        pathMatch: 'full'
+      },
+      {
+        path: 'alertas',
+        loadComponent: () =>
+          import('./presentation/alerts/alerts').then((m) => m.AlertsComponent)
+      },
+      {
+        path: 'alerts',
+        redirectTo: 'alertas',
+        pathMatch: 'full'
+      },
+      {
+        path: 'abastecimentos',
+        redirectTo: 'viagens',
+        pathMatch: 'full'
+      },
+      {
+        path: 'manutencoes',
+        redirectTo: 'veiculos',
+        pathMatch: 'full'
+      },
+      {
+        path: 'relatorios',
+        redirectTo: 'dashboard',
+        pathMatch: 'full'
+      },
+      {
         path: 'configuracoes',
         redirectTo: 'perfil',
         pathMatch: 'full'
