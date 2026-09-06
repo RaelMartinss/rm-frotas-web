@@ -17,10 +17,7 @@ import {
   LucideCheckCircle2,
   LucideGauge,
   LucideEye,
-  LucideCalendar,
-  LucideAlertTriangle,
-  LucideCheck,
-  LucideInfo
+  LucideCalendar
 } from '@lucide/angular';
 
 @Component({
@@ -39,10 +36,7 @@ import {
     LucideCheckCircle2,
     LucideGauge,
     LucideEye,
-    LucideCalendar,
-    LucideAlertTriangle,
-    LucideCheck,
-    LucideInfo
+    LucideCalendar
   ],
   templateUrl: './vehicle-list.html',
   styleUrl: './vehicle-list.css'
@@ -80,6 +74,20 @@ export class VehicleListComponent implements OnInit {
     ),
     { initialValue: '' }
   );
+
+  // Counts computados para os chips de filtro
+  totalCount = computed(() => this.vehicles().length);
+  availableCount = computed(() => this.vehicles().filter((v) => this.isAvailable(v)).length);
+  inUseCount = computed(
+    () => this.vehicles().filter((v) => v.status === 'IN_USE' || v.status === 'EM_VIAGEM').length
+  );
+  inMaintenanceCount = computed(
+    () => this.vehicles().filter((v) => this.isInMaintenance(v)).length
+  );
+
+  clearSearch(): void {
+    this.searchControl.setValue('');
+  }
 
   // Signal Computado para filtrar a lista automaticamente
   filteredVehicles = computed(() => {

@@ -14,9 +14,7 @@ import {
   LucideX,
   LucideCheckCircle2,
   LucideXCircle,
-  LucideShieldAlert,
-  LucideAlertCircle,
-  LucideKeyRound
+  LucideAlertCircle
 } from '@lucide/angular';
 
 @Component({
@@ -32,9 +30,7 @@ import {
     LucideX,
     LucideCheckCircle2,
     LucideXCircle,
-    LucideShieldAlert,
-    LucideAlertCircle,
-    LucideKeyRound
+    LucideAlertCircle
   ],
   templateUrl: './user-list.html'
 })
@@ -60,6 +56,22 @@ export class UserListComponent implements OnInit {
     ),
     { initialValue: '' }
   );
+
+  // Counts computados para os chips de filtro
+  totalCount = computed(() => this.users().length);
+  managerCount = computed(
+    () =>
+      this.users().filter(
+        (u) => u.role === 'FLEET_MANAGER' || u.role === 'ADMIN' || u.role === 'MANAGER'
+      ).length
+  );
+  driverRoleCount = computed(
+    () => this.users().filter((u) => u.role === 'DRIVER').length
+  );
+
+  clearSearch(): void {
+    this.searchControl.setValue('');
+  }
 
   filteredUsers = computed(() => {
     const list = this.users();

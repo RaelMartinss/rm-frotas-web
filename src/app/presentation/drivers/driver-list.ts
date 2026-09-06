@@ -13,7 +13,6 @@ import {
   LucideLoader2,
   LucideX,
   LucideAlertTriangle,
-  LucideCheckCircle2,
   LucidePhone,
   LucideIdCard,
   LucideEye,
@@ -21,7 +20,6 @@ import {
   LucideCheck,
   LucideBan,
   LucidePauseCircle,
-  LucideCalendar,
   LucideUserCheck
 } from '@lucide/angular';
 
@@ -37,7 +35,6 @@ import {
     LucideLoader2,
     LucideX,
     LucideAlertTriangle,
-    LucideCheckCircle2,
     LucidePhone,
     LucideIdCard,
     LucideEye,
@@ -45,7 +42,6 @@ import {
     LucideCheck,
     LucideBan,
     LucidePauseCircle,
-    LucideCalendar,
     LucideUserCheck
   ],
   templateUrl: './driver-list.html',
@@ -87,6 +83,19 @@ export class DriverListComponent implements OnInit {
     { initialValue: '' }
   );
 
+  // Counts computados para os chips de filtro
+  totalCount = computed(() => this.drivers().length);
+  activeCount = computed(() => this.drivers().filter((d) => this.isActive(d)).length);
+  inTripCount = computed(
+    () => this.drivers().filter((d) => d.status === 'EM_VIAGEM').length
+  );
+  inactiveCount = computed(() => this.drivers().filter((d) => this.isInactive(d)).length);
+  suspendedCount = computed(() => this.drivers().filter((d) => this.isSuspended(d)).length);
+
+  clearSearch(): void {
+    this.searchControl.setValue('');
+  }
+
   filteredDrivers = computed(() => {
     const list = this.drivers();
     const term = this.searchTerm().toLowerCase().trim();
@@ -103,6 +112,8 @@ export class DriverListComponent implements OnInit {
       if (!matchesStatus) {
         if (status === 'ACTIVE') {
           matchesStatus = driver.status === 'ACTIVE' || driver.status === 'DISPONIVEL';
+        } else if (status === 'IN_TRIP') {
+          matchesStatus = driver.status === 'EM_VIAGEM';
         } else if (status === 'INACTIVE') {
           matchesStatus = driver.status === 'INACTIVE' || driver.status === 'FOLGA';
         } else if (status === 'SUSPENDED') {

@@ -1,6 +1,8 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { ITripRepository } from '../../domain/repositories/trip.repository.interface';
 import { IVehicleRepository } from '../../domain/repositories/vehicle.repository.interface';
 import { IDriverRepository } from '../../domain/repositories/driver.repository.interface';
@@ -10,18 +12,17 @@ import { Vehicle } from '../../domain/models/vehicle.model';
 import { Driver } from '../../domain/models/driver.model';
 import {
   LucideNavigation,
-  LucidePlus,
   LucideLoader2,
   LucideX,
   LucideFuel,
   LucideCheckCircle2,
   LucideMapPin,
-  LucideTruck,
   LucideUser,
   LucideAlertCircle,
   LucidePlay,
   LucideBan,
   LucideCheck,
+  LucideSearch
 } from '@lucide/angular';
 
 @Component({
@@ -31,18 +32,17 @@ import {
     CommonModule,
     ReactiveFormsModule,
     LucideNavigation,
-    LucidePlus,
     LucideLoader2,
     LucideX,
     LucideFuel,
     LucideMapPin,
-    LucideTruck,
     LucideUser,
     LucideAlertCircle,
     LucideCheckCircle2,
     LucidePlay,
     LucideBan,
     LucideCheck,
+    LucideSearch
   ],
   templateUrl: './trip-list.html',
   styleUrl: './trip-list.css'
@@ -58,6 +58,76 @@ export class TripListComponent implements OnInit {
   vehicles = signal<Vehicle[]>([]);
   drivers = signal<Driver[]>([]);
   loading = signal<boolean>(true);
+
+  // Busca e Filtros Reativos
+  searchControl = new FormControl('', { nonNullable: true });
+  selectedStatus = signal<string>('ALL');
+
+  searchTerm = toSignal(
+    this.searchControl.valueChanges.pipe(
+      debounceTime(300),
+      distinctUntilChanged()
+    ),
+    { initialValue: '' }
+  );
+
+  totalCount = computed(() => this.trips().length);
+  inProgressCount = computed(
+    () => this.trips().filter((t) => t.status === 'IN_PROGRESS' || t.status === 'EM_ANDAMENTO').length
+  );
+  plannedCount = computed(
+    () => this.trips().filter((t) => t.status === 'PLANNED' || t.status === 'PROGRAMADA').length
+  );
+  completedCount = computed(
+    () => this.trips().filter((t) => t.status === 'COMPLETED' || t.status === 'CONCLUIDA').length
+  );
+  cancelledCount = computed(
+    () => this.trips().filter((t) => t.status === 'CANCELLED' || t.status === 'CANCELADA').length
+  );
+
+  filteredTrips = computed(() => {
+    const list = this.trips();
+    const term = this.searchTerm().toLowerCase().trim();
+    const status = this.selectedStatus();
+
+    return list.filter((trip) => {
+      const driverName = this.getDriverName(trip.driverId).toLowerCase();
+      const vehiclePlate = this.getVehiclePlate(trip.vehicleId).toLowerCase();
+      const origin = (trip.origin || '').toLowerCase();
+      const destination = (trip.destination || '').toLowerCase();
+
+      const matchesSearch =
+        driverName.includes(term) ||
+        vehiclePlate.includes(term) ||
+        origin.includes(term) ||
+        destination.includes(term);
+
+      let matchesStatus = status === 'ALL';
+      if (!matchesStatus) {
+        if (status === 'IN_PROGRESS') {
+          matchesStatus = trip.status === 'IN_PROGRESS' || trip.status === 'EM_ANDAMENTO';
+        } else if (status === 'PLANNED') {
+          matchesStatus = trip.status === 'PLANNED' || trip.status === 'PROGRAMADA';
+        } else if (status === 'COMPLETED') {
+          matchesStatus = trip.status === 'COMPLETED' || trip.status === 'CONCLUIDA';
+        } else if (status === 'CANCELLED') {
+          matchesStatus = trip.status === 'CANCELLED' || trip.status === 'CANCELADA';
+        } else {
+          matchesStatus = trip.status === status;
+        }
+      }
+
+      return matchesSearch && matchesStatus;
+    });
+  });
+
+  clearSearch(): void {
+    this.searchControl.setValue('');
+  }
+
+  setStatusFilter(status: string): void {
+    this.selectedStatus.set(status);
+  }
 
   // Estados dos Modais e Requisições
   isTripModalOpen = signal<boolean>(false);

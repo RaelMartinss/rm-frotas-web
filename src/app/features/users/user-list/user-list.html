@@ -1,118 +1,164 @@
-<div class="space-y-6">
-  <!-- CABEÇALHO -->
-  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+<div class="space-y-6 max-w-7xl mx-auto">
+  <!-- CABEÇALHO EXECUTIVO -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-200/70 pb-5">
     <div>
-      <h1 class="text-2xl font-bold text-slate-800">Gestão de Usuários</h1>
-      <p class="text-sm text-slate-500">Cadastre e gerencie as contas e permissões de acesso ao RM Frotas.</p>
+      <div class="flex items-center gap-2 mb-1">
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+          <span class="size-1.5 rounded-full bg-emerald-500"></span>
+          Controle de Acesso
+        </span>
+        <span class="text-xs text-slate-400">•</span>
+        <span class="text-xs text-slate-500 font-medium">{{ totalCount() }} contas registradas</span>
+      </div>
+      <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Gestão de Usuários</h1>
+      <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Cadastre e gerencie as credenciais e permissões de acesso ao sistema.</p>
     </div>
     <button
       (click)="openModal()"
-      class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition-all shadow-xs cursor-pointer"
+      class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs px-4 py-2.5 rounded-xl transition-all shadow-xs hover:shadow-sm cursor-pointer"
     >
       <svg lucideUserPlus class="size-4"></svg>
-      Novo Usuário
+      <span>Novo Usuário</span>
     </button>
   </div>
 
-  <!-- BARRA DE FILTROS -->
-  <div class="flex flex-col md:flex-row gap-4 justify-between items-center bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
-    <div class="relative w-full md:w-80">
-      <svg lucideSearch class="size-4 absolute left-3 top-2.5 text-slate-400"></svg>
+  <!-- BARRA DE CONTROLE: BUSCA E FILTROS EM CHIPS -->
+  <div class="flex flex-col lg:flex-row gap-3 justify-between items-stretch lg:items-center bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-2xs">
+    <!-- Input com Debounce e Botão Limpar -->
+    <div class="relative flex-1 max-w-md">
+      <svg lucideSearch class="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></svg>
       <input
         type="text"
         [formControl]="searchControl"
         placeholder="Buscar por nome ou e-mail..."
-        class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 transition-colors"
+        class="w-full bg-slate-50 text-slate-800 text-xs rounded-xl pl-9 pr-8 py-2 border border-slate-200 focus:outline-hidden focus:border-emerald-500 transition-colors placeholder:text-slate-400"
       />
+      @if (searchTerm()) {
+        <button
+          (click)="clearSearch()"
+          class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
+          title="Limpar busca"
+        >
+          <svg lucideX class="size-3.5"></svg>
+        </button>
+      }
     </div>
 
-    <div class="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
+    <!-- Chips de Filtro por Função -->
+    <div class="flex items-center gap-1.5 overflow-x-auto pb-1 lg:pb-0">
       <button
         type="button"
         (click)="setRoleFilter('ALL')"
-        [class]="selectedRole() === 'ALL' ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
-        class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors shrink-0 cursor-pointer"
+        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shrink-0 cursor-pointer border"
+        [ngClass]="selectedRole() === 'ALL' ? 'bg-slate-900 text-white border-slate-900 shadow-2xs' : 'bg-slate-50 text-slate-600 border-slate-200/80 hover:bg-slate-100'"
       >
-        Todos
+        <span>Todos</span>
+        <span class="px-1.5 py-0.2 rounded-md text-[10px]" [ngClass]="selectedRole() === 'ALL' ? 'bg-slate-800 text-slate-300' : 'bg-slate-200 text-slate-600'">
+          {{ totalCount() }}
+        </span>
       </button>
 
       <button
         type="button"
         (click)="setRoleFilter('FLEET_MANAGER')"
-        [class]="selectedRole() === 'FLEET_MANAGER' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
-        class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors shrink-0 cursor-pointer"
+        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shrink-0 cursor-pointer border"
+        [ngClass]="selectedRole() === 'FLEET_MANAGER' ? 'bg-emerald-600 text-white border-emerald-600 shadow-2xs' : 'bg-slate-50 text-slate-600 border-slate-200/80 hover:bg-slate-100'"
       >
-        Gestores de Frota
+        <span class="size-1.5 rounded-full" [ngClass]="selectedRole() === 'FLEET_MANAGER' ? 'bg-white' : 'bg-emerald-500'"></span>
+        <span>Gestores</span>
+        <span class="px-1.5 py-0.2 rounded-md text-[10px]" [ngClass]="selectedRole() === 'FLEET_MANAGER' ? 'bg-emerald-700 text-white' : 'bg-emerald-50 text-emerald-700'">
+          {{ managerCount() }}
+        </span>
       </button>
 
       <button
         type="button"
         (click)="setRoleFilter('DRIVER')"
-        [class]="selectedRole() === 'DRIVER' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
-        class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors shrink-0 cursor-pointer"
+        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shrink-0 cursor-pointer border"
+        [ngClass]="selectedRole() === 'DRIVER' ? 'bg-blue-600 text-white border-blue-600 shadow-2xs' : 'bg-slate-50 text-slate-600 border-slate-200/80 hover:bg-slate-100'"
       >
-        Motoristas
+        <span class="size-1.5 rounded-full" [ngClass]="selectedRole() === 'DRIVER' ? 'bg-white' : 'bg-blue-500'"></span>
+        <span>Motoristas</span>
+        <span class="px-1.5 py-0.2 rounded-md text-[10px]" [ngClass]="selectedRole() === 'DRIVER' ? 'bg-blue-700 text-white' : 'bg-blue-50 text-blue-700'">
+          {{ driverRoleCount() }}
+        </span>
       </button>
     </div>
   </div>
 
   <!-- TABELA DE USUÁRIOS -->
-  <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+  <div class="bg-white rounded-2xl border border-slate-200/80 shadow-2xs overflow-hidden">
     @if (loading()) {
-      <div class="p-12 flex flex-col items-center justify-center gap-3 text-slate-400">
-        <svg lucideLoader2 class="size-8 animate-spin text-emerald-500"></svg>
-        <p class="text-xs">Carregando usuários...</p>
+      <!-- SKELETON TABLE SHIMMER -->
+      <div class="p-4 space-y-3 animate-pulse">
+        <div class="h-8 bg-slate-100 rounded-xl"></div>
+        @for (i of [1, 2, 3, 4, 5]; track i) {
+          <div class="flex items-center justify-between py-3 px-2 border-b border-slate-100">
+            <div class="flex items-center gap-3 w-1/3">
+              <div class="size-8 rounded-full bg-slate-200"></div>
+              <div class="space-y-1.5 flex-1">
+                <div class="h-4 bg-slate-200 rounded w-32"></div>
+                <div class="h-3 bg-slate-100 rounded w-44"></div>
+              </div>
+            </div>
+            <div class="h-6 bg-slate-200 rounded-md w-28"></div>
+            <div class="h-5 bg-slate-100 rounded-md w-16"></div>
+            <div class="h-7 bg-slate-100 rounded-lg w-24"></div>
+          </div>
+        }
       </div>
     } @else {
       <div class="overflow-x-auto">
         <table class="w-full text-left text-xs">
-          <thead class="bg-slate-50 border-b border-slate-100 text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
+          <thead class="bg-slate-50/80 border-b border-slate-100 text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
             <tr>
               <th class="py-3.5 px-4">Usuário / E-mail</th>
               <th class="py-3.5 px-4">Perfil de Acesso</th>
               <th class="py-3.5 px-4">Status da Conta</th>
-              <th class="py-3.5 px-4 text-right">Ações</th>
+              <th class="py-3.5 px-4 text-right">Ações de Acesso</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100">
             @for (user of filteredUsers(); track user.id) {
-              <tr class="hover:bg-slate-50/50 transition-colors">
+              <tr class="hover:bg-slate-50/80 transition-colors">
                 <td class="py-3.5 px-4">
                   <div class="flex items-center gap-3">
-                    <div class="size-8 rounded-full bg-slate-100 text-slate-700 font-bold flex items-center justify-center text-[11px]">
+                    <div class="size-8 rounded-full bg-slate-900 text-white font-bold flex items-center justify-center text-xs shrink-0 shadow-2xs">
                       {{ user.name.substring(0, 2).toUpperCase() }}
                     </div>
                     <div>
-                      <div class="font-bold text-slate-800">{{ user.name }}</div>
+                      <div class="font-semibold text-slate-900">{{ user.name }}</div>
                       <div class="text-slate-500 text-[11px]">{{ user.email }}</div>
                     </div>
                   </div>
                 </td>
                 <td class="py-3.5 px-4">
                   @if (user.role === 'FLEET_MANAGER' || user.role === 'ADMIN' || user.role === 'MANAGER') {
-                    <span class="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+                    <span class="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200/60 inline-flex items-center gap-1">
+                      <span class="size-1.5 rounded-full bg-emerald-500"></span>
                       Gestor de Frota
                     </span>
                   } @else {
-                    <span class="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-blue-700 border border-blue-200/60">
+                    <span class="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-blue-700 border border-blue-200/60 inline-flex items-center gap-1">
+                      <span class="size-1.5 rounded-full bg-blue-500"></span>
                       Motorista
                     </span>
                   }
                 </td>
                 <td class="py-3.5 px-4">
                   <span
-                    class="px-2 py-0.5 rounded-md text-[10px] font-semibold"
-                    [ngClass]="user.isActive ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'"
+                    class="px-2.5 py-0.5 rounded-full text-[10px] font-bold border"
+                    [ngClass]="user.isActive ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'"
                   >
-                    {{ user.isActive ? 'Ativo' : 'Inativo' }}
+                    {{ user.isActive ? 'Ativo' : 'Suspenso' }}
                   </span>
                 </td>
                 <td class="py-3.5 px-4 text-right">
                   <button
                     (click)="toggleStatus(user)"
                     [title]="user.isActive ? 'Suspender acesso' : 'Ativar acesso'"
-                    class="px-2.5 py-1.5 rounded-lg text-xs font-semibold inline-flex items-center gap-1.5 transition-colors cursor-pointer"
-                    [class]="user.isActive ? 'text-rose-600 hover:bg-rose-50 border border-rose-200/60' : 'text-emerald-600 hover:bg-emerald-50 border border-emerald-200/60'"
+                    class="px-2.5 py-1.5 rounded-lg text-xs font-semibold inline-flex items-center gap-1.5 transition-colors cursor-pointer border"
+                    [class]="user.isActive ? 'text-rose-600 hover:bg-rose-50 border-rose-200/60' : 'text-emerald-600 hover:bg-emerald-50 border-emerald-200/60'"
                   >
                     @if (user.isActive) {
                       <svg lucideXCircle class="size-3.5 text-rose-500"></svg>
@@ -126,7 +172,21 @@
               </tr>
             } @empty {
               <tr>
-                <td colspan="4" class="py-8 text-center text-slate-400">Nenhum usuário encontrado.</td>
+                <td colspan="4" class="py-12 text-center text-slate-400">
+                  <div class="size-10 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-2">
+                    <svg lucideUsers class="size-5"></svg>
+                  </div>
+                  <p class="text-xs font-semibold text-slate-700">Nenhum usuário encontrado</p>
+                  <p class="text-[11px] text-slate-400 mt-0.5">Tente ajustar a busca por nome ou e-mail.</p>
+                  @if (searchTerm() || selectedRole() !== 'ALL') {
+                    <button
+                      (click)="clearSearch(); setRoleFilter('ALL')"
+                      class="mt-3 text-xs font-semibold text-emerald-600 hover:underline cursor-pointer"
+                    >
+                      Limpar filtros
+                    </button>
+                  }
+                </td>
               </tr>
             }
           </tbody>

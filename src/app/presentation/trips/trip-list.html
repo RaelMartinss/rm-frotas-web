@@ -1,60 +1,169 @@
-<div class="space-y-6">
-  <!-- CABEÇALHO -->
-  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+<div class="space-y-6 max-w-7xl mx-auto">
+  <!-- CABEÇALHO EXECUTIVO -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-200/70 pb-5">
     <div>
-      <h1 class="text-2xl font-bold text-slate-800">Gestão de Viagens & Abastecimentos</h1>
-      <p class="text-sm text-slate-500">Controle rotas, veículos alocados e abastecimentos da frota.</p>
+      <div class="flex items-center gap-2 mb-1">
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+          <span class="size-1.5 rounded-full bg-emerald-500"></span>
+          Logística & Despacho
+        </span>
+        <span class="text-xs text-slate-400">•</span>
+        <span class="text-xs text-slate-500 font-medium">{{ totalCount() }} viagens registradas</span>
+      </div>
+      <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Gestão de Viagens</h1>
+      <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Controle rotas em tempo real, condutores alocados e histórico de abastecimentos.</p>
     </div>
     <button
       (click)="openTripModal()"
-      class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs px-4 py-2.5 rounded-xl transition-colors shadow-xs cursor-pointer"
+      class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs px-4 py-2.5 rounded-xl transition-all shadow-xs hover:shadow-sm cursor-pointer"
     >
       <svg lucideNavigation class="size-4"></svg>
-      Nova Viagem
+      <span>Nova Viagem</span>
     </button>
   </div>
 
+  <!-- BARRA DE CONTROLE: BUSCA E FILTROS EM CHIPS -->
+  <div class="flex flex-col lg:flex-row gap-3 justify-between items-stretch lg:items-center bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-2xs">
+    <!-- Input com Debounce e Botão Limpar -->
+    <div class="relative flex-1 max-w-md">
+      <svg lucideSearch class="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></svg>
+      <input
+        type="text"
+        [formControl]="searchControl"
+        placeholder="Buscar por condutor, placa, origem ou destino..."
+        class="w-full bg-slate-50 text-slate-800 text-xs rounded-xl pl-9 pr-8 py-2 border border-slate-200 focus:outline-hidden focus:border-emerald-500 transition-colors placeholder:text-slate-400"
+      />
+      @if (searchTerm()) {
+        <button
+          (click)="clearSearch()"
+          class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
+          title="Limpar busca"
+        >
+          <svg lucideX class="size-3.5"></svg>
+        </button>
+      }
+    </div>
+
+    <!-- Chips de Filtro de Viagens com Contadores -->
+    <div class="flex items-center gap-1.5 overflow-x-auto pb-1 lg:pb-0">
+      <button
+        type="button"
+        (click)="setStatusFilter('ALL')"
+        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shrink-0 cursor-pointer border"
+        [ngClass]="selectedStatus() === 'ALL' ? 'bg-slate-900 text-white border-slate-900 shadow-2xs' : 'bg-slate-50 text-slate-600 border-slate-200/80 hover:bg-slate-100'"
+      >
+        <span>Todas</span>
+        <span class="px-1.5 py-0.2 rounded-md text-[10px]" [ngClass]="selectedStatus() === 'ALL' ? 'bg-slate-800 text-slate-300' : 'bg-slate-200 text-slate-600'">
+          {{ totalCount() }}
+        </span>
+      </button>
+
+      <button
+        type="button"
+        (click)="setStatusFilter('IN_PROGRESS')"
+        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shrink-0 cursor-pointer border"
+        [ngClass]="selectedStatus() === 'IN_PROGRESS' ? 'bg-blue-600 text-white border-blue-600 shadow-2xs' : 'bg-slate-50 text-slate-600 border-slate-200/80 hover:bg-slate-100'"
+      >
+        <span class="size-1.5 rounded-full" [ngClass]="selectedStatus() === 'IN_PROGRESS' ? 'bg-white' : 'bg-blue-500 animate-pulse'"></span>
+        <span>Em Andamento</span>
+        <span class="px-1.5 py-0.2 rounded-md text-[10px]" [ngClass]="selectedStatus() === 'IN_PROGRESS' ? 'bg-blue-700 text-white' : 'bg-blue-50 text-blue-700'">
+          {{ inProgressCount() }}
+        </span>
+      </button>
+
+      <button
+        type="button"
+        (click)="setStatusFilter('PLANNED')"
+        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shrink-0 cursor-pointer border"
+        [ngClass]="selectedStatus() === 'PLANNED' ? 'bg-amber-600 text-white border-amber-600 shadow-2xs' : 'bg-slate-50 text-slate-600 border-slate-200/80 hover:bg-slate-100'"
+      >
+        <span class="size-1.5 rounded-full" [ngClass]="selectedStatus() === 'PLANNED' ? 'bg-white' : 'bg-amber-500'"></span>
+        <span>Programadas</span>
+        <span class="px-1.5 py-0.2 rounded-md text-[10px]" [ngClass]="selectedStatus() === 'PLANNED' ? 'bg-amber-700 text-white' : 'bg-amber-50 text-amber-700'">
+          {{ plannedCount() }}
+        </span>
+      </button>
+
+      <button
+        type="button"
+        (click)="setStatusFilter('COMPLETED')"
+        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shrink-0 cursor-pointer border"
+        [ngClass]="selectedStatus() === 'COMPLETED' ? 'bg-emerald-600 text-white border-emerald-600 shadow-2xs' : 'bg-slate-50 text-slate-600 border-slate-200/80 hover:bg-slate-100'"
+      >
+        <span>Concluídas</span>
+        <span class="px-1.5 py-0.2 rounded-md text-[10px]" [ngClass]="selectedStatus() === 'COMPLETED' ? 'bg-emerald-700 text-white' : 'bg-emerald-50 text-emerald-700'">
+          {{ completedCount() }}
+        </span>
+      </button>
+
+      <button
+        type="button"
+        (click)="setStatusFilter('CANCELLED')"
+        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shrink-0 cursor-pointer border"
+        [ngClass]="selectedStatus() === 'CANCELLED' ? 'bg-rose-600 text-white border-rose-600 shadow-2xs' : 'bg-slate-50 text-slate-600 border-slate-200/80 hover:bg-slate-100'"
+      >
+        <span>Canceladas</span>
+        <span class="px-1.5 py-0.2 rounded-md text-[10px]" [ngClass]="selectedStatus() === 'CANCELLED' ? 'bg-rose-700 text-white' : 'bg-rose-50 text-rose-700'">
+          {{ cancelledCount() }}
+        </span>
+      </button>
+    </div>
+  </div>
+
   <!-- TABELA DE VIAGENS -->
-  <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+  <div class="bg-white rounded-2xl border border-slate-200/80 shadow-2xs overflow-hidden">
     @if (loading()) {
-      <div class="p-12 flex flex-col items-center justify-center gap-3 text-slate-400">
-        <svg lucideLoader2 class="size-8 animate-spin text-emerald-500"></svg>
-        <p class="text-xs">Carregando viagens...</p>
+      <!-- SKELETON TABLE SHIMMER -->
+      <div class="p-4 space-y-3 animate-pulse">
+        <div class="h-8 bg-slate-100 rounded-xl"></div>
+        @for (i of [1, 2, 3, 4, 5]; track i) {
+          <div class="flex items-center justify-between py-3 px-2 border-b border-slate-100">
+            <div class="space-y-1.5 w-1/4">
+              <div class="h-4 bg-slate-200 rounded w-24"></div>
+              <div class="h-3 bg-slate-100 rounded w-32"></div>
+            </div>
+            <div class="h-4 bg-slate-200 rounded w-44"></div>
+            <div class="h-3 bg-slate-100 rounded w-24"></div>
+            <div class="h-6 bg-slate-200 rounded-full w-24"></div>
+            <div class="h-7 bg-slate-100 rounded-lg w-32"></div>
+          </div>
+        }
       </div>
     } @else {
       <div class="overflow-x-auto">
         <table class="w-full text-left text-xs">
-          <thead class="bg-slate-50 border-b border-slate-100 text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
+          <thead class="bg-slate-50/80 border-b border-slate-100 text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
             <tr>
-              <th class="py-3.5 px-4">Veículo / Motorista</th>
-              <th class="py-3.5 px-4">Rota (Origem → Destino)</th>
-              <th class="py-3.5 px-4">Data de Criação</th>
+              <th class="py-3.5 px-4">Veículo / Condutor</th>
+              <th class="py-3.5 px-4">Trajeto e Rota</th>
+              <th class="py-3.5 px-4">Data / Horário</th>
               <th class="py-3.5 px-4">Status</th>
-              <th class="py-3.5 px-4 text-right">Ações</th>
+              <th class="py-3.5 px-4 text-right">Ações Operacionais</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100">
-            @for (trip of trips(); track trip.id) {
-              <tr class="hover:bg-slate-50/50 transition-colors">
+            @for (trip of filteredTrips(); track trip.id) {
+              <tr class="hover:bg-slate-50/80 transition-colors">
                 <td class="py-3.5 px-4">
-                  <div class="font-bold text-slate-800 flex items-center gap-1.5">
-                    <svg lucideTruck class="size-3.5 text-slate-400"></svg>
-                    {{ trip.vehiclePlate || getVehiclePlate(trip.vehicleId) }}
+                  <div class="font-bold text-slate-800 flex items-center gap-1.5 font-mono">
+                    <span class="bg-slate-900 text-white px-2 py-0.5 rounded-md text-xs shadow-2xs font-semibold">
+                      {{ trip.vehiclePlate || getVehiclePlate(trip.vehicleId) }}
+                    </span>
                   </div>
-                  <div class="text-slate-500 text-[11px] flex items-center gap-1.5 mt-0.5">
+                  <div class="text-slate-600 text-[11px] flex items-center gap-1.5 mt-1 font-medium">
                     <svg lucideUser class="size-3 text-slate-400"></svg>
                     {{ trip.driverName || getDriverName(trip.driverId) }}
                   </div>
                 </td>
                 <td class="py-3.5 px-4 text-slate-600">
-                  <div class="flex items-center gap-1.5 font-medium">
+                  <div class="flex items-center gap-1.5 font-semibold text-slate-800">
                     <svg lucideMapPin class="size-3.5 text-emerald-600 shrink-0"></svg>
-                    <span class="truncate max-w-[200px]" [title]="trip.origin">{{ trip.origin }}</span>
-                    <span class="text-slate-300">→</span>
-                    <span class="truncate max-w-[200px]" [title]="trip.destination">{{ trip.destination }}</span>
+                    <span class="truncate max-w-[180px]" [title]="trip.origin">{{ trip.origin }}</span>
+                    <span class="text-slate-300 font-normal">→</span>
+                    <span class="truncate max-w-[180px]" [title]="trip.destination">{{ trip.destination }}</span>
                   </div>
                 </td>
-                <td class="py-3.5 px-4 text-slate-600">
+                <td class="py-3.5 px-4 text-slate-600 font-medium">
                   {{ (trip.createdAt | date:'dd/MM/yyyy HH:mm') || (trip.departureDate | date:'dd/MM/yyyy') || '-' }}
                 </td>
                 <td class="py-3.5 px-4">
@@ -73,7 +182,7 @@
                       <button
                         (click)="startTrip(trip)"
                         [disabled]="actionLoadingId() === trip.id"
-                        class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold rounded-lg text-[11px] transition-colors border border-emerald-200/70 cursor-pointer disabled:opacity-50"
+                        class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold rounded-lg text-[11px] transition-colors border border-emerald-200/70 cursor-pointer disabled:opacity-50 shadow-2xs"
                         title="Iniciar Viagem (aloca o veículo como Em Viagem)"
                       >
                         @if (actionLoadingId() === trip.id) {
@@ -107,7 +216,7 @@
                       <button
                         (click)="openCompleteModal(trip)"
                         [disabled]="actionLoadingId() === trip.id"
-                        class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold rounded-lg text-[11px] transition-colors border border-blue-200/70 cursor-pointer disabled:opacity-50"
+                        class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold rounded-lg text-[11px] transition-colors border border-blue-200/70 cursor-pointer disabled:opacity-50 shadow-2xs"
                         title="Concluir Viagem (libera o veículo)"
                       >
                         @if (actionLoadingId() === trip.id) {
@@ -155,7 +264,21 @@
               </tr>
             } @empty {
               <tr>
-                <td colspan="5" class="py-8 text-center text-slate-400">Nenhuma viagem registrada.</td>
+                <td colspan="5" class="py-12 text-center text-slate-400">
+                  <div class="size-10 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-2">
+                    <svg lucideNavigation class="size-5"></svg>
+                  </div>
+                  <p class="text-xs font-semibold text-slate-700">Nenhuma viagem encontrada</p>
+                  <p class="text-[11px] text-slate-400 mt-0.5">Tente ajustar os filtros de status ou a busca por rota.</p>
+                  @if (searchTerm() || selectedStatus() !== 'ALL') {
+                    <button
+                      (click)="clearSearch(); setStatusFilter('ALL')"
+                      class="mt-3 text-xs font-semibold text-emerald-600 hover:underline cursor-pointer"
+                    >
+                      Limpar todos os filtros
+                    </button>
+                  }
+                </td>
               </tr>
             }
           </tbody>
