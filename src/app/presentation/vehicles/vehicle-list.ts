@@ -87,9 +87,8 @@ export class VehicleListComponent implements OnInit {
     () => this.vehicles().filter((v) => this.isInMaintenance(v)).length
   );
 
-  clearSearch(): void {
-    this.searchControl.setValue('');
-  }
+  // Limite de renderização progressiva (Infinite Scroll / Smooth Chunking)
+  displayLimit = signal<number>(50);
 
   // Signal Computado para filtrar a lista automaticamente
   filteredVehicles = computed(() => {
@@ -119,6 +118,27 @@ export class VehicleListComponent implements OnInit {
       return matchesSearch && matchesStatus;
     });
   });
+
+  // Lista fatiada para exibição fluida e 60fps no DOM sem congelar o navegador
+  displayedVehicles = computed(() => {
+    return this.filteredVehicles().slice(0, this.displayLimit());
+  });
+
+  hasMore = computed(() => {
+    return this.displayedVehicles().length < this.filteredVehicles().length;
+  });
+
+  remainingCount = computed(() => {
+    return Math.max(0, this.filteredVehicles().length - this.displayedVehicles().length);
+  });
+
+  loadMore(): void {
+    this.displayLimit.update((limit) => limit + 50);
+  }
+
+  showAll(): void {
+    this.displayLimit.set(this.filteredVehicles().length);
+  }
 
   getStatusLabel(status: string): string {
     switch (status) {
@@ -192,7 +212,15 @@ export class VehicleListComponent implements OnInit {
     currentKm: [0, [Validators.required, Validators.min(0)]]
   });
 
+  clearSearch(): void {
+    this.searchControl.setValue('');
+    this.displayLimit.set(50);
+  }
+
   ngOnInit(): void {
+    this.searchControl.valueChanges.subscribe(() => {
+      this.displayLimit.set(50);
+    });
     this.loadVehicles();
   }
 
@@ -212,6 +240,7 @@ export class VehicleListComponent implements OnInit {
 
   setStatusFilter(status: string): void {
     this.selectedStatus.set(status);
+    this.displayLimit.set(50);
   }
 
   openModal(): void {

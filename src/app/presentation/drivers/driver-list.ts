@@ -96,8 +96,12 @@ export class DriverListComponent implements OnInit {
   inactiveCount = computed(() => this.drivers().filter((d) => this.isInactive(d)).length);
   suspendedCount = computed(() => this.drivers().filter((d) => this.isSuspended(d)).length);
 
+  // Limite de renderização progressiva (Smooth Chunking)
+  displayLimit = signal<number>(50);
+
   clearSearch(): void {
     this.searchControl.setValue('');
+    this.displayLimit.set(50);
   }
 
   filteredDrivers = computed(() => {
@@ -131,6 +135,27 @@ export class DriverListComponent implements OnInit {
     });
   });
 
+  // Lista fatiada para exibição fluida e 60fps
+  displayedDrivers = computed(() => {
+    return this.filteredDrivers().slice(0, this.displayLimit());
+  });
+
+  hasMore = computed(() => {
+    return this.displayedDrivers().length < this.filteredDrivers().length;
+  });
+
+  remainingCount = computed(() => {
+    return Math.max(0, this.filteredDrivers().length - this.displayedDrivers().length);
+  });
+
+  loadMore(): void {
+    this.displayLimit.update((limit) => limit + 50);
+  }
+
+  showAll(): void {
+    this.displayLimit.set(this.filteredDrivers().length);
+  }
+
   driverForm: FormGroup = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(3)]],
     cpf: ['', [Validators.required, Validators.pattern(/^\d{3}\.\d{3}\.\d{3}-\d{2}$|^\d{11}$/)]],
@@ -147,7 +172,15 @@ export class DriverListComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    this.searchControl.valueChanges.subscribe(() => {
+      this.displayLimit.set(50);
+    });
     this.loadDrivers();
+  }
+
+  setStatusFilter(status: string): void {
+    this.selectedStatus.set(status);
+    this.displayLimit.set(50);
   }
 
   loadDrivers(): void {
@@ -162,10 +195,6 @@ export class DriverListComponent implements OnInit {
         this.toastService.error('Erro ao carregar lista de motoristas.');
       }
     });
-  }
-
-  setStatusFilter(status: string): void {
-    this.selectedStatus.set(status);
   }
 
   openModal(): void {
