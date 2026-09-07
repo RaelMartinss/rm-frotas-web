@@ -1,0 +1,899 @@
+<div class="space-y-6">
+  <!-- CABEÇALHO DA PÁGINA -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <div class="flex items-center gap-2.5">
+        <div class="p-2 bg-emerald-500/10 text-emerald-600 rounded-xl border border-emerald-500/20">
+          <svg lucideFuel class="size-6"></svg>
+        </div>
+        <div>
+          <h1 class="text-xl font-bold text-slate-800 tracking-tight">Central de Abastecimentos</h1>
+          <p class="text-xs text-slate-400">Controle de consumo, eficiência energética (km/l), despesas e histórico da frota</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTÕES DE AÇÃO -->
+    <div class="flex items-center gap-2.5">
+      <button
+        type="button"
+        (click)="openCreateModal()"
+        class="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-xl shadow-xs hover:shadow-sm transition-all cursor-pointer"
+      >
+        <svg lucidePlus class="size-4"></svg>
+        <span>Novo Abastecimento</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- CARDS DE MÉTRICAS (KPIS) -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <!-- Card 1: Gasto Total -->
+    <div class="p-4 bg-white rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-4">
+      <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl border border-emerald-100">
+        <svg lucideDollarSign class="size-5"></svg>
+      </div>
+      <div>
+        <span class="text-[11px] font-medium text-slate-400">Gasto Total</span>
+        <div class="text-lg font-bold text-slate-800 font-mono">
+          @if (isStatsLoading()) {
+            <span class="text-slate-300 text-sm">Carregando...</span>
+          } @else {
+            {{ (stats()?.totalCost ?? 0) | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 2: Volume Total -->
+    <div class="p-4 bg-white rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-4">
+      <div class="p-3 bg-blue-50 text-blue-600 rounded-xl border border-blue-100">
+        <svg lucideFuel class="size-5"></svg>
+      </div>
+      <div>
+        <span class="text-[11px] font-medium text-slate-400">Volume Total</span>
+        <div class="text-lg font-bold text-slate-800 font-mono">
+          @if (isStatsLoading()) {
+            <span class="text-slate-300 text-sm">Carregando...</span>
+          } @else {
+            {{ (stats()?.totalLiters ?? 0) | number:'1.2-2' }} L
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 3: Preço Médio / Litro -->
+    <div class="p-4 bg-white rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-4">
+      <div class="p-3 bg-amber-50 text-amber-600 rounded-xl border border-amber-100">
+        <svg lucideGauge class="size-5"></svg>
+      </div>
+      <div>
+        <span class="text-[11px] font-medium text-slate-400">Preço Médio / Litro</span>
+        <div class="text-lg font-bold text-slate-800 font-mono">
+          @if (isStatsLoading()) {
+            <span class="text-slate-300 text-sm">Carregando...</span>
+          } @else {
+            {{ (stats()?.averagePricePerLiter ?? 0) | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 4: Total de Registros -->
+    <div class="p-4 bg-white rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-4">
+      <div class="p-3 bg-purple-50 text-purple-600 rounded-xl border border-purple-100">
+        <svg lucideLayers class="size-5"></svg>
+      </div>
+      <div>
+        <span class="text-[11px] font-medium text-slate-400">Abastecimentos</span>
+        <div class="text-lg font-bold text-slate-800 font-mono">
+          @if (isStatsLoading()) {
+            <span class="text-slate-300 text-sm">Carregando...</span>
+          } @else {
+            {{ stats()?.totalRecords ?? 0 }}
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ABAS DE NAVEGAÇÃO -->
+  <div class="flex items-center gap-2 border-b border-slate-200">
+    <button
+      type="button"
+      (click)="setTab('LIST')"
+      class="px-4 py-2.5 text-xs font-semibold border-b-2 transition-all cursor-pointer flex items-center gap-2"
+      [ngClass]="activeTab() === 'LIST' ? 'border-emerald-600 text-emerald-700' : 'border-transparent text-slate-500 hover:text-slate-800'"
+    >
+      <svg lucideFuel class="size-4"></svg>
+      <span>Histórico de Abastecimentos</span>
+      @if (totalItems() > 0) {
+        <span class="px-1.5 py-0.5 rounded-full text-[10px] bg-slate-100 text-slate-600 font-mono font-bold">
+          {{ totalItems() }}
+        </span>
+      }
+    </button>
+
+    @if (!isDriverUser()) {
+      <button
+        type="button"
+        (click)="setTab('REPORT')"
+        class="px-4 py-2.5 text-xs font-semibold border-b-2 transition-all cursor-pointer flex items-center gap-2"
+        [ngClass]="activeTab() === 'REPORT' ? 'border-emerald-600 text-emerald-700' : 'border-transparent text-slate-500 hover:text-slate-800'"
+      >
+        <svg lucideBarChart3 class="size-4"></svg>
+        <span>Relatório de Eficiência (Km/L)</span>
+      </button>
+    }
+  </div>
+
+  <!-- TAB 1: LISTAGEM E HISTÓRICO -->
+  @if (activeTab() === 'LIST') {
+    <!-- BARRA DE FILTROS -->
+    <div class="p-4 bg-white rounded-2xl border border-slate-200/80 shadow-xs" [formGroup]="filterForm">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 text-xs">
+        <!-- Campo de Busca -->
+        <div class="relative sm:col-span-2 lg:col-span-1">
+          <input
+            type="text"
+            formControlName="search"
+            placeholder="Buscar por posto, placa, motorista..."
+            class="w-full pl-9 pr-3 py-2 bg-slate-50 rounded-xl border border-slate-200 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+          />
+          <svg lucideSearch class="size-4 text-slate-400 absolute left-3 top-2.5"></svg>
+        </div>
+
+        <!-- Filtro: Veículo -->
+        <div>
+          <select
+            formControlName="vehicleId"
+            class="w-full px-3 py-2 bg-slate-50 rounded-xl border border-slate-200 text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 cursor-pointer"
+          >
+            <option value="ALL">Todos os Veículos</option>
+            @for (v of vehicles(); track v.id) {
+              <option [value]="v.id">{{ v.plate }} - {{ v.model }}</option>
+            }
+          </select>
+        </div>
+
+        <!-- Filtro: Motorista (Apenas se Gestor) -->
+        @if (!isDriverUser()) {
+          <div>
+            <select
+              formControlName="driverId"
+              class="w-full px-3 py-2 bg-slate-50 rounded-xl border border-slate-200 text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 cursor-pointer"
+            >
+              <option value="ALL">Todos os Motoristas</option>
+              @for (d of drivers(); track d.id) {
+                <option [value]="d.id">{{ d.name }}</option>
+              }
+            </select>
+          </div>
+        }
+
+        <!-- Filtro: Tipo de Combustível -->
+        <div>
+          <select
+            formControlName="fuelType"
+            class="w-full px-3 py-2 bg-slate-50 rounded-xl border border-slate-200 text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 cursor-pointer"
+          >
+            <option value="ALL">Todos os Combustíveis</option>
+            @for (ft of fuelTypes; track ft.value) {
+              <option [value]="ft.value">{{ ft.label }}</option>
+            }
+          </select>
+        </div>
+
+        <!-- Filtro: Tanque Cheio -->
+        <div>
+          <select
+            formControlName="fullTank"
+            class="w-full px-3 py-2 bg-slate-50 rounded-xl border border-slate-200 text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 cursor-pointer"
+          >
+            <option value="ALL">Tanque Cheio: Todos</option>
+            <option value="TRUE">Apenas Tanque Cheio (Sim)</option>
+            <option value="FALSE">Abastecimento Parcial (Não)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- TABELA DE ABASTECIMENTOS -->
+    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+      @if (isLoading()) {
+        <div class="py-20 flex flex-col items-center justify-center gap-3 text-slate-400">
+          <svg lucideLoader2 class="size-7 animate-spin text-emerald-600"></svg>
+          <span class="text-xs font-medium">Carregando abastecimentos...</span>
+        </div>
+      } @else {
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="border-b border-slate-100 bg-slate-50/75 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                <th class="py-3 px-4">Data / Hora</th>
+                <th class="py-3 px-4">Veículo</th>
+                <th class="py-3 px-4">Motorista</th>
+                <th class="py-3 px-4">Combustível</th>
+                <th class="py-3 px-4 text-right">Litros</th>
+                <th class="py-3 px-4 text-right">Preço / L</th>
+                <th class="py-3 px-4 text-right">Total</th>
+                <th class="py-3 px-4 text-right">Odômetro</th>
+                <th class="py-3 px-4">Posto</th>
+                <th class="py-3 px-4 text-center">Tanque Cheio</th>
+                <th class="py-3 px-4 text-right">Ações</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-xs">
+              @for (r of fuelRecords(); track r.id) {
+                <tr class="hover:bg-slate-50/70 transition-colors">
+                  <!-- Data -->
+                  <td class="py-3.5 px-4 font-mono text-slate-600 whitespace-nowrap">
+                    {{ r.fueledAt | date:'dd/MM/yyyy HH:mm' }}
+                  </td>
+
+                  <!-- Veículo -->
+                  <td class="py-3.5 px-4">
+                    <div class="font-bold text-slate-800 font-mono">{{ r.vehicle?.plate || '—' }}</div>
+                    <div class="text-[11px] text-slate-400">{{ r.vehicle?.model }}</div>
+                  </td>
+
+                  <!-- Motorista -->
+                  <td class="py-3.5 px-4 text-slate-700 font-medium">
+                    {{ r.driver?.name || '—' }}
+                  </td>
+
+                  <!-- Combustível -->
+                  <td class="py-3.5 px-4 whitespace-nowrap">
+                    <span
+                      class="px-2.5 py-1 rounded-full text-[10px] font-bold border"
+                      [ngClass]="getFuelTypeBadgeClass(r.fuelType)"
+                    >
+                      {{ getFuelTypeLabel(r.fuelType) }}
+                    </span>
+                  </td>
+
+                  <!-- Litros -->
+                  <td class="py-3.5 px-4 text-right font-mono font-semibold text-slate-800 whitespace-nowrap">
+                    {{ r.liters | number:'1.2-2' }} L
+                  </td>
+
+                  <!-- Preço/L -->
+                  <td class="py-3.5 px-4 text-right font-mono text-slate-600 whitespace-nowrap">
+                    {{ r.pricePerUnit | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+                  </td>
+
+                  <!-- Total -->
+                  <td class="py-3.5 px-4 text-right font-mono font-bold text-emerald-700 whitespace-nowrap">
+                    {{ r.totalCost | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+                  </td>
+
+                  <!-- Odômetro -->
+                  <td class="py-3.5 px-4 text-right font-mono text-slate-700 whitespace-nowrap">
+                    {{ r.odometerAtFueling | number }} km
+                  </td>
+
+                  <!-- Posto -->
+                  <td class="py-3.5 px-4 text-slate-600 max-w-[150px] truncate" [title]="r.gasStation || ''">
+                    {{ r.gasStation || 'Não informado' }}
+                  </td>
+
+                  <!-- Tanque Cheio -->
+                  <td class="py-3.5 px-4 text-center">
+                    @if (r.fullTank) {
+                      <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        <svg lucideCheck class="size-3"></svg>
+                        Sim
+                      </span>
+                    } @else {
+                      <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-100 text-slate-500">
+                        Parcial
+                      </span>
+                    }
+                  </td>
+
+                  <!-- Ações -->
+                  <td class="py-3.5 px-4 text-right whitespace-nowrap">
+                    <div class="inline-flex items-center gap-1">
+                      <button
+                        (click)="openDetailsModal(r)"
+                        title="Ver Detalhes"
+                        class="p-1.5 text-slate-600 hover:bg-slate-100 rounded-lg border border-slate-200 transition-colors cursor-pointer"
+                      >
+                        <svg lucideEye class="size-3.5"></svg>
+                      </button>
+
+                      <button
+                        (click)="openEditModal(r)"
+                        title="Editar Abastecimento"
+                        class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg border border-blue-200/60 transition-colors cursor-pointer"
+                      >
+                        <svg lucideEdit class="size-3.5"></svg>
+                      </button>
+
+                      @if (!isDriverUser()) {
+                        <button
+                          (click)="openDeleteModal(r)"
+                          title="Excluir Registro"
+                          class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg border border-rose-200/60 transition-colors cursor-pointer"
+                        >
+                          <svg lucideTrash2 class="size-3.5"></svg>
+                        </button>
+                      }
+                    </div>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="11" class="py-16 text-center text-slate-400">
+                    <div class="size-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-2">
+                      <svg lucideFuel class="size-6"></svg>
+                    </div>
+                    <p class="text-xs font-semibold text-slate-700">Nenhum abastecimento encontrado</p>
+                    <p class="text-[11px] text-slate-400 mt-0.5">Tente ajustar os filtros de busca ou cadastre um novo registro.</p>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <!-- BARRA DE PAGINAÇÃO SERVER-SIDE -->
+        @if (totalItems() > 0) {
+          <div class="px-5 py-3.5 bg-slate-50/90 border-t border-slate-100 flex flex-col md:flex-row items-center justify-between gap-4 text-xs">
+            <div class="text-slate-500 font-medium">
+              Mostrando <span class="font-bold text-slate-800">{{ startIndex() }}</span> a
+              <span class="font-bold text-slate-800">{{ endIndex() }}</span> de
+              <span class="font-bold text-slate-800">{{ totalItems() | number }}</span> registros
+            </div>
+
+            @if (totalItems() > 10) {
+              <div class="flex flex-wrap items-center gap-4">
+                <div class="flex items-center gap-2">
+                  <span class="text-slate-500 text-[11px]">Itens por página:</span>
+                  <div class="inline-flex rounded-lg border border-slate-200 bg-white p-0.5 shadow-2xs">
+                    @for (size of pageSizeOptions; track size) {
+                      <button
+                        type="button"
+                        (click)="setPageSize(size)"
+                        class="px-2.5 py-1 rounded-md text-xs font-semibold transition-all cursor-pointer"
+                        [ngClass]="limit() === size ? 'bg-slate-900 text-white shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'"
+                      >
+                        {{ size }}
+                      </button>
+                    }
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-1">
+                  <button
+                    type="button"
+                    (click)="setPage(1)"
+                    [disabled]="page() === 1"
+                    title="Primeira página"
+                    class="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 transition-colors cursor-pointer disabled:cursor-not-allowed shadow-2xs"
+                  >
+                    <svg lucideChevronsLeft class="size-3.5"></svg>
+                  </button>
+                  <button
+                    type="button"
+                    (click)="prevPage()"
+                    [disabled]="page() === 1"
+                    title="Página anterior"
+                    class="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 transition-colors cursor-pointer disabled:cursor-not-allowed shadow-2xs"
+                  >
+                    <svg lucideChevronLeft class="size-3.5"></svg>
+                  </button>
+
+                  <div class="px-2 text-xs font-semibold text-slate-700">
+                    Página {{ page() }} de {{ totalPages() }}
+                  </div>
+
+                  <button
+                    type="button"
+                    (click)="nextPage()"
+                    [disabled]="page() === totalPages()"
+                    title="Próxima página"
+                    class="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 transition-colors cursor-pointer disabled:cursor-not-allowed shadow-2xs"
+                  >
+                    <svg lucideChevronRight class="size-3.5"></svg>
+                  </button>
+                  <button
+                    type="button"
+                    (click)="setPage(totalPages())"
+                    [disabled]="page() === totalPages()"
+                    title="Última página"
+                    class="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 transition-colors cursor-pointer disabled:cursor-not-allowed shadow-2xs"
+                  >
+                    <svg lucideChevronsRight class="size-3.5"></svg>
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      }
+    </div>
+  }
+
+  <!-- TAB 2: RELATÓRIO DE CONSUMO (KM/L) -->
+  @if (activeTab() === 'REPORT') {
+    <div class="space-y-6">
+      @if (isReportLoading()) {
+        <div class="p-16 bg-white rounded-2xl border border-slate-200/80 shadow-xs flex flex-col items-center justify-center gap-3 text-slate-400">
+          <svg lucideLoader2 class="size-8 animate-spin text-emerald-600"></svg>
+          <span class="text-xs font-medium">Calculando médias de consumo por veículo...</span>
+        </div>
+      } @else if (consumptionReport()) {
+        <!-- RESUMO GERAL DA FROTA -->
+        <div class="p-6 bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-2xl shadow-md grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div>
+            <span class="text-xs text-slate-400 font-medium">Consumo Médio Geral da Frota</span>
+            <div class="text-3xl font-black font-mono mt-1 text-emerald-400">
+              {{ consumptionReport()?.fleetAverageKmPerLiter ? (consumptionReport()?.fleetAverageKmPerLiter + ' km/L') : '—' }}
+            </div>
+            <p class="text-[11px] text-slate-400 mt-1">Calculado entre ciclos de tanque cheio</p>
+          </div>
+
+          <div>
+            <span class="text-xs text-slate-400 font-medium">Distância Total Calculada</span>
+            <div class="text-2xl font-bold font-mono mt-1">
+              {{ (consumptionReport()?.fleetTotalDistanceKm ?? 0) | number }} km
+            </div>
+          </div>
+
+          <div>
+            <span class="text-xs text-slate-400 font-medium">Volume Total Consumido</span>
+            <div class="text-2xl font-bold font-mono mt-1">
+              {{ (consumptionReport()?.fleetTotalLiters ?? 0) | number:'1.2-2' }} L
+            </div>
+          </div>
+
+          <div>
+            <span class="text-xs text-slate-400 font-medium">Gasto Total no Período</span>
+            <div class="text-2xl font-bold font-mono mt-1 text-amber-300">
+              {{ (consumptionReport()?.fleetTotalCost ?? 0) | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+            </div>
+          </div>
+        </div>
+
+        <!-- RELATÓRIO POR VEÍCULO -->
+        <div class="space-y-4">
+          <h2 class="text-sm font-bold text-slate-800">Eficiência por Veículo da Frota</h2>
+
+          <div class="grid grid-cols-1 gap-4">
+            @for (vRep of consumptionReport()?.vehicles; track vRep.vehicleId) {
+              <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+                  <div class="flex items-center gap-3">
+                    <div class="p-2.5 bg-slate-100 rounded-xl text-slate-700">
+                      <svg lucideTruck class="size-5"></svg>
+                    </div>
+                    <div>
+                      <div class="flex items-center gap-2">
+                        <span class="text-sm font-bold text-slate-900 font-mono">{{ vRep.plate }}</span>
+                        <span class="text-xs text-slate-500">• {{ vRep.brand }} {{ vRep.model }}</span>
+                      </div>
+                      <span class="text-[11px] text-slate-400">
+                        {{ vRep.totalFuelings }} abastecimento(s) • {{ vRep.fullTankFuelings }} com tanque cheio
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Badge de Eficiência -->
+                  <div class="flex items-center gap-2">
+                    <div class="text-right">
+                      <span class="text-[10px] text-slate-400 font-medium uppercase block">Consumo Médio</span>
+                      <span class="text-xl font-extrabold font-mono text-emerald-600">
+                        {{ vRep.averageKmPerLiter ? (vRep.averageKmPerLiter + ' km/L') : 'Dados insuficientes' }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Resumo Numérico do Veículo -->
+                <div class="grid grid-cols-3 gap-3 text-xs bg-slate-50/70 p-3 rounded-xl">
+                  <div>
+                    <span class="text-slate-400 text-[11px]">Distância Coberta:</span>
+                    <div class="font-bold text-slate-700 font-mono">{{ vRep.totalDistanceKm | number }} km</div>
+                  </div>
+                  <div>
+                    <span class="text-slate-400 text-[11px]">Volume Total:</span>
+                    <div class="font-bold text-slate-700 font-mono">{{ vRep.totalLiters | number:'1.2-2' }} L</div>
+                  </div>
+                  <div>
+                    <span class="text-slate-400 text-[11px]">Custo Total:</span>
+                    <div class="font-bold text-emerald-700 font-mono">{{ vRep.totalCost | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</div>
+                  </div>
+                </div>
+
+                <!-- Segmentos de Ciclo de Tanque Cheio -->
+                @if (vRep.segments.length > 0) {
+                  <div class="space-y-2">
+                    <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Ciclos de Tanque Cheio</span>
+                    <div class="overflow-x-auto">
+                      <table class="w-full text-[11px]">
+                        <thead>
+                          <tr class="text-slate-400 border-b border-slate-100">
+                            <th class="py-1.5 text-left">Período</th>
+                            <th class="py-1.5 text-right">Odômetro Inicial</th>
+                            <th class="py-1.5 text-right">Odômetro Final</th>
+                            <th class="py-1.5 text-right">Km Rodado</th>
+                            <th class="py-1.5 text-right">Litros</th>
+                            <th class="py-1.5 text-right">Custo</th>
+                            <th class="py-1.5 text-right font-bold text-emerald-700">Média (Km/L)</th>
+                          </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 font-mono">
+                          @for (seg of vRep.segments; track seg.startDate) {
+                            <tr>
+                              <td class="py-1.5 text-slate-600 font-sans">
+                                {{ seg.startDate | date:'dd/MM' }} até {{ seg.endDate | date:'dd/MM/yyyy' }}
+                              </td>
+                              <td class="py-1.5 text-right text-slate-600">{{ seg.startOdometer | number }} km</td>
+                              <td class="py-1.5 text-right text-slate-600">{{ seg.endOdometer | number }} km</td>
+                              <td class="py-1.5 text-right font-bold text-slate-800">{{ seg.distanceKm | number }} km</td>
+                              <td class="py-1.5 text-right text-slate-600">{{ seg.litersConsumed | number:'1.2-2' }} L</td>
+                              <td class="py-1.5 text-right text-slate-600">{{ seg.totalCost | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</td>
+                              <td class="py-1.5 text-right font-bold text-emerald-600">{{ seg.kmPerLiter }} km/L</td>
+                            </tr>
+                          }
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                } @else {
+                  <div class="p-3 bg-amber-50 rounded-xl border border-amber-200/60 text-amber-800 text-xs flex items-center gap-2">
+                    <svg lucideInfo class="size-4 text-amber-600 shrink-0"></svg>
+                    <span>São necessários pelo menos 2 abastecimentos com a opção "Tanque Cheio" para calcular a média de consumo deste veículo.</span>
+                  </div>
+                }
+              </div>
+            } @empty {
+              <div class="py-12 text-center text-slate-400 bg-white rounded-2xl border border-slate-200/80">
+                Nenhum dado de veículo disponível para o relatório.
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<!-- MODAL DE REGISTRO / EDIÇÃO DE ABASTECIMENTO -->
+@if (isCreateModalOpen() || isEditModalOpen()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-150">
+    <div class="bg-white rounded-2xl border border-slate-200/90 shadow-2xl w-full max-w-xl overflow-hidden animate-in zoom-in-95 duration-150 flex flex-col max-h-[90vh]">
+      <!-- Header do Modal -->
+      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 shrink-0">
+        <div class="flex items-center gap-3">
+          <div class="p-2 bg-emerald-50 text-emerald-600 rounded-xl border border-emerald-100">
+            <svg lucideFuel class="size-5"></svg>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-slate-800">
+              {{ isEditModalOpen() ? 'Editar Abastecimento' : 'Registrar Novo Abastecimento' }}
+            </h3>
+            <p class="text-[11px] text-slate-400">Preencha os dados do abastecimento realizado</p>
+          </div>
+        </div>
+        <button
+          type="button"
+          (click)="isEditModalOpen() ? closeEditModal() : closeCreateModal()"
+          class="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+        >
+          <svg lucideX class="size-4"></svg>
+        </button>
+      </div>
+
+      <!-- Formulário com Scroll -->
+      <form [formGroup]="fuelForm" (ngSubmit)="isEditModalOpen() ? submitEdit() : submitCreate()" class="p-6 overflow-y-auto space-y-4 text-xs">
+        @if (errorMessage()) {
+          <div class="p-3 bg-rose-50 text-rose-700 border border-rose-200 rounded-xl flex items-center gap-2">
+            <svg lucideAlertCircle class="size-4 shrink-0"></svg>
+            <span>{{ errorMessage() }}</span>
+          </div>
+        }
+
+        <!-- Veículo -->
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Veículo *</label>
+          <select
+            formControlName="vehicleId"
+            class="w-full px-3 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 cursor-pointer"
+            [ngClass]="fuelForm.get('vehicleId')?.invalid && fuelForm.get('vehicleId')?.touched ? 'border-rose-300 bg-rose-50/30' : ''"
+          >
+            <option value="" disabled>Selecione o veículo</option>
+            @for (v of vehicles(); track v.id) {
+              <option [value]="v.id">{{ v.plate }} - {{ v.model }} (Atual: {{ v.currentKm | number }} km)</option>
+            }
+          </select>
+          @if (getSelectedVehicleKm() !== null) {
+            <p class="text-[11px] text-slate-400 mt-1">KM atual do veículo cadastrado: <strong class="text-slate-700">{{ getSelectedVehicleKm() | number }} km</strong></p>
+          }
+        </div>
+
+        <!-- Motorista (se Gestor) -->
+        @if (!isDriverUser()) {
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Motorista Responsável *</label>
+            <select
+              formControlName="driverId"
+              class="w-full px-3 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 cursor-pointer"
+              [ngClass]="fuelForm.get('driverId')?.invalid && fuelForm.get('driverId')?.touched ? 'border-rose-300 bg-rose-50/30' : ''"
+            >
+              <option value="" disabled>Selecione o motorista</option>
+              @for (d of drivers(); track d.id) {
+                <option [value]="d.id">{{ d.name }} (CPF: {{ d.cpf }})</option>
+              }
+            </select>
+          </div>
+        }
+
+        <!-- Tipo de Combustível & Odômetro -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Tipo de Combustível *</label>
+            <select
+              formControlName="fuelType"
+              class="w-full px-3 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 cursor-pointer"
+            >
+              @for (ft of fuelTypes; track ft.value) {
+                <option [value]="ft.value">{{ ft.label }}</option>
+              }
+            </select>
+          </div>
+
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Odômetro no Abastecimento (KM) *</label>
+            <input
+              type="number"
+              formControlName="odometerAtFueling"
+              placeholder="Ex: 50250"
+              class="w-full px-3 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+              [ngClass]="fuelForm.get('odometerAtFueling')?.invalid && fuelForm.get('odometerAtFueling')?.touched ? 'border-rose-300 bg-rose-50/30' : ''"
+            />
+          </div>
+        </div>
+
+        <!-- Litros, Preço/L e Total -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Litros Abastecidos *</label>
+            <input
+              type="number"
+              step="0.01"
+              formControlName="liters"
+              placeholder="Ex: 45.5"
+              class="w-full px-3 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+              [ngClass]="fuelForm.get('liters')?.invalid && fuelForm.get('liters')?.touched ? 'border-rose-300 bg-rose-50/30' : ''"
+            />
+          </div>
+
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Preço por Litro (R$)</label>
+            <input
+              type="number"
+              step="0.001"
+              formControlName="pricePerUnit"
+              placeholder="Ex: 5.89"
+              class="w-full px-3 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+            />
+          </div>
+
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Valor Total (R$) *</label>
+            <input
+              type="number"
+              step="0.01"
+              formControlName="totalCost"
+              placeholder="Ex: 267.99"
+              class="w-full px-3 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+              [ngClass]="fuelForm.get('totalCost')?.invalid && fuelForm.get('totalCost')?.touched ? 'border-rose-300 bg-rose-50/30' : ''"
+            />
+          </div>
+        </div>
+
+        <!-- TOGGLE EM DESTAQUE: TANQUE CHEIO -->
+        <div class="p-4 bg-emerald-50/60 rounded-2xl border border-emerald-200/80 flex items-start gap-3">
+          <input
+            type="checkbox"
+            id="fullTankToggle"
+            formControlName="fullTank"
+            class="mt-1 size-4 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500 cursor-pointer"
+          />
+          <label for="fullTankToggle" class="cursor-pointer">
+            <span class="font-bold text-slate-800 text-xs flex items-center gap-1.5">
+              Encheu o tanque? (Tanque Cheio)
+              <span class="px-1.5 py-0.5 rounded-full text-[9px] bg-emerald-200 text-emerald-800 font-bold">Importante</span>
+            </span>
+            <p class="text-[11px] text-slate-500 mt-0.5">
+              Marcar esta opção é indispensável para que o sistema consiga calcular com exatidão o consumo médio (Km/L) entre os abastecimentos.
+            </p>
+          </label>
+        </div>
+
+        <!-- Posto de Gasolina & Data -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Posto de Combustível</label>
+            <input
+              type="text"
+              formControlName="gasStation"
+              placeholder="Ex: Posto Ipiranga Centro"
+              class="w-full px-3 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+            />
+          </div>
+
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Data e Hora do Abastecimento</label>
+            <input
+              type="datetime-local"
+              formControlName="fueledAt"
+              class="w-full px-3 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+            />
+          </div>
+        </div>
+
+        <!-- Observações -->
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Observações</label>
+          <textarea
+            formControlName="notes"
+            rows="2"
+            placeholder="Alguma observação sobre o combustível ou posto..."
+            class="w-full px-3 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 resize-none"
+          ></textarea>
+        </div>
+
+        <!-- Botões de Ação -->
+        <div class="pt-3 border-t border-slate-100 flex items-center justify-end gap-3 shrink-0">
+          <button
+            type="button"
+            (click)="isEditModalOpen() ? closeEditModal() : closeCreateModal()"
+            class="px-4 py-2.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            [disabled]="isSubmitting()"
+            class="px-5 py-2.5 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 rounded-xl shadow-xs transition-all flex items-center gap-2 cursor-pointer"
+          >
+            @if (isSubmitting()) {
+              <svg lucideLoader2 class="size-4 animate-spin"></svg>
+              <span>Salvando...</span>
+            } @else {
+              <span>{{ isEditModalOpen() ? 'Atualizar Abastecimento' : 'Registrar Abastecimento' }}</span>
+            }
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+<!-- MODAL DE DETALHES DO ABASTECIMENTO -->
+@if (isDetailsModalOpen() && selectedRecord()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-150">
+    <div class="bg-white rounded-2xl border border-slate-200/90 shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-150 flex flex-col">
+      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+        <div class="flex items-center gap-3">
+          <div class="p-2 bg-emerald-50 text-emerald-600 rounded-xl border border-emerald-100">
+            <svg lucideFuel class="size-5"></svg>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-slate-800">Detalhes do Abastecimento</h3>
+            <p class="text-[11px] text-slate-400">Comprovante e dados da transação</p>
+          </div>
+        </div>
+        <button
+          type="button"
+          (click)="closeDetailsModal()"
+          class="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+        >
+          <svg lucideX class="size-4"></svg>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-4 text-xs">
+        <div class="grid grid-cols-2 gap-3">
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200/70">
+            <span class="text-[11px] text-slate-400">Veículo</span>
+            <div class="font-bold text-slate-800 font-mono mt-0.5">{{ selectedRecord()?.vehicle?.plate }}</div>
+            <div class="text-[11px] text-slate-500">{{ selectedRecord()?.vehicle?.brand }} {{ selectedRecord()?.vehicle?.model }}</div>
+          </div>
+
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200/70">
+            <span class="text-[11px] text-slate-400">Motorista</span>
+            <div class="font-bold text-slate-800 mt-0.5">{{ selectedRecord()?.driver?.name || 'Não informado' }}</div>
+          </div>
+
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200/70">
+            <span class="text-[11px] text-slate-400">Volume Abastecido</span>
+            <div class="font-bold text-slate-800 font-mono mt-0.5">{{ selectedRecord()?.liters | number:'1.2-2' }} L</div>
+          </div>
+
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200/70">
+            <span class="text-[11px] text-slate-400">Valor Total</span>
+            <div class="font-bold text-emerald-700 font-mono mt-0.5">{{ selectedRecord()?.totalCost | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</div>
+          </div>
+
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200/70">
+            <span class="text-[11px] text-slate-400">Odômetro no Registro</span>
+            <div class="font-bold text-slate-800 font-mono mt-0.5">{{ selectedRecord()?.odometerAtFueling | number }} km</div>
+          </div>
+
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200/70">
+            <span class="text-[11px] text-slate-400">Posto de Combustível</span>
+            <div class="font-bold text-slate-800 mt-0.5">{{ selectedRecord()?.gasStation || 'Não informado' }}</div>
+          </div>
+        </div>
+
+        @if (selectedRecord()?.notes) {
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200/70">
+            <span class="text-[11px] text-slate-400 font-medium">Observações</span>
+            <p class="text-slate-700 mt-0.5">{{ selectedRecord()?.notes }}</p>
+          </div>
+        }
+
+        <div class="pt-2 flex justify-end">
+          <button
+            type="button"
+            (click)="closeDetailsModal()"
+            class="px-5 py-2.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer"
+          >
+            Fechar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- MODAL DE CONFIRMAÇÃO DE EXCLUSÃO -->
+@if (isDeleteModalOpen() && selectedRecord()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-150">
+    <div class="bg-white rounded-2xl border border-slate-200/90 shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-150 p-6 space-y-4">
+      <div class="flex items-center gap-3">
+        <div class="p-3 bg-rose-50 text-rose-600 rounded-2xl border border-rose-100">
+          <svg lucideTrash2 class="size-6"></svg>
+        </div>
+        <div>
+          <h3 class="text-sm font-bold text-slate-900">Excluir Abastecimento</h3>
+          <p class="text-xs text-slate-400">Esta ação não poderá ser desfeita.</p>
+        </div>
+      </div>
+
+      <p class="text-xs text-slate-600 leading-relaxed">
+        Tem certeza que deseja excluir o abastecimento de
+        <strong class="text-slate-800 font-mono">{{ selectedRecord()?.liters | number:'1.2-2' }} L</strong>
+        do veículo <strong class="text-slate-800 font-mono">{{ selectedRecord()?.vehicle?.plate }}</strong> realizado em
+        <strong class="text-slate-800">{{ selectedRecord()?.fueledAt | date:'dd/MM/yyyy' }}</strong>?
+      </p>
+
+      <div class="pt-2 flex items-center justify-end gap-3">
+        <button
+          type="button"
+          (click)="closeDeleteModal()"
+          class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+        >
+          Cancelar
+        </button>
+        <button
+          type="button"
+          (click)="confirmDelete()"
+          [disabled]="isSubmitting()"
+          class="px-5 py-2 text-xs font-semibold text-white bg-rose-600 hover:bg-rose-700 disabled:opacity-50 rounded-xl shadow-xs transition-all flex items-center gap-2 cursor-pointer"
+        >
+          @if (isSubmitting()) {
+            <svg lucideLoader2 class="size-4 animate-spin"></svg>
+            <span>Excluindo...</span>
+          } @else {
+            <span>Confirmar Exclusão</span>
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}

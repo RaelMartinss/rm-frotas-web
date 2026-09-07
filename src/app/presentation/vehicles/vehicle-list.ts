@@ -6,9 +6,11 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { IVehicleRepository } from '../../domain/repositories/vehicle.repository.interface';
 import { IMaintenanceRepository } from '../../domain/repositories/maintenance.repository.interface';
+import { IFuelRepository } from '../../domain/repositories/fuel.repository.interface';
 import { ToastService } from '../../core/services/toast.service';
 import { Vehicle, VehicleImportResult } from '../../domain/models/vehicle.model';
 import { Maintenance, MaintenanceStatus, MaintenanceType } from '../../domain/models/maintenance.model';
+import { FuelRecord, FuelType } from '../../domain/models/fuel.model';
 import { PlateMaskDirective } from '../shared/directives/input-mask.directives';
 import {
   LucideTruck,
@@ -29,7 +31,8 @@ import {
   LucideFileText,
   LucideAlertTriangle,
   LucideCheck,
-  LucideExternalLink
+  LucideExternalLink,
+  LucideFuel
 } from '@lucide/angular';
 
 @Component({
@@ -58,7 +61,8 @@ import {
     LucideFileText,
     LucideAlertTriangle,
     LucideCheck,
-    LucideExternalLink
+    LucideExternalLink,
+    LucideFuel
   ],
   templateUrl: './vehicle-list.html',
   styleUrl: './vehicle-list.css'
@@ -66,13 +70,16 @@ import {
 export class VehicleListComponent implements OnInit {
   private readonly vehicleRepository = inject(IVehicleRepository);
   private readonly maintenanceRepository = inject(IMaintenanceRepository);
+  private readonly fuelRepository = inject(IFuelRepository);
   private readonly toastService = inject(ToastService);
   private readonly fb = inject(FormBuilder);
 
   vehicles = signal<Vehicle[]>([]);
   vehicleMaintenances = signal<Maintenance[]>([]);
+  vehicleFuelRecords = signal<FuelRecord[]>([]);
   isLoadingMaintenances = signal(false);
-  activeDetailsTab = signal<'OVERVIEW' | 'MAINTENANCE'>('OVERVIEW');
+  isLoadingFuelRecords = signal(false);
+  activeDetailsTab = signal<'OVERVIEW' | 'MAINTENANCE' | 'FUEL'>('OVERVIEW');
   loading = signal<boolean>(true);
 
   // --- IMPORTAÇÃO EM LOTE VIA CSV ---
@@ -464,15 +471,17 @@ export class VehicleListComponent implements OnInit {
     this.activeDetailsTab.set('OVERVIEW');
     this.isDetailsModalOpen.set(true);
     this.loadVehicleMaintenances(vehicle.id);
+    this.loadVehicleFuelRecords(vehicle.id);
   }
 
   closeDetailsModal(): void {
     this.isDetailsModalOpen.set(false);
     this.selectedVehicle.set(null);
     this.vehicleMaintenances.set([]);
+    this.vehicleFuelRecords.set([]);
   }
 
-  setDetailsTab(tab: 'OVERVIEW' | 'MAINTENANCE'): void {
+  setDetailsTab(tab: 'OVERVIEW' | 'MAINTENANCE' | 'FUEL'): void {
     this.activeDetailsTab.set(tab);
   }
 
@@ -485,6 +494,19 @@ export class VehicleListComponent implements OnInit {
       },
       error: () => {
         this.isLoadingMaintenances.set(false);
+      }
+    });
+  }
+
+  loadVehicleFuelRecords(vehicleId: string): void {
+    this.isLoadingFuelRecords.set(true);
+    this.fuelRepository.list({ vehicleId, limit: 100 }).subscribe({
+      next: (res) => {
+        this.vehicleFuelRecords.set(res.data);
+        this.isLoadingFuelRecords.set(false);
+      },
+      error: () => {
+        this.isLoadingFuelRecords.set(false);
       }
     });
   }

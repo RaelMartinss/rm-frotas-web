@@ -20,6 +20,8 @@ import { ITripRepository } from './domain/repositories/trip.repository.interface
 import { HttpTripRepository } from './core/adapters/http-trip.repository';
 import { IMaintenanceRepository } from './domain/repositories/maintenance.repository.interface';
 import { HttpMaintenanceRepository } from './core/adapters/http-maintenance.repository';
+import { IFuelRepository } from './domain/repositories/fuel.repository.interface';
+import { HttpFuelRepository } from './core/adapters/http-fuel.repository';
 
 registerLocaleData(localePt, 'pt-BR');
 
@@ -40,6 +42,7 @@ export const appConfig: ApplicationConfig = {
     { provide: IDriverRepository, useClass: HttpDriverRepository },
     { provide: ITripRepository, useClass: HttpTripRepository },
     { provide: IMaintenanceRepository, useClass: HttpMaintenanceRepository },
+    { provide: IFuelRepository, useClass: HttpFuelRepository },
     provideAppInitializer(() => {
       const authRepository = inject(IAuthRepository);
       const authState = inject(AuthStateService);

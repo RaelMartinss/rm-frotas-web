@@ -97,7 +97,14 @@ export const routes: Routes = [
       },
       {
         path: 'abastecimentos',
-        redirectTo: 'viagens',
+        loadComponent: () =>
+          import('./presentation/fuel/fuel-list').then(
+            (m) => m.FuelListComponent
+          )
+      },
+      {
+        path: 'fuel',
+        redirectTo: 'abastecimentos',
         pathMatch: 'full'
       },
       {
