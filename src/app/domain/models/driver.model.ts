@@ -8,6 +8,63 @@ export type DriverStatus =
   | 'FOLGA'
   | 'AFASTADO';
 
+export type SuspensionReasonCategory =
+  | 'CNH_VENCIDA'
+  | 'ACIDENTE'
+  | 'PROCESSO_DISCIPLINAR'
+  | 'EXAME_TOXICOLOGICO_PENDENTE'
+  | 'DOCUMENTACAO_IRREGULAR'
+  | 'OUTRO';
+
+export type SuspensionStatus = 'ATIVA' | 'ENCERRADA';
+
+export const SUSPENSION_REASON_LABELS: Record<SuspensionReasonCategory, string> = {
+  CNH_VENCIDA: 'CNH Vencida',
+  ACIDENTE: 'Envolvimento em Acidente',
+  PROCESSO_DISCIPLINAR: 'Processo Disciplinar',
+  EXAME_TOXICOLOGICO_PENDENTE: 'Exame Toxicológico Pendente',
+  DOCUMENTACAO_IRREGULAR: 'Documentação Irregular',
+  OUTRO: 'Outro Motivo',
+};
+
+export function formatSuspensionReason(category?: string | null): string {
+  if (!category) return '-';
+  return (SUSPENSION_REASON_LABELS as any)[category] || category;
+}
+
+export interface DriverSuspension {
+  id: string;
+  driverId: string;
+  ownerId: string;
+  reasonCategory: SuspensionReasonCategory;
+  reasonDetails?: string | null;
+  suspendedBy: string;
+  suspendedAt: string;
+  expectedReturnDate?: string | null;
+  indefinite: boolean;
+  attachmentUrl?: string | null;
+  liftedAt?: string | null;
+  liftedBy?: string | null;
+  liftReason?: string | null;
+  status: SuspensionStatus;
+  createdAt: string;
+  updatedAt: string;
+  driverName?: string;
+  driverCpf?: string;
+}
+
+export interface SuspendDriverDTO {
+  reasonCategory: SuspensionReasonCategory;
+  reasonDetails?: string;
+  expectedReturnDate?: string | null;
+  indefinite?: boolean;
+  attachmentUrl?: string;
+}
+
+export interface LiftSuspensionDTO {
+  liftReason?: string;
+}
+
 export interface DriverCnh {
   number: string;
   category: CnhCategory;

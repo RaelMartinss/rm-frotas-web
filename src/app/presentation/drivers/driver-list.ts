@@ -6,7 +6,14 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { IDriverRepository } from '../../domain/repositories/driver.repository.interface';
 import { ToastService } from '../../core/services/toast.service';
-import { Driver, CnhCategory } from '../../domain/models/driver.model';
+import {
+  Driver,
+  CnhCategory,
+  DriverSuspension,
+  SuspensionReasonCategory,
+  SUSPENSION_REASON_LABELS,
+  formatSuspensionReason,
+} from '../../domain/models/driver.model';
 import { CpfMaskDirective, PhoneMaskDirective, CnhMaskDirective } from '../shared/directives/input-mask.directives';
 import {
   LucideUsers,
@@ -22,13 +29,16 @@ import {
   LucideCheck,
   LucideBan,
   LucidePauseCircle,
+  LucidePlay,
   LucideUserCheck,
   LucideChevronLeft,
   LucideChevronRight,
   LucideChevronsLeft,
   LucideChevronsRight,
   LucideFuel,
-  LucideExternalLink
+  LucideExternalLink,
+  LucideFileText,
+  LucideHistory,
 } from '@lucide/angular';
 
 @Component({
@@ -54,13 +64,16 @@ import {
     LucideCheck,
     LucideBan,
     LucidePauseCircle,
+    LucidePlay,
     LucideUserCheck,
     LucideChevronLeft,
     LucideChevronRight,
     LucideChevronsLeft,
     LucideChevronsRight,
     LucideFuel,
-    LucideExternalLink
+    LucideExternalLink,
+    LucideFileText,
+    LucideHistory,
   ],
   templateUrl: './driver-list.html',
   styleUrl: './driver-list.css'
@@ -75,7 +88,7 @@ export class DriverListComponent implements OnInit {
 
   // --- PAGINAÇÃO SERVER-SIDE (OFFSET / LIMIT) ---
   currentPage = signal<number>(1);
-  pageSize = signal<number>(10); // Inicializa com 10 registros
+  pageSize = signal<number>(10);
   totalItems = signal<number>(0);
   totalPages = signal<number>(1);
   pageSizeOptions: number[] = [10, 25, 50];
@@ -88,13 +101,35 @@ export class DriverListComponent implements OnInit {
   selectedDriver = signal<Driver | null>(null);
   isUpdateCnhModalOpen = signal<boolean>(false);
   isDetailsModalOpen = signal<boolean>(false);
+  detailsTab = signal<'info' | 'suspensions'>('info');
+
+  // Modal de Suspensão Dedicado
+  isSuspendModalOpen = signal<boolean>(false);
+  isLiftModalOpen = signal<boolean>(false);
+  suspensionErrorMessage = signal<string | null>(null);
+  suspensionHistory = signal<DriverSuspension[]>([]);
+  loadingSuspensions = signal<boolean>(false);
+
+  // Modal Genérico de Status (Ativar / Desativar)
   isStatusConfirmModalOpen = signal<boolean>(false);
-  pendingStatusAction = signal<'activate' | 'deactivate' | 'suspend' | null>(null);
+  pendingStatusAction = signal<'activate' | 'deactivate' | null>(null);
 
   isActionLoading = signal<boolean>(false);
   actionError = signal<string | null>(null);
 
   cnhCategories: CnhCategory[] = ['A', 'B', 'C', 'D', 'E', 'AB', 'AC', 'AD', 'AE'];
+
+  suspensionReasonOptions: { value: SuspensionReasonCategory; label: string }[] = [
+    { value: 'CNH_VENCIDA', label: 'CNH Vencida' },
+    { value: 'ACIDENTE', label: 'Envolvimento em Acidente' },
+    { value: 'PROCESSO_DISCIPLINAR', label: 'Processo Disciplinar' },
+    { value: 'EXAME_TOXICOLOGICO_PENDENTE', label: 'Exame Toxicológico Pendente' },
+    { value: 'DOCUMENTACAO_IRREGULAR', label: 'Documentação Irregular' },
+    { value: 'OUTRO', label: 'Outro Motivo' },
+  ];
+
+  // Helpers exportados para o template
+  readonly formatSuspensionReason = formatSuspensionReason;
 
   // --- FILTROS E BUSCA REATIVA COM SERVER-SIDE QUERY ---
   searchControl = new FormControl('', { nonNullable: true });
@@ -108,7 +143,6 @@ export class DriverListComponent implements OnInit {
     { initialValue: '' }
   );
 
-  // Computed ranges para exibição na barra de paginação
   startIndex = computed(() => {
     if (this.totalItems() === 0) return 0;
     return (this.currentPage() - 1) * this.pageSize() + 1;
@@ -118,7 +152,6 @@ export class DriverListComponent implements OnInit {
     return Math.min(this.currentPage() * this.pageSize(), this.totalItems());
   });
 
-  // Gera lista de páginas com elipses (ex: [1, 2, 3, '...', 10])
   pageNumbers = computed(() => {
     const total = this.totalPages();
     const current = this.currentPage();
@@ -180,6 +213,7 @@ export class DriverListComponent implements OnInit {
     this.loadDrivers();
   }
 
+  // --- FORMULÁRIOS REATIVOS ---
   driverForm: FormGroup = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(3)]],
     cpf: ['', [Validators.required, Validators.pattern(/^\d{3}\.\d{3}\.\d{3}-\d{2}$|^\d{11}$/)]],
@@ -193,6 +227,18 @@ export class DriverListComponent implements OnInit {
     cnhNumber: ['', [Validators.required, Validators.pattern(/^\d{11}$/)]],
     cnhCategory: ['D', [Validators.required]],
     cnhExpirationDate: ['', [Validators.required]]
+  });
+
+  suspendForm: FormGroup = this.fb.group({
+    reasonCategory: ['CNH_VENCIDA' as SuspensionReasonCategory, [Validators.required]],
+    reasonDetails: [''],
+    indefinite: [false],
+    expectedReturnDate: [''],
+    attachmentUrl: ['']
+  });
+
+  liftForm: FormGroup = this.fb.group({
+    liftReason: ['']
   });
 
   ngOnInit(): void {
@@ -375,8 +421,8 @@ export class DriverListComponent implements OnInit {
     });
   }
 
-  // --- AÇÕES: MUDANÇA DE STATUS ---
-  openStatusConfirmModal(driver: Driver, action: 'activate' | 'deactivate' | 'suspend'): void {
+  // --- AÇÕES: ATIVAR / DESATIVAR MOTORISTA ---
+  openStatusConfirmModal(driver: Driver, action: 'activate' | 'deactivate'): void {
     this.selectedDriver.set(driver);
     this.pendingStatusAction.set(action);
     this.actionError.set(null);
@@ -398,19 +444,15 @@ export class DriverListComponent implements OnInit {
     this.isActionLoading.set(true);
     this.actionError.set(null);
 
-    let request$;
-    let successMessage = '';
+    const request$ =
+      action === 'activate'
+        ? this.driverRepository.activate(driver.id)
+        : this.driverRepository.deactivate(driver.id);
 
-    if (action === 'activate') {
-      request$ = this.driverRepository.activate(driver.id);
-      successMessage = `Motorista ${driver.name} ativado com sucesso!`;
-    } else if (action === 'deactivate') {
-      request$ = this.driverRepository.deactivate(driver.id);
-      successMessage = `Motorista ${driver.name} desativado com sucesso.`;
-    } else {
-      request$ = this.driverRepository.suspend(driver.id);
-      successMessage = `Motorista ${driver.name} suspenso.`;
-    }
+    const successMessage =
+      action === 'activate'
+        ? `Motorista ${driver.name} ativado com sucesso!`
+        : `Motorista ${driver.name} desativado com sucesso.`;
 
     request$.subscribe({
       next: (updatedDriver) => {
@@ -428,6 +470,137 @@ export class DriverListComponent implements OnInit {
         this.toastService.error(msg);
       }
     });
+  }
+
+  // --- AÇÕES: SUSPENSÃO DEDICADA ---
+  openSuspendModal(driver: Driver): void {
+    this.selectedDriver.set(driver);
+    this.suspensionErrorMessage.set(null);
+    this.suspendForm.reset({
+      reasonCategory: 'CNH_VENCIDA',
+      reasonDetails: '',
+      indefinite: false,
+      expectedReturnDate: '',
+      attachmentUrl: ''
+    });
+    this.isSuspendModalOpen.set(true);
+  }
+
+  closeSuspendModal(): void {
+    this.isSuspendModalOpen.set(false);
+    this.suspensionErrorMessage.set(null);
+  }
+
+  confirmSuspendDriver(): void {
+    const driver = this.selectedDriver();
+    if (!driver) return;
+
+    const formValue = this.suspendForm.value;
+
+    if (formValue.reasonCategory === 'OUTRO' && (!formValue.reasonDetails || formValue.reasonDetails.trim().length === 0)) {
+      this.suspensionErrorMessage.set('Para o motivo "Outro", é obrigatório fornecer os detalhes da justificativa.');
+      return;
+    }
+
+    if (!formValue.indefinite && !formValue.expectedReturnDate) {
+      this.suspensionErrorMessage.set('Informe a data prevista de retorno ou marque a opção "Sem prazo definido".');
+      return;
+    }
+
+    this.isActionLoading.set(true);
+    this.suspensionErrorMessage.set(null);
+
+    const payload = {
+      reasonCategory: formValue.reasonCategory,
+      reasonDetails: formValue.reasonDetails || undefined,
+      expectedReturnDate: formValue.indefinite ? null : formValue.expectedReturnDate,
+      indefinite: !!formValue.indefinite,
+      attachmentUrl: formValue.attachmentUrl || undefined,
+    };
+
+    this.driverRepository.suspend(driver.id, payload).subscribe({
+      next: () => {
+        this.isActionLoading.set(false);
+        this.toastService.success(`Motorista ${driver.name} suspenso com sucesso.`);
+        this.closeSuspendModal();
+        this.loadDrivers();
+        if (this.isDetailsModalOpen()) {
+          this.loadDriverSuspensions(driver.id);
+        }
+      },
+      error: (err) => {
+        this.isActionLoading.set(false);
+        const msg =
+          err.error?.message ||
+          'Não foi possível suspender o motorista. Verifique se ele possui viagem em andamento.';
+        this.suspensionErrorMessage.set(msg);
+        this.toastService.error(msg);
+      }
+    });
+  }
+
+  // --- AÇÕES: ENCERRAMENTO DE SUSPENSÃO (REATIVAÇÃO) ---
+  openLiftModal(driver: Driver): void {
+    this.selectedDriver.set(driver);
+    this.liftForm.reset({ liftReason: '' });
+    this.actionError.set(null);
+    this.isLiftModalOpen.set(true);
+  }
+
+  closeLiftModal(): void {
+    this.isLiftModalOpen.set(false);
+    this.actionError.set(null);
+  }
+
+  confirmLiftSuspension(): void {
+    const driver = this.selectedDriver();
+    if (!driver) return;
+
+    this.isActionLoading.set(true);
+    this.actionError.set(null);
+
+    const formValue = this.liftForm.value;
+
+    this.driverRepository.liftSuspension(driver.id, {
+      liftReason: formValue.liftReason || undefined,
+    }).subscribe({
+      next: () => {
+        this.isActionLoading.set(false);
+        this.toastService.success(`Suspensão de ${driver.name} encerrada com sucesso! Motorista reativado.`);
+        this.closeLiftModal();
+        this.loadDrivers();
+        if (this.isDetailsModalOpen()) {
+          this.loadDriverSuspensions(driver.id);
+        }
+      },
+      error: (err) => {
+        this.isActionLoading.set(false);
+        const msg = err.error?.message || 'Erro ao reativar motorista.';
+        this.actionError.set(msg);
+        this.toastService.error(msg);
+      }
+    });
+  }
+
+  // --- HISTÓRICO DE SUSPENSÕES ---
+  loadDriverSuspensions(driverId: string): void {
+    this.loadingSuspensions.set(true);
+    this.driverRepository.getDriverSuspensions(driverId, { page: 1, limit: 50 }).subscribe({
+      next: (res) => {
+        this.suspensionHistory.set(res.data || []);
+        this.loadingSuspensions.set(false);
+      },
+      error: () => {
+        this.loadingSuspensions.set(false);
+      }
+    });
+  }
+
+  setDetailsTab(tab: 'info' | 'suspensions'): void {
+    this.detailsTab.set(tab);
+    if (tab === 'suspensions' && this.selectedDriver()) {
+      this.loadDriverSuspensions(this.selectedDriver()!.id);
+    }
   }
 
   // --- AÇÕES: ATUALIZAR / RENOVAR CNH ---
@@ -493,11 +666,14 @@ export class DriverListComponent implements OnInit {
   // --- AÇÕES: DETALHES / FICHA DO MOTORISTA ---
   openDetailsModal(driver: Driver): void {
     this.selectedDriver.set(driver);
+    this.detailsTab.set('info');
     this.isDetailsModalOpen.set(true);
+    this.loadDriverSuspensions(driver.id);
   }
 
   closeDetailsModal(): void {
     this.isDetailsModalOpen.set(false);
     this.selectedDriver.set(null);
+    this.suspensionHistory.set([]);
   }
 }
