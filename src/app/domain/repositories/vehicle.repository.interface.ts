@@ -9,6 +9,7 @@ export abstract class IVehicleRepository {
   abstract create(vehicle: CreateVehicleDTO): Observable<Vehicle>;
   abstract importCsv(file: File): Observable<VehicleImportResult>;
   abstract updateKm(id: string, km: number): Observable<Vehicle>;
+  abstract updateCrlv(id: string, crlvExpiration: string): Observable<Vehicle>;
   abstract sendToMaintenance(id: string): Observable<Vehicle>;
   abstract finishMaintenance(id: string): Observable<Vehicle>;
 }

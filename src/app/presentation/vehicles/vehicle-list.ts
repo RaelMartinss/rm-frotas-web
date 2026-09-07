@@ -32,7 +32,8 @@ import {
   LucideAlertTriangle,
   LucideCheck,
   LucideExternalLink,
-  LucideFuel
+  LucideFuel,
+  LucideRefreshCw
 } from '@lucide/angular';
 
 @Component({
@@ -62,7 +63,8 @@ import {
     LucideAlertTriangle,
     LucideCheck,
     LucideExternalLink,
-    LucideFuel
+    LucideFuel,
+    LucideRefreshCw
   ],
   templateUrl: './vehicle-list.html',
   styleUrl: './vehicle-list.css'
@@ -106,6 +108,7 @@ export class VehicleListComponent implements OnInit {
   isSendMaintenanceModalOpen = signal<boolean>(false);
   isFinishMaintenanceModalOpen = signal<boolean>(false);
   isUpdateKmModalOpen = signal<boolean>(false);
+  isUpdateCrlvModalOpen = signal<boolean>(false);
   isDetailsModalOpen = signal<boolean>(false);
   isActionLoading = signal<boolean>(false);
   actionError = signal<string | null>(null);
@@ -264,6 +267,10 @@ export class VehicleListComponent implements OnInit {
 
   updateKmForm: FormGroup = this.fb.group({
     currentKm: [0, [Validators.required, Validators.min(0)]]
+  });
+
+  updateCrlvForm: FormGroup = this.fb.group({
+    crlvExpiration: ['', [Validators.required]]
   });
 
   ngOnInit(): void {
@@ -459,6 +466,63 @@ export class VehicleListComponent implements OnInit {
       error: (err) => {
         this.isActionLoading.set(false);
         const msg = err.error?.message || 'Não foi possível atualizar a quilometragem.';
+        this.actionError.set(msg);
+        this.toastService.error(msg);
+      }
+    });
+  }
+
+  // --- AÇÕES: ATUALIZAR / RENOVAR CRLV ---
+  openUpdateCrlvModal(vehicle: Vehicle): void {
+    this.selectedVehicle.set(vehicle);
+    this.actionError.set(null);
+    let dateStr = '';
+    if (vehicle.crlvExpiration) {
+      try {
+        const d = new Date(vehicle.crlvExpiration);
+        dateStr = d.toISOString().split('T')[0];
+      } catch {
+        dateStr = '';
+      }
+    }
+    this.updateCrlvForm.reset({
+      crlvExpiration: dateStr
+    });
+    this.isUpdateCrlvModalOpen.set(true);
+  }
+
+  closeUpdateCrlvModal(): void {
+    this.isUpdateCrlvModalOpen.set(false);
+    this.actionError.set(null);
+  }
+
+  confirmUpdateCrlv(): void {
+    const vehicle = this.selectedVehicle();
+    if (!vehicle) return;
+
+    if (this.updateCrlvForm.invalid) {
+      this.updateCrlvForm.markAllAsTouched();
+      this.toastService.error('Informe uma data de vencimento válida.');
+      return;
+    }
+
+    const newDate = this.updateCrlvForm.value.crlvExpiration;
+    this.isActionLoading.set(true);
+    this.actionError.set(null);
+
+    this.vehicleRepository.updateCrlv(vehicle.id, newDate).subscribe({
+      next: (updatedVehicle) => {
+        this.isActionLoading.set(false);
+        this.toastService.success(`Vencimento do CRLV do veículo ${vehicle.plate} atualizado com sucesso!`);
+        this.closeUpdateCrlvModal();
+        if (this.isDetailsModalOpen() && this.selectedVehicle()?.id === vehicle.id) {
+          this.selectedVehicle.set(updatedVehicle);
+        }
+        this.loadVehicles();
+      },
+      error: (err) => {
+        this.isActionLoading.set(false);
+        const msg = err.error?.message || 'Não foi possível atualizar o vencimento do CRLV.';
         this.actionError.set(msg);
         this.toastService.error(msg);
       }

@@ -49,6 +49,10 @@ export class HttpVehicleRepository implements IVehicleRepository {
     return this.http.patch<Vehicle>(`${this.apiUrl}/${id}/km`, { currentKm: km });
   }
 
+  updateCrlv(id: string, crlvExpiration: string): Observable<Vehicle> {
+    return this.http.patch<Vehicle>(`${this.apiUrl}/${id}/crlv`, { crlvExpiration });
+  }
+
   sendToMaintenance(id: string): Observable<Vehicle> {
     return this.http.patch<Vehicle>(`${this.apiUrl}/${id}/maintenance/send`, {});
   }
