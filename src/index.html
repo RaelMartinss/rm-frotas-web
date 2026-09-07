@@ -8,8 +8,93 @@
   <link rel="icon" type="image/x-icon" href="favicon.ico?v=3">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png?v=3">
   <link rel="icon" type="image/png" sizes="192x192" href="favicon-192x192.png?v=3">
+  <style>
+    @keyframes pulse-glow {
+      0%, 100% { opacity: 0.7; transform: scale(0.98); }
+      50% { opacity: 1; transform: scale(1.02); }
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .app-splash {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-color: #050A14;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      z-index: 99999;
+    }
+    .app-splash-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+    .app-splash-logo {
+      width: 52px;
+      height: 52px;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 30px rgba(16, 185, 129, 0.35);
+      animation: pulse-glow 2s ease-in-out infinite;
+    }
+    .app-splash-logo svg {
+      width: 28px;
+      height: 28px;
+      color: white;
+    }
+    .app-splash-title {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #f8fafc;
+      margin: 0;
+    }
+    .app-splash-title span {
+      color: #10b981;
+    }
+    .app-splash-spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255, 255, 255, 0.15);
+      border-top-color: #10b981;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    .app-splash-status {
+      font-size: 13px;
+      color: #94a3b8;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 4px;
+    }
+  </style>
 </head>
 <body>
-  <app-root></app-root>
+  <app-root>
+    <div class="app-splash">
+      <div class="app-splash-card">
+        <div class="app-splash-logo">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
+          </svg>
+        </div>
+        <h1 class="app-splash-title">RM <span>Frotas</span></h1>
+        <div class="app-splash-status">
+          <div class="app-splash-spinner"></div>
+          <span>Carregando sistema...</span>
+        </div>
+      </div>
+    </div>
+  </app-root>
 </body>
 </html>
+
