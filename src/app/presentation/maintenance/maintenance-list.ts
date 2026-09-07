@@ -183,7 +183,7 @@ export class MaintenanceListComponent implements OnInit {
 
   // --- CARREGAMENTO DE DADOS ---
   loadVehicles(): void {
-    this.vehicleRepo.getAll({ page: 1, limit: 1000 }).subscribe({
+    this.vehicleRepo.getAll({ page: 1, limit: 100 }).subscribe({
       next: (res) => {
         this.vehicles.set(res.data);
       },
