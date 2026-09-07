@@ -2,7 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { IAuthRepository } from '../../domain/repositories/auth.repository.interface';
-import { User } from '../../domain/models/auth.model';
+import { User, formatUserRole } from '../../domain/models/auth.model';
 import {
   LucideUser,
   LucideLock,
@@ -36,6 +36,7 @@ export class ProfileComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly authRepository = inject(IAuthRepository);
 
+  readonly formatUserRole = formatUserRole;
   currentUser = signal<User | null>(null);
 
   // Estados de salvamento e feedback

@@ -1,5 +1,18 @@
 export type UserRole = 'FLEET_MANAGER' | 'DRIVER' | 'ADMIN' | 'OPERATOR' | 'MANAGER';
 
+export const USER_ROLE_LABELS: Record<string, string> = {
+  FLEET_MANAGER: 'Gestor de Frota',
+  DRIVER: 'Motorista',
+  ADMIN: 'Administrador',
+  OPERATOR: 'Operador',
+  MANAGER: 'Gerente',
+};
+
+export function formatUserRole(role?: string | null): string {
+  if (!role) return 'Gestor de Frota';
+  return USER_ROLE_LABELS[role] || role;
+}
+
 export interface UserProps {
   id: string;
   name: string;

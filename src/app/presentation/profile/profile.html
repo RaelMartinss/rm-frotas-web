@@ -21,7 +21,7 @@
             <svg lucideShield class="size-4 text-emerald-600"></svg> Nível de Acesso:
           </span>
           <span class="font-bold bg-emerald-50 text-emerald-700 px-2.5 py-0.5 rounded-md border border-emerald-200/60 text-[11px]">
-            {{ currentUser()?.role || 'FLEET_MANAGER' }}
+            {{ formatUserRole(currentUser()?.role) }}
           </span>
         </div>
       </div>

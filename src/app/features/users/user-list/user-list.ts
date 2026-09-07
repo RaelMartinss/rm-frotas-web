@@ -5,7 +5,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { IAuthRepository } from '../../../domain/repositories/auth.repository.interface';
 import { ToastService } from '../../../core/services/toast.service';
-import { User, UserRole } from '../../../domain/models/auth.model';
+import { User, UserRole, formatUserRole } from '../../../domain/models/auth.model';
 import {
   LucideUsers,
   LucideUserPlus,
@@ -47,6 +47,7 @@ export class UserListComponent implements OnInit {
   private readonly toastService = inject(ToastService);
   private readonly fb = inject(FormBuilder);
 
+  readonly formatUserRole = formatUserRole;
   users = signal<User[]>([]);
   loading = signal<boolean>(true);
   isModalOpen = signal<boolean>(false);

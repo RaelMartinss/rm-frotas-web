@@ -155,7 +155,7 @@
           </div>
           <div class="text-xs truncate">
             <p class="font-semibold text-white truncate">{{ currentUser()?.name || 'Meu Perfil' }}</p>
-            <p class="text-[11px] text-slate-400 truncate">{{ currentUser()?.role || 'FLEET_MANAGER' }}</p>
+            <p class="text-[11px] text-slate-400 truncate">{{ formatUserRole(currentUser()?.role) }}</p>
           </div>
         </a>
         <div class="flex items-center gap-1 shrink-0 ml-2">

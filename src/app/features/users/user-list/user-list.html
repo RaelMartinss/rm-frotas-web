@@ -136,12 +136,12 @@
                   @if (user.role === 'FLEET_MANAGER' || user.role === 'ADMIN' || user.role === 'MANAGER') {
                     <span class="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200/60 inline-flex items-center gap-1">
                       <span class="size-1.5 rounded-full bg-emerald-500"></span>
-                      Gestor de Frota
+                      {{ formatUserRole(user.role) }}
                     </span>
                   } @else {
                     <span class="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-blue-700 border border-blue-200/60 inline-flex items-center gap-1">
                       <span class="size-1.5 rounded-full bg-blue-500"></span>
-                      Motorista
+                      {{ formatUserRole(user.role) }}
                     </span>
                   }
                 </td>

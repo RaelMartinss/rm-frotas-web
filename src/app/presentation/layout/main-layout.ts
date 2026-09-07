@@ -4,6 +4,7 @@ import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/rou
 import { FormsModule } from '@angular/forms';
 import { IAuthRepository } from '../../domain/repositories/auth.repository.interface';
 import { AuthStateService } from '../../core/services/auth-state.service';
+import { formatUserRole } from '../../domain/models/user.model';
 import {
   LucideTruck,
   LucideLayoutDashboard,
@@ -95,6 +96,7 @@ export class MainLayoutComponent {
   @ViewChild('paletteInput') paletteInputRef?: ElementRef<HTMLInputElement>;
 
   currentUser = this.authState.currentUser;
+  readonly formatUserRole = formatUserRole;
   sidebarOpen = signal(true);
   commandPaletteOpen = signal(false);
   notificationsOpen = signal(false);
