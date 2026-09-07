@@ -16,6 +16,8 @@ import { IDriverRepository } from './domain/repositories/driver.repository.inter
 import { HttpDriverRepository } from './core/adapters/http-driver.repository';
 import { ITripRepository } from './domain/repositories/trip.repository.interface';
 import { HttpTripRepository } from './core/adapters/http-trip.repository';
+import { IMaintenanceRepository } from './domain/repositories/maintenance.repository.interface';
+import { HttpMaintenanceRepository } from './core/adapters/http-maintenance.repository';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -32,6 +34,7 @@ export const appConfig: ApplicationConfig = {
     { provide: IVehicleRepository, useClass: HttpVehicleRepository },
     { provide: IDriverRepository, useClass: HttpDriverRepository },
     { provide: ITripRepository, useClass: HttpTripRepository },
+    { provide: IMaintenanceRepository, useClass: HttpMaintenanceRepository },
     provideAppInitializer(() => {
       const authRepository = inject(IAuthRepository);
       const authState = inject(AuthStateService);

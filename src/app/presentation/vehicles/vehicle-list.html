@@ -713,97 +713,190 @@
 <!-- MODAL: FICHA / DETALHES DO VEÍCULO -->
 @if (isDetailsModalOpen() && selectedVehicle()) {
   <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-150">
-    <div class="bg-white rounded-2xl border border-slate-200/90 shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-150">
+    <div class="bg-white rounded-2xl border border-slate-200/90 shadow-2xl w-full max-w-xl overflow-hidden animate-in zoom-in-95 duration-150 flex flex-col max-h-[90vh]">
       <!-- HEADER DO MODAL -->
-      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-        <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
-          <div class="size-7 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center border border-slate-200">
-            <svg lucideTruck class="size-4"></svg>
-          </div>
-          Ficha Técnica do Veículo
-        </h2>
+      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 shrink-0">
+        <div>
+          <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
+            <div class="size-7 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center border border-slate-200">
+              <svg lucideTruck class="size-4"></svg>
+            </div>
+            Ficha Técnica do Veículo
+          </h2>
+          <p class="text-xs text-slate-500 mt-0.5">{{ selectedVehicle()?.brand }} {{ selectedVehicle()?.model }} • {{ selectedVehicle()?.plate }}</p>
+        </div>
         <button (click)="closeDetailsModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg transition-colors cursor-pointer">
           <svg lucideX class="size-5"></svg>
         </button>
       </div>
 
-      <div class="p-6 space-y-6">
-        <!-- PLACA MERCOSUL DESIGN -->
-        <div class="flex justify-center">
-          <div class="w-56 border-2 border-slate-800 rounded-xl overflow-hidden shadow-sm bg-white">
-            <div class="bg-blue-700 text-white px-3 py-1 flex items-center justify-between text-[10px] font-bold tracking-wider">
-              <span>BRASIL</span>
-              <div class="size-2 rounded-full bg-yellow-400"></div>
-            </div>
-            <div class="py-2 text-center font-extrabold text-2xl tracking-widest text-slate-900 font-mono">
-              {{ selectedVehicle()?.plate }}
-            </div>
-          </div>
-        </div>
-
-        <!-- CARDS DE INFORMAÇÃO -->
-        <div class="grid grid-cols-2 gap-3">
-          <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/70">
-            <div class="text-[11px] text-slate-400 font-medium">Marca & Modelo</div>
-            <div class="text-sm font-bold text-slate-800 mt-0.5">{{ selectedVehicle()?.brand }} {{ selectedVehicle()?.model }}</div>
-          </div>
-
-          <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/70">
-            <div class="text-[11px] text-slate-400 font-medium">Ano de Fabricação</div>
-            <div class="text-sm font-bold text-slate-800 mt-0.5">{{ selectedVehicle()?.year }}</div>
-          </div>
-
-          <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/70">
-            <div class="text-[11px] text-slate-400 font-medium">Odômetro Atual</div>
-            <div class="text-sm font-bold text-slate-800 mt-0.5 font-mono">{{ selectedVehicle()?.currentKm | number }} km</div>
-          </div>
-
-          <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/70">
-            <div class="text-[11px] text-slate-400 font-medium">Status Operacional</div>
-            <div class="mt-1">
-              <span
-                class="px-2.5 py-1 rounded-full text-[11px] font-semibold inline-flex items-center gap-1.5 border shadow-2xs"
-                [ngClass]="getStatusClass(selectedVehicle()!.status)"
-              >
-                <span class="size-1.5 rounded-full" [ngClass]="getStatusDotClass(selectedVehicle()!.status)"></span>
-                {{ getStatusLabel(selectedVehicle()!.status) }}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <!-- VENCIMENTO CRLV CARD -->
-        <div class="p-4 rounded-xl border flex items-center justify-between"
-          [ngClass]="isCrlvExpired(selectedVehicle()?.crlvExpiration) ? 'bg-rose-50/50 border-rose-200' : (isCrlvExpiringSoon(selectedVehicle()?.crlvExpiration) ? 'bg-amber-50/50 border-amber-200' : 'bg-slate-50 border-slate-200/70')"
+      <!-- ABAS DO MODAL -->
+      <div class="flex border-b border-slate-200 bg-slate-50/40 px-6 shrink-0 gap-6 text-xs">
+        <button
+          type="button"
+          (click)="setDetailsTab('OVERVIEW')"
+          class="py-3 font-semibold border-b-2 transition-colors flex items-center gap-2 cursor-pointer"
+          [ngClass]="activeDetailsTab() === 'OVERVIEW' ? 'border-emerald-600 text-emerald-700' : 'border-transparent text-slate-500 hover:text-slate-800'"
         >
-          <div class="flex items-center gap-3">
-            <div class="size-9 rounded-lg flex items-center justify-center"
-              [ngClass]="isCrlvExpired(selectedVehicle()?.crlvExpiration) ? 'bg-rose-100 text-rose-600' : (isCrlvExpiringSoon(selectedVehicle()?.crlvExpiration) ? 'bg-amber-100 text-amber-600' : 'bg-slate-200 text-slate-600')"
-            >
-              <svg lucideCalendar class="size-5"></svg>
-            </div>
-            <div>
-              <div class="text-xs font-bold text-slate-800">Licenciamento / CRLV</div>
-              <div class="text-[11px] text-slate-500">
-                {{ (selectedVehicle()?.crlvExpiration | date:'dd/MM/yyyy') || 'Não informado' }}
+          <svg lucideTruck class="size-4"></svg>
+          Visão Geral
+        </button>
+        <button
+          type="button"
+          (click)="setDetailsTab('MAINTENANCE')"
+          class="py-3 font-semibold border-b-2 transition-colors flex items-center gap-2 cursor-pointer"
+          [ngClass]="activeDetailsTab() === 'MAINTENANCE' ? 'border-emerald-600 text-emerald-700' : 'border-transparent text-slate-500 hover:text-slate-800'"
+        >
+          <svg lucideWrench class="size-4"></svg>
+          Histórico de Manutenção
+          @if (vehicleMaintenances().length > 0) {
+            <span class="px-1.5 py-0.5 rounded-full text-[10px] bg-slate-200 text-slate-700 font-bold font-mono">
+              {{ vehicleMaintenances().length }}
+            </span>
+          }
+        </button>
+      </div>
+
+      <!-- CORPO DO MODAL COM SCROLL -->
+      <div class="p-6 overflow-y-auto space-y-6">
+        @if (activeDetailsTab() === 'OVERVIEW') {
+          <!-- PLACA MERCOSUL DESIGN -->
+          <div class="flex justify-center">
+            <div class="w-56 border-2 border-slate-800 rounded-xl overflow-hidden shadow-sm bg-white">
+              <div class="bg-blue-700 text-white px-3 py-1 flex items-center justify-between text-[10px] font-bold tracking-wider">
+                <span>BRASIL</span>
+                <div class="size-2 rounded-full bg-yellow-400"></div>
+              </div>
+              <div class="py-2 text-center font-extrabold text-2xl tracking-widest text-slate-900 font-mono">
+                {{ selectedVehicle()?.plate }}
               </div>
             </div>
           </div>
 
-          @if (isCrlvExpired(selectedVehicle()?.crlvExpiration)) {
-            <span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-100 text-rose-700 border border-rose-200">
-              Vencido
-            </span>
-          } @else if (isCrlvExpiringSoon(selectedVehicle()?.crlvExpiration)) {
-            <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-700 border border-amber-200">
-              Próximo do Vencimento
-            </span>
-          } @else if (selectedVehicle()?.crlvExpiration) {
-            <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-700 border border-emerald-200">
-              Regular
-            </span>
-          }
-        </div>
+          <!-- CARDS DE INFORMAÇÃO -->
+          <div class="grid grid-cols-2 gap-3">
+            <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/70">
+              <div class="text-[11px] text-slate-400 font-medium">Marca & Modelo</div>
+              <div class="text-sm font-bold text-slate-800 mt-0.5">{{ selectedVehicle()?.brand }} {{ selectedVehicle()?.model }}</div>
+            </div>
+
+            <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/70">
+              <div class="text-[11px] text-slate-400 font-medium">Ano de Fabricação</div>
+              <div class="text-sm font-bold text-slate-800 mt-0.5">{{ selectedVehicle()?.year }}</div>
+            </div>
+
+            <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/70">
+              <div class="text-[11px] text-slate-400 font-medium">Odômetro Atual</div>
+              <div class="text-sm font-bold text-slate-800 mt-0.5 font-mono">{{ selectedVehicle()?.currentKm | number }} km</div>
+            </div>
+
+            <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/70">
+              <div class="text-[11px] text-slate-400 font-medium">Status Operacional</div>
+              <div class="mt-1">
+                <span
+                  class="px-2.5 py-1 rounded-full text-[11px] font-semibold inline-flex items-center gap-1.5 border shadow-2xs"
+                  [ngClass]="getStatusClass(selectedVehicle()!.status)"
+                >
+                  <span class="size-1.5 rounded-full" [ngClass]="getStatusDotClass(selectedVehicle()!.status)"></span>
+                  {{ getStatusLabel(selectedVehicle()!.status) }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- VENCIMENTO CRLV CARD -->
+          <div class="p-4 rounded-xl border flex items-center justify-between"
+            [ngClass]="isCrlvExpired(selectedVehicle()?.crlvExpiration) ? 'bg-rose-50/50 border-rose-200' : (isCrlvExpiringSoon(selectedVehicle()?.crlvExpiration) ? 'bg-amber-50/50 border-amber-200' : 'bg-slate-50 border-slate-200/70')"
+          >
+            <div class="flex items-center gap-3">
+              <div class="size-9 rounded-lg flex items-center justify-center"
+                [ngClass]="isCrlvExpired(selectedVehicle()?.crlvExpiration) ? 'bg-rose-100 text-rose-600' : (isCrlvExpiringSoon(selectedVehicle()?.crlvExpiration) ? 'bg-amber-100 text-amber-600' : 'bg-slate-200 text-slate-600')"
+              >
+                <svg lucideCalendar class="size-5"></svg>
+              </div>
+              <div>
+                <div class="text-xs font-bold text-slate-800">Licenciamento / CRLV</div>
+                <div class="text-[11px] text-slate-500">
+                  {{ (selectedVehicle()?.crlvExpiration | date:'dd/MM/yyyy') || 'Não informado' }}
+                </div>
+              </div>
+            </div>
+
+            @if (isCrlvExpired(selectedVehicle()?.crlvExpiration)) {
+              <span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-100 text-rose-700 border border-rose-200">
+                Vencido
+              </span>
+            } @else if (isCrlvExpiringSoon(selectedVehicle()?.crlvExpiration)) {
+              <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-700 border border-amber-200">
+                Próximo do Vencimento
+              </span>
+            } @else if (selectedVehicle()?.crlvExpiration) {
+              <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-700 border border-emerald-200">
+                Regular
+              </span>
+            }
+          </div>
+        } @else {
+          <!-- HISTÓRICO DE MANUTENÇÕES -->
+          <div class="space-y-3">
+            @if (isLoadingMaintenances()) {
+              <div class="py-12 flex flex-col items-center justify-center gap-2 text-slate-400 text-xs">
+                <svg lucideLoader2 class="size-6 animate-spin text-emerald-600"></svg>
+                <span>Carregando histórico de manutenção...</span>
+              </div>
+            } @else if (vehicleMaintenances().length === 0) {
+              <div class="py-12 flex flex-col items-center justify-center gap-2 text-slate-400 text-xs">
+                <div class="size-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center">
+                  <svg lucideWrench class="size-6"></svg>
+                </div>
+                <span class="font-medium text-slate-600">Nenhuma manutenção registrada</span>
+                <p class="text-[11px] text-slate-400">Este veículo ainda não possui ordens de serviço cadastradas.</p>
+              </div>
+            } @else {
+              <div class="space-y-3">
+                @for (m of vehicleMaintenances(); track m.id) {
+                  <div class="p-4 bg-slate-50/80 rounded-xl border border-slate-200/80 space-y-2.5">
+                    <div class="flex items-center justify-between">
+                      <div class="flex items-center gap-2">
+                        <span
+                          class="px-2 py-0.5 rounded-full text-[10px] font-bold border"
+                          [ngClass]="getMaintenanceTypeClass(m.type)"
+                        >
+                          {{ m.type === 'PREVENTIVA' ? 'Preventiva' : 'Corretiva' }}
+                        </span>
+                        <span
+                          class="px-2 py-0.5 rounded-full text-[10px] font-semibold border"
+                          [ngClass]="getMaintenanceStatusClass(m.status)"
+                        >
+                          {{ getMaintenanceStatusLabel(m.status) }}
+                        </span>
+                      </div>
+                      <span class="font-mono font-bold text-xs text-slate-800">
+                        {{ m.cost | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+                      </span>
+                    </div>
+
+                    <p class="text-xs text-slate-700 font-medium">{{ m.description }}</p>
+
+                    <div class="flex items-center justify-between text-[11px] text-slate-400 pt-1 border-t border-slate-200/50">
+                      <div>
+                        @if (m.serviceProvider) {
+                          <span>Oficina: <strong class="text-slate-600 font-normal">{{ m.serviceProvider }}</strong></span>
+                        }
+                      </div>
+                      <div>
+                        {{ (m.finishedAt || m.startedAt || m.createdAt) | date:'dd/MM/yyyy' }}
+                        @if (m.odometerAtService) {
+                          • {{ m.odometerAtService | number }} km
+                        }
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
 
         <div class="pt-2 flex justify-end">
           <button

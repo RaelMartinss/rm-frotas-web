@@ -102,7 +102,14 @@ export const routes: Routes = [
       },
       {
         path: 'manutencoes',
-        redirectTo: 'veiculos',
+        loadComponent: () =>
+          import('./presentation/maintenance/maintenance-list').then(
+            (m) => m.MaintenanceListComponent
+          )
+      },
+      {
+        path: 'maintenances',
+        redirectTo: 'manutencoes',
         pathMatch: 'full'
       },
       {

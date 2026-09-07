@@ -4,8 +4,10 @@ import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } 
 import { toSignal } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { IVehicleRepository } from '../../domain/repositories/vehicle.repository.interface';
+import { IMaintenanceRepository } from '../../domain/repositories/maintenance.repository.interface';
 import { ToastService } from '../../core/services/toast.service';
 import { Vehicle, VehicleImportResult } from '../../domain/models/vehicle.model';
+import { Maintenance, MaintenanceStatus, MaintenanceType } from '../../domain/models/maintenance.model';
 import { PlateMaskDirective } from '../shared/directives/input-mask.directives';
 import {
   LucideTruck,
@@ -25,7 +27,9 @@ import {
   LucideChevronsRight,
   LucideFileText,
   LucideAlertTriangle,
-  LucideCheck
+  LucideCheck,
+  LucideDollarSign,
+  LucideLayers
 } from '@lucide/angular';
 
 @Component({
@@ -59,10 +63,14 @@ import {
 })
 export class VehicleListComponent implements OnInit {
   private readonly vehicleRepository = inject(IVehicleRepository);
+  private readonly maintenanceRepository = inject(IMaintenanceRepository);
   private readonly toastService = inject(ToastService);
   private readonly fb = inject(FormBuilder);
 
   vehicles = signal<Vehicle[]>([]);
+  vehicleMaintenances = signal<Maintenance[]>([]);
+  isLoadingMaintenances = signal(false);
+  activeDetailsTab = signal<'OVERVIEW' | 'MAINTENANCE'>('OVERVIEW');
   loading = signal<boolean>(true);
 
   // --- IMPORTAÇÃO EM LOTE VIA CSV ---
@@ -451,12 +459,64 @@ export class VehicleListComponent implements OnInit {
   // --- AÇÕES: FICHA / DETALHES DO VEÍCULO ---
   openDetailsModal(vehicle: Vehicle): void {
     this.selectedVehicle.set(vehicle);
+    this.activeDetailsTab.set('OVERVIEW');
     this.isDetailsModalOpen.set(true);
+    this.loadVehicleMaintenances(vehicle.id);
   }
 
   closeDetailsModal(): void {
     this.isDetailsModalOpen.set(false);
     this.selectedVehicle.set(null);
+    this.vehicleMaintenances.set([]);
+  }
+
+  setDetailsTab(tab: 'OVERVIEW' | 'MAINTENANCE'): void {
+    this.activeDetailsTab.set(tab);
+  }
+
+  loadVehicleMaintenances(vehicleId: string): void {
+    this.isLoadingMaintenances.set(true);
+    this.maintenanceRepository.getAll({ vehicleId, limit: 100 }).subscribe({
+      next: (res) => {
+        this.vehicleMaintenances.set(res.data);
+        this.isLoadingMaintenances.set(false);
+      },
+      error: () => {
+        this.isLoadingMaintenances.set(false);
+      }
+    });
+  }
+
+  getMaintenanceStatusClass(status: MaintenanceStatus): string {
+    switch (status) {
+      case 'AGENDADA':
+        return 'bg-blue-50 text-blue-700 border-blue-200';
+      case 'EM_ANDAMENTO':
+        return 'bg-amber-50 text-amber-700 border-amber-200';
+      case 'CONCLUIDA':
+        return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+      case 'CANCELADA':
+        return 'bg-slate-100 text-slate-600 border-slate-200';
+    }
+  }
+
+  getMaintenanceStatusLabel(status: MaintenanceStatus): string {
+    switch (status) {
+      case 'AGENDADA':
+        return 'Agendada';
+      case 'EM_ANDAMENTO':
+        return 'Em Andamento';
+      case 'CONCLUIDA':
+        return 'Concluída';
+      case 'CANCELADA':
+        return 'Cancelada';
+    }
+  }
+
+  getMaintenanceTypeClass(type: MaintenanceType): string {
+    return type === 'PREVENTIVA'
+      ? 'bg-purple-50 text-purple-700 border-purple-200'
+      : 'bg-rose-50 text-rose-700 border-rose-200';
   }
 
   isCrlvExpired(crlvExpiration?: string): boolean {
