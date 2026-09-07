@@ -1,4 +1,6 @@
-import { ApplicationConfig, provideZonelessChangeDetection, provideAppInitializer, inject } from '@angular/core';
+import { ApplicationConfig, provideZonelessChangeDetection, provideAppInitializer, inject, LOCALE_ID } from '@angular/core';
+import { registerLocaleData } from '@angular/common';
+import localePt from '@angular/common/locales/pt';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { firstValueFrom, of, catchError } from 'rxjs';
@@ -19,9 +21,12 @@ import { HttpTripRepository } from './core/adapters/http-trip.repository';
 import { IMaintenanceRepository } from './domain/repositories/maintenance.repository.interface';
 import { HttpMaintenanceRepository } from './core/adapters/http-maintenance.repository';
 
+registerLocaleData(localePt, 'pt-BR');
+
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZonelessChangeDetection(),
+    { provide: LOCALE_ID, useValue: 'pt-BR' },
     provideRouter(routes),
     provideHttpClient(
       withInterceptors([
