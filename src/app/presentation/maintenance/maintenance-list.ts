@@ -1,5 +1,6 @@
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 import {
   FormArray,
   FormBuilder,
@@ -141,7 +142,20 @@ export class MaintenanceListComponent implements OnInit {
     initialValue: '',
   });
 
+  private readonly route = inject(ActivatedRoute);
+
   ngOnInit(): void {
+    const qp = this.route.snapshot.queryParams;
+    if (qp['vehicleId']) {
+      this.filterForm.patchValue({ vehicleId: qp['vehicleId'] }, { emitEvent: false });
+    }
+    if (qp['status']) {
+      this.filterForm.patchValue({ status: qp['status'] }, { emitEvent: false });
+    }
+    if (qp['type']) {
+      this.filterForm.patchValue({ type: qp['type'] }, { emitEvent: false });
+    }
+
     this.loadVehicles();
     this.loadStats();
     this.loadMaintenances();
