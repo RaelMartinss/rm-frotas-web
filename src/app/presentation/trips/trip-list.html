@@ -13,13 +13,23 @@
       <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Gestão de Viagens</h1>
       <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Controle rotas em tempo real, condutores alocados e histórico de abastecimentos.</p>
     </div>
-    <button
-      (click)="openTripModal()"
-      class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs px-4 py-2.5 rounded-xl transition-all shadow-xs hover:shadow-sm cursor-pointer"
-    >
-      <svg lucideNavigation class="size-4"></svg>
-      <span>Nova Viagem</span>
-    </button>
+    <div class="flex items-center gap-2">
+      <a
+        routerLink="/abastecimentos"
+        class="inline-flex items-center gap-2 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs px-3.5 py-2.5 rounded-xl border border-slate-200/90 transition-all shadow-2xs hover:shadow-xs cursor-pointer"
+        title="Acessar Central de Abastecimentos"
+      >
+        <svg lucideFuel class="size-4 text-emerald-600"></svg>
+        <span>Abastecimentos</span>
+      </a>
+      <button
+        (click)="openTripModal()"
+        class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs px-4 py-2.5 rounded-xl transition-all shadow-xs hover:shadow-sm cursor-pointer"
+      >
+        <svg lucideNavigation class="size-4"></svg>
+        <span>Nova Viagem</span>
+      </button>
+    </div>
   </div>
 
   <!-- BARRA DE CONTROLE: BUSCA E FILTROS EM CHIPS -->

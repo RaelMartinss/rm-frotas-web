@@ -18,7 +18,8 @@ import {
   LucideAlertTriangle,
   LucideNavigation,
   LucideRefreshCw,
-  LucideCheck
+  LucideCheck,
+  LucideFuel
 } from '@lucide/angular';
 
 Chart.register(...registerables);
@@ -32,7 +33,8 @@ Chart.register(...registerables);
     LucideAlertTriangle,
     LucideNavigation,
     LucideRefreshCw,
-    LucideCheck
+    LucideCheck,
+    LucideFuel
   ],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css'
