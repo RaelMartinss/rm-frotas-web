@@ -4,6 +4,7 @@ import { ToastService, Toast } from '../../../core/services/toast.service';
 import {
   LucideCheckCircle2,
   LucideXCircle,
+  LucideAlertTriangle,
   LucideInfo,
   LucideX
 } from '@lucide/angular';
@@ -15,6 +16,7 @@ import {
     CommonModule,
     LucideCheckCircle2,
     LucideXCircle,
+    LucideAlertTriangle,
     LucideInfo,
     LucideX
   ],
@@ -26,6 +28,7 @@ import {
           [ngClass]="{
             'bg-emerald-50/95 border-emerald-200 text-emerald-900': toast.type === 'success',
             'bg-rose-50/95 border-rose-200 text-rose-900': toast.type === 'error',
+            'bg-amber-50/95 border-amber-200 text-amber-900': toast.type === 'warning',
             'bg-sky-50/95 border-sky-200 text-sky-900': toast.type === 'info'
           }"
         >
@@ -34,6 +37,8 @@ import {
               <svg lucideCheckCircle2 class="size-5 text-emerald-600"></svg>
             } @else if (toast.type === 'error') {
               <svg lucideXCircle class="size-5 text-rose-600"></svg>
+            } @else if (toast.type === 'warning') {
+              <svg lucideAlertTriangle class="size-5 text-amber-600"></svg>
             } @else {
               <svg lucideInfo class="size-5 text-sky-600"></svg>
             }

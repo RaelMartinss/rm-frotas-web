@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { IVehicleRepository } from '../../domain/repositories/vehicle.repository.interface';
-import { Vehicle, CreateVehicleDTO } from '../../domain/models/vehicle.model';
+import { Vehicle, CreateVehicleDTO, VehicleImportResult } from '../../domain/models/vehicle.model';
 import { PaginatedResponse, PaginationParams } from '../../domain/models/pagination.model';
 
 @Injectable({
@@ -36,6 +36,13 @@ export class HttpVehicleRepository implements IVehicleRepository {
 
   create(vehicle: CreateVehicleDTO): Observable<Vehicle> {
     return this.http.post<Vehicle>(this.apiUrl, vehicle);
+  }
+
+  importCsv(file: File): Observable<VehicleImportResult> {
+    const formData = new FormData();
+    formData.append('file', file, file.name);
+
+    return this.http.post<VehicleImportResult>(`${this.apiUrl}/import`, formData);
   }
 
   updateKm(id: string, km: number): Observable<Vehicle> {

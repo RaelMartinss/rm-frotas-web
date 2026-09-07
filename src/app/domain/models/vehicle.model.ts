@@ -26,3 +26,16 @@ export interface CreateVehicleDTO {
   currentKm: number;
   crlvExpiration: string;
 }
+
+export interface CsvRowError {
+  linha: number;
+  placa?: string;
+  motivo: string;
+}
+
+export interface VehicleImportResult {
+  totalLinhas: number;
+  importadosComSucesso: number;
+  erros: CsvRowError[];
+}
+

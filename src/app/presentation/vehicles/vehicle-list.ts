@@ -5,7 +5,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { IVehicleRepository } from '../../domain/repositories/vehicle.repository.interface';
 import { ToastService } from '../../core/services/toast.service';
-import { Vehicle } from '../../domain/models/vehicle.model';
+import { Vehicle, VehicleImportResult } from '../../domain/models/vehicle.model';
 import { PlateMaskDirective } from '../shared/directives/input-mask.directives';
 import {
   LucideTruck,
@@ -22,7 +22,10 @@ import {
   LucideChevronLeft,
   LucideChevronRight,
   LucideChevronsLeft,
-  LucideChevronsRight
+  LucideChevronsRight,
+  LucideFileText,
+  LucideAlertTriangle,
+  LucideCheck
 } from '@lucide/angular';
 
 @Component({
@@ -46,7 +49,10 @@ import {
     LucideChevronLeft,
     LucideChevronRight,
     LucideChevronsLeft,
-    LucideChevronsRight
+    LucideChevronsRight,
+    LucideFileText,
+    LucideAlertTriangle,
+    LucideCheck
   ],
   templateUrl: './vehicle-list.html',
   styleUrl: './vehicle-list.css'
@@ -58,6 +64,14 @@ export class VehicleListComponent implements OnInit {
 
   vehicles = signal<Vehicle[]>([]);
   loading = signal<boolean>(true);
+
+  // --- IMPORTAÇÃO EM LOTE VIA CSV ---
+  isImportModalOpen = signal<boolean>(false);
+  isImporting = signal<boolean>(false);
+  selectedFile = signal<File | null>(null);
+  importResult = signal<VehicleImportResult | null>(null);
+  importErrorMessage = signal<string | null>(null);
+  isDragging = signal<boolean>(false);
 
   // --- PAGINAÇÃO SERVER-SIDE (OFFSET / LIMIT) ---
   currentPage = signal<number>(1);
@@ -461,5 +475,154 @@ export class VehicleListComponent implements OnInit {
     const diffTime = expDate.getTime() - today.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return diffDays >= 0 && diffDays <= 30;
+  }
+
+  // ==========================================
+  // --- FLUXO DE IMPORTAÇÃO DE VEÍCULOS CSV ---
+  // ==========================================
+
+  openImportModal(): void {
+    this.selectedFile.set(null);
+    this.importResult.set(null);
+    this.importErrorMessage.set(null);
+    this.isImporting.set(false);
+    this.isDragging.set(false);
+    this.isImportModalOpen.set(true);
+  }
+
+  closeImportModal(): void {
+    const hasSuccess = (this.importResult()?.importadosComSucesso ?? 0) > 0;
+    this.isImportModalOpen.set(false);
+    this.selectedFile.set(null);
+    this.importResult.set(null);
+    this.importErrorMessage.set(null);
+    this.isImporting.set(false);
+    this.isDragging.set(false);
+
+    if (hasSuccess) {
+      this.loadVehicles();
+    }
+  }
+
+  downloadTemplateCsv(): void {
+    const csvContent =
+      'placa,marca,modelo,ano,km,vencimento_crlv\r\n' +
+      'ABC1D23,Volvo,FH 540,2023,15000,31/12/2026\r\n' +
+      'XYZ9876,Scania,R450,2022,45000,15/10/2026\r\n' +
+      'BRA2E19,Mercedes-Benz,Actros 2651,2024,8000,\r\n' +
+      'KLD9012,DAF,XF 530,2021,95000,20/08/2026\r\n';
+
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'modelo-importacao-veiculos.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    this.toastService.success('Planilha modelo (.csv) baixada com sucesso!');
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.processFile(input.files[0]);
+    }
+  }
+
+  onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging.set(true);
+  }
+
+  onDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging.set(false);
+  }
+
+  onFileDropped(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging.set(false);
+
+    if (event.dataTransfer && event.dataTransfer.files.length > 0) {
+      this.processFile(event.dataTransfer.files[0]);
+    }
+  }
+
+  processFile(file: File): void {
+    this.importErrorMessage.set(null);
+    this.importResult.set(null);
+
+    // Valida extensão .csv
+    if (!file.name.toLowerCase().endsWith('.csv')) {
+      this.importErrorMessage.set('Por favor, selecione um arquivo válido com extensão .csv.');
+      this.toastService.error('Formato inválido! Envie um arquivo .csv.');
+      return;
+    }
+
+    // Valida tamanho máximo de 5MB
+    const maxSizeBytes = 5 * 1024 * 1024;
+    if (file.size > maxSizeBytes) {
+      this.importErrorMessage.set('O arquivo selecionado excede o limite máximo permitido de 5MB.');
+      this.toastService.error('Arquivo muito grande! Máximo de 5MB.');
+      return;
+    }
+
+    this.selectedFile.set(file);
+  }
+
+  removeSelectedFile(): void {
+    this.selectedFile.set(null);
+    this.importResult.set(null);
+    this.importErrorMessage.set(null);
+  }
+
+  executeImport(): void {
+    const file = this.selectedFile();
+    if (!file) return;
+
+    this.isImporting.set(true);
+    this.importErrorMessage.set(null);
+    this.importResult.set(null);
+
+    this.vehicleRepository.importCsv(file).subscribe({
+      next: (result) => {
+        this.isImporting.set(false);
+        this.importResult.set(result);
+
+        if (result.importadosComSucesso > 0 && result.erros.length === 0) {
+          this.toastService.success(`Sucesso! ${result.importadosComSucesso} veículos foram importados.`);
+        } else if (result.importadosComSucesso > 0 && result.erros.length > 0) {
+          this.toastService.warning(
+            `${result.importadosComSucesso} veículos importados com sucesso, mas ${result.erros.length} linha(s) tiveram problemas.`
+          );
+        } else {
+          this.toastService.error('Nenhum veículo foi importado. Verifique os erros apontados no relatório.');
+        }
+
+        // Se ao menos 1 veículo foi importado, recarrega a lista ao fundo
+        if (result.importadosComSucesso > 0) {
+          this.loadVehicles();
+        }
+      },
+      error: (err) => {
+        this.isImporting.set(false);
+        const msg =
+          err.error?.message ||
+          'Ocorreu um erro ao processar o arquivo CSV. Verifique a estrutura das colunas e tente novamente.';
+        this.importErrorMessage.set(msg);
+        this.toastService.error(msg);
+      }
+    });
+  }
+
+  formatFileSize(bytes: number): string {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
   }
 }
