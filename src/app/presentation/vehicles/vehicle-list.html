@@ -202,32 +202,45 @@
                   }
                 </td>
                 <td class="py-3.5 px-4">
-                  <span
-                    class="px-2.5 py-1 rounded-full text-[11px] font-semibold inline-flex items-center gap-1.5 border shadow-2xs"
-                    [ngClass]="getStatusClass(vehicle.status)"
-                  >
-                    <span class="size-1.5 rounded-full" [ngClass]="getStatusDotClass(vehicle.status)"></span>
-                    {{ getStatusLabel(vehicle.status) }}
-                  </span>
+                  <div class="flex flex-col items-start gap-1">
+                    <span
+                      class="px-2.5 py-1 rounded-full text-[11px] font-semibold inline-flex items-center gap-1.5 border shadow-2xs"
+                      [ngClass]="getStatusClass(vehicle.status)"
+                    >
+                      <span class="size-1.5 rounded-full" [ngClass]="getStatusDotClass(vehicle.status)"></span>
+                      {{ getStatusLabel(vehicle.status) }}
+                    </span>
+
+                    @if (isAvailable(vehicle) && activeMaintenancesMap().get(vehicle.id)?.status === 'AGENDADA') {
+                      <button
+                        type="button"
+                        (click)="openMaintenanceAction(vehicle)"
+                        title="Ver Manutenção Agendada"
+                        class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-200/80 hover:bg-blue-100 transition-colors inline-flex items-center gap-1 cursor-pointer"
+                      >
+                        <svg lucideCalendar class="size-2.5"></svg>
+                        <span>Revisão agendada</span>
+                      </button>
+                    }
+                  </div>
                 </td>
                 <td class="py-3.5 px-4 text-right">
                   <div class="inline-flex items-center justify-end gap-1.5">
-                    <!-- Enviar para Manutenção (Apenas quando disponível) -->
-                    @if (isAvailable(vehicle)) {
-                      <button
-                        (click)="openSendMaintenanceModal(vehicle)"
-                        title="Enviar para Manutenção"
-                        class="p-1.5 text-amber-600 hover:bg-amber-50 rounded-lg border border-amber-200/60 transition-colors cursor-pointer"
-                      >
-                        <svg lucideWrench class="size-3.5"></svg>
-                      </button>
-                    }
+                    <!-- Ação de Manutenção Inteligente (Informativo se já houver manutenção, ou formulário de envio se livre) -->
+                    <button
+                      (click)="openMaintenanceAction(vehicle)"
+                      [title]="getMaintenanceButtonTitle(vehicle)"
+                      class="p-1.5 rounded-lg border transition-colors cursor-pointer"
+                      [ngClass]="getMaintenanceButtonClass(vehicle)"
+                    >
+                      <svg lucideWrench class="size-3.5"></svg>
+                    </button>
 
                     <!-- Finalizar Manutenção (Apenas quando em manutenção) -->
                     @if (isInMaintenance(vehicle)) {
                       <button
                         (click)="openFinishMaintenanceModal(vehicle)"
-                        title="Finalizar Manutenção"
+                        title="Finalizar Manutenção e Liberar Veículo"
                         class="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg border border-emerald-200/60 transition-colors cursor-pointer"
                       >
                         <svg lucideCheckCircle2 class="size-3.5"></svg>
@@ -698,6 +711,160 @@
           </button>
         </div>
       </form>
+    </div>
+  </div>
+}
+
+<!-- MODAL: INFORMATIVO DE MANUTENÇÃO (EM ANDAMENTO OU AGENDADA) -->
+@if (isMaintenanceInfoModalOpen() && selectedVehicle() && selectedMaintenanceForInfo()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-150">
+    <div class="bg-white rounded-2xl border border-slate-200/90 shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-150">
+      <!-- HEADER DO MODAL -->
+      <div
+        class="px-6 py-4 border-b border-slate-100 flex items-center justify-between"
+        [ngClass]="selectedMaintenanceForInfo()?.status === 'EM_ANDAMENTO' ? 'bg-amber-50/50' : 'bg-blue-50/50'"
+      >
+        <div class="flex items-center gap-2.5">
+          <div
+            class="size-8 rounded-lg flex items-center justify-center border shadow-2xs"
+            [ngClass]="selectedMaintenanceForInfo()?.status === 'EM_ANDAMENTO' ? 'bg-amber-100 text-amber-700 border-amber-200' : 'bg-blue-100 text-blue-700 border-blue-200'"
+          >
+            <svg lucideWrench class="size-4"></svg>
+          </div>
+          <div>
+            <h2 class="text-sm font-bold text-slate-900">Informativo de Manutenção</h2>
+            <p class="text-[11px] text-slate-500 font-mono">{{ selectedVehicle()?.plate }} • {{ selectedVehicle()?.brand }} {{ selectedVehicle()?.model }}</p>
+          </div>
+        </div>
+        <button (click)="closeMaintenanceInfoModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg transition-colors cursor-pointer">
+          <svg lucideX class="size-5"></svg>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-4">
+        <!-- Status Badge Card -->
+        <div
+          class="p-4 rounded-xl border flex items-center justify-between"
+          [ngClass]="selectedMaintenanceForInfo()?.status === 'EM_ANDAMENTO' ? 'bg-amber-50/70 border-amber-200' : 'bg-blue-50/70 border-blue-200'"
+        >
+          <div>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">Status da Manutenção</span>
+            <div
+              class="text-sm font-bold mt-0.5 flex items-center gap-1.5"
+              [ngClass]="selectedMaintenanceForInfo()?.status === 'EM_ANDAMENTO' ? 'text-amber-800' : 'text-blue-800'"
+            >
+              <span
+                class="size-2 rounded-full animate-pulse"
+                [ngClass]="selectedMaintenanceForInfo()?.status === 'EM_ANDAMENTO' ? 'bg-amber-500' : 'bg-blue-500'"
+              ></span>
+              {{ selectedMaintenanceForInfo()?.status === 'EM_ANDAMENTO' ? 'Em Andamento na Oficina' : 'Manutenção Agendada' }}
+            </div>
+          </div>
+          <span
+            class="px-2.5 py-1 rounded-full text-xs font-bold border"
+            [ngClass]="selectedMaintenanceForInfo()?.type === 'PREVENTIVA' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-rose-50 text-rose-700 border-rose-200'"
+          >
+            {{ selectedMaintenanceForInfo()?.type === 'PREVENTIVA' ? 'Revisão Preventiva' : 'Manutenção Corretiva' }}
+          </span>
+        </div>
+
+        <!-- Detalhes do Serviço -->
+        <div class="bg-slate-50 rounded-xl p-4 border border-slate-200/80 space-y-3">
+          <div>
+            <span class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 block">Descrição do Serviço / Motivo</span>
+            <p class="text-xs text-slate-800 font-medium mt-1 leading-relaxed whitespace-pre-line">
+              {{ selectedMaintenanceForInfo()?.description }}
+            </p>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 pt-2 border-t border-slate-200/60">
+            <div>
+              <span class="text-[10px] font-semibold text-slate-400 block">Oficina / Prestador</span>
+              <span class="text-xs font-semibold text-slate-700">
+                {{ selectedMaintenanceForInfo()?.serviceProvider || 'Oficina interna / Não inf.' }}
+              </span>
+            </div>
+            <div>
+              @if (selectedMaintenanceForInfo()?.status === 'EM_ANDAMENTO') {
+                <span class="text-[10px] font-semibold text-slate-400 block">Iniciado em</span>
+                <span class="text-xs font-semibold text-slate-700 font-mono">
+                  {{ selectedMaintenanceForInfo()?.startedAt ? (selectedMaintenanceForInfo()?.startedAt | date:'dd/MM/yyyy') : '-' }}
+                </span>
+              } @else {
+                <span class="text-[10px] font-semibold text-slate-400 block">Data Prevista</span>
+                <span class="text-xs font-semibold text-slate-700 font-mono">
+                  {{ selectedMaintenanceForInfo()?.scheduledDate ? (selectedMaintenanceForInfo()?.scheduledDate | date:'dd/MM/yyyy') : '-' }}
+                </span>
+              }
+            </div>
+          </div>
+
+          @if (selectedMaintenanceForInfo()?.cost || (selectedMaintenanceForInfo()?.items && selectedMaintenanceForInfo()!.items!.length > 0)) {
+            <div class="pt-2 border-t border-slate-200/60 flex justify-between items-center text-xs">
+              <span class="text-slate-500 font-medium">Custo Estimado / Registrado:</span>
+              <span class="font-bold text-slate-900 font-mono">
+                {{ selectedMaintenanceForInfo()?.cost | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+              </span>
+            </div>
+          }
+        </div>
+
+        @if (actionError()) {
+          <div class="p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-center gap-2 text-rose-800 text-xs">
+            <svg lucideAlertCircle class="size-4 text-rose-600 shrink-0"></svg>
+            <span>{{ actionError() }}</span>
+          </div>
+        }
+
+        <!-- Botões de Ação -->
+        <div class="pt-2 border-t border-slate-100 flex flex-col gap-2.5">
+          <div class="flex items-center gap-2">
+            <!-- Botão Ir para Gestão de Manutenções -->
+            <button
+              type="button"
+              (click)="goToMaintenanceModule(selectedVehicle()?.id)"
+              class="flex-1 py-2.5 px-3 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+            >
+              <svg lucideExternalLink class="size-3.5 text-slate-500"></svg>
+              <span>Ver em Manutenções</span>
+            </button>
+
+            <!-- Ação contextual: Iniciar (se Agendada) ou Finalizar (se Em Andamento) -->
+            @if (selectedMaintenanceForInfo()?.status === 'AGENDADA') {
+              <button
+                type="button"
+                (click)="startScheduledMaintenanceFromModal(selectedMaintenanceForInfo()!)"
+                [disabled]="isActionLoading()"
+                class="flex-1 py-2.5 px-3 text-xs font-semibold text-white bg-amber-600 hover:bg-amber-700 rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-xs disabled:opacity-50"
+              >
+                @if (isActionLoading()) {
+                  <svg lucideLoader2 class="size-3.5 animate-spin"></svg>
+                } @else {
+                  <svg lucidePlay class="size-3.5"></svg>
+                }
+                <span>Iniciar Agora</span>
+              </button>
+            } @else if (selectedMaintenanceForInfo()?.status === 'EM_ANDAMENTO') {
+              <button
+                type="button"
+                (click)="closeMaintenanceInfoModal(); openFinishMaintenanceModal(selectedVehicle()!)"
+                class="flex-1 py-2.5 px-3 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+              >
+                <svg lucideCheckCircle2 class="size-3.5"></svg>
+                <span>Finalizar Manutenção</span>
+              </button>
+            }
+          </div>
+
+          <button
+            type="button"
+            (click)="closeMaintenanceInfoModal()"
+            class="w-full py-2 text-xs font-medium text-slate-500 hover:text-slate-800 transition-colors cursor-pointer text-center"
+          >
+            Fechar
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 }

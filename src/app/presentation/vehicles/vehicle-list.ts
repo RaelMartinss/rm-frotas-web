@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
@@ -24,6 +24,7 @@ import {
   LucideGauge,
   LucideEye,
   LucideCalendar,
+  LucidePlay,
   LucideChevronLeft,
   LucideChevronRight,
   LucideChevronsLeft,
@@ -55,6 +56,7 @@ import {
     LucideGauge,
     LucideEye,
     LucideCalendar,
+    LucidePlay,
     LucideChevronLeft,
     LucideChevronRight,
     LucideChevronsLeft,
@@ -70,6 +72,7 @@ import {
   styleUrl: './vehicle-list.css'
 })
 export class VehicleListComponent implements OnInit {
+  private readonly router = inject(Router);
   private readonly vehicleRepository = inject(IVehicleRepository);
   private readonly maintenanceRepository = inject(IMaintenanceRepository);
   private readonly fuelRepository = inject(IFuelRepository);
@@ -79,6 +82,7 @@ export class VehicleListComponent implements OnInit {
   vehicles = signal<Vehicle[]>([]);
   vehicleMaintenances = signal<Maintenance[]>([]);
   vehicleFuelRecords = signal<FuelRecord[]>([]);
+  activeMaintenancesMap = signal<Map<string, Maintenance>>(new Map());
   isLoadingMaintenances = signal(false);
   isLoadingFuelRecords = signal(false);
   activeDetailsTab = signal<'OVERVIEW' | 'MAINTENANCE' | 'FUEL'>('OVERVIEW');
@@ -106,6 +110,8 @@ export class VehicleListComponent implements OnInit {
 
   selectedVehicle = signal<Vehicle | null>(null);
   isSendMaintenanceModalOpen = signal<boolean>(false);
+  isMaintenanceInfoModalOpen = signal<boolean>(false);
+  selectedMaintenanceForInfo = signal<Maintenance | null>(null);
   isFinishMaintenanceModalOpen = signal<boolean>(false);
   isUpdateKmModalOpen = signal<boolean>(false);
   isUpdateCrlvModalOpen = signal<boolean>(false);
@@ -300,12 +306,30 @@ export class VehicleListComponent implements OnInit {
           this.totalItems.set(response.total || 0);
           this.totalPages.set(response.totalPages || 1);
           this.loading.set(false);
+          this.loadActiveMaintenances();
         },
         error: () => {
           this.loading.set(false);
           this.toastService.error('Erro ao carregar lista de veículos.');
         }
       });
+  }
+
+  loadActiveMaintenances(): void {
+    this.maintenanceRepository.getAll({ limit: 100 }).subscribe({
+      next: (res) => {
+        const map = new Map<string, Maintenance>();
+        for (const m of res.data) {
+          if (m.status === 'EM_ANDAMENTO') {
+            map.set(m.vehicleId, m);
+          } else if (m.status === 'AGENDADA' && !map.has(m.vehicleId)) {
+            map.set(m.vehicleId, m);
+          }
+        }
+        this.activeMaintenancesMap.set(map);
+      },
+      error: () => {}
+    });
   }
 
   openModal(): void {
@@ -358,6 +382,96 @@ export class VehicleListComponent implements OnInit {
     scheduledDate: [''],
     startImmediately: [true],
   });
+
+  // --- AÇÕES INTELIGENTES DE MANUTENÇÃO ---
+  openMaintenanceAction(vehicle: Vehicle): void {
+    this.selectedVehicle.set(vehicle);
+    this.actionError.set(null);
+    const existing = this.activeMaintenancesMap().get(vehicle.id);
+
+    if (existing || this.isInMaintenance(vehicle)) {
+      if (existing) {
+        this.selectedMaintenanceForInfo.set(existing);
+        this.isMaintenanceInfoModalOpen.set(true);
+      } else {
+        this.isActionLoading.set(true);
+        this.maintenanceRepository.getAll({ vehicleId: vehicle.id, limit: 5 }).subscribe({
+          next: (res) => {
+            this.isActionLoading.set(false);
+            const activeOrScheduled = res.data.find(m => m.status === 'EM_ANDAMENTO' || m.status === 'AGENDADA');
+            if (activeOrScheduled) {
+              this.selectedMaintenanceForInfo.set(activeOrScheduled);
+              this.isMaintenanceInfoModalOpen.set(true);
+            } else {
+              this.openSendMaintenanceModal(vehicle);
+            }
+          },
+          error: () => {
+            this.isActionLoading.set(false);
+            this.openSendMaintenanceModal(vehicle);
+          }
+        });
+      }
+    } else {
+      this.openSendMaintenanceModal(vehicle);
+    }
+  }
+
+  closeMaintenanceInfoModal(): void {
+    this.isMaintenanceInfoModalOpen.set(false);
+    this.selectedMaintenanceForInfo.set(null);
+    this.selectedVehicle.set(null);
+  }
+
+  goToMaintenanceModule(vehicleId?: string): void {
+    this.closeMaintenanceInfoModal();
+    if (vehicleId) {
+      this.router.navigate(['/manutencao'], { queryParams: { vehicleId } });
+    } else {
+      this.router.navigate(['/manutencao']);
+    }
+  }
+
+  startScheduledMaintenanceFromModal(maintenance: Maintenance): void {
+    const vehicle = this.selectedVehicle();
+    this.isActionLoading.set(true);
+    this.actionError.set(null);
+
+    this.maintenanceRepository.start(maintenance.id, { startedAt: new Date().toISOString() }).subscribe({
+      next: () => {
+        this.isActionLoading.set(false);
+        this.toastService.success(`Manutenção iniciada! Veículo ${vehicle?.plate || ''} em manutenção.`);
+        this.closeMaintenanceInfoModal();
+        this.loadVehicles();
+      },
+      error: (err) => {
+        this.isActionLoading.set(false);
+        const msg = err.error?.message || 'Erro ao iniciar manutenção agendada.';
+        this.actionError.set(msg);
+        this.toastService.error(msg);
+      }
+    });
+  }
+
+  getMaintenanceButtonTitle(vehicle: Vehicle): string {
+    if (this.isInMaintenance(vehicle)) {
+      return 'Ver Manutenção em Andamento';
+    }
+    if (this.activeMaintenancesMap().get(vehicle.id)?.status === 'AGENDADA') {
+      return 'Ver Manutenção Agendada';
+    }
+    return 'Registrar / Agendar Manutenção';
+  }
+
+  getMaintenanceButtonClass(vehicle: Vehicle): string {
+    if (this.isInMaintenance(vehicle)) {
+      return 'bg-amber-100 text-amber-700 border-amber-300 hover:bg-amber-200';
+    }
+    if (this.activeMaintenancesMap().get(vehicle.id)?.status === 'AGENDADA') {
+      return 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100';
+    }
+    return 'text-amber-600 hover:bg-amber-50 border-amber-200/60';
+  }
 
   // --- AÇÕES: ENVIAR PARA MANUTENÇÃO ---
   openSendMaintenanceModal(vehicle: Vehicle): void {
