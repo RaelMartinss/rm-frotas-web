@@ -1,7 +1,7 @@
 import { UserRole, User, USER_ROLE_LABELS, formatUserRole } from './user.model';
 
-export type { UserRole, User };
-export { USER_ROLE_LABELS, formatUserRole };
+export type { UserRole };
+export { User, USER_ROLE_LABELS, formatUserRole };
 
 export interface LoginCredentials {
   email: string;
