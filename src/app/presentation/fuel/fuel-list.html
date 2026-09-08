@@ -228,7 +228,14 @@
                 <tr class="hover:bg-slate-50/70 transition-colors">
                   <!-- Data -->
                   <td class="py-3.5 px-4 font-mono text-slate-600 whitespace-nowrap">
-                    {{ r.fueledAt | date:'dd/MM/yyyy HH:mm' }}
+                    <div class="flex items-center gap-1.5">
+                      <span>{{ r.fueledAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                      @if (r.receiptUrl) {
+                        <span title="Comprovante anexado" class="p-1 rounded-md bg-emerald-50 text-emerald-600 border border-emerald-200/60 inline-flex">
+                          <svg lucideCamera class="size-3"></svg>
+                        </span>
+                      }
+                    </div>
                   </td>
 
                   <!-- Veículo -->
@@ -834,6 +841,34 @@
           <div class="p-3 bg-slate-50 rounded-xl border border-slate-200/70">
             <span class="text-[11px] text-slate-400 font-medium">Observações</span>
             <p class="text-slate-700 mt-0.5">{{ selectedRecord()?.notes }}</p>
+          </div>
+        }
+
+        <!-- Comprovante / Foto Anexada -->
+        @if (selectedRecord()?.receiptUrl) {
+          <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/70 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] text-slate-700 font-bold flex items-center gap-1.5">
+                <svg lucideCamera class="size-3.5 text-emerald-600"></svg>
+                Foto do Cupom / Comprovante
+              </span>
+              <button
+                type="button"
+                (click)="openFullReceipt(selectedRecord()!.receiptUrl!)"
+                class="text-[11px] text-emerald-600 hover:text-emerald-700 font-bold inline-flex items-center gap-1 hover:underline cursor-pointer"
+              >
+                Abrir Imagem Completa
+                <svg lucideExternalLink class="size-3"></svg>
+              </button>
+            </div>
+            <div class="rounded-xl overflow-hidden border border-slate-200 bg-slate-900/5 max-h-56 flex items-center justify-center p-1">
+              <img
+                [src]="selectedRecord()?.receiptUrl"
+                alt="Comprovante de abastecimento"
+                class="max-h-52 w-auto object-contain rounded-lg cursor-pointer hover:opacity-95 transition-opacity"
+                (click)="openFullReceipt(selectedRecord()!.receiptUrl!)"
+              />
+            </div>
           </div>
         }
 

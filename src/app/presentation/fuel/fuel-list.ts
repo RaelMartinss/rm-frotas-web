@@ -44,6 +44,8 @@ import {
   LucideEdit,
   LucideBarChart3,
   LucideInfo,
+  LucideCamera,
+  LucideExternalLink,
 } from '@lucide/angular';
 
 @Component({
@@ -72,6 +74,8 @@ import {
     LucideEdit,
     LucideBarChart3,
     LucideInfo,
+    LucideCamera,
+    LucideExternalLink,
   ],
   templateUrl: './fuel-list.html',
   styleUrl: './fuel-list.css',
@@ -536,5 +540,27 @@ export class FuelListComponent implements OnInit {
     if (!vId) return null;
     const v = this.vehicles().find((veh) => veh.id === vId);
     return v ? v.currentKm : null;
+  }
+
+  openFullReceipt(url: string): void {
+    if (!url) return;
+    const win = window.open();
+    if (win) {
+      win.document.write(`
+        <html>
+          <head>
+            <title>Comprovante de Abastecimento</title>
+            <style>
+              body { margin: 0; background: #0f172a; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+              img { max-width: 95vw; max-height: 95vh; object-fit: contain; border-radius: 8px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); }
+            </style>
+          </head>
+          <body>
+            <img src="${url}" alt="Comprovante de Abastecimento" />
+          </body>
+        </html>
+      `);
+      win.document.close();
+    }
   }
 }
