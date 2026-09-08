@@ -22,7 +22,6 @@ import {
   LucideX,
   LucideExternalLink,
   LucideEye,
-  LucideLayers,
   LucideGauge,
 } from '@lucide/angular';
 
@@ -46,7 +45,6 @@ import {
     LucideX,
     LucideExternalLink,
     LucideEye,
-    LucideLayers,
     LucideGauge,
   ],
   templateUrl: './driver-history.html',

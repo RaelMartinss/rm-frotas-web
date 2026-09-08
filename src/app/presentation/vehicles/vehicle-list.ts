@@ -351,10 +351,25 @@ export class VehicleListComponent implements OnInit {
     });
   }
 
+  sendMaintenanceForm: FormGroup = this.fb.group({
+    type: ['CORRETIVA', [Validators.required]],
+    description: ['', [Validators.required, Validators.minLength(3)]],
+    serviceProvider: [''],
+    scheduledDate: [''],
+    startImmediately: [true],
+  });
+
   // --- AÇÕES: ENVIAR PARA MANUTENÇÃO ---
   openSendMaintenanceModal(vehicle: Vehicle): void {
     this.selectedVehicle.set(vehicle);
     this.actionError.set(null);
+    this.sendMaintenanceForm.reset({
+      type: 'CORRETIVA',
+      description: '',
+      serviceProvider: '',
+      scheduledDate: '',
+      startImmediately: true,
+    });
     this.isSendMaintenanceModalOpen.set(true);
   }
 
@@ -368,23 +383,62 @@ export class VehicleListComponent implements OnInit {
     const vehicle = this.selectedVehicle();
     if (!vehicle) return;
 
+    if (this.sendMaintenanceForm.invalid) {
+      this.sendMaintenanceForm.markAllAsTouched();
+      return;
+    }
+
     this.isActionLoading.set(true);
     this.actionError.set(null);
+    const formVal = this.sendMaintenanceForm.value;
 
-    this.vehicleRepository.sendToMaintenance(vehicle.id).subscribe({
-      next: () => {
-        this.isActionLoading.set(false);
-        this.toastService.success(`Veículo ${vehicle.plate} enviado para manutenção!`);
-        this.closeSendMaintenanceModal();
-        this.loadVehicles();
-      },
-      error: (err) => {
-        this.isActionLoading.set(false);
-        const msg = err.error?.message || 'Não foi possível enviar o veículo para manutenção.';
-        this.actionError.set(msg);
-        this.toastService.error(msg);
-      }
-    });
+    if (formVal.startImmediately) {
+      this.maintenanceRepository
+        .startDirect({
+          vehicleId: vehicle.id,
+          type: formVal.type,
+          description: formVal.description,
+          serviceProvider: formVal.serviceProvider || undefined,
+          startedAt: new Date().toISOString(),
+        })
+        .subscribe({
+          next: () => {
+            this.isActionLoading.set(false);
+            this.toastService.success(`Veículo ${vehicle.plate} enviado para manutenção com sucesso!`);
+            this.closeSendMaintenanceModal();
+            this.loadVehicles();
+          },
+          error: (err) => {
+            this.isActionLoading.set(false);
+            const msg = err.error?.message || 'Não foi possível enviar o veículo para manutenção.';
+            this.actionError.set(msg);
+            this.toastService.error(msg);
+          },
+        });
+    } else {
+      this.maintenanceRepository
+        .create({
+          vehicleId: vehicle.id,
+          type: formVal.type,
+          description: formVal.description,
+          serviceProvider: formVal.serviceProvider || undefined,
+          scheduledDate: formVal.scheduledDate || undefined,
+        })
+        .subscribe({
+          next: () => {
+            this.isActionLoading.set(false);
+            this.toastService.success(`Manutenção agendada para o veículo ${vehicle.plate}!`);
+            this.closeSendMaintenanceModal();
+            this.loadVehicles();
+          },
+          error: (err) => {
+            this.isActionLoading.set(false);
+            const msg = err.error?.message || 'Não foi possível agendar a manutenção.';
+            this.actionError.set(msg);
+            this.toastService.error(msg);
+          },
+        });
+    }
   }
 
   // --- AÇÕES: FINALIZAR MANUTENÇÃO ---
@@ -407,20 +461,67 @@ export class VehicleListComponent implements OnInit {
     this.isActionLoading.set(true);
     this.actionError.set(null);
 
-    this.vehicleRepository.finishMaintenance(vehicle.id).subscribe({
-      next: () => {
-        this.isActionLoading.set(false);
-        this.toastService.success(`Manutenção finalizada! Veículo ${vehicle.plate} disponível.`);
-        this.closeFinishMaintenanceModal();
-        this.loadVehicles();
-      },
-      error: (err) => {
-        this.isActionLoading.set(false);
-        const msg = err.error?.message || 'Não foi possível finalizar a manutenção.';
-        this.actionError.set(msg);
-        this.toastService.error(msg);
-      }
-    });
+    // Busca se existe manutenção em andamento para fechar com chave de ouro
+    this.maintenanceRepository
+      .getAll({ vehicleId: vehicle.id, status: 'EM_ANDAMENTO', limit: 1 })
+      .subscribe({
+        next: (res) => {
+          const activeMaintenance = res.data?.[0];
+          if (activeMaintenance) {
+            this.maintenanceRepository
+              .finish(activeMaintenance.id, {
+                odometerAtService: vehicle.currentKm,
+                finishedAt: new Date().toISOString(),
+              })
+              .subscribe({
+                next: () => {
+                  this.isActionLoading.set(false);
+                  this.toastService.success(`Manutenção finalizada! Veículo ${vehicle.plate} liberado.`);
+                  this.closeFinishMaintenanceModal();
+                  this.loadVehicles();
+                },
+                error: (err) => {
+                  this.isActionLoading.set(false);
+                  const msg = err.error?.message || 'Não foi possível finalizar a manutenção.';
+                  this.actionError.set(msg);
+                  this.toastService.error(msg);
+                },
+              });
+          } else {
+            // Fallback caso seja alteração legada de status direto
+            this.vehicleRepository.finishMaintenance(vehicle.id).subscribe({
+              next: () => {
+                this.isActionLoading.set(false);
+                this.toastService.success(`Manutenção finalizada! Veículo ${vehicle.plate} liberado.`);
+                this.closeFinishMaintenanceModal();
+                this.loadVehicles();
+              },
+              error: (err) => {
+                this.isActionLoading.set(false);
+                const msg = err.error?.message || 'Não foi possível finalizar a manutenção.';
+                this.actionError.set(msg);
+                this.toastService.error(msg);
+              },
+            });
+          }
+        },
+        error: () => {
+          this.vehicleRepository.finishMaintenance(vehicle.id).subscribe({
+            next: () => {
+              this.isActionLoading.set(false);
+              this.toastService.success(`Manutenção finalizada! Veículo ${vehicle.plate} liberado.`);
+              this.closeFinishMaintenanceModal();
+              this.loadVehicles();
+            },
+            error: (err) => {
+              this.isActionLoading.set(false);
+              const msg = err.error?.message || 'Não foi possível finalizar a manutenção.';
+              this.actionError.set(msg);
+              this.toastService.error(msg);
+            },
+          });
+        },
+      });
   }
 
   // --- AÇÕES: ATUALIZAR QUILOMETRAGEM ---
