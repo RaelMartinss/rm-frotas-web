@@ -11,6 +11,7 @@ import { ToastService } from '../../core/services/toast.service';
 import { Trip, FuelSupply } from '../../domain/models/trip.model';
 import { Vehicle } from '../../domain/models/vehicle.model';
 import { Driver } from '../../domain/models/driver.model';
+import { TripMapModalComponent } from './components/trip-map-modal/trip-map-modal.component';
 import {
   LucideNavigation,
   LucideLoader2,
@@ -24,6 +25,7 @@ import {
   LucideBan,
   LucideCheck,
   LucideSearch,
+  LucideMap,
   LucideChevronLeft,
   LucideChevronRight,
   LucideChevronsLeft,
@@ -37,6 +39,7 @@ import {
     CommonModule,
     RouterLink,
     ReactiveFormsModule,
+    TripMapModalComponent,
     LucideNavigation,
     LucideLoader2,
     LucideX,
@@ -49,6 +52,7 @@ import {
     LucideBan,
     LucideCheck,
     LucideSearch,
+    LucideMap,
     LucideChevronLeft,
     LucideChevronRight,
     LucideChevronsLeft,
@@ -174,6 +178,7 @@ export class TripListComponent implements OnInit {
   // Modais de Confirmação de Ações
   tripToCancel = signal<Trip | null>(null);
   tripToComplete = signal<Trip | null>(null);
+  tripToViewRoute = signal<Trip | null>(null);
 
   readonly states = [
     'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA',
@@ -448,6 +453,14 @@ export class TripListComponent implements OnInit {
         this.toastService.error(msg);
       }
     });
+  }
+
+  openRouteMap(trip: Trip): void {
+    this.tripToViewRoute.set(trip);
+  }
+
+  closeRouteMap(): void {
+    this.tripToViewRoute.set(null);
   }
 
   saveTrip(): void {

@@ -1,0 +1,125 @@
+<div class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-xs animate-in fade-in duration-200">
+  <div class="bg-white w-full max-w-4xl h-[90vh] max-h-[780px] rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-slate-200 animate-in zoom-in-95 duration-200">
+    
+    <!-- CABEÇALHO DO MODAL -->
+    <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-900 text-white shrink-0">
+      <div class="flex items-center gap-3">
+        <div class="size-10 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
+          <svg lucideNavigation class="size-5"></svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h3 class="text-base font-bold text-white tracking-tight">Rastreamento e Rota da Viagem</h3>
+            @if (isLiveTracking()) {
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">
+                <span class="size-2 rounded-full bg-emerald-400 animate-ping"></span>
+                AO VIVO
+              </span>
+            } @else {
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-800 text-slate-300 border border-slate-700">
+                HISTÓRICO
+              </span>
+            }
+          </div>
+          <p class="text-xs text-slate-400 mt-0.5">
+            Veículo <span class="text-slate-200 font-mono font-bold">{{ trip.vehiclePlate || 'N/A' }}</span> • Motorista <span class="text-slate-200 font-medium">{{ trip.driverName || 'N/A' }}</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button
+          (click)="loadRoute(true)"
+          [disabled]="refreshing()"
+          class="p-2 text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-xl transition-colors cursor-pointer"
+          title="Atualizar rota"
+        >
+          <svg lucideRefreshCw class="size-4" [class.animate-spin]="refreshing()"></svg>
+        </button>
+        <button
+          (click)="onClose()"
+          class="p-2 text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-xl transition-colors cursor-pointer"
+          title="Fechar"
+        >
+          <svg lucideX class="size-4"></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- CORPO DO MODAL: MAPA + TELEMETRIA -->
+    <div class="flex-1 relative flex flex-col overflow-hidden bg-slate-100">
+      
+      <!-- MAP CONTAINER LEAFLET -->
+      <div #mapContainer class="w-full h-full z-10"></div>
+
+      <!-- MENSAGEM DE ERRO FLUTUANTE -->
+      @if (errorMessage()) {
+        <div class="absolute top-4 left-4 right-4 z-20 p-3 bg-rose-950/90 border border-rose-500 text-rose-200 rounded-2xl text-xs flex items-center gap-2 shadow-lg">
+          <svg lucideAlertTriangle class="size-4 text-rose-400 shrink-0"></svg>
+          <span class="flex-1">{{ errorMessage() }}</span>
+        </div>
+      }
+
+      <!-- MENSAGEM QUANDO NÃO HÁ PINGS REGISTRADOS -->
+      @if (!loading() && (!routeData()?.pings?.length)) {
+        <div class="absolute top-4 left-1/2 -translate-x-1/2 z-20 px-4 py-2.5 bg-slate-900/90 border border-slate-700 text-slate-200 rounded-2xl text-xs flex items-center gap-2.5 shadow-xl backdrop-blur-xs max-w-md text-center">
+          <svg lucideRadio class="size-4 text-amber-400 shrink-0 animate-pulse"></svg>
+          <span>Aguardando primeiros pings de localização GPS do motorista na estrada...</span>
+        </div>
+      }
+
+      <!-- PAINEL FLUTUANTE INFERIOR: DETALHES DA ROTA -->
+      @if (routeData(); as data) {
+        <div class="absolute bottom-4 left-4 right-4 z-20 bg-white/95 backdrop-blur-md rounded-2xl p-4 border border-slate-200/80 shadow-2xl">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+            
+            <!-- Origem e Destino -->
+            <div class="space-y-1 sm:col-span-2 border-b sm:border-b-0 sm:border-r border-slate-100 pb-2 sm:pb-0 sm:pr-3">
+              <div class="flex items-center gap-2">
+                <span class="size-2 rounded-full bg-emerald-500"></span>
+                <span class="text-slate-500 font-medium">Origem:</span>
+                <span class="text-slate-800 font-bold truncate">{{ data.originAddress }}</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="size-2 rounded-full bg-blue-500"></span>
+                <span class="text-slate-500 font-medium">Destino:</span>
+                <span class="text-slate-800 font-bold truncate">{{ data.destinationAddress }}</span>
+              </div>
+            </div>
+
+            <!-- Estatísticas de Telemetria -->
+            <div class="flex items-center justify-between sm:justify-around gap-2 text-center">
+              <div>
+                <span class="text-[10px] text-slate-400 block font-semibold uppercase">Pontos Coletados</span>
+                <span class="text-sm font-black text-emerald-600 font-mono">{{ data.pings.length }}</span>
+              </div>
+              <div class="h-8 w-px bg-slate-100"></div>
+              <div>
+                <span class="text-[10px] text-slate-400 block font-semibold uppercase">Último Ping</span>
+                <span class="text-xs font-bold text-slate-700 font-mono">
+                  {{ data.pings.length ? formatDate(data.pings[data.pings.length - 1].recordedAt) : '-' }}
+                </span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- RODAPÉ DO MODAL -->
+    <div class="px-5 py-3 border-t border-slate-100 bg-white flex items-center justify-between shrink-0">
+      <div class="text-[11px] text-slate-500 flex items-center gap-1.5">
+        <svg lucideMapPin class="size-3.5 text-emerald-600"></svg>
+        <span>Atualização em tempo real via telemetria celular do motorista.</span>
+      </div>
+      <button
+        (click)="onClose()"
+        class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer"
+      >
+        Fechar
+      </button>
+    </div>
+
+  </div>
+</div>

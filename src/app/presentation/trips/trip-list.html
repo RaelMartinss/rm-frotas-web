@@ -208,6 +208,14 @@
                     }
                     @else if (trip.status === 'IN_PROGRESS' || trip.status === 'EM_ANDAMENTO') {
                       <button
+                        (click)="openRouteMap(trip)"
+                        class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold rounded-lg text-[11px] transition-colors border border-emerald-200/70 cursor-pointer shadow-2xs"
+                        title="Ver Rota no Mapa em Tempo Real"
+                      >
+                        <svg lucideMap class="size-3.5 text-emerald-600"></svg>
+                        Ver Rota
+                      </button>
+                      <button
                         (click)="openCompleteModal(trip)"
                         [disabled]="actionLoadingId() === trip.id"
                         class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold rounded-lg text-[11px] transition-colors border border-blue-200/70 cursor-pointer disabled:opacity-50 shadow-2xs"
@@ -229,6 +237,14 @@
                       </button>
                     }
                     @else if (trip.status === 'COMPLETED' || trip.status === 'CONCLUIDA') {
+                      <button
+                        (click)="openRouteMap(trip)"
+                        class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-700 font-semibold rounded-lg text-[11px] transition-colors border border-slate-200/70 cursor-pointer"
+                        title="Ver Histórico da Rota Percorrida"
+                      >
+                        <svg lucideMap class="size-3.5 text-slate-600"></svg>
+                        Ver Rota
+                      </button>
                       <span class="inline-flex items-center gap-1 px-2.5 py-1 text-slate-400 font-medium text-[11px] bg-slate-50 rounded-lg border border-slate-200/60">
                         <svg lucideCheck class="size-3 text-emerald-500"></svg>
                         Finalizada
@@ -741,6 +757,14 @@
       </div>
     </div>
   </div>
+}
+
+<!-- MODAL DE VISUALIZAÇÃO DE MAPA E ROTA -->
+@if (tripToViewRoute(); as trip) {
+  <app-trip-map-modal
+    [trip]="trip"
+    (close)="closeRouteMap()"
+  ></app-trip-map-modal>
 }
 
 

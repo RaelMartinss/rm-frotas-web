@@ -55,17 +55,29 @@
       >
         <!-- Badge de Status -->
         <div class="flex items-center justify-between mb-3.5">
-          @if (trip.status === 'IN_PROGRESS') {
-            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">
-              <span class="size-2 rounded-full bg-emerald-400 animate-ping"></span>
-              EM ROTA
-            </span>
-          } @else {
-            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-500/20 text-blue-400 border border-blue-500/40">
-              <span class="size-2 rounded-full bg-blue-400"></span>
-              PROGRAMADA
-            </span>
-          }
+          <div class="flex items-center gap-2">
+            @if (trip.status === 'IN_PROGRESS') {
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">
+                <span class="size-2 rounded-full bg-emerald-400 animate-ping"></span>
+                EM ROTA
+              </span>
+            } @else {
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-500/20 text-blue-400 border border-blue-500/40">
+                <span class="size-2 rounded-full bg-blue-400"></span>
+                PROGRAMADA
+              </span>
+            }
+
+            @if (locationTracking.isTracking()) {
+              <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-950/70 text-emerald-300 border border-emerald-500/30">
+                <svg lucideRadio class="size-3 text-emerald-400 animate-pulse"></svg>
+                GPS Ativo
+                @if (locationTracking.pendingPingsCount() > 0) {
+                  <span class="text-[9px] bg-amber-500/30 text-amber-300 px-1 rounded-sm ml-0.5">({{ locationTracking.pendingPingsCount() }} pend.)</span>
+                }
+              </span>
+            }
+          </div>
 
           <button
             (click)="loadData(true)"

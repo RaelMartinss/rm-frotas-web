@@ -76,3 +76,24 @@ export interface CreateFuelSupplyDTO {
   date: string;
 }
 
+export interface TripLocationPing {
+  id: string;
+  latitude: number;
+  longitude: number;
+  recordedAt: string;
+  createdAt?: string;
+}
+
+export interface TripRouteResponse {
+  tripId: string;
+  status: string;
+  driverName: string;
+  vehiclePlate: string;
+  vehicleModel: string;
+  originAddress: string;
+  destinationAddress: string;
+  startedAt?: string | null;
+  completedAt?: string | null;
+  pings: TripLocationPing[];
+}
+

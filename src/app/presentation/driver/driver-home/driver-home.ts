@@ -1,8 +1,9 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IDriverPortalRepository } from '../../../domain/repositories/driver-portal.repository.interface';
 import { NetworkStatusService } from '../../../core/services/network-status.service';
+import { LocationTrackingService } from '../../../core/services/location-tracking.service';
 import {
   DriverPortalSummary,
   DriverCurrentTrip,
@@ -21,6 +22,7 @@ import {
   LucideShieldAlert,
   LucideWifiOff,
   LucideCheckSquare,
+  LucideRadio,
 } from '@lucide/angular';
 
 @Component({
@@ -42,12 +44,14 @@ import {
     LucideShieldAlert,
     LucideWifiOff,
     LucideCheckSquare,
+    LucideRadio,
   ],
   templateUrl: './driver-home.html',
 })
-export class DriverHomeComponent implements OnInit {
+export class DriverHomeComponent implements OnInit, OnDestroy {
   private readonly portalRepository = inject(IDriverPortalRepository);
   private readonly networkService = inject(NetworkStatusService);
+  readonly locationTracking = inject(LocationTrackingService);
 
   readonly data = signal<DriverPortalSummary | null>(null);
   readonly loading = signal<boolean>(true);
@@ -90,6 +94,10 @@ export class DriverHomeComponent implements OnInit {
     this.loadData();
   }
 
+  ngOnDestroy(): void {
+    this.locationTracking.stopTracking();
+  }
+
   loadData(isRefresh = false): void {
     if (isRefresh) {
       this.refreshing.set(true);
@@ -108,6 +116,13 @@ export class DriverHomeComponent implements OnInit {
         if (summary.trip?.vehicle?.currentKm) {
           this.completeKm.set(summary.trip.vehicle.currentKm);
           this.fuelKm.set(summary.trip.vehicle.currentKm);
+        }
+
+        // Inicia ou para o rastreamento conforme o status da viagem
+        if (summary.trip?.status === 'IN_PROGRESS') {
+          this.locationTracking.startTracking(summary.trip.id);
+        } else {
+          this.locationTracking.stopTracking();
         }
       },
       error: () => {
@@ -133,6 +148,7 @@ export class DriverHomeComponent implements OnInit {
         this.actionLoading.set(false);
         this.startTripModalOpen.set(false);
         this.showToast(res.message || 'Viagem iniciada com sucesso!');
+        this.locationTracking.startTracking(trip.id);
         this.loadData(true);
       },
       error: (err) => {
@@ -166,6 +182,7 @@ export class DriverHomeComponent implements OnInit {
           this.actionLoading.set(false);
           this.completeTripModalOpen.set(false);
           this.showToast(res.message || 'Viagem finalizada com sucesso!');
+          this.locationTracking.stopTracking();
           this.loadData(true);
         },
         error: (err) => {
