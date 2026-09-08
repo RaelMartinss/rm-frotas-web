@@ -9,7 +9,6 @@ import {
   LucideNavigation,
   LucideClock,
   LucideLogOut,
-  LucideAlertCircle,
 } from '@lucide/angular';
 
 @Component({
@@ -23,7 +22,6 @@ import {
     LucideNavigation,
     LucideClock,
     LucideLogOut,
-    LucideAlertCircle,
   ],
   templateUrl: './driver-layout.html',
 })

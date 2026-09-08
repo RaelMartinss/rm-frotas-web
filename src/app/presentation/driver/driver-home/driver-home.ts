@@ -25,7 +25,6 @@ import {
   LucideWifiOff,
   LucideCheckSquare,
   LucideRadio,
-  LucideClock,
 } from '@lucide/angular';
 
 @Component({
@@ -41,7 +40,6 @@ import {
     LucideTruck,
     LucideFileText,
     LucideCheckCircle2,
-    LucideClock,
     LucideRefreshCw,
     LucideMapPin,
     LucideCamera,
