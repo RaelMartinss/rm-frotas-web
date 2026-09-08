@@ -78,6 +78,9 @@ export class DriverHomeComponent implements OnInit, OnDestroy {
   fuelPricePerLiter = signal<number | null>(null);
   fuelType = signal<string>('DIESEL');
   fuelKm = signal<number | null>(null);
+  fuelGasStation = signal<string>('');
+  fuelFullTank = signal<boolean>(true);
+  fuelNotes = signal<string>('');
   fuelReceiptPhoto = signal<string | null>(null);
 
   // Formulário de Incidente
@@ -200,6 +203,9 @@ export class DriverHomeComponent implements OnInit, OnDestroy {
     }
     this.fuelLiters.set(null);
     this.fuelPricePerLiter.set(null);
+    this.fuelGasStation.set('');
+    this.fuelFullTank.set(true);
+    this.fuelNotes.set('');
     this.fuelReceiptPhoto.set(null);
     this.fuelModalOpen.set(true);
   }
@@ -238,6 +244,10 @@ export class DriverHomeComponent implements OnInit, OnDestroy {
         liters: this.fuelLiters()!,
         pricePerLiter: this.fuelPricePerLiter()!,
         fuelType: this.fuelType(),
+        gasStation: this.fuelGasStation().trim() || undefined,
+        fullTank: this.fuelFullTank(),
+        notes: this.fuelNotes().trim() || undefined,
+        receiptUrl: this.fuelReceiptPhoto() || undefined,
       })
       .subscribe({
         next: (res) => {

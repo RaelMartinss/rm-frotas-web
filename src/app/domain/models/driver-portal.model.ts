@@ -55,6 +55,10 @@ export interface DriverFuelDTO {
   liters: number;
   pricePerLiter: number;
   fuelType: string;
+  gasStation?: string;
+  fullTank?: boolean;
+  notes?: string;
+  receiptUrl?: string;
   date?: string;
 }
 

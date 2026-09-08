@@ -402,6 +402,45 @@
           </select>
         </div>
 
+        <!-- Posto de Combustível -->
+        <div>
+          <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Posto de Combustível (Opcional)</label>
+          <input
+            type="text"
+            [ngModel]="fuelGasStation()"
+            (ngModelChange)="fuelGasStation.set($event)"
+            class="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-hidden"
+            placeholder="ex: Posto Ipiranga, Shell..."
+          />
+        </div>
+
+        <!-- Tanque Cheio Toggle -->
+        <div class="bg-slate-950/70 border border-slate-800/80 rounded-2xl p-3 flex items-start gap-3">
+          <input
+            type="checkbox"
+            id="fullTankCheck"
+            [checked]="fuelFullTank()"
+            (change)="fuelFullTank.set($any($event.target).checked)"
+            class="mt-0.5 size-4 rounded bg-slate-900 border-slate-700 text-emerald-500 focus:ring-emerald-500/20 cursor-pointer"
+          />
+          <label for="fullTankCheck" class="text-xs text-slate-300 cursor-pointer select-none">
+            <span class="font-bold text-white block">Tanque Cheio (Completou o tanque)</span>
+            <span class="text-[11px] text-slate-400 block mt-0.5">Essencial para calcular a média de consumo (Km/L) com precisão.</span>
+          </label>
+        </div>
+
+        <!-- Observações -->
+        <div>
+          <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Observações (Opcional)</label>
+          <input
+            type="text"
+            [ngModel]="fuelNotes()"
+            (ngModelChange)="fuelNotes.set($event)"
+            class="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-hidden"
+            placeholder="ex: Abastecido com desconto / convênio..."
+          />
+        </div>
+
         <!-- Foto da Nota / Bomba com Câmera do Celular -->
         <div>
           <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Foto da Nota / Cupom (Câmera)</label>
