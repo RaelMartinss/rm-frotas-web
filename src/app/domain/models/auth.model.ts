@@ -18,8 +18,22 @@ export interface RegisterUserDTO {
 export interface CreateUserDTO {
   name: string;
   email: string;
-  password?: string;
   role: UserRole;
+  password?: string;
+}
+
+export interface CreateUserResponse {
+  user: User;
+  temporaryPassword?: string;
+}
+
+export interface ResetUserPasswordResponse {
+  temporaryPassword: string;
+}
+
+export interface ChangePasswordDTO {
+  currentPassword: string;
+  newPassword: string;
 }
 
 export interface AuthResponse {

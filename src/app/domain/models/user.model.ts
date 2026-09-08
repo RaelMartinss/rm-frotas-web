@@ -1,15 +1,14 @@
-export type UserRole = 'FLEET_MANAGER' | 'DRIVER' | 'ADMIN' | 'OPERATOR' | 'MANAGER';
+export type UserRole = 'SUPER_ADMIN' | 'FLEET_MANAGER' | 'ADMIN' | 'DRIVER';
 
 export const USER_ROLE_LABELS: Record<string, string> = {
+  SUPER_ADMIN: 'Super Administrador',
   FLEET_MANAGER: 'Gestor de Frota',
-  DRIVER: 'Motorista',
   ADMIN: 'Administrador',
-  OPERATOR: 'Operador',
-  MANAGER: 'Gerente',
+  DRIVER: 'Motorista',
 };
 
 export function formatUserRole(role?: string | null): string {
-  if (!role) return 'Gestor de Frota';
+  if (!role) return 'Usuário';
   return USER_ROLE_LABELS[role] || role;
 }
 
@@ -18,6 +17,7 @@ export interface UserProps {
   name: string;
   email: string;
   role: UserRole;
+  clientId?: string | null;
   status?: string;
   isActive?: boolean;
   mustChangePassword?: boolean;
@@ -30,6 +30,7 @@ export class User {
   readonly name: string;
   readonly email: string;
   readonly role: UserRole;
+  readonly clientId?: string | null;
   readonly status: string;
   readonly isActive: boolean;
   readonly mustChangePassword?: boolean;
@@ -41,9 +42,10 @@ export class User {
     this.name = props.name;
     this.email = props.email;
     this.role = props.role;
+    this.clientId = props.clientId ?? null;
     this.status = props.status ?? (props.isActive === false ? 'INACTIVE' : 'ACTIVE');
     this.isActive = props.isActive ?? (this.status === 'ACTIVE');
-    this.mustChangePassword = props.mustChangePassword;
+    this.mustChangePassword = props.mustChangePassword ?? false;
     this.avatarUrl = props.avatarUrl;
     this.createdAt = props.createdAt;
   }

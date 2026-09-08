@@ -1,0 +1,589 @@
+<div class="space-y-6">
+  <!-- CABEÇALHO DA PÁGINA -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <div class="flex items-center gap-2">
+        <h1 class="text-2xl font-bold tracking-tight text-slate-900">Gestão de Clientes</h1>
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
+          Super Admin
+        </span>
+      </div>
+      <p class="text-xs text-slate-500 mt-1">
+        Cadastre novas empresas clientes e controle o status e acesso dos gestores de frota.
+      </p>
+    </div>
+
+    <button
+      type="button"
+      (click)="openOnboardModal()"
+      class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-semibold text-xs shadow-sm hover:shadow transition-all cursor-pointer"
+    >
+      <svg lucidePlus class="size-4"></svg>
+      <span>Novo Cliente (Onboarding)</span>
+    </button>
+  </div>
+
+  <!-- BARRA DE PESQUISA E FILTROS -->
+  <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-col md:flex-row items-center justify-between gap-4">
+    <!-- Input de Busca -->
+    <div class="relative w-full md:w-96">
+      <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+        <svg lucideSearch class="size-4"></svg>
+      </div>
+      <input
+        type="text"
+        [formControl]="searchControl"
+        placeholder="Buscar por razão social, nome fantasia ou CNPJ..."
+        class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 text-slate-700 text-xs rounded-xl focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition"
+      />
+    </div>
+
+    <!-- Filtros de Status -->
+    <div class="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
+      <button
+        type="button"
+        (click)="setStatusFilter('ALL')"
+        [class.bg-slate-900]="selectedStatus() === 'ALL'"
+        [class.text-white]="selectedStatus() === 'ALL'"
+        [class.bg-slate-100]="selectedStatus() !== 'ALL'"
+        [class.text-slate-600]="selectedStatus() !== 'ALL'"
+        class="px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-slate-200 transition cursor-pointer shrink-0"
+      >
+        Todos ({{ totalCount() }})
+      </button>
+
+      <button
+        type="button"
+        (click)="setStatusFilter('ATIVO')"
+        [class.bg-emerald-600]="selectedStatus() === 'ATIVO'"
+        [class.text-white]="selectedStatus() === 'ATIVO'"
+        [class.bg-emerald-50]="selectedStatus() !== 'ATIVO'"
+        [class.text-emerald-700]="selectedStatus() !== 'ATIVO'"
+        class="px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-emerald-100 transition cursor-pointer shrink-0"
+      >
+        Ativos
+      </button>
+
+      <button
+        type="button"
+        (click)="setStatusFilter('SUSPENSO')"
+        [class.bg-amber-600]="selectedStatus() === 'SUSPENSO'"
+        [class.text-white]="selectedStatus() === 'SUSPENSO'"
+        [class.bg-amber-50]="selectedStatus() !== 'SUSPENSO'"
+        [class.text-amber-700]="selectedStatus() !== 'SUSPENSO'"
+        class="px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-amber-100 transition cursor-pointer shrink-0"
+      >
+        Suspensos
+      </button>
+
+      <button
+        type="button"
+        (click)="setStatusFilter('CANCELADO')"
+        [class.bg-rose-600]="selectedStatus() === 'CANCELADO'"
+        [class.text-white]="selectedStatus() === 'CANCELADO'"
+        [class.bg-rose-50]="selectedStatus() !== 'CANCELADO'"
+        [class.text-rose-700]="selectedStatus() !== 'CANCELADO'"
+        class="px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-rose-100 transition cursor-pointer shrink-0"
+      >
+        Cancelados
+      </button>
+    </div>
+  </div>
+
+  <!-- TABELA DE CLIENTES -->
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+    @if (loading()) {
+      <div class="py-16 flex flex-col items-center justify-center gap-3 text-slate-400">
+        <svg lucideLoader2 class="size-8 animate-spin text-emerald-600"></svg>
+        <span class="text-xs font-medium">Carregando clientes...</span>
+      </div>
+    } @else if (clients().length === 0) {
+      <div class="py-16 flex flex-col items-center justify-center gap-3 text-center px-4">
+        <div class="size-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
+          <svg lucideBuilding2 class="size-6"></svg>
+        </div>
+        <h3 class="text-sm font-semibold text-slate-700">Nenhum cliente encontrado</h3>
+        <p class="text-xs text-slate-400 max-w-sm">
+          Não foram encontrados clientes com os critérios de busca selecionados.
+        </p>
+      </div>
+    } @else {
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs text-slate-600">
+          <thead class="bg-slate-50 text-[11px] uppercase font-bold text-slate-500 border-b border-slate-200">
+            <tr>
+              <th scope="col" class="px-6 py-3.5">Empresa / Razão Social</th>
+              <th scope="col" class="px-6 py-3.5">CNPJ / CPF</th>
+              <th scope="col" class="px-6 py-3.5">E-mail de Cobrança</th>
+              <th scope="col" class="px-6 py-3.5">Status</th>
+              <th scope="col" class="px-6 py-3.5">Cadastrado em</th>
+              <th scope="col" class="px-6 py-3.5 text-right">Ações</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            @for (client of clients(); track client.id) {
+              <tr class="hover:bg-slate-50/80 transition-colors">
+                <td class="px-6 py-4">
+                  <div class="font-semibold text-slate-900">{{ client.tradeName }}</div>
+                  <div class="text-[11px] text-slate-400">{{ client.legalName }}</div>
+                </td>
+                <td class="px-6 py-4 font-mono text-slate-600">
+                  {{ formatCpfCnpj(client.document) }}
+                </td>
+                <td class="px-6 py-4 text-slate-600">
+                  {{ client.billingEmail }}
+                </td>
+                <td class="px-6 py-4">
+                  @if (client.status === 'ATIVO') {
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      <span class="size-1.5 rounded-full bg-emerald-500"></span>
+                      Ativo
+                    </span>
+                  } @else if (client.status === 'SUSPENSO') {
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                      <span class="size-1.5 rounded-full bg-amber-500"></span>
+                      Suspenso
+                    </span>
+                  } @else {
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-rose-50 text-rose-700 border border-rose-200">
+                      <span class="size-1.5 rounded-full bg-rose-500"></span>
+                      Cancelado
+                    </span>
+                  }
+                </td>
+                <td class="px-6 py-4 text-slate-500">
+                  {{ client.createdAt | date:'dd/MM/yyyy' }}
+                </td>
+                <td class="px-6 py-4 text-right">
+                  <div class="flex items-center justify-end gap-1.5">
+                    @if (client.status === 'ATIVO') {
+                      <button
+                        type="button"
+                        (click)="openActionModal(client, 'SUSPEND')"
+                        class="px-2.5 py-1 rounded-lg border border-amber-200 text-amber-700 hover:bg-amber-50 transition text-[11px] font-medium cursor-pointer"
+                        title="Suspender acesso desta empresa e de seus usuários"
+                      >
+                        Suspender
+                      </button>
+                    }
+                    @if (client.status === 'SUSPENSO') {
+                      <button
+                        type="button"
+                        (click)="openActionModal(client, 'REACTIVATE')"
+                        class="px-2.5 py-1 rounded-lg border border-emerald-200 text-emerald-700 hover:bg-emerald-50 transition text-[11px] font-medium cursor-pointer"
+                        title="Reativar acesso da empresa"
+                      >
+                        Reativar
+                      </button>
+                    }
+                    @if (client.status !== 'CANCELADO') {
+                      <button
+                        type="button"
+                        (click)="openActionModal(client, 'CANCEL')"
+                        class="px-2.5 py-1 rounded-lg border border-rose-200 text-rose-700 hover:bg-rose-50 transition text-[11px] font-medium cursor-pointer"
+                        title="Cancelar contrato permanentemente"
+                      >
+                        Cancelar
+                      </button>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- PAGINAÇÃO -->
+      <div class="p-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+        <div>
+          Exibindo <span class="font-semibold text-slate-700">{{ startIndex() }}</span> até <span class="font-semibold text-slate-700">{{ endIndex() }}</span> de <span class="font-semibold text-slate-700">{{ totalCount() }}</span> clientes
+        </div>
+
+        <div class="flex items-center gap-1">
+          <button
+            type="button"
+            (click)="setPage(1)"
+            [disabled]="currentPage() === 1"
+            class="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+            title="Primeira página"
+          >
+            <svg lucideChevronsLeft class="size-4"></svg>
+          </button>
+          <button
+            type="button"
+            (click)="prevPage()"
+            [disabled]="currentPage() === 1"
+            class="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+            title="Página anterior"
+          >
+            <svg lucideChevronLeft class="size-4"></svg>
+          </button>
+
+          @for (p of pageNumbers(); track $index) {
+            @if (p === '...') {
+              <span class="px-2 py-1 text-slate-400">...</span>
+            } @else {
+              <button
+                type="button"
+                (click)="setPage(p)"
+                [class.bg-emerald-600]="currentPage() === p"
+                [class.text-white]="currentPage() === p"
+                [class.border-emerald-600]="currentPage() === p"
+                class="px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 transition font-semibold cursor-pointer"
+              >
+                {{ p }}
+              </button>
+            }
+          }
+
+          <button
+            type="button"
+            (click)="nextPage()"
+            [disabled]="currentPage() === totalPages()"
+            class="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+            title="Próxima página"
+          >
+            <svg lucideChevronRight class="size-4"></svg>
+          </button>
+          <button
+            type="button"
+            (click)="setPage(totalPages())"
+            [disabled]="currentPage() === totalPages()"
+            class="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+            title="Última página"
+          >
+            <svg lucideChevronsRight class="size-4"></svg>
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+</div>
+
+<!-- MODAL ONBOARDING NOVO CLIENTE -->
+@if (isOnboardModalOpen()) {
+  <div class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-2xl my-8 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      <!-- Header Modal -->
+      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+        <div class="flex items-center gap-2.5">
+          <div class="size-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
+            <svg lucideBuilding2 class="size-4"></svg>
+          </div>
+          <div>
+            <h3 class="font-bold text-slate-900 text-sm">Onboarding de Novo Cliente</h3>
+            <p class="text-[11px] text-slate-500">Crie a empresa e configure o primeiro Gestor de Frota</p>
+          </div>
+        </div>
+        <button
+          type="button"
+          (click)="closeOnboardModal()"
+          class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition cursor-pointer"
+        >
+          <svg lucideX class="size-4"></svg>
+        </button>
+      </div>
+
+      <!-- Form Body -->
+      <form [formGroup]="onboardForm" (ngSubmit)="submitOnboard()" class="p-6 space-y-5 max-h-[75vh] overflow-y-auto">
+        @if (errorMessage()) {
+          <div class="p-3 rounded-xl bg-rose-50 border border-rose-200 flex items-start gap-2.5 text-rose-700 text-xs">
+            <svg lucideAlertTriangle class="size-4 shrink-0 mt-0.5"></svg>
+            <span>{{ errorMessage() }}</span>
+          </div>
+        }
+
+        <!-- Seção 1: Dados da Empresa -->
+        <div>
+          <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-3 flex items-center gap-2">
+            <svg lucideBuilding2 class="size-3.5 text-emerald-600"></svg>
+            1. Dados da Empresa
+          </h4>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div>
+              <label class="block font-medium text-slate-700 mb-1">Razão Social *</label>
+              <input
+                type="text"
+                formControlName="legalName"
+                placeholder="Ex: Transportes Brasil Ltda"
+                class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition"
+              />
+            </div>
+
+            <div>
+              <label class="block font-medium text-slate-700 mb-1">Nome Fantasia *</label>
+              <input
+                type="text"
+                formControlName="tradeName"
+                placeholder="Ex: TransBrasil"
+                class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition"
+              />
+            </div>
+
+            <div>
+              <label class="block font-medium text-slate-700 mb-1">CNPJ / CPF *</label>
+              <input
+                type="text"
+                formControlName="document"
+                placeholder="Apenas números"
+                class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition font-mono"
+              />
+            </div>
+
+            <div>
+              <label class="block font-medium text-slate-700 mb-1">E-mail de Cobrança / Notificações *</label>
+              <input
+                type="email"
+                formControlName="billingEmail"
+                placeholder="financeiro@empresa.com.br"
+                class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Seção 2: Endereço (Opcional) -->
+        <div formGroupName="address" class="pt-2 border-t border-slate-100">
+          <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-3 flex items-center gap-2">
+            <svg lucideMapPin class="size-3.5 text-emerald-600"></svg>
+            2. Endereço da Sede (Opcional)
+          </h4>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+            <div>
+              <label class="block font-medium text-slate-700 mb-1">CEP</label>
+              <input
+                type="text"
+                formControlName="zipCode"
+                placeholder="00000-000"
+                class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition"
+              />
+            </div>
+            <div class="sm:col-span-2">
+              <label class="block font-medium text-slate-700 mb-1">Logradouro (Rua / Av)</label>
+              <input
+                type="text"
+                formControlName="street"
+                placeholder="Av. Paulista"
+                class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition"
+              />
+            </div>
+            <div>
+              <label class="block font-medium text-slate-700 mb-1">Número</label>
+              <input
+                type="text"
+                formControlName="number"
+                placeholder="1000"
+                class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition"
+              />
+            </div>
+            <div>
+              <label class="block font-medium text-slate-700 mb-1">Bairro</label>
+              <input
+                type="text"
+                formControlName="neighborhood"
+                placeholder="Bela Vista"
+                class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition"
+              />
+            </div>
+            <div>
+              <label class="block font-medium text-slate-700 mb-1">Cidade / UF</label>
+              <div class="flex gap-2">
+                <input
+                  type="text"
+                  formControlName="city"
+                  placeholder="São Paulo"
+                  class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition"
+                />
+                <input
+                  type="text"
+                  formControlName="state"
+                  placeholder="SP"
+                  maxlength="2"
+                  class="w-16 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition uppercase"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Seção 3: Gestor de Frota Principal -->
+        <div class="pt-2 border-t border-slate-100">
+          <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-3 flex items-center gap-2">
+            <svg lucideUserCheck class="size-3.5 text-emerald-600"></svg>
+            3. Gestor de Frota Principal (FLEET_MANAGER)
+          </h4>
+          <div class="p-3.5 rounded-xl bg-amber-50/70 border border-amber-200/80 mb-3 text-[11px] text-amber-800 flex items-start gap-2">
+            <svg lucideKeyRound class="size-4 shrink-0 mt-0.5 text-amber-600"></svg>
+            <span>Uma <strong>senha temporária</strong> será gerada automaticamente e exibida para você copiar logo após a conclusão.</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div>
+              <label class="block font-medium text-slate-700 mb-1">Nome Completo do Gestor *</label>
+              <input
+                type="text"
+                formControlName="fleetManagerName"
+                placeholder="Ex: Carlos Eduardo Silva"
+                class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition"
+              />
+            </div>
+
+            <div>
+              <label class="block font-medium text-slate-700 mb-1">E-mail de Login do Gestor *</label>
+              <input
+                type="email"
+                formControlName="fleetManagerEmail"
+                placeholder="gestor@empresa.com.br"
+                class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Botões Rodapé -->
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
+          <button
+            type="button"
+            (click)="closeOnboardModal()"
+            class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition cursor-pointer"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            [disabled]="isSaving()"
+            class="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-semibold text-xs shadow-sm transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            @if (isSaving()) {
+              <svg lucideLoader2 class="size-4 animate-spin"></svg>
+              <span>Cadastrando...</span>
+            } @else {
+              <svg lucideCheck class="size-4"></svg>
+              <span>Concluir Onboarding</span>
+            }
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+<!-- MODAL SUCESSO & SENHA TEMPORÁRIA -->
+@if (isSuccessModalOpen()) {
+  <div class="fixed inset-0 bg-slate-950/70 backdrop-blur-xs z-55 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-md p-6 text-center space-y-4 animate-in fade-in zoom-in-95 duration-200">
+      <div class="size-12 rounded-full bg-emerald-100 text-emerald-600 mx-auto flex items-center justify-center">
+        <svg lucideCheckCircle2 class="size-7"></svg>
+      </div>
+
+      <div>
+        <h3 class="text-base font-bold text-slate-900">Cliente Criado com Sucesso!</h3>
+        <p class="text-xs text-slate-500 mt-1">
+          A empresa <strong>{{ onboardResult()?.client?.tradeName }}</strong> e o gestor <strong>{{ onboardResult()?.fleetManager?.name }}</strong> foram registrados.
+        </p>
+      </div>
+
+      <!-- Alerta Senha Temporária -->
+      <div class="p-4 rounded-xl bg-amber-50 border border-amber-200 text-left space-y-2">
+        <div class="flex items-center gap-1.5 text-xs font-bold text-amber-900">
+          <svg lucideShieldAlert class="size-4 text-amber-600"></svg>
+          Senha Temporária de Visualização Única
+        </div>
+        <p class="text-[11px] text-amber-800 leading-relaxed">
+          Copie esta senha e envie com segurança para o gestor. Ela não será exibida novamente no sistema.
+        </p>
+        <div class="mt-2 flex items-center justify-between gap-2 p-2.5 bg-white rounded-lg border border-amber-300 font-mono text-xs font-bold text-slate-900 select-all">
+          <span class="truncate">{{ onboardResult()?.fleetManager?.temporaryPassword }}</span>
+          <button
+            type="button"
+            (click)="copyPassword()"
+            class="inline-flex items-center gap-1 px-2 py-1 rounded bg-amber-100 hover:bg-amber-200 text-amber-900 text-[11px] font-semibold transition cursor-pointer shrink-0"
+          >
+            @if (copied()) {
+              <svg lucideCheck class="size-3.5 text-emerald-600"></svg>
+              <span>Copiado!</span>
+            } @else {
+              <svg lucideCopy class="size-3.5"></svg>
+              <span>Copiar</span>
+            }
+          </button>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        (click)="closeSuccessModal()"
+        class="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs transition cursor-pointer"
+      >
+        Entendido, fechar
+      </button>
+    </div>
+  </div>
+}
+
+<!-- MODAL CONFIRMAÇÃO DE AÇÃO DE STATUS -->
+@if (actionModalOpen()) {
+  <div class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-sm p-6 space-y-4 animate-in fade-in zoom-in-95 duration-200">
+      <div class="size-12 rounded-full mx-auto flex items-center justify-center"
+        [class.bg-amber-100]="actionType() === 'SUSPEND'"
+        [class.text-amber-600]="actionType() === 'SUSPEND'"
+        [class.bg-emerald-100]="actionType() === 'REACTIVATE'"
+        [class.text-emerald-600]="actionType() === 'REACTIVATE'"
+        [class.bg-rose-100]="actionType() === 'CANCEL'"
+        [class.text-rose-600]="actionType() === 'CANCEL'"
+      >
+        @if (actionType() === 'SUSPEND') { <svg lucideAlertTriangle class="size-6"></svg> }
+        @if (actionType() === 'REACTIVATE') { <svg lucideRefreshCw class="size-6"></svg> }
+        @if (actionType() === 'CANCEL') { <svg lucideBan class="size-6"></svg> }
+      </div>
+
+      <div class="text-center">
+        <h3 class="text-sm font-bold text-slate-900">
+          @if (actionType() === 'SUSPEND') { Confirmar Suspensão }
+          @if (actionType() === 'REACTIVATE') { Confirmar Reativação }
+          @if (actionType() === 'CANCEL') { Confirmar Cancelamento }
+        </h3>
+        <p class="text-xs text-slate-500 mt-1 leading-relaxed">
+          @if (actionType() === 'SUSPEND') {
+            Ao suspender a empresa <strong>{{ selectedClient()?.tradeName }}</strong>, nenhum de seus gestores ou motoristas conseguirá acessar o sistema.
+          }
+          @if (actionType() === 'REACTIVATE') {
+            Deseja reativar o acesso da empresa <strong>{{ selectedClient()?.tradeName }}</strong> e de seus usuários?
+          }
+          @if (actionType() === 'CANCEL') {
+            O cancelamento da empresa <strong>{{ selectedClient()?.tradeName }}</strong> revoga permanentemente o acesso da organização.
+          }
+        </p>
+      </div>
+
+      <div class="flex items-center justify-end gap-2 pt-2">
+        <button
+          type="button"
+          (click)="closeActionModal()"
+          class="flex-1 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition cursor-pointer"
+        >
+          Voltar
+        </button>
+        <button
+          type="button"
+          (click)="executeAction()"
+          [disabled]="isActionLoading()"
+          [class.bg-amber-600]="actionType() === 'SUSPEND'"
+          [class.hover:bg-amber-500]="actionType() === 'SUSPEND'"
+          [class.bg-emerald-600]="actionType() === 'REACTIVATE'"
+          [class.hover:bg-emerald-500]="actionType() === 'REACTIVATE'"
+          [class.bg-rose-600]="actionType() === 'CANCEL'"
+          [class.hover:bg-rose-500]="actionType() === 'CANCEL'"
+          class="flex-1 inline-flex items-center justify-center gap-1.5 py-2 rounded-xl text-white text-xs font-bold shadow-xs transition cursor-pointer disabled:opacity-50"
+        >
+          @if (isActionLoading()) {
+            <svg lucideLoader2 class="size-3.5 animate-spin"></svg>
+          }
+          <span>Confirmar</span>
+        </button>
+      </div>
+    </div>
+  </div>
+}

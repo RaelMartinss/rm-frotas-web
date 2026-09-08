@@ -4,8 +4,9 @@ import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } 
 import { toSignal } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { IAuthRepository } from '../../../domain/repositories/auth.repository.interface';
+import { AuthStateService } from '../../../core/services/auth-state.service';
 import { ToastService } from '../../../core/services/toast.service';
-import { User, UserRole, formatUserRole } from '../../../domain/models/auth.model';
+import { User, UserRole, formatUserRole, CreateUserResponse } from '../../../domain/models/auth.model';
 import {
   LucideUsers,
   LucideUserPlus,
@@ -18,7 +19,11 @@ import {
   LucideChevronLeft,
   LucideChevronRight,
   LucideChevronsLeft,
-  LucideChevronsRight
+  LucideChevronsRight,
+  LucideKeyRound,
+  LucideCopy,
+  LucideCheck,
+  LucideShieldAlert,
 } from '@lucide/angular';
 
 @Component({
@@ -38,21 +43,38 @@ import {
     LucideChevronLeft,
     LucideChevronRight,
     LucideChevronsLeft,
-    LucideChevronsRight
+    LucideChevronsRight,
+    LucideKeyRound,
+    LucideCopy,
+    LucideCheck,
+    LucideShieldAlert,
   ],
   templateUrl: './user-list.html'
 })
 export class UserListComponent implements OnInit {
   private readonly authRepository = inject(IAuthRepository);
+  private readonly authState = inject(AuthStateService);
   private readonly toastService = inject(ToastService);
   private readonly fb = inject(FormBuilder);
 
   readonly formatUserRole = formatUserRole;
+  currentUser = this.authState.currentUser;
+
   users = signal<User[]>([]);
   loading = signal<boolean>(true);
   isModalOpen = signal<boolean>(false);
   isSaving = signal<boolean>(false);
   errorMessage = signal<string | null>(null);
+
+  // Modal Senha Temporária
+  tempPasswordModalOpen = signal<boolean>(false);
+  tempPasswordData = signal<{ userName: string; temporaryPassword: string; title: string } | null>(null);
+  copied = signal<boolean>(false);
+
+  // Modal de Confirmação de Reset de Senha
+  resetConfirmModalOpen = signal<boolean>(false);
+  userToReset = signal<User | null>(null);
+  isResetting = signal<boolean>(false);
 
   // --- PAGINAÇÃO (MÁXIMO 10 POR PÁGINA) ---
   currentPage = signal<number>(1);
@@ -71,12 +93,29 @@ export class UserListComponent implements OnInit {
     { initialValue: '' }
   );
 
+  // Available roles to create based on logged-in user role
+  availableCreateRoles = computed<{ value: UserRole; label: string }[]>(() => {
+    const role = this.currentUser()?.role;
+    if (role === 'SUPER_ADMIN') {
+      return [
+        { value: 'FLEET_MANAGER', label: 'Gestor de Frota (FLEET_MANAGER)' },
+        { value: 'ADMIN', label: 'Administrador (ADMIN)' },
+        { value: 'DRIVER', label: 'Motorista (DRIVER)' },
+      ];
+    }
+    // FLEET_MANAGER
+    return [
+      { value: 'ADMIN', label: 'Administrador da Equipe (ADMIN)' },
+      { value: 'DRIVER', label: 'Motorista do Aplicativo (DRIVER)' },
+    ];
+  });
+
   // Counts computados para os chips de filtro
   totalCount = computed(() => this.users().length);
   managerCount = computed(
     () =>
       this.users().filter(
-        (u) => u.role === 'FLEET_MANAGER' || u.role === 'ADMIN' || u.role === 'MANAGER'
+        (u) => u.role === 'FLEET_MANAGER' || u.role === 'ADMIN'
       ).length
   );
   driverRoleCount = computed(
@@ -177,8 +216,7 @@ export class UserListComponent implements OnInit {
   userForm: FormGroup = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(3)]],
     email: ['', [Validators.required, Validators.email]],
-    role: ['FLEET_MANAGER' as UserRole, [Validators.required]],
-    password: ['Mudar@123', [Validators.minLength(6)]]
+    role: ['ADMIN' as UserRole, [Validators.required]],
   });
 
   ngOnInit(): void {
@@ -207,11 +245,11 @@ export class UserListComponent implements OnInit {
 
   openModal(): void {
     this.errorMessage.set(null);
+    const defaultRole = this.availableCreateRoles()[0]?.value ?? 'ADMIN';
     this.userForm.reset({
       name: '',
       email: '',
-      role: 'FLEET_MANAGER',
-      password: 'Mudar@123'
+      role: defaultRole,
     });
     this.isModalOpen.set(true);
   }
@@ -232,11 +270,20 @@ export class UserListComponent implements OnInit {
 
     this.isSaving.set(true);
     this.authRepository.createUser(this.userForm.value).subscribe({
-      next: (newUser) => {
-        this.users.update((list) => [newUser, ...list]);
+      next: (response) => {
+        this.users.update((list) => [response.user, ...list]);
         this.isSaving.set(false);
-        this.toastService.success('Novo usuário cadastrado com sucesso!');
         this.closeModal();
+        this.toastService.success('Novo usuário cadastrado com sucesso!');
+
+        if (response.temporaryPassword) {
+          this.tempPasswordData.set({
+            userName: response.user.name,
+            temporaryPassword: response.temporaryPassword,
+            title: 'Usuário Criado com Sucesso',
+          });
+          this.tempPasswordModalOpen.set(true);
+        }
       },
       error: (err) => {
         this.isSaving.set(false);
@@ -250,7 +297,66 @@ export class UserListComponent implements OnInit {
     });
   }
 
+  openResetPasswordModal(user: User): void {
+    this.userToReset.set(user);
+    this.resetConfirmModalOpen.set(true);
+  }
+
+  closeResetConfirmModal(): void {
+    this.resetConfirmModalOpen.set(false);
+    this.userToReset.set(null);
+  }
+
+  confirmResetPassword(): void {
+    const user = this.userToReset();
+    if (!user) return;
+
+    this.isResetting.set(true);
+    this.authRepository.resetUserPassword(user.id).subscribe({
+      next: (res) => {
+        this.isResetting.set(false);
+        this.closeResetConfirmModal();
+        this.tempPasswordData.set({
+          userName: user.name,
+          temporaryPassword: res.temporaryPassword,
+          title: 'Senha Resetada com Sucesso',
+        });
+        this.tempPasswordModalOpen.set(true);
+        this.toastService.success('Senha temporária gerada com sucesso.');
+      },
+      error: (err) => {
+        this.isResetting.set(false);
+        let reason = 'Erro ao resetar senha do usuário.';
+        if (err.error?.message) {
+          reason = Array.isArray(err.error.message) ? err.error.message.join(', ') : err.error.message;
+        }
+        this.toastService.error(reason);
+      },
+    });
+  }
+
+  copyTempPassword(): void {
+    const pwd = this.tempPasswordData()?.temporaryPassword;
+    if (pwd) {
+      navigator.clipboard.writeText(pwd).then(() => {
+        this.copied.set(true);
+        this.toastService.success('Senha copiada!');
+        setTimeout(() => this.copied.set(false), 3000);
+      });
+    }
+  }
+
+  closeTempPasswordModal(): void {
+    this.tempPasswordModalOpen.set(false);
+    this.tempPasswordData.set(null);
+  }
+
   toggleStatus(user: User): void {
+    if (user.id === this.currentUser()?.id) {
+      this.toastService.warning('Você não pode alterar o status do seu próprio usuário.');
+      return;
+    }
+
     const newStatus = !user.isActive;
     this.authRepository.toggleUserStatus(user.id, newStatus).subscribe({
       next: (updatedUser) => {
@@ -265,3 +371,4 @@ export class UserListComponent implements OnInit {
     });
   }
 }
+

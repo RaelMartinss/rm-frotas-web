@@ -28,7 +28,8 @@ import {
   LucideCornerDownLeft,
   LucideArrowRight,
   LucideShieldAlert,
-  LucideSparkles
+  LucideSparkles,
+  LucideBuilding2,
 } from '@lucide/angular';
 
 export interface CommandItem {
@@ -83,7 +84,8 @@ export interface NotificationItem {
     LucideCornerDownLeft,
     LucideArrowRight,
     LucideShieldAlert,
-    LucideSparkles
+    LucideSparkles,
+    LucideBuilding2,
   ],
   templateUrl: './main-layout.html',
   styleUrl: './main-layout.css'

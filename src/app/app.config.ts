@@ -22,6 +22,8 @@ import { IMaintenanceRepository } from './domain/repositories/maintenance.reposi
 import { HttpMaintenanceRepository } from './core/adapters/http-maintenance.repository';
 import { IFuelRepository } from './domain/repositories/fuel.repository.interface';
 import { HttpFuelRepository } from './core/adapters/http-fuel.repository';
+import { IClientRepository } from './domain/repositories/client.repository.interface';
+import { HttpClientRepository } from './core/adapters/http-client.repository';
 
 registerLocaleData(localePt, 'pt-BR');
 
@@ -43,6 +45,7 @@ export const appConfig: ApplicationConfig = {
     { provide: ITripRepository, useClass: HttpTripRepository },
     { provide: IMaintenanceRepository, useClass: HttpMaintenanceRepository },
     { provide: IFuelRepository, useClass: HttpFuelRepository },
+    { provide: IClientRepository, useClass: HttpClientRepository },
     provideAppInitializer(() => {
       const authRepository = inject(IAuthRepository);
       const authState = inject(AuthStateService);

@@ -10,14 +10,22 @@ export const authGuard: CanActivateFn = (route, state) => {
   const authState = inject(AuthStateService);
   const router = inject(Router);
 
-  // Se já possui access token ativo em memória, permite o acesso imediato
-  if (authState.isAuthenticated()) {
+  const checkUserPasswordChange = () => {
+    const user = authState.getUser();
+    if (user?.mustChangePassword && !state.url.includes('/trocar-senha-obrigatoria')) {
+      return router.createUrlTree(['/trocar-senha-obrigatoria']);
+    }
     return true;
+  };
+
+  // Se já possui access token ativo em memória, valida o acesso
+  if (authState.isAuthenticated()) {
+    return checkUserPasswordChange();
   }
 
-  // Se a página foi recarregada (F5), recupera o access token via cookie HttpOnly
+  // Se a página foi recarregada (F5), recupera a sessão via cookie HttpOnly
   return authRepository.refresh().pipe(
-    map(() => true),
+    map(() => checkUserPasswordChange()),
     catchError(() => of(router.createUrlTree(['/login'])))
   );
 };

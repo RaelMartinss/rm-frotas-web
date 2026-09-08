@@ -11,7 +11,7 @@
         <span class="text-xs text-slate-500 font-medium">{{ totalCount() }} contas registradas</span>
       </div>
       <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Gestão de Usuários</h1>
-      <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Cadastre e gerencie as credenciais e permissões de acesso ao sistema.</p>
+      <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Cadastre e gerencie as credenciais e permissões da equipe da sua empresa.</p>
     </div>
     <button
       (click)="openModal()"
@@ -66,9 +66,16 @@
       >
         <span class="size-1.5 rounded-full" [ngClass]="selectedRole() === 'FLEET_MANAGER' ? 'bg-white' : 'bg-emerald-500'"></span>
         <span>Gestores</span>
-        <span class="px-1.5 py-0.2 rounded-md text-[10px]" [ngClass]="selectedRole() === 'FLEET_MANAGER' ? 'bg-emerald-700 text-white' : 'bg-emerald-50 text-emerald-700'">
-          {{ managerCount() }}
-        </span>
+      </button>
+
+      <button
+        type="button"
+        (click)="setRoleFilter('ADMIN')"
+        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shrink-0 cursor-pointer border"
+        [ngClass]="selectedRole() === 'ADMIN' ? 'bg-indigo-600 text-white border-indigo-600 shadow-2xs' : 'bg-slate-50 text-slate-600 border-slate-200/80 hover:bg-slate-100'"
+      >
+        <span class="size-1.5 rounded-full" [ngClass]="selectedRole() === 'ADMIN' ? 'bg-white' : 'bg-indigo-500'"></span>
+        <span>Admins</span>
       </button>
 
       <button
@@ -89,23 +96,9 @@
   <!-- TABELA DE USUÁRIOS -->
   <div class="bg-white rounded-2xl border border-slate-200/80 shadow-2xs overflow-hidden">
     @if (loading()) {
-      <!-- SKELETON TABLE SHIMMER -->
-      <div class="p-4 space-y-3 animate-pulse">
-        <div class="h-8 bg-slate-100 rounded-xl"></div>
-        @for (i of [1, 2, 3, 4, 5]; track i) {
-          <div class="flex items-center justify-between py-3 px-2 border-b border-slate-100">
-            <div class="flex items-center gap-3 w-1/3">
-              <div class="size-8 rounded-full bg-slate-200"></div>
-              <div class="space-y-1.5 flex-1">
-                <div class="h-4 bg-slate-200 rounded w-32"></div>
-                <div class="h-3 bg-slate-100 rounded w-44"></div>
-              </div>
-            </div>
-            <div class="h-6 bg-slate-200 rounded-md w-28"></div>
-            <div class="h-5 bg-slate-100 rounded-md w-16"></div>
-            <div class="h-7 bg-slate-100 rounded-lg w-24"></div>
-          </div>
-        }
+      <div class="py-16 flex flex-col items-center justify-center gap-3 text-slate-400">
+        <svg lucideLoader2 class="size-8 animate-spin text-emerald-600"></svg>
+        <span class="text-xs font-medium">Carregando usuários...</span>
       </div>
     } @else {
       <div class="overflow-x-auto">
@@ -115,7 +108,7 @@
               <th class="py-3.5 px-4">Usuário / E-mail</th>
               <th class="py-3.5 px-4">Perfil de Acesso</th>
               <th class="py-3.5 px-4">Status da Conta</th>
-              <th class="py-3.5 px-4 text-right">Ações de Acesso</th>
+              <th class="py-3.5 px-4 text-right">Ações</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100">
@@ -127,15 +120,30 @@
                       {{ user.name.substring(0, 2).toUpperCase() }}
                     </div>
                     <div>
-                      <div class="font-semibold text-slate-900">{{ user.name }}</div>
+                      <div class="font-semibold text-slate-900 flex items-center gap-1.5">
+                        <span>{{ user.name }}</span>
+                        @if (user.id === currentUser()?.id) {
+                          <span class="px-1.5 py-0.2 rounded text-[10px] font-bold bg-slate-100 text-slate-600">Você</span>
+                        }
+                      </div>
                       <div class="text-slate-500 text-[11px]">{{ user.email }}</div>
                     </div>
                   </div>
                 </td>
                 <td class="py-3.5 px-4">
-                  @if (user.role === 'FLEET_MANAGER' || user.role === 'ADMIN' || user.role === 'MANAGER') {
+                  @if (user.role === 'SUPER_ADMIN') {
+                    <span class="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-purple-50 text-purple-700 border border-purple-200/60 inline-flex items-center gap-1">
+                      <span class="size-1.5 rounded-full bg-purple-500"></span>
+                      {{ formatUserRole(user.role) }}
+                    </span>
+                  } @else if (user.role === 'FLEET_MANAGER') {
                     <span class="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200/60 inline-flex items-center gap-1">
                       <span class="size-1.5 rounded-full bg-emerald-500"></span>
+                      {{ formatUserRole(user.role) }}
+                    </span>
+                  } @else if (user.role === 'ADMIN') {
+                    <span class="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-indigo-50 text-indigo-700 border border-indigo-200/60 inline-flex items-center gap-1">
+                      <span class="size-1.5 rounded-full bg-indigo-500"></span>
                       {{ formatUserRole(user.role) }}
                     </span>
                   } @else {
@@ -154,20 +162,36 @@
                   </span>
                 </td>
                 <td class="py-3.5 px-4 text-right">
-                  <button
-                    (click)="toggleStatus(user)"
-                    [title]="user.isActive ? 'Suspender acesso' : 'Ativar acesso'"
-                    class="px-2.5 py-1.5 rounded-lg text-xs font-semibold inline-flex items-center gap-1.5 transition-colors cursor-pointer border"
-                    [class]="user.isActive ? 'text-rose-600 hover:bg-rose-50 border-rose-200/60' : 'text-emerald-600 hover:bg-emerald-50 border-emerald-200/60'"
-                  >
-                    @if (user.isActive) {
-                      <svg lucideXCircle class="size-3.5 text-rose-500"></svg>
-                      <span>Suspender</span>
-                    } @else {
-                      <svg lucideCheckCircle2 class="size-3.5 text-emerald-500"></svg>
-                      <span>Ativar</span>
+                  <div class="flex items-center justify-end gap-2">
+                    @if (user.id !== currentUser()?.id) {
+                      <!-- Reset de Senha -->
+                      <button
+                        type="button"
+                        (click)="openResetPasswordModal(user)"
+                        class="px-2.5 py-1.5 rounded-lg text-xs font-semibold inline-flex items-center gap-1.5 transition-colors cursor-pointer border text-slate-700 hover:bg-slate-100 border-slate-200"
+                        title="Gerar nova senha temporária"
+                      >
+                        <svg lucideKeyRound class="size-3.5 text-amber-500"></svg>
+                        <span>Resetar Senha</span>
+                      </button>
+
+                      <!-- Suspender / Ativar -->
+                      <button
+                        (click)="toggleStatus(user)"
+                        [title]="user.isActive ? 'Suspender acesso' : 'Ativar acesso'"
+                        class="px-2.5 py-1.5 rounded-lg text-xs font-semibold inline-flex items-center gap-1.5 transition-colors cursor-pointer border"
+                        [class]="user.isActive ? 'text-rose-600 hover:bg-rose-50 border-rose-200/60' : 'text-emerald-600 hover:bg-emerald-50 border-emerald-200/60'"
+                      >
+                        @if (user.isActive) {
+                          <svg lucideXCircle class="size-3.5 text-rose-500"></svg>
+                          <span>Suspender</span>
+                        } @else {
+                          <svg lucideCheckCircle2 class="size-3.5 text-emerald-500"></svg>
+                          <span>Ativar</span>
+                        }
+                      </button>
                     }
-                  </button>
+                  </div>
                 </td>
               </tr>
             } @empty {
@@ -224,29 +248,23 @@
 
               <!-- Controles de Navegação de Página -->
               <div class="flex items-center gap-1">
-                <!-- Primeira Página -->
                 <button
                   type="button"
                   (click)="setPage(1)"
                   [disabled]="currentPage() === 1"
-                  title="Primeira página"
                   class="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:hover:bg-white transition-colors cursor-pointer disabled:cursor-not-allowed shadow-2xs"
                 >
                   <svg lucideChevronsLeft class="size-3.5"></svg>
                 </button>
-
-                <!-- Página Anterior -->
                 <button
                   type="button"
                   (click)="prevPage()"
                   [disabled]="currentPage() === 1"
-                  title="Página anterior"
                   class="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:hover:bg-white transition-colors cursor-pointer disabled:cursor-not-allowed shadow-2xs"
                 >
                   <svg lucideChevronLeft class="size-3.5"></svg>
                 </button>
 
-                <!-- Números de Página -->
                 <div class="flex items-center gap-1 px-1">
                   @for (pageNum of pageNumbers(); track $index) {
                     @if (pageNum === '...') {
@@ -264,23 +282,18 @@
                   }
                 </div>
 
-                <!-- Próxima Página -->
                 <button
                   type="button"
                   (click)="nextPage()"
                   [disabled]="currentPage() === totalPages()"
-                  title="Próxima página"
                   class="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:hover:bg-white transition-colors cursor-pointer disabled:cursor-not-allowed shadow-2xs"
                 >
                   <svg lucideChevronRight class="size-3.5"></svg>
                 </button>
-
-                <!-- Última Página -->
                 <button
                   type="button"
                   (click)="setPage(totalPages())"
                   [disabled]="currentPage() === totalPages()"
-                  title="Última página"
                   class="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:hover:bg-white transition-colors cursor-pointer disabled:cursor-not-allowed shadow-2xs"
                 >
                   <svg lucideChevronsRight class="size-3.5"></svg>
@@ -306,7 +319,7 @@
             </div>
             Cadastrar Novo Usuário
           </h2>
-          <p class="text-[11px] text-slate-400 mt-0.5 ml-9">Defina o nome, e-mail e perfil de acesso ao sistema.</p>
+          <p class="text-[11px] text-slate-400 mt-0.5 ml-9">Uma senha temporária será gerada automaticamente.</p>
         </div>
         <button (click)="closeModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg transition-colors cursor-pointer">
           <svg lucideX class="size-5"></svg>
@@ -333,14 +346,8 @@
             placeholder="Ex: Carlos Eduardo Silva"
             class="w-full bg-slate-50 border rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all placeholder:text-slate-400"
             [class.border-rose-400]="userForm.get('name')?.invalid && userForm.get('name')?.touched"
-            [class.bg-rose-50/50]="userForm.get('name')?.invalid && userForm.get('name')?.touched"
             [class.border-slate-200]="!(userForm.get('name')?.invalid && userForm.get('name')?.touched)"
           />
-          @if (userForm.get('name')?.touched && userForm.get('name')?.errors?.['required']) {
-            <p class="text-[10px] text-rose-500 mt-1 font-medium">Campo obrigatório.</p>
-          } @else if (userForm.get('name')?.touched && userForm.get('name')?.errors?.['minlength']) {
-            <p class="text-[10px] text-rose-500 mt-1 font-medium">O nome deve ter no mínimo 3 caracteres.</p>
-          }
         </div>
 
         <div>
@@ -353,14 +360,8 @@
             placeholder="usuario@empresa.com.br"
             class="w-full bg-slate-50 border rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all placeholder:text-slate-400"
             [class.border-rose-400]="userForm.get('email')?.invalid && userForm.get('email')?.touched"
-            [class.bg-rose-50/50]="userForm.get('email')?.invalid && userForm.get('email')?.touched"
             [class.border-slate-200]="!(userForm.get('email')?.invalid && userForm.get('email')?.touched)"
           />
-          @if (userForm.get('email')?.touched && userForm.get('email')?.errors?.['required']) {
-            <p class="text-[10px] text-rose-500 mt-1 font-medium">Campo obrigatório.</p>
-          } @else if (userForm.get('email')?.touched && userForm.get('email')?.errors?.['email']) {
-            <p class="text-[10px] text-rose-500 mt-1 font-medium">Formato de e-mail inválido.</p>
-          }
         </div>
 
         <div>
@@ -371,22 +372,15 @@
             formControlName="role"
             class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all"
           >
-            <option value="FLEET_MANAGER">Gestor de Frota (Acesso Total / Painel)</option>
-            <option value="DRIVER">Motorista (Acesso Operacional de Viagens)</option>
+            @for (r of availableCreateRoles(); track r.value) {
+              <option [value]="r.value">{{ r.label }}</option>
+            }
           </select>
         </div>
 
-        <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">
-            Senha Inicial de Acesso
-          </label>
-          <input
-            type="text"
-            formControlName="password"
-            placeholder="Padrão: Mudar@123"
-            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all placeholder:text-slate-400"
-          />
-          <p class="text-[10px] text-slate-400 mt-1">O usuário poderá alterar sua senha após o primeiro login.</p>
+        <div class="p-3 bg-amber-50 rounded-xl border border-amber-200/70 text-[11px] text-amber-800 flex items-start gap-2">
+          <svg lucideKeyRound class="size-4 text-amber-600 shrink-0 mt-0.5"></svg>
+          <span>O usuário receberá uma <strong>senha temporária</strong> e terá troca obrigatória no primeiro login.</span>
         </div>
 
         <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
@@ -413,4 +407,94 @@
   </div>
 }
 
+<!-- MODAL SENHA TEMPORÁRIA -->
+@if (tempPasswordModalOpen()) {
+  <div class="fixed inset-0 bg-slate-950/70 backdrop-blur-xs z-55 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-md p-6 text-center space-y-4 animate-in fade-in zoom-in-95 duration-200">
+      <div class="size-12 rounded-full bg-emerald-100 text-emerald-600 mx-auto flex items-center justify-center">
+        <svg lucideCheckCircle2 class="size-7"></svg>
+      </div>
 
+      <div>
+        <h3 class="text-base font-bold text-slate-900">{{ tempPasswordData()?.title }}</h3>
+        <p class="text-xs text-slate-500 mt-1">
+          Credencial gerada para <strong>{{ tempPasswordData()?.userName }}</strong>.
+        </p>
+      </div>
+
+      <!-- Alerta Senha Temporária -->
+      <div class="p-4 rounded-xl bg-amber-50 border border-amber-200 text-left space-y-2">
+        <div class="flex items-center gap-1.5 text-xs font-bold text-amber-900">
+          <svg lucideShieldAlert class="size-4 text-amber-600"></svg>
+          Senha Temporária de Visualização Única
+        </div>
+        <p class="text-[11px] text-amber-800 leading-relaxed">
+          Copie esta senha e envie com segurança para o usuário. Ela não será exibida novamente.
+        </p>
+        <div class="mt-2 flex items-center justify-between gap-2 p-2.5 bg-white rounded-lg border border-amber-300 font-mono text-xs font-bold text-slate-900 select-all">
+          <span class="truncate">{{ tempPasswordData()?.temporaryPassword }}</span>
+          <button
+            type="button"
+            (click)="copyTempPassword()"
+            class="inline-flex items-center gap-1 px-2 py-1 rounded bg-amber-100 hover:bg-amber-200 text-amber-900 text-[11px] font-semibold transition cursor-pointer shrink-0"
+          >
+            @if (copied()) {
+              <svg lucideCheck class="size-3.5 text-emerald-600"></svg>
+              <span>Copiado!</span>
+            } @else {
+              <svg lucideCopy class="size-3.5"></svg>
+              <span>Copiar</span>
+            }
+          </button>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        (click)="closeTempPasswordModal()"
+        class="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs transition cursor-pointer"
+      >
+        Entendido, fechar
+      </button>
+    </div>
+  </div>
+}
+
+<!-- MODAL CONFIRMAÇÃO DE RESET DE SENHA -->
+@if (resetConfirmModalOpen()) {
+  <div class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-sm p-6 space-y-4 animate-in fade-in zoom-in-95 duration-200">
+      <div class="size-12 rounded-full bg-amber-100 text-amber-600 mx-auto flex items-center justify-center">
+        <svg lucideKeyRound class="size-6"></svg>
+      </div>
+
+      <div class="text-center">
+        <h3 class="text-sm font-bold text-slate-900">Resetar Senha do Usuário</h3>
+        <p class="text-xs text-slate-500 mt-1 leading-relaxed">
+          Tem certeza de que deseja gerar uma nova senha temporária para <strong>{{ userToReset()?.name }}</strong>?
+        </p>
+      </div>
+
+      <div class="flex items-center justify-end gap-2 pt-2">
+        <button
+          type="button"
+          (click)="closeResetConfirmModal()"
+          class="flex-1 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition cursor-pointer"
+        >
+          Cancelar
+        </button>
+        <button
+          type="button"
+          (click)="confirmResetPassword()"
+          [disabled]="isResetting()"
+          class="flex-1 inline-flex items-center justify-center gap-1.5 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold shadow-xs transition cursor-pointer disabled:opacity-50"
+        >
+          @if (isResetting()) {
+            <svg lucideLoader2 class="size-3.5 animate-spin"></svg>
+          }
+          <span>Gerar Nova Senha</span>
+        </button>
+      </div>
+    </div>
+  </div>
+}

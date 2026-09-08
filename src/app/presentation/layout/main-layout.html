@@ -117,18 +117,31 @@
           </a>
         </div>
 
-        <!-- SEÇÃO: SISTEMA -->
+        <!-- SEÇÃO: SISTEMA / ADMINISTRAÇÃO -->
         <div class="space-y-1">
           <p class="px-3.5 py-1 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Sistema</p>
 
-          <a
-            routerLink="/usuarios"
-            routerLinkActive="bg-emerald-950/60 text-emerald-400 font-semibold border-l-2 border-emerald-500"
-            class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/50 transition-colors"
-          >
-            <svg lucideUserCheck class="size-4"></svg>
-            <span>Usuários</span>
-          </a>
+          @if (currentUser()?.role === 'SUPER_ADMIN') {
+            <a
+              routerLink="/clientes"
+              routerLinkActive="bg-emerald-950/60 text-emerald-400 font-semibold border-l-2 border-emerald-500"
+              class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/50 transition-colors"
+            >
+              <svg lucideBuilding2 class="size-4"></svg>
+              <span>Empresas Clientes</span>
+            </a>
+          }
+
+          @if (currentUser()?.role === 'SUPER_ADMIN' || currentUser()?.role === 'FLEET_MANAGER' || currentUser()?.role === 'ADMIN') {
+            <a
+              routerLink="/usuarios"
+              routerLinkActive="bg-emerald-950/60 text-emerald-400 font-semibold border-l-2 border-emerald-500"
+              class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/50 transition-colors"
+            >
+              <svg lucideUserCheck class="size-4"></svg>
+              <span>Usuários</span>
+            </a>
+          }
 
           <a
             routerLink="/configuracoes"

@@ -1,17 +1,20 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, of, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { IAuthRepository } from '../../domain/repositories/auth.repository.interface';
 import { AuthStateService } from '../services/auth-state.service';
 import {
   AuthResponse,
+  ChangePasswordDTO,
+  CreateUserDTO,
+  CreateUserResponse,
   LoginCredentials,
   RegisterUserDTO,
-  User,
-  UpdateProfileDTO,
+  ResetUserPasswordResponse,
   UpdatePasswordDTO,
-  CreateUserDTO,
+  UpdateProfileDTO,
+  User,
 } from '../../domain/models/auth.model';
 
 @Injectable({
@@ -101,16 +104,47 @@ export class HttpAuthRepository implements IAuthRepository {
     });
   }
 
-  getUsers(): Observable<User[]> {
+  changePassword(data: ChangePasswordDTO): Observable<void> {
+    return this.http
+      .post<void>(`${this.baseUrl}/auth/change-password`, data, {
+        withCredentials: true,
+      })
+      .pipe(
+        tap(() => {
+          const user = this.authState.getUser();
+          if (user) {
+            this.authState.setCurrentUser({
+              ...user,
+              mustChangePassword: false,
+            } as User);
+          }
+        })
+      );
+  }
+
+  getUsers(clientId?: string): Observable<User[]> {
+    let params = new HttpParams();
+    if (clientId) {
+      params = params.set('clientId', clientId);
+    }
     return this.http.get<User[]>(`${this.baseUrl}/users`, {
+      params,
       withCredentials: true,
     });
   }
 
-  createUser(user: CreateUserDTO): Observable<User> {
-    return this.http.post<User>(`${this.baseUrl}/users`, user, {
+  createUser(user: CreateUserDTO): Observable<CreateUserResponse> {
+    return this.http.post<CreateUserResponse>(`${this.baseUrl}/users`, user, {
       withCredentials: true,
     });
+  }
+
+  resetUserPassword(id: string): Observable<ResetUserPasswordResponse> {
+    return this.http.post<ResetUserPasswordResponse>(
+      `${this.baseUrl}/users/${id}/reset-password`,
+      {},
+      { withCredentials: true }
+    );
   }
 
   toggleUserStatus(id: string, active: boolean): Observable<User> {

@@ -1,6 +1,8 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { guestGuard } from './core/guards/guest.guard';
+import { mustChangePasswordGuard } from './core/guards/must-change-password.guard';
+import { superAdminGuard } from './core/guards/super-admin.guard';
 
 export const routes: Routes = [
   {
@@ -15,11 +17,32 @@ export const routes: Routes = [
       import('./presentation/auth/login/login').then((m) => m.LoginComponent)
   },
   {
+    path: 'trocar-senha-obrigatoria',
+    canActivate: [mustChangePasswordGuard],
+    loadComponent: () =>
+      import('./presentation/auth/change-password-mandatory/change-password-mandatory').then(
+        (m) => m.ChangePasswordMandatoryComponent
+      )
+  },
+  {
     path: '',
     canActivate: [authGuard],
     loadComponent: () =>
       import('./presentation/layout/main-layout').then((m) => m.MainLayoutComponent),
     children: [
+      {
+        path: 'clientes',
+        canActivate: [superAdminGuard],
+        loadComponent: () =>
+          import('./features/clients/client-list/client-list').then(
+            (m) => m.ClientListComponent
+          )
+      },
+      {
+        path: 'clients',
+        redirectTo: 'clientes',
+        pathMatch: 'full'
+      },
       {
         path: 'dashboard',
         loadComponent: () =>
