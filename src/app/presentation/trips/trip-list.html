@@ -763,6 +763,8 @@
 @if (tripToViewRoute(); as trip) {
   <app-trip-map-modal
     [trip]="trip"
+    [vehiclePlate]="trip.vehiclePlate || getVehiclePlate(trip.vehicleId)"
+    [driverName]="trip.driverName || getDriverName(trip.driverId)"
     (close)="closeRouteMap()"
   ></app-trip-map-modal>
 }

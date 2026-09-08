@@ -22,7 +22,7 @@
             }
           </div>
           <p class="text-xs text-slate-400 mt-0.5">
-            Veículo <span class="text-slate-200 font-mono font-bold">{{ trip.vehiclePlate || 'N/A' }}</span> • Motorista <span class="text-slate-200 font-medium">{{ trip.driverName || 'N/A' }}</span>
+            Veículo <span class="text-slate-200 font-mono font-bold">{{ displayVehicle() }}</span> • Motorista <span class="text-slate-200 font-medium">{{ displayDriver() }}</span>
           </p>
         </div>
       </div>

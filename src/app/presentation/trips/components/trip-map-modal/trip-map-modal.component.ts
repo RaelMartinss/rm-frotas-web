@@ -42,6 +42,8 @@ import {
 })
 export class TripMapModalComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input({ required: true }) trip!: Trip;
+  @Input() vehiclePlate?: string;
+  @Input() driverName?: string;
   @Output() close = new EventEmitter<void>();
 
   @ViewChild('mapContainer', { static: false }) mapContainerRef!: ElementRef<HTMLDivElement>;
@@ -55,6 +57,20 @@ export class TripMapModalComponent implements OnInit, AfterViewInit, OnDestroy {
 
   readonly isLiveTracking = computed(() => {
     return this.trip.status === 'IN_PROGRESS' || this.trip.status === 'EM_ANDAMENTO';
+  });
+
+  readonly displayVehicle = computed(() => {
+    const fromRoute = this.routeData();
+    if (fromRoute?.vehiclePlate) {
+      return fromRoute.vehicleModel
+        ? `${fromRoute.vehiclePlate} (${fromRoute.vehicleModel})`
+        : fromRoute.vehiclePlate;
+    }
+    return this.vehiclePlate || this.trip.vehiclePlate || '-';
+  });
+
+  readonly displayDriver = computed(() => {
+    return this.routeData()?.driverName || this.driverName || this.trip.driverName || '-';
   });
 
   private map: L.Map | null = null;
