@@ -127,7 +127,7 @@
         </a>
 
         <a
-          [routerLink]="['/trips']"
+          routerLink="/viagens"
           class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs px-4 py-2.5 rounded-xl transition-all shadow-xs hover:shadow-sm cursor-pointer"
         >
           <svg lucideNavigation class="size-4"></svg>
@@ -140,7 +140,7 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
       <!-- Card 1: Total da Frota -->
       <a
-        [routerLink]="['/vehicles']"
+        routerLink="/veiculos"
         class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs hover:shadow-xs hover:border-slate-300 transition-all flex flex-col justify-between group cursor-pointer"
       >
         <div>
@@ -169,7 +169,7 @@
 
       <!-- Card 2: Prontos / Disponíveis -->
       <a
-        [routerLink]="['/vehicles']"
+        routerLink="/veiculos"
         class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs hover:shadow-xs hover:border-emerald-300 transition-all flex flex-col justify-between group cursor-pointer"
       >
         <div>
@@ -201,7 +201,7 @@
 
       <!-- Card 3: Em Manutenção -->
       <a
-        [routerLink]="['/manutencoes']"
+        routerLink="/manutencoes"
         class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs hover:shadow-xs hover:border-amber-300 transition-all flex flex-col justify-between group cursor-pointer"
       >
         <div>
@@ -233,7 +233,7 @@
 
       <!-- Card 4: Em Operação / Viagem -->
       <a
-        [routerLink]="['/trips']"
+        routerLink="/viagens"
         class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs hover:shadow-xs hover:border-blue-300 transition-all flex flex-col justify-between group cursor-pointer"
       >
         <div>
@@ -337,8 +337,8 @@
         </div>
 
         <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-          <span>Média diária: <strong>~7 viagens</strong></span>
-          <a [routerLink]="['/trips']" class="text-emerald-600 font-semibold hover:underline">Histórico operacional completo →</a>
+          <span>Média diária: <strong>~{{ summary.weeklyActivity?.dailyAverage || 0 }} viagens</strong></span>
+          <a routerLink="/viagens" class="text-emerald-600 font-semibold hover:underline">Histórico operacional completo →</a>
         </div>
       </div>
     </div>
@@ -352,7 +352,7 @@
             <h2 class="text-sm font-bold text-slate-900 tracking-tight">Viagens em Curso & Planejadas</h2>
             <p class="text-[11px] text-slate-400">Monitoramento instantâneo de rotas</p>
           </div>
-          <a [routerLink]="['/trips']" class="text-xs font-semibold text-emerald-600 hover:text-emerald-700">
+          <a routerLink="/viagens" class="text-xs font-semibold text-emerald-600 hover:text-emerald-700">
             Ver todas ({{ summary.trips.length }}) →
           </a>
         </div>
@@ -430,7 +430,7 @@
           <div class="space-y-2.5">
             @for (item of topExpirations(); track item.id) {
               <a
-                [routerLink]="item.type === 'CNH' ? ['/drivers'] : ['/vehicles']"
+                [routerLink]="item.type === 'CNH' ? '/motoristas' : '/veiculos'"
                 class="flex items-center justify-between p-3 rounded-xl bg-slate-50/80 border border-slate-100 hover:bg-slate-100/80 transition-colors cursor-pointer block"
               >
                 <div class="flex items-center gap-3">
@@ -476,7 +476,7 @@
           <span class="text-slate-500 font-medium">
             Exibindo {{ topExpirations().length }} de {{ summary.expirations.length }} pendências
           </span>
-          <a [routerLink]="['/vehicles']" class="text-emerald-600 font-semibold hover:underline">Ver todas →</a>
+          <a routerLink="/veiculos" class="text-emerald-600 font-semibold hover:underline">Ver todas →</a>
         </div>
       </div>
     </div>

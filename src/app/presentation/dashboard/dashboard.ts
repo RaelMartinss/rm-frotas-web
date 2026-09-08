@@ -203,9 +203,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
     if (this.activityChartCanvas?.nativeElement) {
       const ctx = this.activityChartCanvas.nativeElement.getContext('2d');
       if (ctx) {
-        const weekdays = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
-        const completedTrips = [4, 6, 8, 7, 9, 5, 2];
-        const ongoingTrips = [2, 3, 2, 4, 3, 1, 1];
+        const weekly = summary.weeklyActivity;
+        const weekdays = weekly?.days?.map((d) => d.day) || ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
+        const completedTrips = weekly?.days?.map((d) => d.completedTrips) || [0, 0, 0, 0, 0, 0, 0];
+        const ongoingTrips = weekly?.days?.map((d) => d.ongoingTrips) || [0, 0, 0, 0, 0, 0, 0];
 
         this.activityChartInstance = new Chart(ctx, {
           type: 'bar',
@@ -252,7 +253,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
               tooltip: {
                 backgroundColor: '#0f172a',
                 padding: 10,
-                cornerRadius: 8
+                cornerRadius: 8,
+                callbacks: {
+                  title: (tooltipItems) => {
+                    const idx = tooltipItems[0]?.dataIndex;
+                    if (idx !== undefined && weekly?.days?.[idx]) {
+                      return `${weekly.days[idx].day} (${weekly.days[idx].date})`;
+                    }
+                    return tooltipItems[0]?.label || '';
+                  }
+                }
               }
             },
             scales: {
@@ -268,6 +278,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 }
               },
               y: {
+                beginAtZero: true,
                 grid: {
                   color: '#f1f5f9'
                 },
@@ -276,7 +287,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
                   font: {
                     size: 11
                   },
-                  stepSize: 2
+                  stepSize: 1,
+                  precision: 0
                 }
               }
             },

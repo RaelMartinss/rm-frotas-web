@@ -36,9 +36,24 @@ export interface RecentAlert {
   timeAgo: string;
 }
 
+export interface WeeklyActivityDay {
+  day: string;
+  date: string;
+  completedTrips: number;
+  ongoingTrips: number;
+}
+
+export interface WeeklyActivitySummary {
+  days: WeeklyActivityDay[];
+  dailyAverage: number;
+  totalCompleted: number;
+  totalOngoing: number;
+}
+
 export interface DashboardSummary {
   kpis: KpiSummary;
   expirations: UpcomingExpiration[];
   trips: OngoingTrip[];
   alerts: RecentAlert[];
+  weeklyActivity?: WeeklyActivitySummary;
 }
