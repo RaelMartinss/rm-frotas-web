@@ -25,6 +25,30 @@ export const routes: Routes = [
       )
   },
   {
+    path: 'motorista',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./presentation/driver/driver-layout/driver-layout').then(
+        (m) => m.DriverLayoutComponent
+      ),
+    children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import('./presentation/driver/driver-home/driver-home').then(
+            (m) => m.DriverHomeComponent
+          ),
+      },
+      {
+        path: 'historico',
+        loadComponent: () =>
+          import('./presentation/driver/driver-history/driver-history').then(
+            (m) => m.DriverHistoryComponent
+          ),
+      },
+    ],
+  },
+  {
     path: '',
     canActivate: [authGuard],
     loadComponent: () =>

@@ -1,0 +1,77 @@
+export interface DriverProfile {
+  id: string;
+  name: string;
+  cpf: string;
+  cnhNumber: string;
+  cnhCategory: string;
+  cnhExpirationDate: string;
+  isCnhExpired: boolean;
+  status: string;
+}
+
+export interface DriverVehicle {
+  id: string;
+  brand: string | null;
+  model: string;
+  plate: string;
+  year: number;
+  currentKm: number;
+  crlvExpiration: string | null;
+  status: string;
+}
+
+export interface DriverCurrentTrip {
+  id: string;
+  status: string;
+  originAddress: string;
+  originCity: string;
+  originState: string;
+  destinationAddress: string;
+  destinationCity: string;
+  destinationState: string;
+  startedAt: string | null;
+  createdAt: string;
+  vehicle: DriverVehicle;
+}
+
+export interface DriverPortalSummary {
+  driver: DriverProfile | null;
+  trip: DriverCurrentTrip | null;
+  recentTripsCount: number;
+}
+
+export interface StartTripDTO {
+  tripId: string;
+}
+
+export interface CompleteTripDTO {
+  tripId: string;
+  currentKm?: number;
+}
+
+export interface DriverFuelDTO {
+  vehicleId: string;
+  currentKm: number;
+  liters: number;
+  pricePerLiter: number;
+  fuelType: string;
+  date?: string;
+}
+
+export interface DriverIncidentDTO {
+  tripId?: string;
+  vehicleId?: string;
+  category: string;
+  description: string;
+}
+
+export interface DriverHistoryItem {
+  id: string;
+  status: string;
+  origin: string;
+  destination: string;
+  vehicle: string;
+  startedAt: string | null;
+  completedAt: string | null;
+  createdAt: string;
+}

@@ -24,6 +24,8 @@ import { IFuelRepository } from './domain/repositories/fuel.repository.interface
 import { HttpFuelRepository } from './core/adapters/http-fuel.repository';
 import { IClientRepository } from './domain/repositories/client.repository.interface';
 import { HttpClientRepository } from './core/adapters/http-client.repository';
+import { IDriverPortalRepository } from './domain/repositories/driver-portal.repository.interface';
+import { HttpDriverPortalRepository } from './core/adapters/http-driver-portal.repository';
 
 registerLocaleData(localePt, 'pt-BR');
 
@@ -46,6 +48,7 @@ export const appConfig: ApplicationConfig = {
     { provide: IMaintenanceRepository, useClass: HttpMaintenanceRepository },
     { provide: IFuelRepository, useClass: HttpFuelRepository },
     { provide: IClientRepository, useClass: HttpClientRepository },
+    { provide: IDriverPortalRepository, useClass: HttpDriverPortalRepository },
     provideAppInitializer(() => {
       const authRepository = inject(IAuthRepository);
       const authState = inject(AuthStateService);

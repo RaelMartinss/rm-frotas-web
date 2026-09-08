@@ -15,6 +15,11 @@ export const authGuard: CanActivateFn = (route, state) => {
     if (user?.mustChangePassword && !state.url.includes('/trocar-senha-obrigatoria')) {
       return router.createUrlTree(['/trocar-senha-obrigatoria']);
     }
+
+    if (user?.role === 'DRIVER' && (state.url === '/' || state.url === '/dashboard' || state.url === '')) {
+      return router.createUrlTree(['/motorista']);
+    }
+
     return true;
   };
 
