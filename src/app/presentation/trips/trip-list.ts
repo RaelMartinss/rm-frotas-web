@@ -67,6 +67,9 @@ export class TripListComponent implements OnInit {
   trips = signal<Trip[]>([]);
   vehicles = signal<Vehicle[]>([]);
   drivers = signal<Driver[]>([]);
+  availableVehicles = signal<Vehicle[]>([]);
+  availableDrivers = signal<Driver[]>([]);
+  loadingAvailability = signal<boolean>(false);
   loading = signal<boolean>(true);
 
   // --- PAGINAÇÃO SERVER-SIDE (OFFSET / LIMIT) ---
@@ -311,8 +314,24 @@ export class TripListComponent implements OnInit {
     }
   }
 
-  openTripModal(): void {
+  loadAvailability(excludeTripId?: string): void {
+    this.loadingAvailability.set(true);
+    this.tripRepository.getAvailability(excludeTripId).subscribe({
+      next: (response) => {
+        this.availableVehicles.set(response.vehicles || []);
+        this.availableDrivers.set(response.drivers || []);
+        this.loadingAvailability.set(false);
+      },
+      error: () => {
+        this.loadingAvailability.set(false);
+        this.toastService.error('Erro ao carregar veículos e motoristas disponíveis.');
+      }
+    });
+  }
+
+  openTripModal(trip?: Trip): void {
     this.errorMessage.set(null);
+    this.loadAvailability(trip?.id);
     this.tripForm.reset({
       originState: 'PA',
       destinationState: 'PA',

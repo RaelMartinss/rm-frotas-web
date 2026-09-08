@@ -1,3 +1,6 @@
+import { Vehicle } from './vehicle.model';
+import { Driver } from './driver.model';
+
 export type TripStatus =
   | 'PLANNED'
   | 'IN_PROGRESS'
@@ -7,6 +10,11 @@ export type TripStatus =
   | 'EM_ANDAMENTO'
   | 'CONCLUIDA'
   | 'CANCELADA';
+
+export interface TripAvailability {
+  vehicles: Vehicle[];
+  drivers: Driver[];
+}
 
 export interface LocationDTO {
   address: string;

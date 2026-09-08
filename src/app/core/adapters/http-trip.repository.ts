@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ITripRepository } from '../../domain/repositories/trip.repository.interface';
-import { Trip, CreateTripDTO, CreateFuelSupplyDTO, FuelSupply } from '../../domain/models/trip.model';
+import { Trip, CreateTripDTO, CreateFuelSupplyDTO, FuelSupply, TripAvailability } from '../../domain/models/trip.model';
 import { PaginatedResponse, PaginationParams } from '../../domain/models/pagination.model';
 
 @Injectable({
@@ -28,6 +28,14 @@ export class HttpTripRepository implements ITripRepository {
 
   getById(id: string): Observable<Trip> {
     return this.http.get<Trip>(`${this.apiUrl}/${id}`);
+  }
+
+  getAvailability(excludeTripId?: string): Observable<TripAvailability> {
+    let httpParams = new HttpParams();
+    if (excludeTripId) {
+      httpParams = httpParams.set('excludeTripId', excludeTripId);
+    }
+    return this.http.get<TripAvailability>(`${this.apiUrl}/availability`, { params: httpParams });
   }
 
   create(trip: CreateTripDTO): Observable<Trip> {
