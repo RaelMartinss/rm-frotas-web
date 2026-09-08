@@ -100,33 +100,31 @@ export class UserListComponent implements OnInit {
       return [
         { value: 'FLEET_MANAGER', label: 'Gestor de Frota (FLEET_MANAGER)' },
         { value: 'ADMIN', label: 'Administrador (ADMIN)' },
-        { value: 'DRIVER', label: 'Motorista (DRIVER)' },
       ];
     }
     // FLEET_MANAGER
     return [
       { value: 'ADMIN', label: 'Administrador da Equipe (ADMIN)' },
-      { value: 'DRIVER', label: 'Motorista do Aplicativo (DRIVER)' },
     ];
   });
 
   // Counts computados para os chips de filtro
-  totalCount = computed(() => (this.users() || []).filter(Boolean).length);
+  totalCount = computed(() => (this.users() || []).filter(Boolean).filter((u) => u.role !== 'DRIVER').length);
   managerCount = computed(
     () =>
       (this.users() || [])
         .filter(Boolean)
-        .filter((u) => u.role === 'FLEET_MANAGER' || u.role === 'ADMIN').length
+        .filter((u) => u.role === 'FLEET_MANAGER').length
   );
-  driverRoleCount = computed(
+  adminRoleCount = computed(
     () =>
       (this.users() || [])
         .filter(Boolean)
-        .filter((u) => u.role === 'DRIVER').length
+        .filter((u) => u.role === 'ADMIN').length
   );
 
   filteredUsers = computed(() => {
-    const list = (this.users() || []).filter(Boolean);
+    const list = (this.users() || []).filter(Boolean).filter((u) => u.role !== 'DRIVER');
     const term = this.searchTerm().toLowerCase().trim();
     const role = this.selectedRole();
 

@@ -77,19 +77,6 @@
         <span class="size-1.5 rounded-full" [ngClass]="selectedRole() === 'ADMIN' ? 'bg-white' : 'bg-indigo-500'"></span>
         <span>Admins</span>
       </button>
-
-      <button
-        type="button"
-        (click)="setRoleFilter('DRIVER')"
-        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shrink-0 cursor-pointer border"
-        [ngClass]="selectedRole() === 'DRIVER' ? 'bg-blue-600 text-white border-blue-600 shadow-2xs' : 'bg-slate-50 text-slate-600 border-slate-200/80 hover:bg-slate-100'"
-      >
-        <span class="size-1.5 rounded-full" [ngClass]="selectedRole() === 'DRIVER' ? 'bg-white' : 'bg-blue-500'"></span>
-        <span>Motoristas</span>
-        <span class="px-1.5 py-0.2 rounded-md text-[10px]" [ngClass]="selectedRole() === 'DRIVER' ? 'bg-blue-700 text-white' : 'bg-blue-50 text-blue-700'">
-          {{ driverRoleCount() }}
-        </span>
-      </button>
     </div>
   </div>
 

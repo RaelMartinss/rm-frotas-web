@@ -39,6 +39,10 @@ import {
   LucideExternalLink,
   LucideFileText,
   LucideHistory,
+  LucideKeyRound,
+  LucideCopy,
+  LucideMail,
+  LucideShieldCheck,
 } from '@lucide/angular';
 
 @Component({
@@ -74,6 +78,10 @@ import {
     LucideExternalLink,
     LucideFileText,
     LucideHistory,
+    LucideKeyRound,
+    LucideCopy,
+    LucideMail,
+    LucideShieldCheck,
   ],
   templateUrl: './driver-list.html',
   styleUrl: './driver-list.css'
@@ -97,6 +105,20 @@ export class DriverListComponent implements OnInit {
   isModalOpen = signal<boolean>(false);
   isSaving = signal<boolean>(false);
   errorMessage = signal<string | null>(null);
+
+  // Modal de Exibição de Senha Temporária
+  tempPasswordModalOpen = signal<boolean>(false);
+  tempPasswordData = signal<{
+    userName: string;
+    temporaryPassword: string;
+    title?: string;
+  } | null>(null);
+  copied = signal<boolean>(false);
+
+  // Modal de Confirmação de Reset de Senha
+  resetConfirmModalOpen = signal<boolean>(false);
+  driverToReset = signal<Driver | null>(null);
+  isResetting = signal<boolean>(false);
 
   selectedDriver = signal<Driver | null>(null);
   isUpdateCnhModalOpen = signal<boolean>(false);
@@ -216,6 +238,7 @@ export class DriverListComponent implements OnInit {
   // --- FORMULÁRIOS REATIVOS ---
   driverForm: FormGroup = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(3)]],
+    email: ['', [Validators.required, Validators.email]],
     cpf: ['', [Validators.required, Validators.pattern(/^\d{3}\.\d{3}\.\d{3}-\d{2}$|^\d{11}$/)]],
     phone: [''],
     cnhNumber: ['', [Validators.required, Validators.pattern(/^\d{11}$/)]],
@@ -394,6 +417,7 @@ export class DriverListComponent implements OnInit {
 
     const payload = {
       name: formValue.name,
+      email: (formValue.email || '').trim().toLowerCase(),
       cpf: formValue.cpf.replace(/\D/g, ''),
       cnhNumber: formValue.cnhNumber,
       cnhCategory: formValue.cnhCategory,
@@ -402,12 +426,21 @@ export class DriverListComponent implements OnInit {
     };
 
     this.driverRepository.create(payload as any).subscribe({
-      next: () => {
+      next: (response) => {
         this.isSaving.set(false);
-        this.toastService.success('Motorista cadastrado com sucesso!');
         this.closeModal();
+        this.toastService.success('Motorista cadastrado com sucesso!');
         this.currentPage.set(1);
         this.loadDrivers();
+
+        if (response.temporaryPassword) {
+          this.tempPasswordData.set({
+            userName: response.name || formValue.name,
+            temporaryPassword: response.temporaryPassword,
+            title: 'Motorista Cadastrado com Sucesso',
+          });
+          this.tempPasswordModalOpen.set(true);
+        }
       },
       error: (err) => {
         this.isSaving.set(false);
@@ -419,6 +452,61 @@ export class DriverListComponent implements OnInit {
         this.toastService.error(`Motorista não cadastrado: ${msg}`);
       }
     });
+  }
+
+  // --- AÇÕES: RESETAR SENHA DO MOTORISTA ---
+  openResetPasswordModal(driver: Driver): void {
+    this.driverToReset.set(driver);
+    this.resetConfirmModalOpen.set(true);
+  }
+
+  closeResetConfirmModal(): void {
+    this.resetConfirmModalOpen.set(false);
+    this.driverToReset.set(null);
+  }
+
+  confirmResetPassword(): void {
+    const driver = this.driverToReset();
+    if (!driver) return;
+
+    this.isResetting.set(true);
+    this.driverRepository.resetPassword(driver.id).subscribe({
+      next: (res) => {
+        this.isResetting.set(false);
+        this.closeResetConfirmModal();
+        this.tempPasswordData.set({
+          userName: driver.name,
+          temporaryPassword: res.temporaryPassword,
+          title: 'Senha do Motorista Resetada com Sucesso',
+        });
+        this.tempPasswordModalOpen.set(true);
+        this.toastService.success('Senha temporária gerada com sucesso.');
+      },
+      error: (err) => {
+        this.isResetting.set(false);
+        let reason = 'Erro ao resetar senha do motorista.';
+        if (err.error?.message) {
+          reason = Array.isArray(err.error.message) ? err.error.message.join(', ') : err.error.message;
+        }
+        this.toastService.error(reason);
+      },
+    });
+  }
+
+  copyTempPassword(): void {
+    const pwd = this.tempPasswordData()?.temporaryPassword;
+    if (pwd) {
+      navigator.clipboard.writeText(pwd).then(() => {
+        this.copied.set(true);
+        this.toastService.success('Senha copiada!');
+        setTimeout(() => this.copied.set(false), 3000);
+      });
+    }
+  }
+
+  closeTempPasswordModal(): void {
+    this.tempPasswordModalOpen.set(false);
+    this.tempPasswordData.set(null);
   }
 
   // --- AÇÕES: ATIVAR / DESATIVAR MOTORISTA ---

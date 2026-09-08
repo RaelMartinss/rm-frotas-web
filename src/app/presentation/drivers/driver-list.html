@@ -240,6 +240,15 @@
                       </button>
                     }
 
+                    <!-- Resetar Senha de Acesso ao App -->
+                    <button
+                      (click)="openResetPasswordModal(driver)"
+                      title="Resetar Senha de Acesso ao Aplicativo"
+                      class="p-1.5 text-amber-600 hover:bg-amber-50 rounded-lg border border-amber-200/60 transition-colors cursor-pointer"
+                    >
+                      <svg lucideKeyRound class="size-3.5"></svg>
+                    </button>
+
                     <!-- Atualizar CNH -->
                     <button
                       (click)="openUpdateCnhModal(driver)"
@@ -438,6 +447,29 @@
           />
           @if (driverForm.get('name')?.touched && driverForm.get('name')?.errors?.['required']) {
             <p class="text-[10px] text-rose-500 mt-1 font-medium">Campo obrigatório.</p>
+          }
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">
+            E-mail de Acesso ao Aplicativo <span class="text-rose-500">*</span>
+          </label>
+          <div class="relative">
+            <input
+              type="email"
+              formControlName="email"
+              placeholder="motorista@empresa.com"
+              class="w-full bg-slate-50 border rounded-xl pl-9 pr-3 py-2 text-xs text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all placeholder:text-slate-400"
+              [class.border-rose-400]="driverForm.get('email')?.invalid && driverForm.get('email')?.touched"
+              [class.bg-rose-50/50]="driverForm.get('email')?.invalid && driverForm.get('email')?.touched"
+              [class.border-slate-200]="!(driverForm.get('email')?.invalid && driverForm.get('email')?.touched)"
+            />
+            <svg lucideMail class="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></svg>
+          </div>
+          @if (driverForm.get('email')?.touched && driverForm.get('email')?.errors?.['required']) {
+            <p class="text-[10px] text-rose-500 mt-1 font-medium">O e-mail é obrigatório para o login do motorista.</p>
+          } @else if (driverForm.get('email')?.touched && driverForm.get('email')?.errors?.['email']) {
+            <p class="text-[10px] text-rose-500 mt-1 font-medium">Insira um endereço de e-mail válido.</p>
           }
         </div>
 
@@ -1193,17 +1225,30 @@
           </div>
         }
 
-        <div class="pt-2 flex items-center justify-between border-t border-slate-100">
-          <a
-            [routerLink]="['/abastecimentos']"
-            [queryParams]="{ driverId: selectedDriver()?.id }"
-            (click)="closeDetailsModal()"
-            class="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-600 hover:text-emerald-700 hover:underline cursor-pointer"
-          >
-            <svg lucideFuel class="size-4"></svg>
-            <span>Ver Abastecimentos deste Motorista</span>
-            <svg lucideExternalLink class="size-3.5"></svg>
-          </a>
+        <div class="pt-2 flex items-center justify-between border-t border-slate-100 gap-2 flex-wrap">
+          <div class="flex items-center gap-3">
+            <a
+              [routerLink]="['/abastecimentos']"
+              [queryParams]="{ driverId: selectedDriver()?.id }"
+              (click)="closeDetailsModal()"
+              class="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-600 hover:text-emerald-700 hover:underline cursor-pointer"
+            >
+              <svg lucideFuel class="size-4"></svg>
+              <span>Abastecimentos</span>
+              <svg lucideExternalLink class="size-3.5"></svg>
+            </a>
+
+            @if (selectedDriver()) {
+              <button
+                type="button"
+                (click)="closeDetailsModal(); openResetPasswordModal(selectedDriver()!)"
+                class="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-600 hover:text-amber-700 hover:underline cursor-pointer"
+              >
+                <svg lucideKeyRound class="size-4"></svg>
+                <span>Resetar Senha de Acesso</span>
+              </button>
+            }
+          </div>
 
           <button
             type="button"
@@ -1211,6 +1256,128 @@
             class="px-5 py-2.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer"
           >
             Fechar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- MODAL: CONFIRMAÇÃO DE RESET DE SENHA DO MOTORISTA -->
+@if (resetConfirmModalOpen() && driverToReset()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-150">
+    <div class="bg-white rounded-2xl border border-slate-200/90 shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-150">
+      <div class="p-6 text-center space-y-4">
+        <div class="size-12 rounded-2xl bg-amber-50 text-amber-600 border border-amber-200/60 flex items-center justify-center mx-auto shadow-2xs">
+          <svg lucideKeyRound class="size-6"></svg>
+        </div>
+
+        <div>
+          <h3 class="text-base font-bold text-slate-900">Resetar Senha do Motorista</h3>
+          <p class="text-xs text-slate-500 mt-1">
+            Será gerada uma nova senha temporária para o motorista. No próximo login no aplicativo, o condutor será obrigado a cadastrar uma nova senha pessoal.
+          </p>
+        </div>
+
+        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200/70 text-left space-y-2 text-xs">
+          <div class="flex justify-between items-center">
+            <span class="text-slate-500">Motorista:</span>
+            <span class="font-bold text-slate-900">{{ driverToReset()?.name }}</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-slate-500">CPF:</span>
+            <span class="font-mono text-slate-700">{{ driverToReset()?.cpf }}</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-slate-500">Status:</span>
+            <span class="font-semibold">{{ getDriverStatusLabel(driverToReset()!.status) }}</span>
+          </div>
+        </div>
+
+        <div class="pt-2 flex items-center justify-end gap-3 border-t border-slate-100">
+          <button
+            type="button"
+            (click)="closeResetConfirmModal()"
+            [disabled]="isResetting()"
+            class="px-4 py-2.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer disabled:opacity-50"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            (click)="confirmResetPassword()"
+            [disabled]="isResetting()"
+            class="px-5 py-2.5 text-xs font-semibold text-white bg-amber-600 hover:bg-amber-700 rounded-xl transition-colors flex items-center gap-2 cursor-pointer shadow-xs disabled:opacity-50"
+          >
+            @if (isResetting()) {
+              <svg lucideLoader2 class="size-4 animate-spin"></svg>
+            }
+            Confirmar e Gerar Nova Senha
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- MODAL: EXIBIÇÃO DE SENHA TEMPORÁRIA -->
+@if (tempPasswordModalOpen() && tempPasswordData()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md animate-in fade-in duration-200">
+    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
+      <div class="p-6 text-center space-y-4">
+        <!-- Ícone Destaque -->
+        <div class="size-12 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-200/60 flex items-center justify-center mx-auto shadow-2xs">
+          <svg lucideShieldCheck class="size-6"></svg>
+        </div>
+
+        <div>
+          <h3 class="text-base font-bold text-slate-900">{{ tempPasswordData()?.title || 'Credenciais de Acesso ao Aplicativo' }}</h3>
+          <p class="text-xs text-slate-500 mt-1">
+            Copie e envie a senha temporária para o motorista <strong class="text-slate-800">{{ tempPasswordData()?.userName }}</strong>.
+          </p>
+        </div>
+
+        <!-- Box da Senha -->
+        <div class="p-4 bg-slate-900 rounded-xl border border-slate-800 text-left space-y-2">
+          <div class="flex items-center justify-between text-[11px] text-slate-400 font-medium">
+            <span>Senha Provisória</span>
+            <span class="text-amber-400 flex items-center gap-1">
+              <span class="size-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+              Troca obrigatória no app
+            </span>
+          </div>
+          <div class="flex items-center justify-between gap-2 bg-slate-950/80 px-3.5 py-2.5 rounded-lg border border-slate-800">
+            <span class="font-mono text-base font-bold text-emerald-400 tracking-wider select-all">
+              {{ tempPasswordData()?.temporaryPassword }}
+            </span>
+            <button
+              type="button"
+              (click)="copyTempPassword()"
+              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white transition-all cursor-pointer shadow-xs shrink-0"
+              title="Copiar senha para área de transferência"
+            >
+              @if (copied()) {
+                <svg lucideCheck class="size-3.5"></svg>
+                <span>Copiado!</span>
+              } @else {
+                <svg lucideCopy class="size-3.5"></svg>
+                <span>Copiar</span>
+              }
+            </button>
+          </div>
+        </div>
+
+        <p class="text-[11px] text-slate-400">
+          Por segurança, esta senha temporária não será exibida novamente nesta tela.
+        </p>
+
+        <div class="pt-2 border-t border-slate-100 flex justify-end">
+          <button
+            type="button"
+            (click)="closeTempPasswordModal()"
+            class="w-full sm:w-auto px-6 py-2.5 text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 rounded-xl transition-colors cursor-pointer shadow-xs"
+          >
+            Entendido, já guardei a senha
           </button>
         </div>
       </div>

@@ -75,6 +75,7 @@ export interface DriverCnh {
 export interface Driver {
   id: string;
   name: string;
+  email?: string;
   cpf: string;
   phone?: string;
   cnhNumber?: string;
@@ -82,16 +83,40 @@ export interface Driver {
   cnhExpiration?: string;
   cnh?: DriverCnh;
   status: DriverStatus;
+  userId?: string;
   createdAt?: string;
   updatedAt?: string;
 }
 
 export interface CreateDriverDTO {
   name: string;
+  email: string;
   cpf: string;
   phone?: string;
   cnhNumber: string;
   cnhCategory: CnhCategory;
   cnhExpirationDate: string;
   cnhExpiration?: string;
+}
+
+export interface CreateDriverResponse {
+  id: string;
+  name: string;
+  cpf: string;
+  cnh: DriverCnh;
+  status: DriverStatus;
+  temporaryPassword?: string;
+  user?: {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+  };
+}
+
+export interface ResetDriverPasswordResponse {
+  message: string;
+  driverId: string;
+  driverName: string;
+  temporaryPassword: string;
 }

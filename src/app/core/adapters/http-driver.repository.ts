@@ -5,6 +5,8 @@ import { IDriverRepository, UpdateDriverCnhDTO } from '../../domain/repositories
 import {
   Driver,
   CreateDriverDTO,
+  CreateDriverResponse,
+  ResetDriverPasswordResponse,
   DriverSuspension,
   SuspendDriverDTO,
   LiftSuspensionDTO,
@@ -36,8 +38,12 @@ export class HttpDriverRepository implements IDriverRepository {
     return this.http.get<Driver>(`${this.apiUrl}/${id}`);
   }
 
-  create(driver: CreateDriverDTO): Observable<Driver> {
-    return this.http.post<Driver>(this.apiUrl, driver);
+  create(driver: CreateDriverDTO): Observable<CreateDriverResponse> {
+    return this.http.post<CreateDriverResponse>(this.apiUrl, driver);
+  }
+
+  resetPassword(driverId: string): Observable<ResetDriverPasswordResponse> {
+    return this.http.post<ResetDriverPasswordResponse>(`${this.apiUrl}/${driverId}/reset-password`, {});
   }
 
   update(id: string, driver: Partial<CreateDriverDTO>): Observable<Driver> {

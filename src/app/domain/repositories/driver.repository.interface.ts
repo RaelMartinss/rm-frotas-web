@@ -2,6 +2,8 @@ import { Observable } from 'rxjs';
 import {
   Driver,
   CreateDriverDTO,
+  CreateDriverResponse,
+  ResetDriverPasswordResponse,
   CnhCategory,
   DriverSuspension,
   SuspendDriverDTO,
@@ -18,7 +20,8 @@ export interface UpdateDriverCnhDTO {
 export abstract class IDriverRepository {
   abstract getAll(params?: PaginationParams): Observable<PaginatedResponse<Driver>>;
   abstract getById(id: string): Observable<Driver>;
-  abstract create(driver: CreateDriverDTO): Observable<Driver>;
+  abstract create(driver: CreateDriverDTO): Observable<CreateDriverResponse>;
+  abstract resetPassword(driverId: string): Observable<ResetDriverPasswordResponse>;
   abstract update(id: string, driver: Partial<CreateDriverDTO>): Observable<Driver>;
   abstract activate(id: string): Observable<Driver>;
   abstract deactivate(id: string): Observable<Driver>;
