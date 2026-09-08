@@ -18,6 +18,7 @@ export interface UserProps {
   email: string;
   role: UserRole;
   clientId?: string | null;
+  clientName?: string | null;
   status?: string;
   isActive?: boolean;
   mustChangePassword?: boolean;
@@ -31,6 +32,7 @@ export class User {
   readonly email: string;
   readonly role: UserRole;
   readonly clientId?: string | null;
+  readonly clientName?: string | null;
   readonly status: string;
   readonly isActive: boolean;
   readonly mustChangePassword?: boolean;
@@ -43,6 +45,7 @@ export class User {
     this.email = props.email;
     this.role = props.role;
     this.clientId = props.clientId ?? null;
+    this.clientName = props.clientName ?? null;
     this.status = props.status ?? (props.isActive === false ? 'INACTIVE' : 'ACTIVE');
     this.isActive = props.isActive ?? (this.status === 'ACTIVE');
     this.mustChangePassword = props.mustChangePassword ?? false;
