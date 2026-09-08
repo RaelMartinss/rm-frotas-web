@@ -6,8 +6,8 @@ import { User } from '../../domain/models/user.model';
   providedIn: 'root'
 })
 export class AuthStateService {
-  private readonly _accessToken = signal<string | null>(null);
-  private readonly _currentUser = signal<User | null>(null);
+  private readonly _accessToken = signal<string | null>(this.getStoredToken());
+  private readonly _currentUser = signal<User | null>(this.getStoredUser());
   private readonly _isInitialized = signal<boolean>(false);
 
   // Exposição somente leitura dos signals
@@ -20,15 +20,46 @@ export class AuthStateService {
   isRefreshing = false;
   readonly refreshTokenSubject = new BehaviorSubject<string | null>(null);
 
+  private getStoredToken(): string | null {
+    try {
+      return localStorage.getItem('rm_frotas_token');
+    } catch {
+      return null;
+    }
+  }
+
+  private getStoredUser(): User | null {
+    try {
+      const userStr = localStorage.getItem('rm_frotas_user');
+      return userStr ? JSON.parse(userStr) : null;
+    } catch {
+      return null;
+    }
+  }
+
   setSession(token: string, user?: User | null): void {
     this._accessToken.set(token);
+    try {
+      localStorage.setItem('rm_frotas_token', token);
+    } catch {}
+
     if (user) {
       this._currentUser.set(user);
+      try {
+        localStorage.setItem('rm_frotas_user', JSON.stringify(user));
+      } catch {}
     }
   }
 
   setCurrentUser(user: User | null): void {
     this._currentUser.set(user);
+    try {
+      if (user) {
+        localStorage.setItem('rm_frotas_user', JSON.stringify(user));
+      } else {
+        localStorage.removeItem('rm_frotas_user');
+      }
+    } catch {}
   }
 
   getToken(): string | null {
@@ -46,6 +77,10 @@ export class AuthStateService {
   clear(): void {
     this._accessToken.set(null);
     this._currentUser.set(null);
+    try {
+      localStorage.removeItem('rm_frotas_token');
+      localStorage.removeItem('rm_frotas_user');
+    } catch {}
     this.isRefreshing = false;
     this.refreshTokenSubject.next(null);
   }
