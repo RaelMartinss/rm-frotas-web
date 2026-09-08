@@ -6,6 +6,7 @@ import {
   DriverFuelDTO,
   DriverIncidentDTO,
   DriverHistoryItem,
+  DriverFuelHistoryItem,
 } from '../models/driver-portal.model';
 
 export abstract class IDriverPortalRepository {
@@ -19,4 +20,11 @@ export abstract class IDriverPortalRepository {
     pings: Array<{ latitude: number; longitude: number; recordedAt?: string }>
   ): Observable<{ count: number; message: string }>;
   abstract getHistory(): Observable<DriverHistoryItem[]>;
+  abstract getFuelHistory(params?: { pendingReceiptOnly?: boolean }): Observable<DriverFuelHistoryItem[]>;
+  abstract updateFuelReceipt(
+    id: string,
+    receiptUrl: string,
+    notes?: string,
+    gasStation?: string
+  ): Observable<{ message: string; id: string; receiptUrl: string }>;
 }

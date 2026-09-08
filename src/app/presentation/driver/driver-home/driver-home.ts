@@ -1,6 +1,7 @@
 import { Component, inject, OnInit, OnDestroy, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { IDriverPortalRepository } from '../../../domain/repositories/driver-portal.repository.interface';
 import { NetworkStatusService } from '../../../core/services/network-status.service';
 import { LocationTrackingService } from '../../../core/services/location-tracking.service';
@@ -24,6 +25,7 @@ import {
   LucideWifiOff,
   LucideCheckSquare,
   LucideRadio,
+  LucideClock,
 } from '@lucide/angular';
 
 @Component({
@@ -32,12 +34,14 @@ import {
   imports: [
     CommonModule,
     FormsModule,
+    RouterLink,
     LucideNavigation,
     LucideFuel,
     LucideAlertTriangle,
     LucideTruck,
     LucideFileText,
     LucideCheckCircle2,
+    LucideClock,
     LucideRefreshCw,
     LucideMapPin,
     LucideCamera,

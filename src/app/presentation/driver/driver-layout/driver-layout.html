@@ -67,9 +67,16 @@
       <a
         routerLink="/motorista/historico"
         routerLinkActive="text-emerald-400 font-bold"
-        class="flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-white transition-colors cursor-pointer"
+        class="flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-white transition-colors cursor-pointer relative"
       >
-        <svg lucideClock class="size-5"></svg>
+        <div class="relative">
+          <svg lucideClock class="size-5"></svg>
+          @if (pendingReceipts() > 0) {
+            <span class="absolute -top-1.5 -right-2 px-1.5 py-0.2 bg-amber-500 text-slate-950 font-black text-[9px] rounded-full border border-slate-900 animate-pulse">
+              {{ pendingReceipts() }}
+            </span>
+          }
+        </div>
         <span class="text-[11px] leading-none">Histórico</span>
       </a>
     </div>

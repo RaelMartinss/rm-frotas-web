@@ -38,6 +38,7 @@ export interface DriverPortalSummary {
   driver: DriverProfile | null;
   trip: DriverCurrentTrip | null;
   recentTripsCount: number;
+  pendingReceiptsCount?: number;
 }
 
 export interface StartTripDTO {
@@ -78,4 +79,22 @@ export interface DriverHistoryItem {
   startedAt: string | null;
   completedAt: string | null;
   createdAt: string;
+}
+
+export interface DriverFuelHistoryItem {
+  id: string;
+  vehicleId: string;
+  vehiclePlate: string;
+  vehicleModel: string;
+  fuelType: string;
+  liters: number;
+  pricePerUnit: number;
+  totalCost: number;
+  odometerAtFueling: number;
+  gasStation: string | null;
+  fullTank: boolean;
+  receiptUrl: string | null;
+  notes: string | null;
+  fueledAt: string;
+  isPendingReceipt: boolean;
 }

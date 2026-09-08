@@ -10,10 +10,12 @@ import {
   DriverFuelDTO,
   DriverIncidentDTO,
   DriverHistoryItem,
+  DriverFuelHistoryItem,
 } from '../../domain/models/driver-portal.model';
 
 const DRIVER_CURRENT_TRIP_KEY = 'rm_driver_current_trip';
 const DRIVER_HISTORY_KEY = 'rm_driver_history';
+const DRIVER_FUEL_HISTORY_KEY = 'rm_driver_fuel_history';
 
 @Injectable({
   providedIn: 'root',
@@ -101,6 +103,52 @@ export class HttpDriverPortalRepository implements IDriverPortalRepository {
         } catch {}
         throw error;
       })
+    );
+  }
+
+  getFuelHistory(params?: { pendingReceiptOnly?: boolean }): Observable<DriverFuelHistoryItem[]> {
+    const queryParams: any = {};
+    if (params?.pendingReceiptOnly) {
+      queryParams.pendingReceiptOnly = 'true';
+    }
+
+    return this.http.get<DriverFuelHistoryItem[]>(`${this.baseUrl}/fuel-history`, {
+      params: queryParams,
+      withCredentials: true,
+    }).pipe(
+      tap((data) => {
+        if (!params?.pendingReceiptOnly) {
+          try {
+            localStorage.setItem(DRIVER_FUEL_HISTORY_KEY, JSON.stringify(data));
+          } catch {}
+        }
+      }),
+      catchError((error) => {
+        try {
+          const cached = localStorage.getItem(DRIVER_FUEL_HISTORY_KEY);
+          if (cached) {
+            const list = JSON.parse(cached) as DriverFuelHistoryItem[];
+            if (params?.pendingReceiptOnly) {
+              return of(list.filter((item) => item.isPendingReceipt));
+            }
+            return of(list);
+          }
+        } catch {}
+        throw error;
+      })
+    );
+  }
+
+  updateFuelReceipt(
+    id: string,
+    receiptUrl: string,
+    notes?: string,
+    gasStation?: string
+  ): Observable<{ message: string; id: string; receiptUrl: string }> {
+    return this.http.patch<{ message: string; id: string; receiptUrl: string }>(
+      `${this.baseUrl}/fuel-records/${id}/receipt`,
+      { receiptUrl, notes, gasStation },
+      { withCredentials: true }
     );
   }
 }
