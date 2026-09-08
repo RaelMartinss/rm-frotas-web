@@ -8,6 +8,7 @@ import {
   DriverPortalSummary,
   DriverCurrentTrip,
 } from '../../../domain/models/driver-portal.model';
+import { compressImage } from '../../../core/utils/image-compressor';
 import {
   LucideNavigation,
   LucideFuel,
@@ -210,15 +211,21 @@ export class DriverHomeComponent implements OnInit, OnDestroy {
     this.fuelModalOpen.set(true);
   }
 
-  onCameraPhotoSelected(event: Event): void {
+  async onCameraPhotoSelected(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files[0]) {
       const file = input.files[0];
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        this.fuelReceiptPhoto.set(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
+      try {
+        const compressedBase64 = await compressImage(file, 1280, 1280, 0.75);
+        this.fuelReceiptPhoto.set(compressedBase64);
+      } catch (err) {
+        console.error('Erro ao comprimir foto:', err);
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          this.fuelReceiptPhoto.set(e.target?.result as string);
+        };
+        reader.readAsDataURL(file);
+      }
     }
   }
 

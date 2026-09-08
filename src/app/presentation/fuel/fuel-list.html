@@ -742,6 +742,56 @@
           </div>
         </div>
 
+        <!-- Comprovante / Foto da Nota Fiscal -->
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Foto do Comprovante / Cupom Fiscal (Opcional)</label>
+          @if (receiptPhotoPreview()) {
+            <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-between gap-3">
+              <div class="flex items-center gap-3 overflow-hidden">
+                <img
+                  [src]="receiptPhotoPreview()"
+                  alt="Prévia do comprovante"
+                  class="size-14 rounded-xl object-cover border border-slate-200 shrink-0 bg-slate-900/10 cursor-pointer"
+                  (click)="openFullReceipt(receiptPhotoPreview()!)"
+                />
+                <div class="truncate">
+                  <span class="text-xs font-bold text-slate-800 block">Comprovante anexado</span>
+                  <button
+                    type="button"
+                    (click)="openFullReceipt(receiptPhotoPreview()!)"
+                    class="text-[11px] text-emerald-600 hover:text-emerald-700 font-semibold inline-flex items-center gap-1 hover:underline cursor-pointer"
+                  >
+                    Ver foto cheia
+                    <svg lucideExternalLink class="size-3"></svg>
+                  </button>
+                </div>
+              </div>
+              <button
+                type="button"
+                (click)="removeReceiptPhoto()"
+                title="Remover foto"
+                class="p-2 text-rose-600 hover:bg-rose-50 rounded-xl transition-colors cursor-pointer border border-rose-200/60 shrink-0"
+              >
+                <svg lucideTrash2 class="size-4"></svg>
+              </button>
+            </div>
+          } @else {
+            <label class="flex flex-col items-center justify-center p-4 border-2 border-dashed border-slate-200 hover:border-emerald-500 rounded-2xl bg-slate-50/70 hover:bg-emerald-50/30 cursor-pointer transition-all">
+              <div class="p-2 bg-white rounded-xl shadow-2xs border border-slate-100 text-slate-500 mb-1.5">
+                <svg lucideCamera class="size-5 text-emerald-600"></svg>
+              </div>
+              <span class="text-xs font-bold text-slate-700">Clique para anexar foto do comprovante</span>
+              <span class="text-[11px] text-slate-400 mt-0.5">JPG, PNG ou foto da câmera (comprimida automaticamente)</span>
+              <input
+                type="file"
+                accept="image/*"
+                (change)="onReceiptFileSelected($event)"
+                class="hidden"
+              />
+            </label>
+          }
+        </div>
+
         <!-- Observações -->
         <div>
           <label class="block font-semibold text-slate-700 mb-1">Observações</label>

@@ -21,6 +21,7 @@ import {
   FuelStats,
   FuelConsumptionReport,
 } from '../../domain/models/fuel.model';
+import { compressImage } from '../../core/utils/image-compressor';
 import { Vehicle } from '../../domain/models/vehicle.model';
 import { Driver } from '../../domain/models/driver.model';
 import {
@@ -130,6 +131,7 @@ export class FuelListComponent implements OnInit {
   isEditModalOpen = signal(false);
   isDetailsModalOpen = signal(false);
   isDeleteModalOpen = signal(false);
+  receiptPhotoPreview = signal<string | null>(null);
 
   // Filtro
   filterForm = this.fb.group({
@@ -307,10 +309,12 @@ export class FuelListComponent implements OnInit {
   // --- MODAIS E AÇÕES ---
   openCreateModal(): void {
     this.errorMessage.set(null);
+    this.receiptPhotoPreview.set(null);
     this.fuelForm.reset({
       fuelType: 'GASOLINA',
       fullTank: true,
       fueledAt: new Date().toISOString().slice(0, 16),
+      receiptUrl: '',
     });
 
     if (!this.isDriverUser()) {
@@ -325,12 +329,14 @@ export class FuelListComponent implements OnInit {
 
   closeCreateModal(): void {
     this.isCreateModalOpen.set(false);
+    this.receiptPhotoPreview.set(null);
     this.errorMessage.set(null);
   }
 
   openEditModal(record: FuelRecord): void {
     this.selectedRecord.set(record);
     this.errorMessage.set(null);
+    this.receiptPhotoPreview.set(record.receiptUrl || null);
 
     this.fuelForm.patchValue({
       vehicleId: record.vehicleId,
@@ -352,8 +358,35 @@ export class FuelListComponent implements OnInit {
 
   closeEditModal(): void {
     this.isEditModalOpen.set(false);
+    this.receiptPhotoPreview.set(null);
     this.selectedRecord.set(null);
     this.errorMessage.set(null);
+  }
+
+  async onReceiptFileSelected(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
+      try {
+        const compressedBase64 = await compressImage(file, 1280, 1280, 0.75);
+        this.receiptPhotoPreview.set(compressedBase64);
+        this.fuelForm.get('receiptUrl')?.setValue(compressedBase64);
+      } catch (err) {
+        console.error('Erro ao comprimir imagem de comprovante:', err);
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const res = e.target?.result as string;
+          this.receiptPhotoPreview.set(res);
+          this.fuelForm.get('receiptUrl')?.setValue(res);
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+  }
+
+  removeReceiptPhoto(): void {
+    this.receiptPhotoPreview.set(null);
+    this.fuelForm.get('receiptUrl')?.setValue('');
   }
 
   openDetailsModal(record: FuelRecord): void {
