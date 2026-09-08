@@ -111,26 +111,29 @@ export class UserListComponent implements OnInit {
   });
 
   // Counts computados para os chips de filtro
-  totalCount = computed(() => this.users().length);
+  totalCount = computed(() => (this.users() || []).filter(Boolean).length);
   managerCount = computed(
     () =>
-      this.users().filter(
-        (u) => u.role === 'FLEET_MANAGER' || u.role === 'ADMIN'
-      ).length
+      (this.users() || [])
+        .filter(Boolean)
+        .filter((u) => u.role === 'FLEET_MANAGER' || u.role === 'ADMIN').length
   );
   driverRoleCount = computed(
-    () => this.users().filter((u) => u.role === 'DRIVER').length
+    () =>
+      (this.users() || [])
+        .filter(Boolean)
+        .filter((u) => u.role === 'DRIVER').length
   );
 
   filteredUsers = computed(() => {
-    const list = this.users();
+    const list = (this.users() || []).filter(Boolean);
     const term = this.searchTerm().toLowerCase().trim();
     const role = this.selectedRole();
 
     return list.filter((user) => {
       const matchesSearch =
-        user.name.toLowerCase().includes(term) ||
-        user.email.toLowerCase().includes(term);
+        (user.name || '').toLowerCase().includes(term) ||
+        (user.email || '').toLowerCase().includes(term);
 
       const matchesRole = role === 'ALL' || user.role === role;
 
@@ -271,14 +274,16 @@ export class UserListComponent implements OnInit {
     this.isSaving.set(true);
     this.authRepository.createUser(this.userForm.value).subscribe({
       next: (response) => {
-        this.users.update((list) => [response.user, ...list]);
+        if (response?.user) {
+          this.users.update((list) => [response.user, ...(list || []).filter(Boolean)]);
+        }
         this.isSaving.set(false);
         this.closeModal();
         this.toastService.success('Novo usuário cadastrado com sucesso!');
 
         if (response.temporaryPassword) {
           this.tempPasswordData.set({
-            userName: response.user.name,
+            userName: response.user?.name || this.userForm.value.name || 'Usuário',
             temporaryPassword: response.temporaryPassword,
             title: 'Usuário Criado com Sucesso',
           });

@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, of, tap } from 'rxjs';
+import { Observable, of, tap, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { IAuthRepository } from '../../domain/repositories/auth.repository.interface';
 import { AuthStateService } from '../services/auth-state.service';
@@ -134,9 +134,31 @@ export class HttpAuthRepository implements IAuthRepository {
   }
 
   createUser(user: CreateUserDTO): Observable<CreateUserResponse> {
-    return this.http.post<CreateUserResponse>(`${this.baseUrl}/users`, user, {
-      withCredentials: true,
-    });
+    return this.http
+      .post<any>(`${this.baseUrl}/users`, user, {
+        withCredentials: true,
+      })
+      .pipe(
+        map((res) => {
+          const userEntity = res.user
+            ? res.user
+            : new User({
+                id: res.id,
+                name: res.name,
+                email: res.email,
+                role: res.role,
+                clientId: res.clientId,
+                status: 'ACTIVE',
+                isActive: true,
+                mustChangePassword: true,
+              });
+
+          return {
+            user: userEntity,
+            temporaryPassword: res.temporaryPassword,
+          };
+        })
+      );
   }
 
   resetUserPassword(id: string): Observable<ResetUserPasswordResponse> {
