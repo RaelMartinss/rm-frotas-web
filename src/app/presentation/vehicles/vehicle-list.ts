@@ -426,9 +426,9 @@ export class VehicleListComponent implements OnInit {
   goToMaintenanceModule(vehicleId?: string): void {
     this.closeMaintenanceInfoModal();
     if (vehicleId) {
-      this.router.navigate(['/manutencao'], { queryParams: { vehicleId } });
+      this.router.navigate(['/manutencoes'], { queryParams: { vehicleId } });
     } else {
-      this.router.navigate(['/manutencao']);
+      this.router.navigate(['/manutencoes']);
     }
   }
 

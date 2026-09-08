@@ -162,7 +162,17 @@ export const routes: Routes = [
           )
       },
       {
+        path: 'manutencao',
+        redirectTo: 'manutencoes',
+        pathMatch: 'full'
+      },
+      {
         path: 'maintenances',
+        redirectTo: 'manutencoes',
+        pathMatch: 'full'
+      },
+      {
+        path: 'maintenance',
         redirectTo: 'manutencoes',
         pathMatch: 'full'
       },
