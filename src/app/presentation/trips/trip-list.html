@@ -159,6 +159,21 @@
                     <span class="text-slate-300 font-normal">→</span>
                     <span class="truncate max-w-[180px]" [title]="trip.destination">{{ trip.destination }}</span>
                   </div>
+                  @if (getSosIncidentForTrip(trip.id); as sos) {
+                    <div class="mt-1.5 p-1.5 bg-rose-50 border border-rose-200 rounded-lg text-rose-700 text-[10px] flex items-start gap-1.5 max-w-xs shadow-2xs">
+                      <svg lucideShieldAlert class="size-3.5 text-rose-600 shrink-0 mt-0.5 animate-pulse"></svg>
+                      <div class="flex-1">
+                        <span class="font-bold">🚨 SOS [{{ sos.category }}]:</span> {{ sos.description }}
+                      </div>
+                      <button
+                        (click)="resolveSos(sos.id)"
+                        title="Marcar SOS como atendido"
+                        class="px-1.5 py-0.5 bg-white hover:bg-rose-100 text-rose-700 font-bold rounded border border-rose-300 text-[9px] cursor-pointer shrink-0"
+                      >
+                        Atendido
+                      </button>
+                    </div>
+                  }
                 </td>
                 <td class="py-3.5 px-4 text-slate-600 font-medium">
                   @if (trip.scheduledDate) {

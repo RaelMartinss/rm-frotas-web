@@ -7,8 +7,10 @@ import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { ITripRepository } from '../../domain/repositories/trip.repository.interface';
 import { IVehicleRepository } from '../../domain/repositories/vehicle.repository.interface';
 import { IDriverRepository } from '../../domain/repositories/driver.repository.interface';
+import { IIncidentRepository } from '../../domain/repositories/incident.repository.interface';
 import { ToastService } from '../../core/services/toast.service';
 import { Trip, FuelSupply } from '../../domain/models/trip.model';
+import { Incident } from '../../domain/models/incident.model';
 import { Vehicle } from '../../domain/models/vehicle.model';
 import { Driver } from '../../domain/models/driver.model';
 import { TripMapModalComponent } from './components/trip-map-modal/trip-map-modal.component';
@@ -21,6 +23,7 @@ import {
   LucideMapPin,
   LucideUser,
   LucideAlertCircle,
+  LucideShieldAlert,
   LucidePlay,
   LucideBan,
   LucideCheck,
@@ -48,6 +51,7 @@ import {
     LucideMapPin,
     LucideUser,
     LucideAlertCircle,
+    LucideShieldAlert,
     LucideCheckCircle2,
     LucidePlay,
     LucideBan,
@@ -67,12 +71,14 @@ export class TripListComponent implements OnInit {
   private readonly tripRepository = inject(ITripRepository);
   private readonly vehicleRepository = inject(IVehicleRepository);
   private readonly driverRepository = inject(IDriverRepository);
+  private readonly incidentRepository = inject(IIncidentRepository);
   private readonly toastService = inject(ToastService);
   private readonly fb = inject(FormBuilder);
 
   trips = signal<Trip[]>([]);
   vehicles = signal<Vehicle[]>([]);
   drivers = signal<Driver[]>([]);
+  openIncidents = signal<Incident[]>([]);
   availableVehicles = signal<Vehicle[]>([]);
   availableDrivers = signal<Driver[]>([]);
   loadingAvailability = signal<boolean>(false);
@@ -258,6 +264,26 @@ export class TripListComponent implements OnInit {
     this.driverRepository.getAll({ limit: 100 }).subscribe({
       next: (response) => this.drivers.set(response.data || []),
       error: () => {}
+    });
+    this.incidentRepository.getAll({ status: 'OPEN' }).subscribe({
+      next: (response) => this.openIncidents.set(response || []),
+      error: () => {}
+    });
+  }
+
+  getSosIncidentForTrip(tripId: string): Incident | undefined {
+    return this.openIncidents().find((inc) => inc.tripId === tripId);
+  }
+
+  resolveSos(incidentId: string): void {
+    this.incidentRepository.resolve(incidentId).subscribe({
+      next: () => {
+        this.openIncidents.update((list) => list.filter((i) => i.id !== incidentId));
+        this.toastService.success('Alerta SOS marcado como atendido com sucesso!');
+      },
+      error: () => {
+        this.toastService.error('Erro ao marcar ocorrência como resolvida.');
+      }
     });
   }
 

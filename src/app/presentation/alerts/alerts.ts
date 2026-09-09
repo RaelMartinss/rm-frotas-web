@@ -8,6 +8,7 @@ import { IDashboardRepository } from '../../domain/repositories/dashboard.reposi
 import { IVehicleRepository } from '../../domain/repositories/vehicle.repository.interface';
 import { IDriverRepository } from '../../domain/repositories/driver.repository.interface';
 import { ITripRepository } from '../../domain/repositories/trip.repository.interface';
+import { IIncidentRepository } from '../../domain/repositories/incident.repository.interface';
 import { ToastService } from '../../core/services/toast.service';
 import {
   LucideBell,
@@ -35,6 +36,9 @@ export interface AlertDetailItem {
   link?: string;
   resolved: boolean;
   actionText?: string;
+  isSos?: boolean;
+  incidentId?: string;
+  categoryTag?: string;
 }
 
 @Component({
@@ -64,6 +68,7 @@ export class AlertsComponent implements OnInit {
   private readonly vehicleRepository = inject(IVehicleRepository);
   private readonly driverRepository = inject(IDriverRepository);
   private readonly tripRepository = inject(ITripRepository);
+  private readonly incidentRepository = inject(IIncidentRepository);
   private readonly toastService = inject(ToastService);
   private readonly router = inject(Router);
 
@@ -93,6 +98,7 @@ export class AlertsComponent implements OnInit {
   dangerCount = computed(() => this.alerts().filter((a) => a.type === 'DANGER' && !a.resolved).length);
   warningCount = computed(() => this.alerts().filter((a) => a.type === 'WARNING' && !a.resolved).length);
   infoCount = computed(() => this.alerts().filter((a) => a.type === 'INFO' && !a.resolved).length);
+  hasActiveSos = computed(() => this.alerts().some((a) => a.isSos && !a.resolved));
 
   filteredAlerts = computed(() => {
     const list = this.alerts();
@@ -169,6 +175,12 @@ export class AlertsComponent implements OnInit {
 
     Promise.all([
       new Promise<any[]>((resolve) => {
+        this.incidentRepository.getAll({ status: 'OPEN' }).subscribe({
+          next: (res) => resolve(res || []),
+          error: () => resolve([])
+        });
+      }),
+      new Promise<any[]>((resolve) => {
         this.vehicleRepository.getAll({ limit: 100 }).subscribe({
           next: (res) => resolve(res.data || []),
           error: () => resolve([])
@@ -186,11 +198,32 @@ export class AlertsComponent implements OnInit {
           error: () => resolve([])
         });
       })
-    ]).then(([vehicles, drivers, trips]) => {
+    ]).then(([incidents, vehicles, drivers, trips]) => {
       const now = new Date();
       now.setHours(0, 0, 0, 0);
 
       const alertList: AlertDetailItem[] = [];
+
+      // 0. ALERTAS DE SOS REPORTADOS PELO MOTORISTA (URGÊNCIA MÁXIMA - CRÍTICO / VERMELHO)
+      for (const inc of incidents) {
+        const vehiclePlate = inc.vehiclePlate ? ` (${inc.vehiclePlate})` : '';
+        const tripRoute = inc.tripRoute ? ` • ${inc.tripRoute}` : '';
+
+        alertList.push({
+          id: `sos-${inc.id}`,
+          type: 'DANGER',
+          category: 'OPERAÇÃO',
+          categoryTag: inc.category,
+          title: `🚨 SOS: ${inc.driverName || 'Motorista'} precisa de ajuda! [${inc.category}]`,
+          description: `"${inc.description}" • Veículo: ${inc.vehiclePlate || 'N/A'}${tripRoute}`,
+          timeAgo: 'SOS Urgente',
+          link: inc.tripId ? `/viagens` : '/alertas',
+          actionText: 'Ver Viagem / Rota',
+          resolved: false,
+          isSos: true,
+          incidentId: inc.id,
+        });
+      }
 
       // 1. CRLVs Vencidos ou Próximos
       for (const v of vehicles) {
@@ -328,6 +361,21 @@ export class AlertsComponent implements OnInit {
   }
 
   resolveAlert(alert: AlertDetailItem): void {
+    if (alert.incidentId) {
+      this.incidentRepository.resolve(alert.incidentId).subscribe({
+        next: () => {
+          this.alerts.update((list) =>
+            list.map((a) => (a.id === alert.id ? { ...a, resolved: true } : a))
+          );
+          this.toastService.success('Alerta SOS marcado como atendido/resolvido com sucesso.');
+        },
+        error: () => {
+          this.toastService.error('Erro ao marcar ocorrência como resolvida.');
+        }
+      });
+      return;
+    }
+
     this.alerts.update((list) =>
       list.map((a) => (a.id === alert.id ? { ...a, resolved: true } : a))
     );
