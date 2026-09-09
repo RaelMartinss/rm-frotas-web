@@ -1,4 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
+import { Capacitor } from '@capacitor/core';
+import { Geolocation, Position } from '@capacitor/geolocation';
 import { IDriverPortalRepository } from '../../domain/repositories/driver-portal.repository.interface';
 import { NetworkStatusService } from './network-status.service';
 
@@ -22,7 +24,8 @@ export class LocationTrackingService {
   readonly pendingPingsCount = signal<number>(0);
   readonly currentTripId = signal<string | null>(null);
 
-  private watchId: number | null = null;
+  private webWatchId: number | null = null;
+  private nativeWatchId: string | null = null;
   private lastSentTime = 0;
   private lastSentPos: { lat: number; lng: number } | null = null;
 
@@ -40,12 +43,7 @@ export class LocationTrackingService {
     }
   }
 
-  startTracking(tripId: string): void {
-    if (typeof navigator === 'undefined' || !navigator.geolocation) {
-      console.warn('[LocationTracking] Geolocalização não suportada neste dispositivo.');
-      return;
-    }
-
+  async startTracking(tripId: string): Promise<void> {
     if (this.isTracking() && this.currentTripId() === tripId) {
       return; // Já está rastreando esta mesma viagem
     }
@@ -58,10 +56,67 @@ export class LocationTrackingService {
     // Tenta descarregar fila acumulada anteriormente
     this.flushPendingPings(tripId);
 
-    this.watchId = navigator.geolocation.watchPosition(
-      (pos) => this.handlePositionUpdate(tripId, pos),
+    if (Capacitor.isNativePlatform()) {
+      await this.startNativeTracking(tripId);
+    } else {
+      this.startWebTracking(tripId);
+    }
+  }
+
+  private async startNativeTracking(tripId: string): Promise<void> {
+    try {
+      const perm = await Geolocation.checkPermissions();
+      if (perm.location !== 'granted') {
+        const req = await Geolocation.requestPermissions();
+        if (req.location !== 'granted') {
+          console.warn('[LocationTracking] Permissão de GPS negada no Android.');
+          return;
+        }
+      }
+
+      this.nativeWatchId = await Geolocation.watchPosition(
+        {
+          enableHighAccuracy: true,
+          timeout: 20000,
+          maximumAge: 10000,
+        },
+        (position: Position | null, err) => {
+          if (err) {
+            console.warn('[LocationTracking] Erro nativo ao obter posição:', err.message);
+            return;
+          }
+          if (position) {
+            this.handlePositionCoordinates(
+              tripId,
+              position.coords.latitude,
+              position.coords.longitude,
+              position.timestamp
+            );
+          }
+        }
+      );
+    } catch (e) {
+      console.warn('[LocationTracking] Falha ao iniciar rastreamento nativo, caindo para Web:', e);
+      this.startWebTracking(tripId);
+    }
+  }
+
+  private startWebTracking(tripId: string): void {
+    if (typeof navigator === 'undefined' || !navigator.geolocation) {
+      console.warn('[LocationTracking] Geolocalização não suportada neste dispositivo.');
+      return;
+    }
+
+    this.webWatchId = navigator.geolocation.watchPosition(
+      (pos) =>
+        this.handlePositionCoordinates(
+          tripId,
+          pos.coords.latitude,
+          pos.coords.longitude,
+          pos.timestamp
+        ),
       (err) => {
-        console.warn('[LocationTracking] Erro ao obter posição:', err.message);
+        console.warn('[LocationTracking] Erro web ao obter posição:', err.message);
       },
       {
         enableHighAccuracy: true,
@@ -72,9 +127,16 @@ export class LocationTrackingService {
   }
 
   stopTracking(): void {
-    if (this.watchId !== null && typeof navigator !== 'undefined') {
-      navigator.geolocation.clearWatch(this.watchId);
-      this.watchId = null;
+    if (this.webWatchId !== null && typeof navigator !== 'undefined') {
+      navigator.geolocation.clearWatch(this.webWatchId);
+      this.webWatchId = null;
+    }
+
+    if (this.nativeWatchId !== null) {
+      Geolocation.clearWatch({ id: this.nativeWatchId }).catch((err) =>
+        console.warn('[LocationTracking] Erro ao parar watch nativo:', err)
+      );
+      this.nativeWatchId = null;
     }
 
     const tripId = this.currentTripId();
@@ -88,11 +150,13 @@ export class LocationTrackingService {
     this.lastSentTime = 0;
   }
 
-  private handlePositionUpdate(tripId: string, position: GeolocationPosition): void {
-    const lat = position.coords.latitude;
-    const lng = position.coords.longitude;
+  private handlePositionCoordinates(
+    tripId: string,
+    lat: number,
+    lng: number,
+    timestamp: number
+  ): void {
     const now = Date.now();
-
     const elapsed = now - this.lastSentTime;
     let distance = 0;
 
@@ -116,7 +180,7 @@ export class LocationTrackingService {
     const ping: LocationPingItem = {
       latitude: lat,
       longitude: lng,
-      recordedAt: new Date(position.timestamp || now).toISOString(),
+      recordedAt: new Date(timestamp || now).toISOString(),
     };
 
     this.lastLocation.set(ping);
