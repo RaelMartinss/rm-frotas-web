@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -63,7 +63,7 @@ export interface AlertDetailItem {
   ],
   templateUrl: './alerts.html'
 })
-export class AlertsComponent implements OnInit {
+export class AlertsComponent implements OnInit, OnDestroy {
   private readonly dashboardRepository = inject(IDashboardRepository);
   private readonly vehicleRepository = inject(IVehicleRepository);
   private readonly driverRepository = inject(IDriverRepository);
@@ -74,6 +74,7 @@ export class AlertsComponent implements OnInit {
 
   loading = signal<boolean>(true);
   alerts = signal<AlertDetailItem[]>([]);
+  private pollInterval: any = null;
 
   // Filtros
   searchControl = new FormControl('', { nonNullable: true });
@@ -167,11 +168,25 @@ export class AlertsComponent implements OnInit {
         this.currentPage.set(1);
       });
 
-    this.loadAlerts();
+    this.loadAlerts(true);
+
+    // Polling silencioso contínuo para refletir novos alertas em tempo real a cada 7 segundos
+    this.pollInterval = setInterval(() => {
+      this.loadAlerts(false);
+    }, 7000);
   }
 
-  loadAlerts(): void {
-    this.loading.set(true);
+  ngOnDestroy(): void {
+    if (this.pollInterval) {
+      clearInterval(this.pollInterval);
+      this.pollInterval = null;
+    }
+  }
+
+  loadAlerts(showLoading = true): void {
+    if (showLoading) {
+      this.loading.set(true);
+    }
 
     Promise.all([
       new Promise<any[]>((resolve) => {
@@ -339,8 +354,10 @@ export class AlertsComponent implements OnInit {
       this.alerts.set(alertList);
       this.loading.set(false);
     }).catch(() => {
-      this.loading.set(false);
-      this.toastService.error('Erro ao carregar central de alertas.');
+      if (showLoading) {
+        this.loading.set(false);
+        this.toastService.error('Erro ao carregar central de alertas.');
+      }
     });
   }
 

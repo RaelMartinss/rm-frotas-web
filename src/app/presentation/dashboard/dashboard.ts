@@ -98,12 +98,32 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return this.data()?.expirations.slice(0, 4) || [];
   });
 
+  private pollInterval: any = null;
+
   ngOnInit(): void {
     this.loadDashboardData();
+    // Atualização em tempo real da dashboard a cada 12 segundos
+    this.pollInterval = setInterval(() => {
+      this.loadDashboardDataSilent();
+    }, 12000);
   }
 
   ngOnDestroy(): void {
     this.destroyCharts();
+    if (this.pollInterval) {
+      clearInterval(this.pollInterval);
+      this.pollInterval = null;
+    }
+  }
+
+  loadDashboardDataSilent(): void {
+    this.dashboardRepository.getSummary().subscribe({
+      next: (summary) => {
+        this.data.set(summary);
+        setTimeout(() => this.renderCharts(), 50);
+      },
+      error: () => {}
+    });
   }
 
   loadDashboardData(isManualRefresh = false): void {

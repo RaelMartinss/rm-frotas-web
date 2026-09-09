@@ -226,13 +226,16 @@
         <!-- Botão de Notificações com Badge -->
         <button
           (click)="toggleNotifications()"
-          class="relative p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
-          [class.bg-slate-100]="notificationsOpen()"
+          class="relative p-2 rounded-lg transition-colors cursor-pointer"
+          [ngClass]="hasActiveSos() ? 'text-rose-600 bg-rose-50 hover:bg-rose-100 ring-1 ring-rose-300' : (notificationsOpen() ? 'bg-slate-100 text-slate-700' : 'text-slate-600 hover:bg-slate-100')"
           title="Notificações da Frota"
         >
-          <svg lucideBell class="size-5"></svg>
+          <svg lucideBell class="size-5" [class.animate-bounce]="hasActiveSos()"></svg>
           @if (unreadNotificationsCount() > 0) {
-            <span class="absolute 1 top-1.5 right-1.5 size-4 bg-rose-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center ring-2 ring-white animate-pulse">
+            <span
+              class="absolute top-1 right-1 size-4.5 text-white text-[9px] font-bold rounded-full flex items-center justify-center ring-2 ring-white"
+              [ngClass]="hasActiveSos() ? 'bg-rose-600 animate-ping' : 'bg-rose-500'"
+            >
               {{ unreadNotificationsCount() }}
             </span>
           }
@@ -251,7 +254,10 @@
               <div class="flex items-center gap-2">
                 <span class="text-xs font-bold text-slate-900">Notificações da Frota</span>
                 @if (unreadNotificationsCount() > 0) {
-                  <span class="text-[10px] font-semibold bg-rose-50 text-rose-600 px-2 py-0.5 rounded-full border border-rose-200/50">
+                  <span
+                    class="text-[10px] font-semibold px-2 py-0.5 rounded-full border"
+                    [ngClass]="hasActiveSos() ? 'bg-rose-100 text-rose-800 border-rose-300 font-bold animate-pulse' : 'bg-rose-50 text-rose-600 border-rose-200/50'"
+                  >
                     {{ unreadNotificationsCount() }} pendentes
                   </span>
                 }
@@ -269,7 +275,7 @@
 
             <!-- Lista de Notificações -->
             <div class="max-h-80 overflow-y-auto divide-y divide-slate-100">
-              @for (notif of notifications(); track notif.id) {
+              @for (notif of dynamicNotifications(); track notif.id) {
                 <a
                   [routerLink]="notif.link"
                   (click)="markNotificationAsRead(notif.id); closeNotifications()"

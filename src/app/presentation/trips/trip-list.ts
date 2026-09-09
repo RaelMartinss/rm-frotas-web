@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -8,6 +8,7 @@ import { ITripRepository } from '../../domain/repositories/trip.repository.inter
 import { IVehicleRepository } from '../../domain/repositories/vehicle.repository.interface';
 import { IDriverRepository } from '../../domain/repositories/driver.repository.interface';
 import { IIncidentRepository } from '../../domain/repositories/incident.repository.interface';
+import { LiveAlertsService } from '../../core/services/live-alerts.service';
 import { ToastService } from '../../core/services/toast.service';
 import { Trip, FuelSupply } from '../../domain/models/trip.model';
 import { Incident } from '../../domain/models/incident.model';
@@ -67,22 +68,24 @@ import {
   templateUrl: './trip-list.html',
   styleUrl: './trip-list.css'
 })
-export class TripListComponent implements OnInit {
+export class TripListComponent implements OnInit, OnDestroy {
   private readonly tripRepository = inject(ITripRepository);
   private readonly vehicleRepository = inject(IVehicleRepository);
   private readonly driverRepository = inject(IDriverRepository);
   private readonly incidentRepository = inject(IIncidentRepository);
+  private readonly liveAlertsService = inject(LiveAlertsService);
   private readonly toastService = inject(ToastService);
   private readonly fb = inject(FormBuilder);
 
   trips = signal<Trip[]>([]);
   vehicles = signal<Vehicle[]>([]);
   drivers = signal<Driver[]>([]);
-  openIncidents = signal<Incident[]>([]);
+  readonly openIncidents = this.liveAlertsService.activeIncidents;
   availableVehicles = signal<Vehicle[]>([]);
   availableDrivers = signal<Driver[]>([]);
   loadingAvailability = signal<boolean>(false);
   loading = signal<boolean>(true);
+  private pollInterval: any = null;
 
   // --- PAGINAÇÃO SERVER-SIDE (OFFSET / LIMIT) ---
   currentPage = signal<number>(1);
@@ -226,15 +229,30 @@ export class TripListComponent implements OnInit {
       .pipe(debounceTime(350), distinctUntilChanged())
       .subscribe(() => {
         this.currentPage.set(1);
-        this.loadTrips();
+        this.loadTrips(true);
       });
 
-    this.loadTrips();
+    this.loadTrips(true);
     this.loadAuxiliaryData();
+
+    // Atualização reativa periódica em segundo plano a cada 8 segundos
+    this.pollInterval = setInterval(() => {
+      this.loadTrips(false);
+      this.liveAlertsService.checkIncidents();
+    }, 8000);
   }
 
-  loadTrips(): void {
-    this.loading.set(true);
+  ngOnDestroy(): void {
+    if (this.pollInterval) {
+      clearInterval(this.pollInterval);
+      this.pollInterval = null;
+    }
+  }
+
+  loadTrips(showLoading = true): void {
+    if (showLoading) {
+      this.loading.set(true);
+    }
     this.tripRepository
       .getAll({
         page: this.currentPage(),
@@ -247,11 +265,15 @@ export class TripListComponent implements OnInit {
           this.trips.set(response.data || []);
           this.totalItems.set(response.total || 0);
           this.totalPages.set(response.totalPages || 1);
-          this.loading.set(false);
+          if (showLoading) {
+            this.loading.set(false);
+          }
         },
         error: () => {
-          this.loading.set(false);
-          this.toastService.error('Erro ao carregar lista de viagens.');
+          if (showLoading) {
+            this.loading.set(false);
+            this.toastService.error('Erro ao carregar lista de viagens.');
+          }
         }
       });
   }
@@ -265,10 +287,6 @@ export class TripListComponent implements OnInit {
       next: (response) => this.drivers.set(response.data || []),
       error: () => {}
     });
-    this.incidentRepository.getAll({ status: 'OPEN' }).subscribe({
-      next: (response) => this.openIncidents.set(response || []),
-      error: () => {}
-    });
   }
 
   getSosIncidentForTrip(tripId: string): Incident | undefined {
@@ -276,15 +294,7 @@ export class TripListComponent implements OnInit {
   }
 
   resolveSos(incidentId: string): void {
-    this.incidentRepository.resolve(incidentId).subscribe({
-      next: () => {
-        this.openIncidents.update((list) => list.filter((i) => i.id !== incidentId));
-        this.toastService.success('Alerta SOS marcado como atendido com sucesso!');
-      },
-      error: () => {
-        this.toastService.error('Erro ao marcar ocorrência como resolvida.');
-      }
-    });
+    this.liveAlertsService.resolveIncident(incidentId);
   }
 
   getVehiclePlate(vehicleId: string): string {

@@ -4,6 +4,7 @@ import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/rou
 import { FormsModule } from '@angular/forms';
 import { IAuthRepository } from '../../domain/repositories/auth.repository.interface';
 import { AuthStateService } from '../../core/services/auth-state.service';
+import { LiveAlertsService } from '../../core/services/live-alerts.service';
 import { formatUserRole } from '../../domain/models/user.model';
 import {
   LucideTruck,
@@ -93,6 +94,7 @@ export interface NotificationItem {
 export class MainLayoutComponent {
   private readonly authRepository = inject(IAuthRepository);
   private readonly authState = inject(AuthStateService);
+  private readonly liveAlertsService = inject(LiveAlertsService);
   private readonly router = inject(Router);
 
   @ViewChild('paletteInput') paletteInputRef?: ElementRef<HTMLInputElement>;
@@ -105,7 +107,10 @@ export class MainLayoutComponent {
   searchQuery = signal('');
   selectedIndex = signal(0);
 
-  // Lista de Notificações
+  readonly hasActiveSos = this.liveAlertsService.hasActiveSos;
+  readonly activeSosCount = this.liveAlertsService.activeSosCount;
+
+  // Lista base de Notificações
   notifications = signal<NotificationItem[]>([
     {
       id: '1',
@@ -136,8 +141,22 @@ export class MainLayoutComponent {
     }
   ]);
 
+  dynamicNotifications = computed<NotificationItem[]>(() => {
+    const sosItems: NotificationItem[] = this.liveAlertsService.activeIncidents().map((inc) => ({
+      id: `sos-${inc.id}`,
+      title: `🚨 SOS: ${inc.driverName || 'Motorista'} (${inc.category})`,
+      message: `"${inc.description}" • Veículo: ${inc.vehiclePlate || 'N/A'}${inc.tripRoute ? ' • ' + inc.tripRoute : ''}`,
+      time: 'Agora',
+      type: 'CRITICAL',
+      link: '/alertas',
+      read: false
+    }));
+
+    return [...sosItems, ...this.notifications()];
+  });
+
   unreadNotificationsCount = computed(() => {
-    return this.notifications().filter((n) => !n.read).length;
+    return this.dynamicNotifications().filter((n) => !n.read).length;
   });
 
   // Itens da Command Palette
