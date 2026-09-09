@@ -26,6 +26,7 @@ import {
   LucideCheck,
   LucideSearch,
   LucideMap,
+  LucideCalendar,
   LucideChevronLeft,
   LucideChevronRight,
   LucideChevronsLeft,
@@ -53,6 +54,7 @@ import {
     LucideCheck,
     LucideSearch,
     LucideMap,
+    LucideCalendar,
     LucideChevronLeft,
     LucideChevronRight,
     LucideChevronsLeft,
@@ -186,10 +188,17 @@ export class TripListComponent implements OnInit {
     'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'
   ];
 
+  private getDefaultScheduledDate(): string {
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    return now.toISOString().slice(0, 16);
+  }
+
   // Formulário de Cadastro de Viagem alinhado ao backend
   tripForm: FormGroup = this.fb.group({
     vehicleId: ['', [Validators.required]],
     driverId: ['', [Validators.required]],
+    scheduledDate: [this.getDefaultScheduledDate(), [Validators.required]],
     originAddress: ['', [Validators.required, Validators.minLength(3)]],
     originCity: ['', [Validators.required]],
     originState: ['PA', [Validators.required, Validators.maxLength(2)]],
@@ -342,6 +351,7 @@ export class TripListComponent implements OnInit {
       destinationState: 'PA',
       vehicleId: '',
       driverId: '',
+      scheduledDate: this.getDefaultScheduledDate(),
       originAddress: '',
       originCity: '',
       destinationAddress: '',
@@ -475,7 +485,7 @@ export class TripListComponent implements OnInit {
     this.isSaving.set(true);
     const formValue = this.tripForm.value;
 
-    const payload = {
+    const payload: any = {
       driverId: formValue.driverId,
       vehicleId: formValue.vehicleId,
       origin: {
@@ -489,6 +499,10 @@ export class TripListComponent implements OnInit {
         state: formValue.destinationState?.trim().toUpperCase(),
       }
     };
+
+    if (formValue.scheduledDate) {
+      payload.scheduledDate = new Date(formValue.scheduledDate).toISOString();
+    }
 
     this.tripRepository.create(payload).subscribe({
       next: () => {
