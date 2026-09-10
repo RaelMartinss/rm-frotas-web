@@ -6,6 +6,11 @@ const config: CapacitorConfig = {
   webDir: 'dist/rm-frotas-web/browser',
   server: {
     androidScheme: 'https'
+  },
+  plugins: {
+    PushNotifications: {
+      presentationOptions: ['badge', 'sound', 'alert']
+    }
   }
 };
 
