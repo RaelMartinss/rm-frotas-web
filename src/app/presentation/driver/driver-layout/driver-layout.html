@@ -263,14 +263,36 @@
           Se ainda não atualizou, baixe a nova versão <span class="font-bold text-purple-700">v{{ updateService.latestVersion() }}</span> para continuar aproveitando todos os recursos.
         </p>
 
-        <!-- Botão ATUALIZAR em Roxo vibrante fiel à imagem 2 -->
-        <button
-          (click)="updateService.downloadAndInstall()"
-          class="w-full py-3.5 px-6 rounded-2xl bg-[#5B13B9] hover:bg-[#4C0E9E] active:scale-[0.98] text-white font-black text-sm tracking-wider uppercase shadow-lg shadow-purple-900/30 transition-all cursor-pointer flex items-center justify-center gap-2"
-        >
-          <svg lucideDownload class="size-4"></svg>
-          <span>ATUALIZAR</span>
-        </button>
+        <!-- Botão ATUALIZAR ou Barra de Progresso de Download -->
+        @if (updateService.isDownloading()) {
+          <div class="space-y-3 bg-purple-50 p-4 rounded-2xl border border-purple-100">
+            <div class="flex items-center justify-between text-xs font-bold text-purple-900">
+              <span class="flex items-center gap-1.5">
+                <span class="size-2 rounded-full bg-purple-600 animate-pulse"></span>
+                Baixando atualização...
+              </span>
+              <span class="font-mono text-purple-700">{{ updateService.downloadProgress() }}%</span>
+            </div>
+            <div class="w-full bg-purple-200 rounded-full h-2.5 overflow-hidden">
+              <div
+                class="bg-[#5B13B9] h-full transition-all duration-150 rounded-full"
+                [style.width.%]="updateService.downloadProgress()"
+              ></div>
+            </div>
+            <p class="text-[11px] text-purple-600/90 font-medium">
+              O instalador abrirá automaticamente ao concluir.
+            </p>
+          </div>
+        } @else {
+          <!-- Botão ATUALIZAR em Roxo vibrante fiel à imagem 2 -->
+          <button
+            (click)="updateService.downloadAndInstall()"
+            class="w-full py-3.5 px-6 rounded-2xl bg-[#5B13B9] hover:bg-[#4C0E9E] active:scale-[0.98] text-white font-black text-sm tracking-wider uppercase shadow-lg shadow-purple-900/30 transition-all cursor-pointer flex items-center justify-center gap-2"
+          >
+            <svg lucideDownload class="size-4"></svg>
+            <span>ATUALIZAR</span>
+          </button>
+        }
 
         <!-- Lembrar mais tarde -->
         <button

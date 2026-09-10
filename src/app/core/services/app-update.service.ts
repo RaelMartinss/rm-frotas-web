@@ -1,6 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Capacitor } from '@capacitor/core';
+import { Capacitor, registerPlugin } from '@capacitor/core';
 import { catchError, of, tap } from 'rxjs';
 
 export interface GitHubRelease {
@@ -16,7 +16,18 @@ export interface GitHubRelease {
   }>;
 }
 
-export const CURRENT_NATIVE_VERSION = '1.0.3';
+interface AppInstallerPlugin {
+  canInstall(): Promise<{ value: boolean }>;
+  openInstallSettings(): Promise<void>;
+  downloadAndInstall(options: { url: string }): Promise<void>;
+  addListener(eventName: 'downloadProgress', listenerFunc: (data: { progress: number }) => void): Promise<any>;
+  addListener(eventName: 'downloadCompleted', listenerFunc: (data: { progress: number; path: string }) => void): Promise<any>;
+  addListener(eventName: 'downloadError', listenerFunc: (data: { error: string }) => void): Promise<any>;
+}
+
+const AppInstaller = registerPlugin<AppInstallerPlugin>('AppInstaller');
+
+export const CURRENT_NATIVE_VERSION = '1.0.4';
 const GITHUB_REPO = 'RaelMartinss/rm-frotas-web';
 
 @Injectable({
@@ -32,6 +43,9 @@ export class AppUpdateService {
   readonly downloadUrl = signal<string>('');
   readonly releaseNotes = signal<string>('');
   readonly isChecking = signal<boolean>(false);
+  readonly isDownloading = signal<boolean>(false);
+  readonly downloadProgress = signal<number>(0);
+  readonly errorMessage = signal<string | null>(null);
 
   constructor() {
     // Verifica atualizações automaticamente ao inicializar
@@ -75,10 +89,40 @@ export class AppUpdateService {
       .subscribe();
   }
 
-  downloadAndInstall(): void {
+  async downloadAndInstall(): Promise<void> {
     const url = this.downloadUrl() || `https://github.com/${GITHUB_REPO}/releases/latest`;
-    if (typeof window !== 'undefined') {
-      window.open(url, '_system');
+
+    if (Capacitor.isNativePlatform()) {
+      try {
+        this.isDownloading.set(true);
+        this.downloadProgress.set(0);
+        this.errorMessage.set(null);
+
+        // Ouvintes de progresso
+        await AppInstaller.addListener('downloadProgress', (data: { progress: number }) => {
+          this.downloadProgress.set(data.progress);
+        });
+
+        await AppInstaller.addListener('downloadCompleted', () => {
+          this.downloadProgress.set(100);
+          this.isDownloading.set(false);
+        });
+
+        await AppInstaller.addListener('downloadError', (err: { error: string }) => {
+          this.isDownloading.set(false);
+          this.errorMessage.set(err.error || 'Erro ao baixar atualização');
+          // Fallback para navegador
+          window.open(url, '_system');
+        });
+
+        await AppInstaller.downloadAndInstall({ url });
+      } catch (err: any) {
+        this.isDownloading.set(false);
+        console.warn('[AppUpdateService] Erro ao chamar AppInstaller:', err);
+        window.open(url, '_system');
+      }
+    } else if (typeof window !== 'undefined') {
+      window.open(url, '_blank');
     }
   }
 
