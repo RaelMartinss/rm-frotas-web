@@ -102,6 +102,7 @@ export class DriverHomeComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadData();
+    this.notificationService.syncPushTokenWithBackend();
     // Polling reativo em tempo real a cada 6 segundos para detectar novas viagens criadas pelo gestor
     this.pollSubscription = interval(6000).subscribe(() => {
       if (this.networkService.isOnline()) {

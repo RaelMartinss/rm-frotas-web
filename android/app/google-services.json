@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1086591101028",
+    "project_id": "rm-frotas-app",
+    "storage_bucket": "rm-frotas-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1086591101028:android:6c21917cdc5fe345d79771",
+        "android_client_info": {
+          "package_name": "com.rmfrotas.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD-CB2PUhMczHhClust1_MHU8SESUAJSw0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

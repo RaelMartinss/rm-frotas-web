@@ -151,4 +151,12 @@ export class HttpDriverPortalRepository implements IDriverPortalRepository {
       { withCredentials: true }
     );
   }
+
+  registerPushToken(token: string): Observable<{ success: boolean; message: string }> {
+    return this.http.post<{ success: boolean; message: string }>(
+      `${this.baseUrl}/push-token`,
+      { token },
+      { withCredentials: true }
+    );
+  }
 }

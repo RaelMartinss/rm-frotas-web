@@ -27,4 +27,5 @@ export abstract class IDriverPortalRepository {
     notes?: string,
     gasStation?: string
   ): Observable<{ message: string; id: string; receiptUrl: string }>;
+  abstract registerPushToken(token: string): Observable<{ success: boolean; message: string }>;
 }
