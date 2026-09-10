@@ -16,7 +16,7 @@ export interface GitHubRelease {
   }>;
 }
 
-export const CURRENT_NATIVE_VERSION = '1.0.0';
+export const CURRENT_NATIVE_VERSION = '1.0.3';
 const GITHUB_REPO = 'RaelMartinss/rm-frotas-web';
 
 @Injectable({
