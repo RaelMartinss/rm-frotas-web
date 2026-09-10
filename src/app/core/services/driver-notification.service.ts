@@ -197,7 +197,7 @@ export class DriverNotificationService {
               channelId: NOTIFICATION_CHANNEL_ID,
               schedule: { at: new Date(Date.now() + 100) },
               sound: 'default',
-              smallIcon: 'ic_launcher_foreground',
+              smallIcon: 'ic_stat_rm_frotas',
               actionTypeId: '',
               extra: null,
             },
