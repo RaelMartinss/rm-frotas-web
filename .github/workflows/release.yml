@@ -59,12 +59,16 @@ jobs:
         working-directory: ./android
         run: |
           chmod +x gradlew
-          ./gradlew assembleDebug
+          ./gradlew assembleRelease
 
       - name: Prepare APK Asset
         run: |
           mkdir -p release-assets
-          cp android/app/build/outputs/apk/debug/app-debug.apk release-assets/rm-frotas.apk
+          if [ -f "android/app/build/outputs/apk/release/app-release.apk" ]; then
+            cp android/app/build/outputs/apk/release/app-release.apk release-assets/rm-frotas.apk
+          else
+            cp android/app/build/outputs/apk/debug/app-debug.apk release-assets/rm-frotas.apk
+          fi
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
