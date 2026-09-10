@@ -87,11 +87,6 @@ export class DriverNotificationService {
   async requestPermission(): Promise<boolean> {
     try {
       if (Capacitor.isNativePlatform()) {
-        const localPerm = await LocalNotifications.checkPermissions();
-        if (localPerm.display !== 'granted') {
-          await LocalNotifications.requestPermissions();
-        }
-
         const pushPerm = await PushNotifications.checkPermissions();
         if (pushPerm.receive !== 'granted') {
           const req = await PushNotifications.requestPermissions();
