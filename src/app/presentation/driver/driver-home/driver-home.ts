@@ -133,10 +133,8 @@ export class DriverHomeComponent implements OnInit, OnDestroy {
         this.loading.set(false);
         this.refreshing.set(false);
 
-        // Dispara verificações de notificações locais
-        if (summary.trip) {
-          this.notificationService.checkNewTrip(summary.trip);
-        }
+        // Dispara verificações de notificações locais e mudanças de status
+        this.notificationService.checkTripUpdates(summary.trip ?? null);
         this.notificationService.checkPendingReceipts(summary.pendingReceiptsCount ?? 0);
 
         // Preenche sugestão de KM atual

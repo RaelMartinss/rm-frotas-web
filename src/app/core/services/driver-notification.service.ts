@@ -9,7 +9,7 @@ export interface DriverNotificationItem {
   id: string;
   title: string;
   body: string;
-  type: 'NEW_TRIP' | 'PENDING_RECEIPT' | 'ALERT' | 'INFO';
+  type: 'NEW_TRIP' | 'TRIP_STARTED' | 'TRIP_COMPLETED' | 'TRIP_CANCELLED' | 'PENDING_RECEIPT' | 'ALERT' | 'INFO';
   timestamp: string;
   read: boolean;
   link?: string;
@@ -17,7 +17,9 @@ export interface DriverNotificationItem {
 
 const STORAGE_KEY = 'rm_driver_notifications';
 const LAST_NOTIFIED_TRIP_KEY = 'rm_driver_last_notified_trip';
+const LAST_NOTIFIED_STATUS_KEY = 'rm_driver_last_notified_status';
 const PUSH_TOKEN_KEY = 'rm_fcm_push_token';
+const NOTIFICATION_CHANNEL_ID = 'rm_frotas_channel';
 
 @Injectable({
   providedIn: 'root',
@@ -40,9 +42,45 @@ export class DriverNotificationService {
   }
 
   private async initNotifications(): Promise<void> {
+    await this.setupNotificationChannels();
     await this.requestPermission();
     if (Capacitor.isNativePlatform()) {
       await this.initPushNotifications();
+    }
+  }
+
+  /**
+   * Cria o canal de notificações de alta prioridade (Heads-up / Banner flutuante no Android)
+   */
+  async setupNotificationChannels(): Promise<void> {
+    if (!Capacitor.isNativePlatform()) return;
+
+    try {
+      await LocalNotifications.createChannel({
+        id: NOTIFICATION_CHANNEL_ID,
+        name: 'Alertas de Viagens e Frota',
+        description: 'Notificações importantes sobre novas viagens, início, conclusão e abastecimentos.',
+        importance: 5, // MAX / HIGH - Exibe pop-up/banner na tela
+        visibility: 1, // Público
+        sound: 'default',
+        vibration: true,
+        lights: true,
+        lightColor: '#2563EB',
+      });
+
+      await PushNotifications.createChannel({
+        id: NOTIFICATION_CHANNEL_ID,
+        name: 'Alertas de Viagens e Frota',
+        description: 'Notificações importantes sobre novas viagens, início, conclusão e abastecimentos.',
+        importance: 5,
+        visibility: 1,
+        sound: 'default',
+        vibration: true,
+        lights: true,
+        lightColor: '#2563EB',
+      });
+    } catch (e) {
+      console.warn('[DriverNotification] Erro ao criar canais de notificação:', e);
     }
   }
 
@@ -78,10 +116,10 @@ export class DriverNotificationService {
    */
   private async initPushNotifications(): Promise<void> {
     try {
-      // 1. Registra o aparelho no serviço de Push da Google
+      // Registra o aparelho no serviço de Push da Google
       await PushNotifications.register();
 
-      // 2. Ouvinte de Geração do Token FCM com sucesso
+      // Ouvinte de Geração do Token FCM com sucesso
       await PushNotifications.addListener('registration', (token: Token) => {
         console.log('[FCM] Token de Notificação gerado:', token.value);
         this.pushToken.set(token.value);
@@ -93,24 +131,27 @@ export class DriverNotificationService {
         this.syncPushTokenWithBackend(token.value);
       });
 
-      // 3. Ouvinte de erro de registro
+      // Ouvinte de erro de registro
       await PushNotifications.addListener('registrationError', (error: any) => {
         console.error('[FCM] Erro ao registrar Push Notifications:', error);
       });
 
-      // 4. Ouvinte de Notificação Recebida com app aberto/minimizado
+      // Ouvinte de Notificação Recebida com app aberto/minimizado
       await PushNotifications.addListener('pushNotificationReceived', (notification: PushNotificationSchema) => {
         console.log('[FCM] Notificação recebida em primeiro plano:', notification);
         const type = (notification.data?.type as any) || 'INFO';
-        this.addNotificationToHistory({
-          title: notification.title || 'RM Frotas',
-          body: notification.body || '',
+        const title = notification.title || notification.data?.title || 'RM Frotas';
+        const body = notification.body || notification.data?.body || '';
+
+        this.notify({
+          title,
+          body,
           type,
           link: notification.data?.link || '/motorista',
         });
       });
 
-      // 5. Ouvinte de Clique na notificação na barra de status do Android
+      // Ouvinte de Clique na notificação na barra de status do Android
       await PushNotifications.addListener('pushNotificationActionPerformed', (action: ActionPerformed) => {
         console.log('[FCM] Notificação clicada pelo usuário:', action);
         const link = action.notification.data?.link || '/motorista';
@@ -153,6 +194,7 @@ export class DriverNotificationService {
               id: Math.floor(Math.random() * 100000),
               title: item.title,
               body: item.body,
+              channelId: NOTIFICATION_CHANNEL_ID,
               schedule: { at: new Date(Date.now() + 100) },
               sound: 'default',
               smallIcon: 'ic_launcher_foreground',
@@ -186,25 +228,83 @@ export class DriverNotificationService {
   }
 
   /**
-   * Verifica se há uma nova viagem atribuída ao motorista
+   * Monitora em tempo real criação, início, conclusão ou cancelamento de viagens
    */
-  checkNewTrip(trip: { id: string; destinationCity?: string; destinationState?: string; originCity?: string } | null): void {
-    if (!trip || !trip.id) return;
-
+  checkTripUpdates(trip: { id: string; status: string; destinationCity?: string; destinationState?: string; originCity?: string } | null): void {
     try {
       const lastTripId = localStorage.getItem(LAST_NOTIFIED_TRIP_KEY);
-      if (lastTripId !== trip.id) {
-        localStorage.setItem(LAST_NOTIFIED_TRIP_KEY, trip.id);
+      const lastStatus = localStorage.getItem(LAST_NOTIFIED_STATUS_KEY);
 
-        const dest = trip.destinationCity ? `${trip.destinationCity} (${trip.destinationState || ''})` : 'Novo Destino';
+      if (!trip) {
+        // Se havia uma viagem ativa e agora não há mais, e estava em andamento/programada, pode ter sido cancelada ou concluída
+        if (lastTripId && (lastStatus === 'PLANNED' || lastStatus === 'PROGRAMADA' || lastStatus === 'IN_PROGRESS' || lastStatus === 'EM_ANDAMENTO')) {
+          localStorage.removeItem(LAST_NOTIFIED_TRIP_KEY);
+          localStorage.removeItem(LAST_NOTIFIED_STATUS_KEY);
+        }
+        return;
+      }
+
+      const dest = trip.destinationCity ? `${trip.destinationCity} (${trip.destinationState || ''})` : 'Destino';
+      const isNewTrip = lastTripId !== trip.id;
+      const isStatusChanged = lastStatus !== trip.status;
+
+      if (isNewTrip) {
+        localStorage.setItem(LAST_NOTIFIED_TRIP_KEY, trip.id);
+        localStorage.setItem(LAST_NOTIFIED_STATUS_KEY, trip.status);
+
         this.notify({
           title: '🚚 Nova Corrida Atribuída!',
-          body: `Você tem uma nova viagem programada para ${dest}. Abra o aplicativo para conferir os detalhes.`,
+          body: `Você tem uma nova viagem programada para ${dest}. Abra o app para conferir os detalhes.`,
           type: 'NEW_TRIP',
           link: '/motorista',
         });
+        return;
       }
-    } catch {}
+
+      if (isStatusChanged) {
+        localStorage.setItem(LAST_NOTIFIED_STATUS_KEY, trip.status);
+
+        if (trip.status === 'IN_PROGRESS' || trip.status === 'EM_ANDAMENTO') {
+          this.notify({
+            title: '🚀 Viagem Iniciada!',
+            body: `Sua viagem para ${dest} foi iniciada no sistema. Boa rota!`,
+            type: 'TRIP_STARTED',
+            link: '/motorista',
+          });
+        } else if (trip.status === 'COMPLETED' || trip.status === 'CONCLUIDA') {
+          this.notify({
+            title: '✅ Viagem Concluída!',
+            body: `A viagem para ${dest} foi concluída com sucesso.`,
+            type: 'TRIP_COMPLETED',
+            link: '/motorista/historico',
+          });
+        } else if (trip.status === 'CANCELLED' || trip.status === 'CANCELADA') {
+          this.notify({
+            title: '⚠️ Viagem Cancelada',
+            body: `A viagem para ${dest} foi cancelada pelo gestor.`,
+            type: 'TRIP_CANCELLED',
+            link: '/motorista',
+          });
+        }
+      }
+    } catch (e) {
+      console.warn('[DriverNotification] Erro ao verificar atualizações de viagem:', e);
+    }
+  }
+
+  /**
+   * Mantido para compatibilidade com chamadas anteriores
+   */
+  checkNewTrip(trip: { id: string; status?: string; destinationCity?: string; destinationState?: string; originCity?: string } | null): void {
+    if (trip) {
+      this.checkTripUpdates({
+        id: trip.id,
+        status: trip.status || 'PLANNED',
+        destinationCity: trip.destinationCity,
+        destinationState: trip.destinationState,
+        originCity: trip.originCity,
+      });
+    }
   }
 
   /**
