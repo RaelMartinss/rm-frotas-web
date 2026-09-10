@@ -38,7 +38,7 @@ export class LiveAlertsService {
     this.checkIncidents();
     this.pollInterval = setInterval(() => {
       this.checkIncidents();
-    }, 7000); // Polling a cada 7 segundos
+    }, 12000); // Polling a cada 12 segundos
   }
 
   stopPolling(): void {

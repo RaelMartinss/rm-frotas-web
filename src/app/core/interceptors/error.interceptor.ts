@@ -38,8 +38,12 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
             }),
             catchError((refreshErr) => {
               authState.isRefreshing = false;
-              authState.clear();
-              router.navigate(['/login']);
+              // Só encerra a sessão se o refresh token foi explicitamente rejeitado pelo servidor (401)
+              // Falhas transitórias de conexão (status 0) ou sobrecarga (status 429) não deslogam o usuário
+              if (refreshErr?.status === 401) {
+                authState.clear();
+                router.navigate(['/login']);
+              }
               return throwError(() => refreshErr);
             })
 

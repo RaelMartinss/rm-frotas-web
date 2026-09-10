@@ -37,10 +37,21 @@ export class AuthStateService {
     }
   }
 
-  setSession(token: string, user?: User | null): void {
+  private getStoredRefreshToken(): string | null {
+    try {
+      return localStorage.getItem('rm_frotas_refresh_token');
+    } catch {
+      return null;
+    }
+  }
+
+  setSession(token: string, user?: User | null, refreshToken?: string | null): void {
     this._accessToken.set(token);
     try {
       localStorage.setItem('rm_frotas_token', token);
+      if (refreshToken) {
+        localStorage.setItem('rm_frotas_refresh_token', refreshToken);
+      }
     } catch {}
 
     if (user) {
@@ -66,6 +77,10 @@ export class AuthStateService {
     return this._accessToken();
   }
 
+  getRefreshToken(): string | null {
+    return this.getStoredRefreshToken();
+  }
+
   getUser(): User | null {
     return this._currentUser();
   }
@@ -80,6 +95,7 @@ export class AuthStateService {
     try {
       localStorage.removeItem('rm_frotas_token');
       localStorage.removeItem('rm_frotas_user');
+      localStorage.removeItem('rm_frotas_refresh_token');
     } catch {}
     this.isRefreshing = false;
     this.refreshTokenSubject.next(null);

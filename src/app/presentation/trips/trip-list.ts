@@ -235,11 +235,10 @@ export class TripListComponent implements OnInit, OnDestroy {
     this.loadTrips(true);
     this.loadAuxiliaryData();
 
-    // Atualização reativa periódica em segundo plano a cada 8 segundos
+    // Atualização reativa periódica em segundo plano a cada 12 segundos
     this.pollInterval = setInterval(() => {
       this.loadTrips(false);
-      this.liveAlertsService.checkIncidents();
-    }, 8000);
+    }, 12000);
   }
 
   ngOnDestroy(): void {

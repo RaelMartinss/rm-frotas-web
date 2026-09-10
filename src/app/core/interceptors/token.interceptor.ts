@@ -1,10 +1,17 @@
 import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { AuthStateService } from '../services/auth-state.service';
+import { environment } from '../../../environments/environment';
 
 export const tokenInterceptor: HttpInterceptorFn = (req, next) => {
-  // Ignora APIs externas (ex: GitHub, ViaCEP, etc.) para não enviar tokens de login nem causar erros de CORS
-  if (req.url.startsWith('http') && !req.url.includes('/api') && !req.url.includes(location?.hostname)) {
+  // Ignora chamadas para APIs de terceiros (ex: GitHub, ViaCEP, etc.)
+  const isExternalApi =
+    req.url.startsWith('http') &&
+    !req.url.startsWith(environment.apiUrl) &&
+    !req.url.includes('rm-frotas-api.onrender.com') &&
+    !req.url.includes('localhost:3000');
+
+  if (isExternalApi) {
     return next(req);
   }
 
