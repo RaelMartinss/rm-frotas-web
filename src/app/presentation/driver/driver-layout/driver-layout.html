@@ -424,6 +424,13 @@
                   }
                 </button>
               }
+
+              <!-- Mensagem de Status da Verificação -->
+              @if (updateService.checkStatusMessage()) {
+                <div class="text-[11px] text-center font-semibold text-purple-300 bg-purple-950/60 border border-purple-800/60 rounded-xl py-1.5 px-2 animate-in fade-in">
+                  {{ updateService.checkStatusMessage() }}
+                </div>
+              }
             </div>
           </div>
         </div>
