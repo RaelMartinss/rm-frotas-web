@@ -7,8 +7,6 @@ import { IDriverPortalRepository } from '../../../domain/repositories/driver-por
 import { NetworkStatusService } from '../../../core/services/network-status.service';
 import { LocationTrackingService } from '../../../core/services/location-tracking.service';
 import { DriverNotificationService } from '../../../core/services/driver-notification.service';
-import { AuthStateService } from '../../../core/services/auth-state.service';
-import { AppUpdateService } from '../../../core/services/app-update.service';
 import {
   DriverPortalSummary,
   DriverCurrentTrip,
@@ -60,22 +58,7 @@ export class DriverHomeComponent implements OnInit, OnDestroy {
   private readonly networkService = inject(NetworkStatusService);
   readonly locationTracking = inject(LocationTrackingService);
   private readonly notificationService = inject(DriverNotificationService);
-  private readonly authState = inject(AuthStateService);
-  readonly updateService = inject(AppUpdateService);
   private pollSubscription: Subscription | null = null;
-
-  readonly todayDate = new Date();
-  readonly driverName = computed(() => {
-    const user = this.authState.currentUser();
-    return user?.name?.split(' ')[0] || 'Motorista';
-  });
-
-  readonly greeting = computed(() => {
-    const hour = new Date().getHours();
-    if (hour >= 5 && hour < 12) return 'Bom dia';
-    if (hour >= 12 && hour < 18) return 'Boa tarde';
-    return 'Boa noite';
-  });
 
   readonly data = signal<DriverPortalSummary | null>(null);
   readonly loading = signal<boolean>(true);
