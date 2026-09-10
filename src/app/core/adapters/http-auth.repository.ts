@@ -1,6 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, of, tap, map, catchError } from 'rxjs';
+import { Capacitor } from '@capacitor/core';
 import { environment } from '../../../environments/environment';
 import { IAuthRepository } from '../../domain/repositories/auth.repository.interface';
 import { AuthStateService } from '../services/auth-state.service';
@@ -26,8 +27,16 @@ export class HttpAuthRepository implements IAuthRepository {
   private readonly baseUrl = environment.apiUrl;
 
   login(credentials: LoginCredentials): Observable<AuthResponse> {
+    const payload = {
+      ...credentials,
+      deviceInfo: {
+        platform: Capacitor.isNativePlatform() ? 'mobile' : 'web',
+        userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : undefined,
+      },
+    };
+
     return this.http
-      .post<AuthResponse>(`${this.baseUrl}/auth/login`, credentials, {
+      .post<AuthResponse>(`${this.baseUrl}/auth/login`, payload, {
         withCredentials: true,
       })
       .pipe(
@@ -185,6 +194,33 @@ export class HttpAuthRepository implements IAuthRepository {
       { active },
       { withCredentials: true }
     );
+  }
+
+  verifyPassword(password: string): Observable<{ valid: boolean }> {
+    return this.http.post<{ valid: boolean }>(
+      `${this.baseUrl}/auth/verify-password`,
+      { password },
+      { withCredentials: true }
+    );
+  }
+
+  logoutAllDevices(userId?: string): Observable<void> {
+    return this.http
+      .post<void>(
+        `${this.baseUrl}/auth/logout-all-devices`,
+        userId ? { userId } : {},
+        { withCredentials: true }
+      )
+      .pipe(
+        tap(() => {
+          if (!userId || userId === this.authState.getUser()?.id) {
+            this.authState.clear();
+          }
+        }),
+        catchError(() => {
+          return of(void 0);
+        })
+      );
   }
 }
 

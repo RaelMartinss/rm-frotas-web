@@ -10,6 +10,9 @@ import { errorInterceptor } from './core/interceptors/error.interceptor';
 import { IAuthRepository } from './domain/repositories/auth.repository.interface';
 import { HttpAuthRepository } from './core/adapters/http-auth.repository';
 import { AuthStateService } from './core/services/auth-state.service';
+import { BiometricAuthService } from './core/services/biometric-auth.service';
+import { Capacitor } from '@capacitor/core';
+import { Preferences } from '@capacitor/preferences';
 import { IDashboardRepository } from './domain/repositories/dashboard.repository.interface';
 import { HttpDashboardRepository } from './core/adapters/http-dashboard.repository';
 import { IVehicleRepository } from './domain/repositories/vehicle.repository.interface';
@@ -52,9 +55,35 @@ export const appConfig: ApplicationConfig = {
     { provide: IClientRepository, useClass: HttpClientRepository },
     { provide: IDriverPortalRepository, useClass: HttpDriverPortalRepository },
     { provide: IIncidentRepository, useClass: HttpIncidentRepository },
-    provideAppInitializer(() => {
+    provideAppInitializer(async () => {
       const authRepository = inject(IAuthRepository);
       const authState = inject(AuthStateService);
+      const biometricAuth = inject(BiometricAuthService);
+
+      if (Capacitor.isNativePlatform()) {
+        try {
+          const { value } = await Preferences.get({ key: 'rm_frotas_refresh_token' });
+          if (value && !authState.getRefreshToken()) {
+            localStorage.setItem('rm_frotas_refresh_token', value);
+          }
+        } catch {}
+      }
+
+      const savedUser = authState.getUser();
+      const hasRefreshToken = !!authState.getRefreshToken();
+
+      if (Capacitor.isNativePlatform() && hasRefreshToken && savedUser?.role === 'DRIVER') {
+        const canBiometric = await biometricAuth.isAvailable();
+        if (canBiometric) {
+          const authenticated = await biometricAuth.verify(
+            'Confirme sua biometria para acessar sua conta de motorista'
+          );
+          if (!authenticated) {
+            authState.setInitialized();
+            return;
+          }
+        }
+      }
 
       return firstValueFrom(
         authRepository.refresh().pipe(

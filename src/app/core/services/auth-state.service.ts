@@ -1,9 +1,11 @@
 import { Injectable, computed, signal } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { Capacitor } from '@capacitor/core';
+import { Preferences } from '@capacitor/preferences';
 import { User } from '../../domain/models/user.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthStateService {
   private readonly _accessToken = signal<string | null>(this.getStoredToken());
@@ -45,12 +47,22 @@ export class AuthStateService {
     }
   }
 
-  setSession(token: string, user?: User | null, refreshToken?: string | null): void {
+  setSession(
+    token: string,
+    user?: User | null,
+    refreshToken?: string | null,
+  ): void {
     this._accessToken.set(token);
     try {
       localStorage.setItem('rm_frotas_token', token);
       if (refreshToken) {
         localStorage.setItem('rm_frotas_refresh_token', refreshToken);
+        if (Capacitor.isNativePlatform()) {
+          Preferences.set({
+            key: 'rm_frotas_refresh_token',
+            value: refreshToken,
+          }).catch(() => {});
+        }
       }
     } catch {}
 
@@ -96,9 +108,11 @@ export class AuthStateService {
       localStorage.removeItem('rm_frotas_token');
       localStorage.removeItem('rm_frotas_user');
       localStorage.removeItem('rm_frotas_refresh_token');
+      if (Capacitor.isNativePlatform()) {
+        Preferences.remove({ key: 'rm_frotas_refresh_token' }).catch(() => {});
+      }
     } catch {}
     this.isRefreshing = false;
     this.refreshTokenSubject.next(null);
   }
 }
-

@@ -1,3 +1,5 @@
 <router-outlet></router-outlet>
 <app-toast></app-toast>
-
+@if (inactivityGuard.isLocked()) {
+  <app-session-lock-modal></app-session-lock-modal>
+}

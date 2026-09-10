@@ -27,5 +27,7 @@ export abstract class IAuthRepository {
   abstract createUser(user: CreateUserDTO): Observable<CreateUserResponse>;
   abstract resetUserPassword(id: string): Observable<ResetUserPasswordResponse>;
   abstract toggleUserStatus(id: string, active: boolean): Observable<User>;
+  abstract verifyPassword(password: string): Observable<{ valid: boolean }>;
+  abstract logoutAllDevices(userId?: string): Observable<void>;
 }
 
