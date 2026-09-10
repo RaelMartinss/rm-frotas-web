@@ -1,6 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { Capacitor } from '@capacitor/core';
-import { Geolocation, Position } from '@capacitor/geolocation';
+import { BackgroundGeolocation, Location as BgLocation, CallbackError } from '@capgo/background-geolocation';
 import { IDriverPortalRepository } from '../../domain/repositories/driver-portal.repository.interface';
 import { NetworkStatusService } from './network-status.service';
 
@@ -25,12 +25,12 @@ export class LocationTrackingService {
   readonly currentTripId = signal<string | null>(null);
 
   private webWatchId: number | null = null;
-  private nativeWatchId: string | null = null;
+  private isNativeRunning = false;
   private lastSentTime = 0;
   private lastSentPos: { lat: number; lng: number } | null = null;
 
   private readonly MIN_INTERVAL_MS = 15000; // 15 segundos
-  private readonly MIN_DISTANCE_METERS = 30; // 30 metros
+  private readonly MIN_DISTANCE_METERS = 25; // 25 metros
 
   constructor() {
     if (typeof window !== 'undefined') {
@@ -65,38 +65,40 @@ export class LocationTrackingService {
 
   private async startNativeTracking(tripId: string): Promise<void> {
     try {
-      const perm = await Geolocation.checkPermissions();
-      if (perm.location !== 'granted') {
-        const req = await Geolocation.requestPermissions();
-        if (req.location !== 'granted') {
-          console.warn('[LocationTracking] Permissão de GPS negada no Android.');
-          return;
-        }
+      // Verifica e solicita permissões necessárias (Foreground e Background)
+      const perm = await BackgroundGeolocation.checkPermissions();
+      if (perm.location !== 'granted' || perm.backgroundLocation !== 'granted') {
+        await BackgroundGeolocation.requestPermissions();
       }
 
-      this.nativeWatchId = await Geolocation.watchPosition(
+      // Inicia o Foreground Service nativo do Android com notificação persistente
+      // Mantém o rastreamento ativo mesmo com app minimizado ou tela bloqueada
+      await BackgroundGeolocation.start(
         {
-          enableHighAccuracy: true,
-          timeout: 20000,
-          maximumAge: 10000,
+          backgroundTitle: 'RM Frotas — Rastreamento Ativo',
+          backgroundMessage: 'Transmitindo localização da viagem em tempo real para a central.',
+          requestPermissions: true,
+          stale: false,
+          distanceFilter: 20, // Dispara a cada 20 metros de deslocamento
         },
-        (position: Position | null, err) => {
+        (position?: BgLocation, err?: CallbackError) => {
           if (err) {
-            console.warn('[LocationTracking] Erro nativo ao obter posição:', err.message);
+            console.warn('[LocationTracking] Erro nativo em segundo plano:', err.message);
             return;
           }
           if (position) {
             this.handlePositionCoordinates(
               tripId,
-              position.coords.latitude,
-              position.coords.longitude,
-              position.timestamp
+              position.latitude,
+              position.longitude,
+              position.time || Date.now()
             );
           }
         }
       );
+      this.isNativeRunning = true;
     } catch (e) {
-      console.warn('[LocationTracking] Falha ao iniciar rastreamento nativo, caindo para Web:', e);
+      console.warn('[LocationTracking] Falha ao iniciar rastreamento nativo de background, caindo para Web:', e);
       this.startWebTracking(tripId);
     }
   }
@@ -132,11 +134,11 @@ export class LocationTrackingService {
       this.webWatchId = null;
     }
 
-    if (this.nativeWatchId !== null) {
-      Geolocation.clearWatch({ id: this.nativeWatchId }).catch((err) =>
-        console.warn('[LocationTracking] Erro ao parar watch nativo:', err)
+    if (this.isNativeRunning && Capacitor.isNativePlatform()) {
+      BackgroundGeolocation.stop().catch((err) =>
+        console.warn('[LocationTracking] Erro ao parar BackgroundGeolocation:', err)
       );
-      this.nativeWatchId = null;
+      this.isNativeRunning = false;
     }
 
     const tripId = this.currentTripId();

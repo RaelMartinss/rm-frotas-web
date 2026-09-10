@@ -1,6 +1,6 @@
 {
   "name": "rm-frotas-web",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -24,6 +24,7 @@
     "@capacitor/haptics": "^8.0.2",
     "@capacitor/local-notifications": "^8.3.1",
     "@capacitor/push-notifications": "^8.1.2",
+    "@capgo/background-geolocation": "^8.4.5",
     "@lucide/angular": "^1.39.0",
     "chart.js": "^4.5.1",
     "leaflet": "^1.9.4",
