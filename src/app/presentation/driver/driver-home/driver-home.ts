@@ -2,6 +2,7 @@ import { Component, inject, OnInit, OnDestroy, signal, computed } from '@angular
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { interval, Subscription } from 'rxjs';
 import { IDriverPortalRepository } from '../../../domain/repositories/driver-portal.repository.interface';
 import { NetworkStatusService } from '../../../core/services/network-status.service';
 import { LocationTrackingService } from '../../../core/services/location-tracking.service';
@@ -57,6 +58,7 @@ export class DriverHomeComponent implements OnInit, OnDestroy {
   private readonly networkService = inject(NetworkStatusService);
   readonly locationTracking = inject(LocationTrackingService);
   private readonly notificationService = inject(DriverNotificationService);
+  private pollSubscription: Subscription | null = null;
 
   readonly data = signal<DriverPortalSummary | null>(null);
   readonly loading = signal<boolean>(true);
@@ -100,16 +102,26 @@ export class DriverHomeComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadData();
+    // Polling reativo em tempo real a cada 6 segundos para detectar novas viagens criadas pelo gestor
+    this.pollSubscription = interval(6000).subscribe(() => {
+      if (this.networkService.isOnline()) {
+        this.loadData(false, true);
+      }
+    });
   }
 
   ngOnDestroy(): void {
     this.locationTracking.stopTracking();
+    if (this.pollSubscription) {
+      this.pollSubscription.unsubscribe();
+      this.pollSubscription = null;
+    }
   }
 
-  loadData(isRefresh = false): void {
+  loadData(isRefresh = false, isSilent = false): void {
     if (isRefresh) {
       this.refreshing.set(true);
-    } else {
+    } else if (!isSilent && !this.data()) {
       this.loading.set(true);
     }
     this.errorMessage.set(null);
@@ -140,7 +152,9 @@ export class DriverHomeComponent implements OnInit, OnDestroy {
         }
       },
       error: () => {
-        this.errorMessage.set('Não foi possível atualizar os dados da viagem.');
+        if (!isSilent) {
+          this.errorMessage.set('Não foi possível atualizar os dados da viagem.');
+        }
         this.loading.set(false);
         this.refreshing.set(false);
       },
