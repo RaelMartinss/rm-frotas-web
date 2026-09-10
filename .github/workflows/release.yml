@@ -21,14 +21,14 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci || npm install
 
       - name: Build Angular Frontend
-        run: npx ng build --configuration=production
+        run: NG_CLI_ANALYTICS=false CI=true npx ng build --configuration=production
 
       - name: Sync Capacitor Android
         run: npx cap sync android
