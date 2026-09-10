@@ -83,15 +83,23 @@
               {{ item.vehicle }}
             </span>
 
-            @if (item.status === 'COMPLETED') {
+            @if (item.status === 'COMPLETED' || item.status === 'CONCLUIDA') {
               <span class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-400 bg-emerald-950/80 border border-emerald-800/40 px-2 py-0.5 rounded-full">
                 <svg lucideCheckCircle2 class="size-3"></svg>
                 Concluída
               </span>
-            } @else if (item.status === 'CANCELLED') {
+            } @else if (item.status === 'CANCELLED' || item.status === 'CANCELADA') {
               <span class="inline-flex items-center gap-1 text-[10px] font-bold text-slate-400 bg-slate-800 px-2 py-0.5 rounded-full">
                 <svg lucideXCircle class="size-3"></svg>
                 Cancelada
+              </span>
+            } @else if (item.status === 'IN_PROGRESS' || item.status === 'EM_ANDAMENTO') {
+              <span class="inline-flex items-center gap-1 text-[10px] font-bold text-blue-400 bg-blue-950/80 border border-blue-800/40 px-2 py-0.5 rounded-full">
+                Em Andamento
+              </span>
+            } @else if (item.status === 'PLANNED' || item.status === 'PROGRAMADA') {
+              <span class="inline-flex items-center gap-1 text-[10px] font-bold text-amber-400 bg-amber-950/80 border border-amber-800/40 px-2 py-0.5 rounded-full">
+                Programada
               </span>
             } @else {
               <span class="inline-flex items-center gap-1 text-[10px] font-bold text-blue-400 bg-blue-950/80 border border-blue-800/40 px-2 py-0.5 rounded-full">

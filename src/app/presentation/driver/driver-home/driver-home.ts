@@ -5,6 +5,7 @@ import { RouterLink } from '@angular/router';
 import { IDriverPortalRepository } from '../../../domain/repositories/driver-portal.repository.interface';
 import { NetworkStatusService } from '../../../core/services/network-status.service';
 import { LocationTrackingService } from '../../../core/services/location-tracking.service';
+import { DriverNotificationService } from '../../../core/services/driver-notification.service';
 import {
   DriverPortalSummary,
   DriverCurrentTrip,
@@ -55,6 +56,7 @@ export class DriverHomeComponent implements OnInit, OnDestroy {
   private readonly portalRepository = inject(IDriverPortalRepository);
   private readonly networkService = inject(NetworkStatusService);
   readonly locationTracking = inject(LocationTrackingService);
+  private readonly notificationService = inject(DriverNotificationService);
 
   readonly data = signal<DriverPortalSummary | null>(null);
   readonly loading = signal<boolean>(true);
@@ -118,6 +120,12 @@ export class DriverHomeComponent implements OnInit, OnDestroy {
         this.loading.set(false);
         this.refreshing.set(false);
 
+        // Dispara verificações de notificações locais
+        if (summary.trip) {
+          this.notificationService.checkNewTrip(summary.trip);
+        }
+        this.notificationService.checkPendingReceipts(summary.pendingReceiptsCount ?? 0);
+
         // Preenche sugestão de KM atual
         if (summary.trip?.vehicle?.currentKm) {
           this.completeKm.set(summary.trip.vehicle.currentKm);
@@ -125,7 +133,7 @@ export class DriverHomeComponent implements OnInit, OnDestroy {
         }
 
         // Inicia ou para o rastreamento conforme o status da viagem
-        if (summary.trip?.status === 'IN_PROGRESS') {
+        if (summary.trip?.status === 'IN_PROGRESS' || summary.trip?.status === 'EM_ANDAMENTO') {
           this.locationTracking.startTracking(summary.trip.id);
         } else {
           this.locationTracking.stopTracking();
