@@ -27,7 +27,7 @@ interface AppInstallerPlugin {
 
 const AppInstaller = registerPlugin<AppInstallerPlugin>('AppInstaller');
 
-export const CURRENT_NATIVE_VERSION = '1.0.9';
+export const CURRENT_NATIVE_VERSION = '1.0.10';
 const GITHUB_REPO = 'RaelMartinss/rm-frotas-web';
 
 @Injectable({
@@ -91,7 +91,7 @@ export class AppUpdateService {
 
       // Localiza o asset do APK
       const apkAsset = release.assets?.find((a) => a.name.endsWith('.apk'));
-      const url = apkAsset?.browser_download_url || release.html_url || '';
+      const url = apkAsset?.browser_download_url || '';
       this.downloadUrl.set(url);
 
       if (this.isNewerVersion(latestTag, this.currentVersion())) {
@@ -112,13 +112,23 @@ export class AppUpdateService {
   }
 
   async downloadAndInstall(): Promise<void> {
-    const url = this.downloadUrl() || `https://github.com/${GITHUB_REPO}/releases/latest`;
+    const url = this.downloadUrl();
 
     if (Capacitor.isNativePlatform()) {
+      if (!url || !url.endsWith('.apk')) {
+        this.errorMessage.set('Pacote APK da versão mais recente não disponível no momento.');
+        return;
+      }
+
       try {
         this.isDownloading.set(true);
         this.downloadProgress.set(0);
         this.errorMessage.set(null);
+
+        // Limpa ouvintes anteriores para evitar duplicidade
+        try {
+          await (AppInstaller as any).removeAllListeners();
+        } catch {}
 
         // Ouvintes de progresso
         await AppInstaller.addListener('downloadProgress', (data: { progress: number }) => {
@@ -132,19 +142,17 @@ export class AppUpdateService {
 
         await AppInstaller.addListener('downloadError', (err: { error: string }) => {
           this.isDownloading.set(false);
-          this.errorMessage.set(err.error || 'Erro ao baixar atualização');
-          // Fallback para navegador
-          window.open(url, '_system');
+          this.errorMessage.set(err.error || 'Erro ao baixar atualização no dispositivo.');
         });
 
         await AppInstaller.downloadAndInstall({ url });
       } catch (err: any) {
+        console.error('Erro no AppInstaller:', err);
         this.isDownloading.set(false);
-        console.warn('[AppUpdateService] Erro ao chamar AppInstaller:', err);
-        window.open(url, '_system');
+        this.errorMessage.set(err?.message || 'Falha ao iniciar instalador nativo.');
       }
     } else if (typeof window !== 'undefined') {
-      window.open(url, '_blank');
+      window.open(url || `https://github.com/${GITHUB_REPO}/releases/latest`, '_blank');
     }
   }
 
