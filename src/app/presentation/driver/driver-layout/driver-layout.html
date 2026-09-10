@@ -44,6 +44,37 @@
     </div>
   </header>
 
+  <!-- BANNER DISCRETO DE ATUALIZAÇÃO NATIVA DISPONÍVEL -->
+  @if (updateService.hasUpdate() && !updateService.isDismissed()) {
+    <div class="bg-gradient-to-r from-emerald-950 via-slate-900 to-emerald-950 border-b border-emerald-500/30 px-4 py-2.5 flex items-center justify-between gap-2 text-xs shadow-md animate-in slide-in-from-top duration-300">
+      <div class="flex items-center gap-2 min-w-0">
+        <span class="size-6 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+          <svg lucideSparkles class="size-3.5"></svg>
+        </span>
+        <div class="truncate">
+          <span class="font-bold text-white">Nova versão v{{ updateService.latestVersion() }}</span>
+          <span class="text-[10px] text-slate-400 block truncate">Melhorias e atualizações disponíveis</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-1.5 shrink-0">
+        <button
+          (click)="updateService.downloadAndInstall()"
+          class="px-2.5 py-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-lg text-[11px] transition-all flex items-center gap-1 cursor-pointer"
+        >
+          <svg lucideDownload class="size-3"></svg>
+          <span>Atualizar</span>
+        </button>
+        <button
+          (click)="updateService.dismiss()"
+          title="Lembrar mais tarde"
+          class="p-1 text-slate-400 hover:text-slate-200 rounded-lg cursor-pointer"
+        >
+          <svg lucideX class="size-3.5"></svg>
+        </button>
+      </div>
+    </div>
+  }
+
   <!-- ÁREA PRINCIPAL COM SCROLL SUAVE -->
   <main class="flex-1 overflow-y-auto pb-24 px-4 pt-4 max-w-lg mx-auto w-full">
     <router-outlet></router-outlet>

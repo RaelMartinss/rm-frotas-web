@@ -43,6 +43,7 @@ import {
   LucideCopy,
   LucideMail,
   LucideShieldCheck,
+  LucideSmartphone,
 } from '@lucide/angular';
 
 @Component({
@@ -57,6 +58,7 @@ import {
     CnhMaskDirective,
     LucideUsers,
     LucidePlus,
+    LucideSmartphone,
     LucideSearch,
     LucideLoader2,
     LucideX,

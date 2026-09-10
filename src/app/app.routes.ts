@@ -17,6 +17,16 @@ export const routes: Routes = [
       import('./presentation/auth/login/login').then((m) => m.LoginComponent)
   },
   {
+    path: 'download',
+    loadComponent: () =>
+      import('./presentation/public/download-app/download-app').then((m) => m.DownloadAppComponent)
+  },
+  {
+    path: 'app',
+    redirectTo: 'download',
+    pathMatch: 'full'
+  },
+  {
     path: 'trocar-senha-obrigatoria',
     canActivate: [mustChangePasswordGuard],
     loadComponent: () =>

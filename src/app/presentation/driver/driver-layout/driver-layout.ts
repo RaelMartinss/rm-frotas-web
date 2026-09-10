@@ -5,10 +5,14 @@ import { IAuthRepository } from '../../../domain/repositories/auth.repository.in
 import { IDriverPortalRepository } from '../../../domain/repositories/driver-portal.repository.interface';
 import { AuthStateService } from '../../../core/services/auth-state.service';
 import { NetworkStatusService } from '../../../core/services/network-status.service';
+import { AppUpdateService } from '../../../core/services/app-update.service';
 import {
   LucideNavigation,
   LucideClock,
   LucideLogOut,
+  LucideDownload,
+  LucideSparkles,
+  LucideX,
 } from '@lucide/angular';
 
 @Component({
@@ -22,6 +26,9 @@ import {
     LucideNavigation,
     LucideClock,
     LucideLogOut,
+    LucideDownload,
+    LucideSparkles,
+    LucideX,
   ],
   templateUrl: './driver-layout.html',
 })
@@ -30,6 +37,7 @@ export class DriverLayoutComponent implements OnInit {
   private readonly portalRepository = inject(IDriverPortalRepository);
   private readonly authState = inject(AuthStateService);
   private readonly networkService = inject(NetworkStatusService);
+  readonly updateService = inject(AppUpdateService);
   private readonly router = inject(Router);
 
   readonly currentUser = computed(() => this.authState.currentUser());
