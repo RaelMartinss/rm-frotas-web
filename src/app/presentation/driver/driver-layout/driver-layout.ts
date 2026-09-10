@@ -57,6 +57,19 @@ export class DriverLayoutComponent implements OnInit {
   readonly currentUser = computed(() => this.authState.currentUser());
   readonly isOnline = computed(() => this.networkService.isOnline());
   readonly pendingReceipts = signal<number>(0);
+  readonly isProfileOpen = signal<boolean>(false);
+
+  openProfile(): void {
+    this.isProfileOpen.set(true);
+  }
+
+  closeProfile(): void {
+    this.isProfileOpen.set(false);
+  }
+
+  checkUpdatesManually(): void {
+    this.updateService.checkForUpdates();
+  }
 
   ngOnInit(): void {
     this.refreshPendingCount();
