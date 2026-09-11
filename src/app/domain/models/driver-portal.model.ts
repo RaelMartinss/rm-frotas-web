@@ -72,7 +72,27 @@ export interface DriverIncidentDTO {
   tripId?: string;
   vehicleId?: string;
   category: string;
-  description: string;
+  description?: string;
+  latitude?: number;
+  longitude?: number;
+  locationAddress?: string;
+  photoUrl?: string;
+  photos?: string[];
+  checklist?: any;
+}
+
+export interface DriverIncidentResponse {
+  message: string;
+  incidentId: string;
+  protocol?: string;
+  category: string;
+  description?: string;
+  recordedAt?: string;
+  latitude?: number;
+  longitude?: number;
+  locationAddress?: string;
+  photoUrl?: string;
+  photos?: string[];
 }
 
 export interface DriverHistoryItem {

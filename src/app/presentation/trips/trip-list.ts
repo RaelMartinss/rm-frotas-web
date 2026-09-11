@@ -34,7 +34,15 @@ import {
   LucideChevronLeft,
   LucideChevronRight,
   LucideChevronsLeft,
-  LucideChevronsRight
+  LucideChevronsRight,
+  LucideCamera,
+  LucidePhone,
+  LucideClock,
+  LucideExternalLink,
+  LucideTruck,
+  LucideAlertTriangle,
+  LucideZoomIn,
+  LucideRefreshCw,
 } from '@lucide/angular';
 
 @Component({
@@ -63,7 +71,15 @@ import {
     LucideChevronLeft,
     LucideChevronRight,
     LucideChevronsLeft,
-    LucideChevronsRight
+    LucideChevronsRight,
+    LucideCamera,
+    LucidePhone,
+    LucideClock,
+    LucideExternalLink,
+    LucideTruck,
+    LucideAlertTriangle,
+    LucideZoomIn,
+    LucideRefreshCw,
   ],
   templateUrl: './trip-list.html',
   styleUrl: './trip-list.css'
@@ -86,6 +102,17 @@ export class TripListComponent implements OnInit, OnDestroy {
   loadingAvailability = signal<boolean>(false);
   loading = signal<boolean>(true);
   private pollInterval: any = null;
+
+  // --- SELETOR DE ABAS PRINCIPAIS ---
+  activeMainTab = signal<'trips' | 'history_incidents'>('trips');
+
+  // --- OCORRÊNCIAS SOS & HISTÓRICO DE VIAGEM ---
+  allIncidents = signal<Incident[]>([]);
+  loadingIncidents = signal<boolean>(false);
+  incidentFilterStatus = signal<string>('ALL');
+  incidentFilterCategory = signal<string>('ALL');
+  selectedPhotoUrl = signal<string | null>(null);
+  selectedIncidentForInspection = signal<Incident | null>(null);
 
   // --- PAGINAÇÃO SERVER-SIDE (OFFSET / LIMIT) ---
   currentPage = signal<number>(1);
@@ -138,6 +165,31 @@ export class TripListComponent implements OnInit, OnDestroy {
     range.push(total);
 
     return range;
+  });
+
+  filteredIncidents = computed(() => {
+    let list = this.allIncidents();
+    const st = this.incidentFilterStatus();
+    const cat = this.incidentFilterCategory();
+    const search = (this.searchTerm() || '').trim().toLowerCase();
+
+    if (st !== 'ALL') {
+      list = list.filter((i) => i.status === st);
+    }
+    if (cat !== 'ALL') {
+      list = list.filter((i) => i.category === cat);
+    }
+    if (search) {
+      list = list.filter((i) =>
+        (i.protocol && i.protocol.toLowerCase().includes(search)) ||
+        (i.driverName && i.driverName.toLowerCase().includes(search)) ||
+        (i.vehiclePlate && i.vehiclePlate.toLowerCase().includes(search)) ||
+        (i.vehicleModel && i.vehicleModel.toLowerCase().includes(search)) ||
+        (i.description && i.description.toLowerCase().includes(search)) ||
+        (i.tripRoute && i.tripRoute.toLowerCase().includes(search))
+      );
+    }
+    return list;
   });
 
   clearSearch(): void {
@@ -233,12 +285,59 @@ export class TripListComponent implements OnInit, OnDestroy {
       });
 
     this.loadTrips(true);
+    this.loadIncidents(true);
     this.loadAuxiliaryData();
 
     // Atualização reativa periódica em segundo plano a cada 12 segundos
     this.pollInterval = setInterval(() => {
       this.loadTrips(false);
+      this.loadIncidents(false);
     }, 12000);
+  }
+
+  loadIncidents(showLoading = true): void {
+    if (showLoading && this.allIncidents().length === 0) {
+      this.loadingIncidents.set(true);
+    }
+    this.incidentRepository.getAll().subscribe({
+      next: (list) => {
+        this.allIncidents.set(list);
+        this.loadingIncidents.set(false);
+      },
+      error: () => {
+        this.loadingIncidents.set(false);
+      },
+    });
+  }
+
+  setIncidentStatusFilter(status: string): void {
+    this.incidentFilterStatus.set(status);
+  }
+
+  setIncidentCategoryFilter(cat: string): void {
+    this.incidentFilterCategory.set(cat);
+  }
+
+  updateIncidentStatus(incident: Incident, newStatus: 'OPEN' | 'IN_PROGRESS' | 'RESOLVED'): void {
+    this.incidentRepository.updateStatus(incident.id, newStatus).subscribe({
+      next: () => {
+        this.toastService.success(`Status da ocorrência ${incident.protocol || ''} atualizado para ${newStatus}.`);
+        this.loadIncidents(false);
+      },
+      error: () => {
+        this.toastService.error('Falha ao atualizar status da ocorrência.');
+      },
+    });
+  }
+
+  openPhotoModal(photoUrl: string, incident?: Incident): void {
+    this.selectedPhotoUrl.set(photoUrl);
+    this.selectedIncidentForInspection.set(incident || null);
+  }
+
+  closePhotoModal(): void {
+    this.selectedPhotoUrl.set(null);
+    this.selectedIncidentForInspection.set(null);
   }
 
   ngOnDestroy(): void {

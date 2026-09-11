@@ -574,67 +574,252 @@
 @if (incidentModalOpen()) {
   <div class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-4 animate-in fade-in">
     <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 w-full max-w-sm space-y-4 shadow-2xl animate-in slide-in-from-bottom-4">
-      <div class="flex items-center justify-between">
-        <h3 class="text-base font-bold text-rose-400 flex items-center gap-2">
-          <svg lucideShieldAlert class="size-5 text-rose-400"></svg>
-          Reportar SOS / Ocorrência
-        </h3>
-        <button (click)="incidentModalOpen.set(false)" class="text-slate-400 hover:text-white p-1">
-          <svg lucideX class="size-4"></svg>
-        </button>
-      </div>
 
-      <div class="space-y-3">
-        <!-- Categoria -->
-        <div>
-          <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Tipo de Ocorrência</label>
-          <div class="grid grid-cols-3 gap-1.5">
-            @for (cat of ['PNEU', 'MECANICA', 'ELETRICA', 'ACIDENTE', 'ATRASO', 'OUTRO']; track cat) {
-              <button
-                type="button"
-                (click)="incidentCategory.set(cat)"
-                class="py-2 px-1 text-[10px] font-bold rounded-xl border transition-all cursor-pointer text-center"
-                [class.bg-rose-500]="incidentCategory() === cat"
-                [class.text-white]="incidentCategory() === cat"
-                [class.border-rose-400]="incidentCategory() === cat"
-                [class.bg-slate-950]="incidentCategory() !== cat"
-                [class.text-slate-400]="incidentCategory() !== cat"
-                [class.border-slate-800]="incidentCategory() !== cat"
+      <!-- ========================================== -->
+      <!-- ETAPA 1: FORMULÁRIO DE SOS (GPS + FOTO)    -->
+      <!-- ========================================== -->
+      @if (incidentStep() === 'FORM') {
+        <div class="flex items-center justify-between">
+          <h3 class="text-base font-bold text-rose-400 flex items-center gap-2">
+            <svg lucideShieldAlert class="size-5 text-rose-400"></svg>
+            Reportar SOS / Ocorrência
+          </h3>
+          <button (click)="incidentModalOpen.set(false)" class="text-slate-400 hover:text-white p-1">
+            <svg lucideX class="size-4"></svg>
+          </button>
+        </div>
+
+        <div class="space-y-3">
+          <!-- 1. GPS Automático -->
+          <div
+            class="p-2.5 rounded-xl border bg-slate-950/80 flex items-center justify-between gap-2 text-xs transition-colors"
+            [class.border-emerald-500/40]="incidentGps()"
+            [class.border-slate-800]="!incidentGps()"
+          >
+            <div class="flex items-center gap-2 min-w-0">
+              <div
+                class="size-7 rounded-lg flex items-center justify-center shrink-0"
+                [class.bg-emerald-500/20]="incidentGps()"
+                [class.text-emerald-400]="incidentGps()"
+                [class.bg-amber-500/20]="!incidentGps()"
+                [class.text-amber-400]="!incidentGps()"
               >
-                {{ cat }}
-              </button>
+                <svg lucideMapPin class="size-4"></svg>
+              </div>
+              <div class="min-w-0 truncate text-[11px]">
+                @if (incidentGps(); as gps) {
+                  <p class="font-bold text-emerald-400">GPS Detectado Automaticamente</p>
+                  <p class="text-slate-400 font-mono text-[10px] truncate">
+                    Lat: {{ gps.latitude.toFixed(4) }} • Lng: {{ gps.longitude.toFixed(4) }}
+                  </p>
+                } @else if (isDetectingGps()) {
+                  <p class="font-semibold text-amber-300 animate-pulse">Obtendo coordenadas GPS...</p>
+                  <p class="text-slate-400 text-[10px]">Aguarde sinal de satélite</p>
+                } @else {
+                  <p class="font-semibold text-slate-300">Localização por Rota Ativa</p>
+                  <p class="text-slate-400 text-[10px]">GPS de emergência pronto</p>
+                }
+              </div>
+            </div>
+
+            <button
+              type="button"
+              (click)="detectCurrentGps()"
+              class="p-1.5 text-slate-400 hover:text-white bg-slate-800 rounded-lg shrink-0 cursor-pointer"
+              title="Atualizar GPS"
+            >
+              <svg lucideRefreshCw class="size-3.5" [class.animate-spin]="isDetectingGps()"></svg>
+            </button>
+          </div>
+
+          <!-- 2. Categoria da Ocorrência -->
+          <div>
+            <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Tipo de Ocorrência</label>
+            <div class="grid grid-cols-3 gap-1.5">
+              @for (cat of ['PNEU', 'MECANICA', 'ELETRICA', 'ACIDENTE', 'ATRASO', 'OUTRO']; track cat) {
+                <button
+                  type="button"
+                  (click)="incidentCategory.set(cat)"
+                  class="py-2 px-1 text-[10px] font-bold rounded-xl border transition-all cursor-pointer text-center"
+                  [class.bg-rose-500]="incidentCategory() === cat"
+                  [class.text-white]="incidentCategory() === cat"
+                  [class.border-rose-400]="incidentCategory() === cat"
+                  [class.bg-slate-950]="incidentCategory() !== cat"
+                  [class.text-slate-400]="incidentCategory() !== cat"
+                  [class.border-slate-800]="incidentCategory() !== cat"
+                >
+                  {{ cat }}
+                </button>
+              }
+            </div>
+          </div>
+
+          <!-- 3. Foto da Avaria / Danos com Câmera -->
+          <div>
+            <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Foto da Avaria / Danos (Câmera)</label>
+            @if (!incidentPhoto()) {
+              <label class="flex flex-col items-center justify-center p-3 border-2 border-dashed border-slate-800 hover:border-rose-500/50 rounded-2xl bg-slate-950/60 cursor-pointer transition-colors">
+                <svg lucideCamera class="size-6 text-rose-400 mb-1"></svg>
+                <span class="text-xs font-semibold text-slate-300">Tirar foto da avaria</span>
+                <span class="text-[10px] text-slate-500">Pneu rasgado, peça quebrada, colisão...</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  (change)="onIncidentPhotoSelected($event)"
+                  class="hidden"
+                />
+              </label>
+            } @else {
+              <div class="relative rounded-2xl overflow-hidden border border-rose-500/40 bg-slate-950 p-2 flex items-center justify-between">
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <img [src]="incidentPhoto()" alt="Foto da avaria" class="size-12 rounded-xl object-cover border border-slate-800 shrink-0" />
+                  <div class="min-w-0">
+                    <p class="text-xs font-bold text-emerald-400">✓ Foto anexada com sucesso</p>
+                    <p class="text-[10px] text-slate-400 truncate">Evidência registrada para o gestor</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  (click)="removeIncidentPhoto()"
+                  class="p-2 text-rose-400 hover:text-white hover:bg-rose-950/60 rounded-xl transition-colors cursor-pointer"
+                  title="Remover foto"
+                >
+                  <svg lucideX class="size-4"></svg>
+                </button>
+              </div>
             }
+          </div>
+
+          <!-- 4. Descrição / Detalhes (Opcional) -->
+          <div>
+            <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Detalhes Adicionais (Opcional)</label>
+            <textarea
+              rows="2"
+              [ngModel]="incidentDescription()"
+              (ngModelChange)="incidentDescription.set($event)"
+              class="w-full bg-slate-950 border border-slate-800 focus:border-rose-500 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-hidden"
+              placeholder="Ex: Pneu traseiro estourou no acostamento..."
+            ></textarea>
           </div>
         </div>
 
-        <!-- Descrição -->
-        <div>
-          <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Detalhes do que aconteceu</label>
-          <textarea
-            rows="3"
-            [ngModel]="incidentDescription()"
-            (ngModelChange)="incidentDescription.set($event)"
-            class="w-full bg-slate-950 border border-slate-800 focus:border-rose-500 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-hidden"
-            placeholder="Descreva o problema ou localização na estrada..."
-          ></textarea>
+        <div class="grid grid-cols-2 gap-2 pt-2">
+          <button
+            type="button"
+            (click)="incidentModalOpen.set(false)"
+            class="py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs rounded-xl transition-colors cursor-pointer"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            (click)="submitIncident()"
+            [disabled]="actionLoading()"
+            class="py-3 bg-rose-600 hover:bg-rose-500 text-white font-black text-xs rounded-xl shadow-md transition-colors cursor-pointer disabled:opacity-50"
+          >
+            {{ actionLoading() ? 'Enviando...' : 'Enviar Alerta SOS' }}
+          </button>
         </div>
-      </div>
+      }
 
-      <div class="grid grid-cols-2 gap-2 pt-2">
-        <button
-          (click)="incidentModalOpen.set(false)"
-          class="py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs rounded-xl transition-colors cursor-pointer"
-        >
-          Cancelar
-        </button>
-        <button
-          (click)="submitIncident()"
-          [disabled]="actionLoading()"
-          class="py-3 bg-rose-600 hover:bg-rose-500 text-white font-black text-xs rounded-xl shadow-md transition-colors cursor-pointer disabled:opacity-50"
-        >
-          {{ actionLoading() ? 'Enviando...' : 'Enviar Alerta SOS' }}
-        </button>
-      </div>
+      <!-- ========================================== -->
+      <!-- ETAPA 2: CONFIRMAÇÃO PÓS-ENVIO DO SOS      -->
+      <!-- ========================================== -->
+      @else if (incidentStep() === 'SUCCESS') {
+        <div class="space-y-4 animate-in zoom-in-95">
+          <!-- Cabeçalho 🔴 OCORRÊNCIA ENVIADA -->
+          <div class="text-center space-y-1.5 pt-1">
+            <div class="size-12 rounded-full bg-rose-500/20 border border-rose-500/50 text-rose-400 flex items-center justify-center mx-auto">
+              <svg lucideShieldAlert class="size-6 text-rose-400"></svg>
+            </div>
+            <h3 class="text-base font-black text-rose-400 tracking-wide flex items-center justify-center gap-1.5">
+              <span>🔴</span>
+              <span>OCORRÊNCIA ENVIADA</span>
+            </h3>
+            <p class="text-xs text-slate-300 font-medium">
+              Seu chamado foi registrado e nossa central já foi acionada.
+            </p>
+          </div>
+
+          <!-- Card Estruturado com os Dados do Alerta -->
+          <div class="p-4 rounded-2xl bg-slate-950 border border-rose-500/30 space-y-2.5 text-xs">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-900">
+              <span class="text-[11px] text-slate-400 uppercase font-bold">Protocolo</span>
+              <span class="font-mono font-black text-sm text-rose-300 px-2 py-0.5 rounded-md bg-rose-950/60 border border-rose-500/30">
+                {{ lastSubmittedIncident()?.protocol || '#004821' }}
+              </span>
+            </div>
+
+            <div class="flex items-center justify-between">
+              <span class="text-slate-400">Tipo:</span>
+              <span class="font-bold text-white uppercase">{{ lastSubmittedIncident()?.category }}</span>
+            </div>
+
+            <div class="flex items-center justify-between">
+              <span class="text-slate-400">Horário:</span>
+              <span class="font-mono font-bold text-slate-200">
+                {{ lastSubmittedIncident()?.recordedAt | date:'HH:mm • dd/MM' }}
+              </span>
+            </div>
+
+            <div class="flex items-start justify-between gap-2">
+              <span class="text-slate-400 shrink-0">Localização:</span>
+              <div class="text-right font-semibold text-slate-200 text-[11px] truncate">
+                @if (lastSubmittedIncident()?.latitude; as lat) {
+                  <a
+                    [href]="'https://maps.google.com/?q=' + lat + ',' + lastSubmittedIncident()?.longitude"
+                    target="_blank"
+                    class="text-blue-400 hover:underline inline-flex items-center gap-1 font-mono text-[10px]"
+                  >
+                    <svg lucideMapPin class="size-3"></svg>
+                    <span>{{ lat.toFixed(4) }}, {{ lastSubmittedIncident()?.longitude?.toFixed(4) }}</span>
+                  </a>
+                } @else {
+                  <span>{{ data()?.trip?.destinationCity || 'Localização da Rota' }}</span>
+                }
+              </div>
+            </div>
+
+            <div class="pt-2 border-t border-slate-900 flex items-center justify-between">
+              <span class="text-slate-400">Status:</span>
+              <span class="inline-flex items-center gap-1.5 text-emerald-400 font-bold text-[11px]">
+                <span class="size-2 rounded-full bg-emerald-400 animate-ping"></span>
+                Central foi notificada
+              </span>
+            </div>
+
+            @if (lastSubmittedIncident()?.photoUrl; as photo) {
+              <div class="pt-2 border-t border-slate-900 flex items-center gap-2.5">
+                <img [src]="photo" alt="Foto da avaria" class="size-11 rounded-xl object-cover border border-slate-800 shrink-0" />
+                <div class="text-[10px] text-slate-400 leading-tight">
+                  <span class="text-emerald-400 font-semibold block">Foto anexada ao chamado</span>
+                  <span>Evidência salva para a equipe de socorro</span>
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- Ações: Ligar para a Central + Fechar -->
+          <div class="space-y-2 pt-1">
+            <a
+              [href]="centralPhoneHref"
+              class="w-full py-3.5 bg-rose-600 hover:bg-rose-500 text-white font-black text-xs rounded-2xl shadow-lg shadow-rose-600/30 flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-[0.98]"
+            >
+              <svg lucidePhoneCall class="size-4.5"></svg>
+              <span>LIGAR PARA A CENTRAL ({{ centralPhone }})</span>
+            </a>
+
+            <button
+              type="button"
+              (click)="incidentModalOpen.set(false)"
+              class="w-full py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs rounded-xl transition-colors cursor-pointer"
+            >
+              Concluir / Voltar ao Início
+            </button>
+          </div>
+        </div>
+      }
     </div>
   </div>
 }

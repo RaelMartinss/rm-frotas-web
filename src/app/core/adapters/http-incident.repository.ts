@@ -29,4 +29,14 @@ export class HttpIncidentRepository implements IIncidentRepository {
       {}
     );
   }
+
+  updateStatus(
+    id: string,
+    status: 'OPEN' | 'IN_PROGRESS' | 'RESOLVED'
+  ): Observable<{ id: string; status: string; message: string }> {
+    return this.http.patch<{ id: string; status: string; message: string }>(
+      `${this.baseUrl}/${id}/status`,
+      { status }
+    );
+  }
 }

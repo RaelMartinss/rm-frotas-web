@@ -32,6 +32,39 @@
     </div>
   </div>
 
+  <!-- SELETOR DE ABAS PRINCIPAIS -->
+  <div class="flex items-center gap-2 border-b border-slate-200">
+    <button
+      type="button"
+      (click)="activeMainTab.set('trips')"
+      class="flex items-center gap-2 px-4 py-2.5 text-xs sm:text-sm font-semibold border-b-2 transition-colors cursor-pointer"
+      [ngClass]="activeMainTab() === 'trips' ? 'border-emerald-600 text-emerald-700 bg-emerald-50/50 rounded-t-lg' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'"
+    >
+      <svg lucideNavigation class="size-4"></svg>
+      <span>Viagens Operacionais</span>
+      <span class="ml-1 px-1.5 py-0.5 rounded-full text-[10px] bg-slate-100 text-slate-600 font-medium">
+        {{ totalItems() }}
+      </span>
+    </button>
+
+    <button
+      type="button"
+      (click)="activeMainTab.set('history_incidents')"
+      class="flex items-center gap-2 px-4 py-2.5 text-xs sm:text-sm font-semibold border-b-2 transition-colors cursor-pointer relative"
+      [ngClass]="activeMainTab() === 'history_incidents' ? 'border-rose-600 text-rose-700 bg-rose-50/50 rounded-t-lg' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'"
+    >
+      <svg lucideAlertTriangle class="size-4"></svg>
+      <span>Histórico & Ocorrências SOS</span>
+      @if (allIncidents().length > 0) {
+        <span class="ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold"
+          [ngClass]="filteredIncidents().length > 0 ? 'bg-rose-500 text-white' : 'bg-slate-200 text-slate-700'">
+          {{ allIncidents().length }}
+        </span>
+      }
+    </button>
+  </div>
+
+  @if (activeMainTab() === 'trips') {
   <!-- BARRA DE CONTROLE: BUSCA E FILTROS EM CHIPS -->
   <div class="flex flex-col lg:flex-row gap-3 justify-between items-stretch lg:items-center bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-2xs">
     <!-- Input com Debounce e Botão Limpar -->
@@ -392,6 +425,362 @@
       }
     }
   </div>
+  } @else if (activeMainTab() === 'history_incidents') {
+    <!-- BARRA DE CONTROLE SOS: BUSCA, FILTROS E RELOAD -->
+    <div class="flex flex-col lg:flex-row gap-3 justify-between items-stretch lg:items-center bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-2xs">
+      <!-- Input com Debounce e Botão Limpar -->
+      <div class="relative flex-1 max-w-md">
+        <svg lucideSearch class="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></svg>
+        <input
+          type="text"
+          [formControl]="searchControl"
+          placeholder="Buscar por protocolo, condutor, placa, rota..."
+          class="w-full bg-slate-50 text-slate-800 text-xs rounded-xl pl-9 pr-8 py-2 border border-slate-200 focus:outline-hidden focus:border-rose-500 transition-colors placeholder:text-slate-400"
+        />
+        @if (searchTerm()) {
+          <button
+            (click)="clearSearch()"
+            class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
+            title="Limpar busca"
+          >
+            <svg lucideX class="size-3.5"></svg>
+          </button>
+        }
+      </div>
+
+      <!-- Filtro por Categoria e Atualizar -->
+      <div class="flex items-center gap-2">
+        <select
+          [value]="incidentFilterCategory()"
+          (change)="setIncidentCategoryFilter($any($event.target).value)"
+          class="bg-slate-50 border border-slate-200 text-slate-700 text-xs rounded-xl px-3 py-2 focus:outline-hidden focus:border-rose-500 cursor-pointer"
+        >
+          <option value="ALL">Todas as Categorias</option>
+          <option value="PNEU">🛞 Pneu / Borracharia</option>
+          <option value="MECANICA">⚙️ Falha Mecânica</option>
+          <option value="ELETRICA">⚡ Pane Elétrica</option>
+          <option value="ACIDENTE">🚨 Acidente / Colisão</option>
+          <option value="ATRASO">⏳ Atraso na Rota</option>
+          <option value="OUTRO">📋 Outro</option>
+        </select>
+
+        <button
+          type="button"
+          (click)="loadIncidents(true)"
+          class="p-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors cursor-pointer"
+          title="Atualizar Ocorrências"
+        >
+          <svg lucideRefreshCw class="size-4" [class.animate-spin]="loadingIncidents()"></svg>
+        </button>
+      </div>
+
+      <!-- Chips de Filtro por Status da Ocorrência -->
+      <div class="flex items-center gap-1.5 overflow-x-auto pb-1 lg:pb-0">
+        <button
+          type="button"
+          (click)="setIncidentStatusFilter('ALL')"
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shrink-0 cursor-pointer border"
+          [ngClass]="incidentFilterStatus() === 'ALL' ? 'bg-slate-900 text-white border-slate-900 shadow-2xs' : 'bg-slate-50 text-slate-600 border-slate-200/80 hover:bg-slate-100'"
+        >
+          <span>Todos</span>
+        </button>
+
+        <button
+          type="button"
+          (click)="setIncidentStatusFilter('OPEN')"
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shrink-0 cursor-pointer border"
+          [ngClass]="incidentFilterStatus() === 'OPEN' ? 'bg-rose-600 text-white border-rose-600 shadow-2xs' : 'bg-slate-50 text-slate-600 border-slate-200/80 hover:bg-slate-100'"
+        >
+          <span class="size-1.5 rounded-full" [ngClass]="incidentFilterStatus() === 'OPEN' ? 'bg-white' : 'bg-rose-500 animate-pulse'"></span>
+          <span>Abertas</span>
+        </button>
+
+        <button
+          type="button"
+          (click)="setIncidentStatusFilter('IN_PROGRESS')"
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shrink-0 cursor-pointer border"
+          [ngClass]="incidentFilterStatus() === 'IN_PROGRESS' ? 'bg-amber-600 text-white border-amber-600 shadow-2xs' : 'bg-slate-50 text-slate-600 border-slate-200/80 hover:bg-slate-100'"
+        >
+          <span class="size-1.5 rounded-full" [ngClass]="incidentFilterStatus() === 'IN_PROGRESS' ? 'bg-white' : 'bg-amber-500'"></span>
+          <span>Em Atendimento</span>
+        </button>
+
+        <button
+          type="button"
+          (click)="setIncidentStatusFilter('RESOLVED')"
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shrink-0 cursor-pointer border"
+          [ngClass]="incidentFilterStatus() === 'RESOLVED' ? 'bg-emerald-600 text-white border-emerald-600 shadow-2xs' : 'bg-slate-50 text-slate-600 border-slate-200/80 hover:bg-slate-100'"
+        >
+          <span class="size-1.5 rounded-full" [ngClass]="incidentFilterStatus() === 'RESOLVED' ? 'bg-white' : 'bg-emerald-500'"></span>
+          <span>Resolvidas</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- LISTAGEM DE OCORRÊNCIAS SOS -->
+    @if (loadingIncidents()) {
+      <div class="space-y-4">
+        @for (i of [1, 2, 3]; track i) {
+          <div class="bg-white rounded-2xl border border-slate-200/80 p-5 animate-pulse space-y-4">
+            <div class="flex justify-between">
+              <div class="h-6 bg-slate-200 rounded w-48"></div>
+              <div class="h-6 bg-slate-200 rounded w-28"></div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div class="h-16 bg-slate-100 rounded-xl"></div>
+              <div class="h-16 bg-slate-100 rounded-xl"></div>
+              <div class="h-16 bg-slate-100 rounded-xl"></div>
+            </div>
+          </div>
+        }
+      </div>
+    } @else if (filteredIncidents().length === 0) {
+      <div class="bg-white rounded-2xl border border-slate-200/80 p-12 text-center shadow-2xs">
+        <div class="size-16 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-3 border border-emerald-200/60">
+          <svg lucideCheckCircle2 class="size-8"></svg>
+        </div>
+        <h3 class="text-base font-bold text-slate-800">Nenhuma Ocorrência Encontrada</h3>
+        <p class="text-xs text-slate-500 max-w-md mx-auto mt-1">
+          Não há chamados de socorro SOS ou ocorrências cadastradas para os critérios de filtro selecionados.
+        </p>
+      </div>
+    } @else {
+      <div class="space-y-4">
+        @for (inc of filteredIncidents(); track inc.id) {
+          <div
+            class="bg-white rounded-2xl border shadow-2xs overflow-hidden transition-all duration-200 hover:shadow-md"
+            [ngClass]="{
+              'border-l-4 border-l-rose-500 border-slate-200/80': inc.status === 'OPEN',
+              'border-l-4 border-l-amber-500 border-slate-200/80': inc.status === 'IN_PROGRESS',
+              'border-l-4 border-l-emerald-500 border-slate-200/80': inc.status === 'RESOLVED'
+            }"
+          >
+            <!-- CABEÇALHO DO CARD -->
+            <div class="px-5 py-4 bg-slate-50/70 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3">
+              <div class="flex items-center gap-2.5">
+                <span class="font-mono text-xs font-bold px-2.5 py-1 rounded-lg bg-slate-900 text-white shadow-2xs">
+                  {{ inc.protocol || ('#' + inc.id.substring(0, 6).toUpperCase()) }}
+                </span>
+                <span
+                  class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold"
+                  [ngClass]="{
+                    'bg-rose-100 text-rose-800 border border-rose-200': inc.category === 'ACIDENTE',
+                    'bg-amber-100 text-amber-800 border border-amber-200': inc.category === 'MECANICA' || inc.category === 'PNEU',
+                    'bg-blue-100 text-blue-800 border border-blue-200': inc.category === 'ELETRICA',
+                    'bg-purple-100 text-purple-800 border border-purple-200': inc.category === 'ATRASO',
+                    'bg-slate-100 text-slate-700 border border-slate-200': inc.category === 'OUTRO'
+                  }"
+                >
+                  <svg lucideAlertTriangle class="size-3.5"></svg>
+                  <span>{{ inc.category }}</span>
+                </span>
+                <span class="text-xs text-slate-400 flex items-center gap-1">
+                  <svg lucideClock class="size-3 text-slate-400"></svg>
+                  {{ inc.createdAt | date:'dd/MM/yyyy HH:mm' }}
+                </span>
+              </div>
+
+              <!-- Status Badge -->
+              <div class="flex items-center gap-2">
+                @if (inc.status === 'OPEN') {
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200 animate-pulse">
+                    <span class="size-2 rounded-full bg-rose-600"></span>
+                    Aberta • Aguardando Socorro
+                  </span>
+                } @else if (inc.status === 'IN_PROGRESS') {
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                    <span class="size-2 rounded-full bg-amber-500"></span>
+                    Em Atendimento
+                  </span>
+                } @else {
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    <span class="size-2 rounded-full bg-emerald-500"></span>
+                    Resolvida
+                  </span>
+                }
+              </div>
+            </div>
+
+            <!-- CORPO DO CARD COM DETALHES -->
+            <div class="p-5 space-y-4">
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- COLUNA 1: MOTORISTA -->
+                <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-100 space-y-2">
+                  <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                    <svg lucideUser class="size-3.5 text-slate-500"></svg>
+                    Condutor / Motorista
+                  </div>
+                  <div class="font-semibold text-xs text-slate-800">
+                    {{ inc.driverName || 'Não identificado' }}
+                  </div>
+                  @if (inc.driverPhone) {
+                    <div class="pt-1">
+                      <a
+                        [href]="'tel:' + inc.driverPhone"
+                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs font-semibold transition-colors cursor-pointer"
+                        title="Ligar para motorista"
+                      >
+                        <svg lucidePhone class="size-3 text-emerald-600"></svg>
+                        <span>Ligar: {{ inc.driverPhone }}</span>
+                      </a>
+                    </div>
+                  }
+                </div>
+
+                <!-- COLUNA 2: VEÍCULO & ROTA -->
+                <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-100 space-y-2">
+                  <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                    <svg lucideTruck class="size-3.5 text-slate-500"></svg>
+                    Veículo & Rota
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="font-mono text-xs font-bold px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-900 shadow-2xs">
+                      {{ inc.vehiclePlate || 'N/A' }}
+                    </span>
+                    <span class="text-xs text-slate-600 truncate">{{ inc.vehicleModel || '' }}</span>
+                  </div>
+                  @if (inc.vehicleKm) {
+                    <div class="text-[11px] text-slate-500">
+                      Hodômetro: <strong class="text-slate-700">{{ inc.vehicleKm | number }} km</strong>
+                    </div>
+                  }
+                  @if (inc.tripRoute) {
+                    <div class="text-[11px] text-slate-500 truncate flex items-center gap-1">
+                      <svg lucideNavigation class="size-3 text-slate-400 shrink-0"></svg>
+                      <span>{{ inc.tripRoute }}</span>
+                    </div>
+                  }
+                </div>
+
+                <!-- COLUNA 3: LOCALIZAÇÃO GPS -->
+                <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-100 space-y-2">
+                  <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                    <svg lucideMapPin class="size-3.5 text-rose-500"></svg>
+                    Localização & GPS
+                  </div>
+                  @if (inc.locationAddress) {
+                    <div class="text-xs text-slate-700 font-medium line-clamp-2">
+                      {{ inc.locationAddress }}
+                    </div>
+                  }
+                  @if (inc.latitude && inc.longitude) {
+                    <div class="text-[11px] font-mono text-slate-500">
+                      {{ inc.latitude | number:'1.4-4' }}, {{ inc.longitude | number:'1.4-4' }}
+                    </div>
+                    <div>
+                      <a
+                        [href]="'https://www.google.com/maps?q=' + inc.latitude + ',' + inc.longitude"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
+                      >
+                        <svg lucideExternalLink class="size-3"></svg>
+                        <span>Abrir no Google Maps</span>
+                      </a>
+                    </div>
+                  } @else {
+                    <div class="text-xs text-slate-400 italic">GPS não informado</div>
+                  }
+                </div>
+              </div>
+
+              <!-- RELATO DO MOTORISTA -->
+              @if (inc.description) {
+                <div class="p-3 bg-amber-50/60 rounded-xl border border-amber-200/70 text-xs text-amber-900">
+                  <span class="font-bold text-amber-950">Relato do condutor:</span> {{ inc.description }}
+                </div>
+              }
+
+              <!-- SEÇÃO DE FOTOS DA AVARIA -->
+              @if (inc.photoUrl || (inc.photos && inc.photos.length > 0)) {
+                <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80 space-y-2">
+                  <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                      <svg lucideCamera class="size-4 text-rose-600"></svg>
+                      Evidência Fotográfica da Avaria / Danos
+                    </span>
+                    <button
+                      type="button"
+                      (click)="openPhotoModal(inc.photoUrl || inc.photos![0], inc)"
+                      class="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 hover:text-emerald-700 cursor-pointer"
+                    >
+                      <svg lucideZoomIn class="size-3.5"></svg>
+                      <span>Inspecionar em Tela Cheia</span>
+                    </button>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <div
+                      (click)="openPhotoModal(inc.photoUrl || inc.photos![0], inc)"
+                      class="relative size-20 rounded-xl overflow-hidden border border-slate-200 bg-slate-900 group cursor-pointer shadow-xs"
+                    >
+                      <img
+                        [src]="inc.photoUrl || inc.photos![0]"
+                        alt="Avaria"
+                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                      />
+                      <div class="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+                        <svg lucideZoomIn class="size-5 text-white drop-shadow"></svg>
+                      </div>
+                    </div>
+                    <div class="text-xs text-slate-500 space-y-1">
+                      <p class="font-medium text-slate-700">Foto registrada pelo aplicativo do condutor</p>
+                      <p class="text-[11px]">Clique sobre a imagem para inspecionar em alta definição.</p>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+
+            <!-- RODAPÉ DO CARD COM AÇÕES DO GESTOR -->
+            <div class="px-5 py-3 bg-slate-50/60 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
+              <div class="text-[11px] text-slate-400">
+                Ocorrência ID: <span class="font-mono text-slate-600">{{ inc.id }}</span>
+              </div>
+
+              <div class="flex items-center gap-2">
+                @if (inc.status === 'OPEN') {
+                  <button
+                    type="button"
+                    (click)="updateIncidentStatus(inc, 'IN_PROGRESS')"
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-semibold text-xs transition-colors cursor-pointer shadow-2xs"
+                  >
+                    <svg lucidePlay class="size-3.5"></svg>
+                    <span>Iniciar Atendimento</span>
+                  </button>
+                  <button
+                    type="button"
+                    (click)="updateIncidentStatus(inc, 'RESOLVED')"
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs transition-colors cursor-pointer shadow-2xs"
+                  >
+                    <svg lucideCheck class="size-3.5"></svg>
+                    <span>Resolver Ocorrência</span>
+                  </button>
+                } @else if (inc.status === 'IN_PROGRESS') {
+                  <button
+                    type="button"
+                    (click)="updateIncidentStatus(inc, 'RESOLVED')"
+                    class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs transition-colors cursor-pointer shadow-2xs"
+                  >
+                    <svg lucideCheck class="size-3.5"></svg>
+                    <span>Concluir / Marcar como Resolvida</span>
+                  </button>
+                } @else {
+                  <button
+                    type="button"
+                    (click)="updateIncidentStatus(inc, 'IN_PROGRESS')"
+                    class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100 text-xs font-medium transition-colors cursor-pointer"
+                  >
+                    <svg lucideRefreshCw class="size-3"></svg>
+                    <span>Reabrir Atendimento</span>
+                  </button>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  }
 </div>
 
 <!-- MODAL DE CADASTRO DE VIAGEM -->
@@ -809,5 +1198,59 @@
     (close)="closeRouteMap()"
   ></app-trip-map-modal>
 }
+
+<!-- MODAL DE INSPEÇÃO DE FOTO DE AVARIA SOS -->
+@if (selectedPhotoUrl(); as photo) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-150">
+    <div class="bg-white rounded-2xl border border-slate-200/90 shadow-2xl w-full max-w-3xl overflow-hidden animate-in zoom-in-95 duration-150 flex flex-col max-h-[90vh]">
+      <div class="px-6 py-3.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
+        <div>
+          <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+            <svg lucideCamera class="size-4 text-rose-600"></svg>
+            Evidência Fotográfica da Avaria
+            @if (selectedIncidentForInspection()?.protocol; as prot) {
+              <span class="font-mono text-xs px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 font-bold">{{ prot }}</span>
+            }
+          </h3>
+          <p class="text-[11px] text-slate-500">
+            Enviado por {{ selectedIncidentForInspection()?.driverName || 'Condutor' }} em {{ selectedIncidentForInspection()?.createdAt | date:'dd/MM/yyyy HH:mm' }}
+          </p>
+        </div>
+        <button (click)="closePhotoModal()" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg cursor-pointer">
+          <svg lucideX class="size-5"></svg>
+        </button>
+      </div>
+
+      <div class="p-4 overflow-auto flex-1 flex items-center justify-center bg-slate-950/90 min-h-[300px]">
+        <img [src]="photo" alt="Evidência da avaria" class="max-w-full max-h-[65vh] object-contain rounded-lg shadow-lg" />
+      </div>
+
+      @if (selectedIncidentForInspection(); as inc) {
+        <div class="p-4 bg-white border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-600">
+          <div class="flex flex-wrap items-center gap-3">
+            <span><strong>Tipo:</strong> {{ inc.category }}</span>
+            @if (inc.vehiclePlate) {
+              <span><strong>Placa:</strong> <span class="font-mono font-bold">{{ inc.vehiclePlate }}</span></span>
+            }
+            @if (inc.driverPhone) {
+              <a [href]="'tel:' + inc.driverPhone" class="text-emerald-700 hover:underline flex items-center gap-1 font-medium">
+                <svg lucidePhone class="size-3"></svg> {{ inc.driverPhone }}
+              </a>
+            }
+            @if (inc.latitude && inc.longitude) {
+              <a [href]="'https://www.google.com/maps?q=' + inc.latitude + ',' + inc.longitude" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline flex items-center gap-1 font-medium">
+                <svg lucideExternalLink class="size-3.5"></svg> Ver Local no GPS
+              </a>
+            }
+          </div>
+          <button (click)="closePhotoModal()" class="px-4 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs cursor-pointer">
+            Fechar
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+}
+
 
 

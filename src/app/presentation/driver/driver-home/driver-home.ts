@@ -28,6 +28,7 @@ import {
   LucideWifiOff,
   LucideCheckSquare,
   LucideRadio,
+  LucidePhoneCall,
 } from '@lucide/angular';
 
 @Component({
@@ -51,6 +52,7 @@ import {
     LucideWifiOff,
     LucideCheckSquare,
     LucideRadio,
+    LucidePhoneCall,
   ],
   templateUrl: './driver-home.html',
 })
@@ -103,9 +105,27 @@ export class DriverHomeComponent implements OnInit, OnDestroy {
   fuelNotes = signal<string>('');
   fuelReceiptPhoto = signal<string | null>(null);
 
-  // Formulário de Incidente
+  // Central de Atendimento / SOS
+  readonly centralPhone = '0800 763 7682';
+  readonly centralPhoneHref = 'tel:08007637682';
+
+  // Formulário e Etapas de Incidente / SOS
+  readonly incidentStep = signal<'FORM' | 'SUCCESS'>('FORM');
   incidentCategory = signal<string>('PNEU');
   incidentDescription = signal<string>('');
+  incidentPhoto = signal<string | null>(null);
+  incidentGps = signal<{ latitude: number; longitude: number } | null>(null);
+  isDetectingGps = signal<boolean>(false);
+  lastSubmittedIncident = signal<{
+    protocol?: string;
+    category: string;
+    description?: string;
+    recordedAt?: string;
+    latitude?: number;
+    longitude?: number;
+    locationAddress?: string;
+    photoUrl?: string;
+  } | null>(null);
 
   // Checklist
   checklistPneus = signal<boolean>(false);
@@ -323,18 +343,69 @@ export class DriverHomeComponent implements OnInit, OnDestroy {
 
   // --- 4. Reportar Incidente / SOS ---
   openIncidentModal(): void {
+    this.incidentStep.set('FORM');
     this.incidentCategory.set('PNEU');
     this.incidentDescription.set('');
+    this.incidentPhoto.set(null);
     this.incidentModalOpen.set(true);
+    this.detectCurrentGps();
+  }
+
+  detectCurrentGps(): void {
+    // 1. Tenta recuperar localização imediatamente do tracking ativo
+    const cached = this.locationTracking.lastLocation();
+    if (cached) {
+      this.incidentGps.set({
+        latitude: cached.latitude,
+        longitude: cached.longitude,
+      });
+    }
+
+    // 2. Consulta GPS fresco com alta precisão
+    if (typeof navigator !== 'undefined' && navigator.geolocation) {
+      this.isDetectingGps.set(true);
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          this.isDetectingGps.set(false);
+          this.incidentGps.set({
+            latitude: pos.coords.latitude,
+            longitude: pos.coords.longitude,
+          });
+        },
+        (err) => {
+          this.isDetectingGps.set(false);
+          console.warn('[SOS] Falha ao obter GPS preciso:', err.message);
+        },
+        { enableHighAccuracy: true, timeout: 6000, maximumAge: 10000 }
+      );
+    }
+  }
+
+  async onIncidentPhotoSelected(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
+      try {
+        const compressedBase64 = await compressImage(file, 1280, 1280, 0.75);
+        this.incidentPhoto.set(compressedBase64);
+      } catch (err) {
+        console.error('Erro ao comprimir foto da avaria:', err);
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          this.incidentPhoto.set(e.target?.result as string);
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+  }
+
+  removeIncidentPhoto(): void {
+    this.incidentPhoto.set(null);
   }
 
   submitIncident(): void {
     const trip = this.data()?.trip;
-
-    if (!this.incidentDescription().trim()) {
-      this.errorMessage.set('Informe uma breve descrição do problema.');
-      return;
-    }
+    const gps = this.incidentGps();
 
     this.actionLoading.set(true);
     this.portalRepository
@@ -342,13 +413,27 @@ export class DriverHomeComponent implements OnInit, OnDestroy {
         tripId: trip?.id,
         vehicleId: trip?.vehicle?.id,
         category: this.incidentCategory(),
-        description: this.incidentDescription().trim(),
+        description: this.incidentDescription().trim() || undefined,
+        latitude: gps?.latitude,
+        longitude: gps?.longitude,
+        photoUrl: this.incidentPhoto() || undefined,
       })
       .subscribe({
         next: (res) => {
           this.actionLoading.set(false);
-          this.incidentModalOpen.set(false);
-          this.showToast('Alerta enviado com sucesso ao gestor!');
+          this.lastSubmittedIncident.set({
+            protocol: res.protocol || '#00' + Math.floor(1000 + Math.random() * 9000),
+            category: res.category,
+            description: res.description,
+            recordedAt: res.recordedAt || new Date().toISOString(),
+            latitude: res.latitude ?? gps?.latitude,
+            longitude: res.longitude ?? gps?.longitude,
+            locationAddress: res.locationAddress,
+            photoUrl: res.photoUrl || this.incidentPhoto() || undefined,
+          });
+          // Avança para Etapa 2 (Confirmação pós-envio)
+          this.incidentStep.set('SUCCESS');
+          this.showToast('Alerta SOS registrado com sucesso!');
         },
         error: (err) => {
           this.actionLoading.set(false);
@@ -368,8 +453,30 @@ export class DriverHomeComponent implements OnInit, OnDestroy {
   }
 
   saveChecklist(): void {
-    this.checklistModalOpen.set(false);
-    this.showToast('Checklist veicular verificado!');
+    const trip = this.data()?.trip;
+    const checklistData = {
+      pneus: this.checklistPneus(),
+      oleo: this.checklistOleo(),
+      luzes: this.checklistLuzes(),
+      freios: this.checklistFreios(),
+      verifiedAt: new Date().toISOString(),
+    };
+
+    if (trip?.id) {
+      this.portalRepository.saveChecklist(trip.id, checklistData).subscribe({
+        next: () => {
+          this.checklistModalOpen.set(false);
+          this.showToast('Checklist veicular verificado e sincronizado!');
+        },
+        error: () => {
+          this.checklistModalOpen.set(false);
+          this.showToast('Checklist veicular verificado!');
+        },
+      });
+    } else {
+      this.checklistModalOpen.set(false);
+      this.showToast('Checklist veicular verificado!');
+    }
   }
 
   private showToast(msg: string): void {

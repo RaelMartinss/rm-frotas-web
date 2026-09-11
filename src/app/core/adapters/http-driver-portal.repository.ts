@@ -9,6 +9,7 @@ import {
   CompleteTripDTO,
   DriverFuelDTO,
   DriverIncidentDTO,
+  DriverIncidentResponse,
   DriverHistoryItem,
   DriverFuelHistoryItem,
 } from '../../domain/models/driver-portal.model';
@@ -68,10 +69,21 @@ export class HttpDriverPortalRepository implements IDriverPortalRepository {
     );
   }
 
-  reportIncident(dto: DriverIncidentDTO): Observable<{ message: string; category: string }> {
-    return this.http.post<{ message: string; category: string }>(
+  reportIncident(dto: DriverIncidentDTO): Observable<DriverIncidentResponse> {
+    return this.http.post<DriverIncidentResponse>(
       `${this.baseUrl}/incident`,
       dto,
+      { withCredentials: true }
+    );
+  }
+
+  saveChecklist(
+    tripId: string,
+    checklist: any
+  ): Observable<{ message: string; tripId: string; checklist: any }> {
+    return this.http.post<{ message: string; tripId: string; checklist: any }>(
+      `${this.baseUrl}/checklist`,
+      { tripId, checklist },
       { withCredentials: true }
     );
   }
