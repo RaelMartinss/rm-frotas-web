@@ -4,6 +4,8 @@ import { Capacitor } from '@capacitor/core';
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { PushNotifications, Token, ActionPerformed, PushNotificationSchema } from '@capacitor/push-notifications';
 import { IDriverPortalRepository } from '../../domain/repositories/driver-portal.repository.interface';
+import { DriverProfile } from '../../domain/models/driver-portal.model';
+import { getDocumentExpirationStatus } from '../utils/document-expiration.util';
 
 export interface DriverNotificationItem {
   id: string;
@@ -321,6 +323,40 @@ export class DriverNotificationService {
         });
       }
     } catch {}
+  }
+
+  /**
+   * Verifica a validade da CNH do motorista e emite notificação nas faixas críticas (<= 7 dias)
+   */
+  checkCnhExpiration(driver: DriverProfile | null): void {
+    if (!driver || !driver.cnhExpirationDate) return;
+
+    const status = getDocumentExpirationStatus(
+      driver.cnhExpirationDateIso || driver.cnhExpirationDate,
+      new Date(),
+      driver.daysUntilCnhExpires,
+    );
+
+    if (status.level === 'ORANGE' || status.level === 'RED') {
+      const todayStr = new Date().toISOString().slice(0, 10);
+      const cnhNotifyKey = `rm_notified_cnh_${status.level}_${todayStr}`;
+
+      try {
+        if (!localStorage.getItem(cnhNotifyKey)) {
+          localStorage.setItem(cnhNotifyKey, 'true');
+          this.notify({
+            title: status.level === 'RED' ? '🛑 Bloqueio: CNH Vencendo/Vencida' : '🚨 Atenção: CNH Vence em Breve',
+            body: status.level === 'RED'
+              ? (status.daysRemaining < 0
+                  ? 'Sua CNH está vencida! O início de viagens está bloqueado.'
+                  : `Sua CNH vence em ${status.daysRemaining} dia(s)! O início de viagens está bloqueado por segurança.`)
+              : `Sua CNH vence em ${status.daysRemaining} dias. Agende a renovação para evitar o bloqueio de início de viagens.`,
+            type: 'ALERT',
+            link: '/motorista',
+          });
+        }
+      } catch {}
+    }
   }
 
   togglePanel(): void {

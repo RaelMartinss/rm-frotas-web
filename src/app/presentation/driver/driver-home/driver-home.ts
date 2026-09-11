@@ -12,6 +12,7 @@ import {
   DriverCurrentTrip,
 } from '../../../domain/models/driver-portal.model';
 import { compressImage } from '../../../core/utils/image-compressor';
+import { getDocumentExpirationStatus } from '../../../core/utils/document-expiration.util';
 import {
   LucideNavigation,
   LucideFuel,
@@ -68,6 +69,18 @@ export class DriverHomeComponent implements OnInit, OnDestroy {
   readonly errorMessage = signal<string | null>(null);
 
   readonly isOnline = computed(() => this.networkService.isOnline());
+
+  readonly cnhStatus = computed(() => {
+    const driver = this.data()?.driver;
+    if (!driver) {
+      return getDocumentExpirationStatus(null);
+    }
+    return getDocumentExpirationStatus(
+      driver.cnhExpirationDateIso || driver.cnhExpirationDate,
+      new Date(),
+      driver.daysUntilCnhExpires,
+    );
+  });
 
   // Modais de Ação Rápida
   readonly startTripModalOpen = signal<boolean>(false);
@@ -136,6 +149,7 @@ export class DriverHomeComponent implements OnInit, OnDestroy {
         // Dispara verificações de notificações locais e mudanças de status
         this.notificationService.checkTripUpdates(summary.trip ?? null);
         this.notificationService.checkPendingReceipts(summary.pendingReceiptsCount ?? 0);
+        this.notificationService.checkCnhExpiration(summary.driver ?? null);
 
         // Preenche sugestão de KM atual
         if (summary.trip?.vehicle?.currentKm) {
@@ -162,10 +176,24 @@ export class DriverHomeComponent implements OnInit, OnDestroy {
 
   // --- 1. Iniciar Viagem ---
   openStartTripModal(): void {
+    if (!this.cnhStatus().canStartTrip) {
+      this.errorMessage.set(
+        this.cnhStatus().blockReason ||
+          'Início de viagem bloqueado: CNH do motorista vencida ou a 1 dia do vencimento.',
+      );
+      return;
+    }
     this.startTripModalOpen.set(true);
   }
 
   confirmStartTrip(): void {
+    if (!this.cnhStatus().canStartTrip) {
+      this.errorMessage.set(
+        this.cnhStatus().blockReason ||
+          'Início de viagem bloqueado: CNH do motorista vencida ou a 1 dia do vencimento.',
+      );
+      return;
+    }
     const trip = this.data()?.trip;
     if (!trip) return;
 

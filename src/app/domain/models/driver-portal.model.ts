@@ -5,6 +5,9 @@ export interface DriverProfile {
   cnhNumber: string;
   cnhCategory: string;
   cnhExpirationDate: string;
+  cnhExpirationDateIso?: string;
+  daysUntilCnhExpires?: number;
+  canStartTrip?: boolean;
   isCnhExpired: boolean;
   status: string;
 }
