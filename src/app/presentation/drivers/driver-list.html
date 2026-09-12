@@ -167,8 +167,14 @@
                   </div>
                 </td>
                 <td class="py-3.5 px-4 text-slate-600 font-medium">
-                  <div class="flex items-center gap-1.5">
-                    <svg lucidePhone class="size-3.5 text-slate-400"></svg>
+                  @if (driver.email) {
+                    <div class="flex items-center gap-1.5 text-xs text-slate-700">
+                      <svg lucideMail class="size-3.5 text-slate-400 shrink-0"></svg>
+                      <span class="truncate max-w-[170px]" [title]="driver.email">{{ driver.email }}</span>
+                    </div>
+                  }
+                  <div class="flex items-center gap-1.5 text-[11px] text-slate-500" [class.mt-1]="driver.email">
+                    <svg lucidePhone class="size-3 text-slate-400 shrink-0"></svg>
                     <span>{{ driver.phone || '-' }}</span>
                   </div>
                 </td>
@@ -1049,6 +1055,12 @@
             </div>
             <div>
               <h3 class="text-base font-bold text-slate-800">{{ selectedDriver()?.name }}</h3>
+              @if (selectedDriver()?.email) {
+                <div class="text-xs text-slate-500 flex items-center gap-1.5 mt-0.5 font-medium">
+                  <svg lucideMail class="size-3.5 text-indigo-500 shrink-0"></svg>
+                  <span>{{ selectedDriver()?.email }}</span>
+                </div>
+              }
               <div class="flex items-center gap-2 mt-1">
                 <span
                   class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold inline-flex items-center gap-1.5 border"
@@ -1080,6 +1092,14 @@
             <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/70">
               <div class="text-[11px] text-slate-400 font-medium">Telefone / WhatsApp</div>
               <div class="text-sm font-bold text-slate-800 mt-0.5">{{ selectedDriver()?.phone || 'Não informado' }}</div>
+            </div>
+
+            <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/70 col-span-2">
+              <div class="text-[11px] text-slate-400 font-medium">E-mail de Acesso (App do Motorista)</div>
+              <div class="text-sm font-semibold text-slate-800 mt-0.5 flex items-center gap-2">
+                <svg lucideMail class="size-4 text-indigo-500 shrink-0"></svg>
+                <span>{{ selectedDriver()?.email || 'Não informado' }}</span>
+              </div>
             </div>
           </div>
 
