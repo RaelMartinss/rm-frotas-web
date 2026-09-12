@@ -97,7 +97,7 @@
         <svg lucideLoader2 class="size-8 animate-spin text-emerald-600"></svg>
         <span class="text-xs font-medium">Carregando clientes...</span>
       </div>
-    } @else if (clients().length === 0) {
+    } @else if (!clients() || clients().length === 0) {
       <div class="py-16 flex flex-col items-center justify-center gap-3 text-center px-4">
         <div class="size-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
           <svg lucideBuilding2 class="size-6"></svg>

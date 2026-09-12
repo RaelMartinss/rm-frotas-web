@@ -159,11 +159,13 @@ export class ClientListComponent implements OnInit {
       })
       .subscribe({
         next: (data) => {
-          this.clients.set(data.clients);
-          this.totalCount.set(data.total);
+          const clientList = data?.clients || (data as any)?.data || [];
+          this.clients.set(Array.isArray(clientList) ? clientList : []);
+          this.totalCount.set(data?.total ?? clientList.length);
           this.loading.set(false);
         },
         error: () => {
+          this.clients.set([]);
           this.loading.set(false);
           this.toastService.error('Erro ao carregar lista de empresas clientes.');
         },
