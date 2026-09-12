@@ -145,7 +145,9 @@ export class DriverHomeComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.locationTracking.stopTracking();
+    // NOTA: O rastreamento de localização não deve ser interrompido aqui porque o motorista
+    // pode navegar entre as abas do app (ex: Cockpit e Histórico) durante uma viagem em andamento.
+    // O rastreamento inicia no início da viagem e finaliza exclusivamente na conclusão/cancelamento ou logout.
     if (this.pollSubscription) {
       this.pollSubscription.unsubscribe();
       this.pollSubscription = null;
@@ -242,11 +244,15 @@ export class DriverHomeComponent implements OnInit, OnDestroy {
     this.completeTripModalOpen.set(true);
   }
 
-  confirmCompleteTrip(): void {
+  async confirmCompleteTrip(): Promise<void> {
     const trip = this.data()?.trip;
     if (!trip) return;
 
     this.actionLoading.set(true);
+
+    // Envia os últimos pontos de rastreamento pendentes e encerra o GPS antes de marcar a viagem como concluída no backend
+    await this.locationTracking.prepareForCompletion(trip.id);
+
     this.portalRepository
       .completeTrip({
         tripId: trip.id,

@@ -1,4 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
+import { firstValueFrom, of } from 'rxjs';
+import { catchError, timeout } from 'rxjs/operators';
 import { Capacitor } from '@capacitor/core';
 import { BackgroundGeolocation, Location as BgLocation, CallbackError } from '@capgo/background-geolocation';
 import { IDriverPortalRepository } from '../../domain/repositories/driver-portal.repository.interface';
@@ -150,6 +152,53 @@ export class LocationTrackingService {
     );
   }
 
+  /**
+   * Prepara o encerramento da viagem:
+   * 1. Interrompe imediatamente os watchers (Web e Nativo) para não gerar novos pontos.
+   * 2. Descarrega qualquer ping pendente na fila enquanto a viagem ainda está ativa (IN_PROGRESS) no backend.
+   * 3. Limpa a fila e desativa o estado de rastreamento.
+   */
+  async prepareForCompletion(tripId: string): Promise<void> {
+    if (this.webWatchId !== null && typeof navigator !== 'undefined') {
+      navigator.geolocation.clearWatch(this.webWatchId);
+      this.webWatchId = null;
+    }
+
+    if (this.isNativeRunning && Capacitor.isNativePlatform()) {
+      try {
+        await BackgroundGeolocation.stop();
+      } catch (err) {
+        console.warn('[LocationTracking] Erro ao parar BackgroundGeolocation:', err);
+      }
+      this.isNativeRunning = false;
+    }
+
+    const queue = this.getQueue(tripId);
+    if (queue.length > 0 && this.networkService.isOnline()) {
+      try {
+        await firstValueFrom(
+          this.portalRepository.sendLocationPings(tripId, queue).pipe(
+            timeout(4000),
+            catchError((err) => {
+              console.warn('[LocationTracking] Falha ao enviar pings finais:', err);
+              return of(null);
+            })
+          )
+        );
+      } catch {
+        // Continua mesmo em timeout para não bloquear o encerramento da viagem
+      }
+    }
+
+    this.clearQueue(tripId);
+    this.updatePendingCount(tripId);
+    this.isTracking.set(false);
+    this.currentTripId.set(null);
+    this.lastSentPos = null;
+    this.lastSentHeading = null;
+    this.lastSentTime = 0;
+  }
+
   stopTracking(): void {
     if (this.webWatchId !== null && typeof navigator !== 'undefined') {
       navigator.geolocation.clearWatch(this.webWatchId);
@@ -165,7 +214,8 @@ export class LocationTrackingService {
 
     const tripId = this.currentTripId();
     if (tripId) {
-      this.flushPendingPings(tripId);
+      this.clearQueue(tripId);
+      this.updatePendingCount(tripId);
     }
 
     this.isTracking.set(false);
@@ -254,7 +304,14 @@ export class LocationTrackingService {
           this.updatePendingCount(tripId);
         },
         error: (err) => {
-          console.warn('[LocationTracking] Falha no envio online, salvando na fila offline:', err);
+          console.warn('[LocationTracking] Falha no envio online:', err);
+          // Se o backend recusar com 400 (viagem concluída/não está mais EM ANDAMENTO), 403 ou 404:
+          // A viagem foi encerrada ou cancelada. Parar imediatamente o rastreamento!
+          if (err?.status === 400 || err?.status === 403 || err?.status === 404) {
+            console.warn('[LocationTracking] Viagem já finalizada ou cancelada no servidor. Parando rastreamento.');
+            this.stopTracking();
+            return;
+          }
           this.enqueue(tripId, ping);
         },
       });
@@ -276,6 +333,12 @@ export class LocationTrackingService {
       },
       error: (err) => {
         console.warn('[LocationTracking] Falha ao sincronizar fila offline:', err);
+        // Se a viagem não estiver mais EM ANDAMENTO (400) ou não for encontrada (404),
+        // limpa a fila e para o rastreamento para não ficar tentando eternamente
+        if (err?.status === 400 || err?.status === 403 || err?.status === 404) {
+          console.warn('[LocationTracking] Viagem já encerrada no servidor. Descartando fila pendente e parando.');
+          this.stopTracking();
+        }
       },
     });
   }

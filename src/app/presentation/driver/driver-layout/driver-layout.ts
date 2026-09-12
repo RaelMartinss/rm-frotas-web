@@ -7,6 +7,7 @@ import { AuthStateService } from '../../../core/services/auth-state.service';
 import { NetworkStatusService } from '../../../core/services/network-status.service';
 import { AppUpdateService } from '../../../core/services/app-update.service';
 import { DriverNotificationService } from '../../../core/services/driver-notification.service';
+import { LocationTrackingService } from '../../../core/services/location-tracking.service';
 import {
   LucideNavigation,
   LucideClock,
@@ -52,6 +53,7 @@ export class DriverLayoutComponent implements OnInit {
   private readonly networkService = inject(NetworkStatusService);
   readonly updateService = inject(AppUpdateService);
   readonly notificationService = inject(DriverNotificationService);
+  private readonly locationTracking = inject(LocationTrackingService);
   private readonly router = inject(Router);
 
   readonly currentUser = computed(() => this.authState.currentUser());
@@ -85,6 +87,7 @@ export class DriverLayoutComponent implements OnInit {
   }
 
   logout(): void {
+    this.locationTracking.stopTracking();
     this.authRepository.logout().subscribe({
       next: () => {
         this.router.navigate(['/login']);
