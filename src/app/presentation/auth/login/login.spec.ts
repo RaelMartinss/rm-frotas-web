@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { LoginComponent } from './login';
 import { IAuthRepository } from '../../../domain/repositories/auth.repository.interface';
 import { of } from 'rxjs';
@@ -17,6 +18,7 @@ describe('LoginComponent', () => {
     await TestBed.configureTestingModule({
       imports: [LoginComponent],
       providers: [
+        provideRouter([]),
         { provide: IAuthRepository, useValue: authRepoMock }
       ]
     }).compileComponents();

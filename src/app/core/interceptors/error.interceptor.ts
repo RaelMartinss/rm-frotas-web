@@ -41,8 +41,9 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
               // Só encerra a sessão se o refresh token foi explicitamente rejeitado pelo servidor (401)
               // Falhas transitórias de conexão (status 0) ou sobrecarga (status 429) não deslogam o usuário
               if (refreshErr?.status === 401) {
+                const wasSuperAdmin = authState.getUser()?.role === 'SUPER_ADMIN';
                 authState.clear();
-                router.navigate(['/login']);
+                router.navigate([wasSuperAdmin ? '/admin-login' : '/login']);
               }
               return throwError(() => refreshErr);
             })
@@ -67,6 +68,10 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
 
       if (error.status === 403) {
         console.error('Acesso negado: você não tem permissão para realizar esta ação.');
+        if (req.url.includes('/clients') && authState.getUser()?.role !== 'SUPER_ADMIN') {
+          authState.clear();
+          router.navigate(['/admin-login']);
+        }
       } else if (error.status === 500) {
         console.error('Erro interno no servidor. Tente novamente mais tarde.');
       }

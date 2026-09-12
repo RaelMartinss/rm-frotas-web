@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { IAuthRepository } from '../../../domain/repositories/auth.repository.interface';
 import {
   LucideMail,
@@ -12,6 +12,7 @@ import {
   LucideX,
   LucideCheckCircle2,
   LucideKeyRound,
+  LucideShieldAlert,
 } from '@lucide/angular';
 
 @Component({
@@ -20,6 +21,7 @@ import {
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    RouterLink,
     LucideMail,
     LucideLock,
     LucideEye,
@@ -28,6 +30,7 @@ import {
     LucideX,
     LucideCheckCircle2,
     LucideKeyRound,
+    LucideShieldAlert,
   ],
   templateUrl: './login.html'
 })
@@ -78,9 +81,15 @@ export class LoginComponent {
     this.loginError.set(null);
 
     this.authRepository.login(this.loginForm.value).subscribe({
-      next: () => {
+      next: (response) => {
         this.isLoading.set(false);
-        this.router.navigate(['/dashboard']);
+        if (response.user?.role === 'SUPER_ADMIN') {
+          this.router.navigate(['/clientes']);
+        } else if (response.user?.role === 'DRIVER') {
+          this.router.navigate(['/motorista']);
+        } else {
+          this.router.navigate(['/dashboard']);
+        }
       },
       error: (err) => {
         this.isLoading.set(false);

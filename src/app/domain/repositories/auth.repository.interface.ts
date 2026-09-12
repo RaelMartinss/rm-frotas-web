@@ -14,6 +14,7 @@ import {
 
 export abstract class IAuthRepository {
   abstract login(credentials: LoginCredentials): Observable<AuthResponse>;
+  abstract adminLogin(credentials: LoginCredentials): Observable<AuthResponse>;
   abstract refresh(): Observable<AuthResponse>;
   abstract register(user: RegisterUserDTO): Observable<User>;
   abstract logout(): Observable<void>;

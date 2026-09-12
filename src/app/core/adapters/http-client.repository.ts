@@ -17,7 +17,7 @@ import {
 })
 export class HttpClientRepository implements IClientRepository {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${environment.apiUrl}/v1/clients`;
+  private readonly baseUrl = `${environment.apiUrl}/clients`;
 
   onboard(dto: OnboardClientDTO): Observable<OnboardClientResponse> {
     return this.http.post<OnboardClientResponse>(this.baseUrl, dto, {

@@ -157,15 +157,27 @@
         </form>
 
         <!-- Rodapé do Card -->
-        <div class="mt-8 text-center text-xs text-slate-500 font-normal">
-          Não tem uma conta?
-          <a
-            href="#"
-            (click)="$event.preventDefault()"
-            class="font-semibold text-blue-600 hover:text-blue-700 hover:underline transition-colors ml-1"
-          >
-            Fale com um administrador
-          </a>
+        <div class="mt-8 pt-4 border-t border-slate-100 flex flex-col items-center gap-2.5 text-center text-xs text-slate-500 font-normal">
+          <div>
+            Não tem uma conta?
+            <a
+              href="#"
+              (click)="$event.preventDefault()"
+              class="font-semibold text-blue-600 hover:text-blue-700 hover:underline transition-colors ml-1"
+            >
+              Fale com um administrador
+            </a>
+          </div>
+
+          <div class="pt-1">
+            <a
+              routerLink="/admin-login"
+              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-600 hover:text-slate-900 border border-slate-200/80 text-[11px] font-semibold transition cursor-pointer"
+            >
+              <svg lucideShieldAlert class="size-3.5 text-emerald-600 shrink-0"></svg>
+              <span>Acesso Administrativo (Super Admin)</span>
+            </a>
+          </div>
         </div>
 
       </div>

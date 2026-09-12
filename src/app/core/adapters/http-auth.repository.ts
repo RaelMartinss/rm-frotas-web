@@ -46,6 +46,26 @@ export class HttpAuthRepository implements IAuthRepository {
       );
   }
 
+  adminLogin(credentials: LoginCredentials): Observable<AuthResponse> {
+    const payload = {
+      ...credentials,
+      deviceInfo: {
+        platform: Capacitor.isNativePlatform() ? 'mobile' : 'web',
+        userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : undefined,
+      },
+    };
+
+    return this.http
+      .post<AuthResponse>(`${this.baseUrl}/auth/admin-login`, payload, {
+        withCredentials: true,
+      })
+      .pipe(
+        tap((response) => {
+          this.authState.setSession(response.accessToken, response.user, response.refreshToken);
+        })
+      );
+  }
+
   refresh(): Observable<AuthResponse> {
     const refreshToken = this.authState.getRefreshToken();
     return this.http

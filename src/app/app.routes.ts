@@ -17,6 +17,17 @@ export const routes: Routes = [
       import('./presentation/auth/login/login').then((m) => m.LoginComponent)
   },
   {
+    path: 'admin-login',
+    canActivate: [guestGuard],
+    loadComponent: () =>
+      import('./presentation/auth/admin-login/admin-login').then((m) => m.AdminLoginComponent)
+  },
+  {
+    path: 'login-admin',
+    redirectTo: 'admin-login',
+    pathMatch: 'full'
+  },
+  {
     path: 'download',
     loadComponent: () =>
       import('./presentation/public/download-app/download-app').then((m) => m.DownloadAppComponent)
