@@ -7,6 +7,9 @@ import { NetworkStatusService } from './network-status.service';
 export interface LocationPingItem {
   latitude: number;
   longitude: number;
+  accuracy?: number | null;
+  speed?: number | null;
+  heading?: number | null;
   recordedAt: string;
 }
 
@@ -28,9 +31,10 @@ export class LocationTrackingService {
   private isNativeRunning = false;
   private lastSentTime = 0;
   private lastSentPos: { lat: number; lng: number } | null = null;
+  private lastSentHeading: number | null = null;
 
   private readonly MIN_INTERVAL_MS = 15000; // 15 segundos
-  private readonly MIN_DISTANCE_METERS = 25; // 25 metros
+  private readonly MIN_DISTANCE_METERS = 20; // 20 metros
 
   constructor() {
     if (typeof window !== 'undefined') {
@@ -87,11 +91,21 @@ export class LocationTrackingService {
             return;
           }
           if (position) {
+            const speedKmH =
+              position.speed !== undefined && position.speed !== null
+                ? position.speed * 3.6
+                : null;
+            const heading =
+              (position as any).bearing ?? (position as any).heading ?? null;
+
             this.handlePositionCoordinates(
               tripId,
               position.latitude,
               position.longitude,
-              position.time || Date.now()
+              position.time || Date.now(),
+              position.accuracy,
+              speedKmH,
+              heading
             );
           }
         }
@@ -110,13 +124,21 @@ export class LocationTrackingService {
     }
 
     this.webWatchId = navigator.geolocation.watchPosition(
-      (pos) =>
+      (pos) => {
+        const speedKmH =
+          pos.coords.speed !== null && pos.coords.speed !== undefined
+            ? pos.coords.speed * 3.6
+            : null;
         this.handlePositionCoordinates(
           tripId,
           pos.coords.latitude,
           pos.coords.longitude,
-          pos.timestamp
-        ),
+          pos.timestamp,
+          pos.coords.accuracy,
+          speedKmH,
+          pos.coords.heading
+        );
+      },
       (err) => {
         console.warn('[LocationTracking] Erro web ao obter posição:', err.message);
       },
@@ -149,6 +171,7 @@ export class LocationTrackingService {
     this.isTracking.set(false);
     this.currentTripId.set(null);
     this.lastSentPos = null;
+    this.lastSentHeading = null;
     this.lastSentTime = 0;
   }
 
@@ -156,8 +179,16 @@ export class LocationTrackingService {
     tripId: string,
     lat: number,
     lng: number,
-    timestamp: number
+    timestamp: number,
+    accuracy?: number | null,
+    speed?: number | null,
+    heading?: number | null
   ): void {
+    // Filtro 1: Descarta GPS com baixa acurácia (> 25 metros)
+    if (accuracy !== undefined && accuracy !== null && accuracy > 25) {
+      return;
+    }
+
     const now = Date.now();
     const elapsed = now - this.lastSentTime;
     let distance = 0;
@@ -171,17 +202,43 @@ export class LocationTrackingService {
       );
     }
 
-    // Throttle: envia somente se passou do intervalo mínimo OU se deslocou a distância mínima
-    if (this.lastSentPos && elapsed < this.MIN_INTERVAL_MS && distance < this.MIN_DISTANCE_METERS) {
-      return;
+    const speedKmH = speed ?? 0;
+
+    // Filtro 2: Anti-drift quando parado
+    if (this.lastSentPos) {
+      // Se o veículo está parado ou com micro-deslocamento (distância < 15m e velocidade < 1.5 km/h):
+      // Evita o envio a cada 15s para não criar a "teia de aranha" no mapa.
+      if (distance < 15 && speedKmH < 1.5) {
+        // Envia apenas a cada 3 minutos (heartbeat de parada)
+        if (elapsed < 180000) {
+          return;
+        }
+      } else if (elapsed < this.MIN_INTERVAL_MS && distance < this.MIN_DISTANCE_METERS) {
+        // Verifica se houve mudança significativa de direção (curva em baixa velocidade)
+        const lastHeading = this.lastSentHeading;
+        const headingDiff =
+          heading !== null && heading !== undefined && lastHeading !== null
+            ? Math.abs(heading - lastHeading)
+            : 0;
+        const normalizedDiff = headingDiff > 180 ? 360 - headingDiff : headingDiff;
+
+        // Se a curva for menor que 25 graus ou o deslocamento for menor que 8m, não antecipa o throttle
+        if (normalizedDiff < 25 || distance < 8) {
+          return;
+        }
+      }
     }
 
     this.lastSentTime = now;
     this.lastSentPos = { lat, lng };
+    this.lastSentHeading = heading ?? null;
 
     const ping: LocationPingItem = {
       latitude: lat,
       longitude: lng,
+      accuracy: accuracy ?? null,
+      speed: speed !== null && speed !== undefined ? Math.round(speed * 10) / 10 : null,
+      heading: heading !== null && heading !== undefined ? Math.round(heading) : null,
       recordedAt: new Date(timestamp || now).toISOString(),
     };
 

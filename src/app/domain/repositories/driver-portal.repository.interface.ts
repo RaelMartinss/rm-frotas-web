@@ -19,7 +19,14 @@ export abstract class IDriverPortalRepository {
   abstract saveChecklist(tripId: string, checklist: any): Observable<{ message: string; tripId: string; checklist: any }>;
   abstract sendLocationPings(
     tripId: string,
-    pings: Array<{ latitude: number; longitude: number; recordedAt?: string }>
+    pings: Array<{
+      latitude: number;
+      longitude: number;
+      accuracy?: number | null;
+      speed?: number | null;
+      heading?: number | null;
+      recordedAt?: string;
+    }>
   ): Observable<{ count: number; message: string }>;
   abstract getHistory(): Observable<DriverHistoryItem[]>;
   abstract getFuelHistory(params?: { pendingReceiptOnly?: boolean }): Observable<DriverFuelHistoryItem[]>;

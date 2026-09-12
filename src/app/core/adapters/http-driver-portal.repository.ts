@@ -90,7 +90,14 @@ export class HttpDriverPortalRepository implements IDriverPortalRepository {
 
   sendLocationPings(
     tripId: string,
-    pings: Array<{ latitude: number; longitude: number; recordedAt?: string }>
+    pings: Array<{
+      latitude: number;
+      longitude: number;
+      accuracy?: number | null;
+      speed?: number | null;
+      heading?: number | null;
+      recordedAt?: string;
+    }>
   ): Observable<{ count: number; message: string }> {
     return this.http.post<{ count: number; message: string }>(
       `${this.baseUrl}/trips/${tripId}/location`,

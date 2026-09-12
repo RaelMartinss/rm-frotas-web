@@ -78,10 +78,18 @@ export interface CreateFuelSupplyDTO {
   date: string;
 }
 
+export type MovementState = 'MOVING' | 'STOPPED';
+
 export interface TripLocationPing {
   id: string;
   latitude: number;
   longitude: number;
+  accuracy?: number | null;
+  speed?: number | null;
+  heading?: number | null;
+  movementState?: MovementState | null;
+  matchedLatitude?: number | null;
+  matchedLongitude?: number | null;
   recordedAt: string;
   createdAt?: string;
 }
