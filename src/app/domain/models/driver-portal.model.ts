@@ -17,6 +17,7 @@ export interface DriverVehicle {
   brand: string | null;
   model: string;
   plate: string;
+  renavam?: string | null;
   year: number;
   currentKm: number;
   crlvExpiration: string | null;

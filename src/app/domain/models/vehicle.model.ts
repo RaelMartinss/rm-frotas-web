@@ -10,6 +10,7 @@ export type VehicleStatus =
 export interface Vehicle {
   id: string;
   plate: string;
+  renavam?: string | null;
   brand: string;
   model: string;
   year: number;
@@ -20,6 +21,7 @@ export interface Vehicle {
 
 export interface CreateVehicleDTO {
   plate: string;
+  renavam?: string;
   brand: string;
   model: string;
   year: number;

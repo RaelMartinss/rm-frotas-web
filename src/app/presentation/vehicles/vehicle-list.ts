@@ -268,7 +268,8 @@ export class VehicleListComponent implements OnInit {
     model: ['', [Validators.required]],
     year: [new Date().getFullYear(), [Validators.required, Validators.min(1900)]],
     currentKm: [0, [Validators.required, Validators.min(0)]],
-    crlvExpiration: ['']
+    crlvExpiration: [''],
+    renavam: ['']
   });
 
   updateKmForm: FormGroup = this.fb.group({
@@ -334,7 +335,7 @@ export class VehicleListComponent implements OnInit {
 
   openModal(): void {
     this.errorMessage.set(null);
-    this.vehicleForm.reset({ year: new Date().getFullYear(), currentKm: 0, crlvExpiration: '' });
+    this.vehicleForm.reset({ year: new Date().getFullYear(), currentKm: 0, crlvExpiration: '', renavam: '' });
     this.isModalOpen.set(true);
   }
 
@@ -354,8 +355,12 @@ export class VehicleListComponent implements OnInit {
 
     this.isSaving.set(true);
     const formValue = this.vehicleForm.value;
+    const payload = {
+      ...formValue,
+      renavam: formValue.renavam?.trim() || undefined,
+    };
 
-    this.vehicleRepository.create(formValue).subscribe({
+    this.vehicleRepository.create(payload).subscribe({
       next: (newVehicle) => {
         this.isSaving.set(false);
         this.toastService.success(`Veículo ${newVehicle.plate} cadastrado com sucesso!`);
