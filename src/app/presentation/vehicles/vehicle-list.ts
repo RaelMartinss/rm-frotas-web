@@ -255,8 +255,27 @@ export class VehicleListComponent implements OnInit {
     return vehicle.status === 'AVAILABLE' || vehicle.status === 'DISPONIVEL';
   }
 
+  isInUse(vehicle?: Vehicle | null): boolean {
+    if (!vehicle) return false;
+    return vehicle.status === 'IN_USE' || vehicle.status === 'EM_VIAGEM';
+  }
+
   isInMaintenance(vehicle: Vehicle): boolean {
     return vehicle.status === 'IN_MAINTENANCE' || vehicle.status === 'MANUTENCAO';
+  }
+
+  private extractErrorMessage(err: any, fallback: string): string {
+    const rawMsg = err?.error?.message;
+    if (Array.isArray(rawMsg)) {
+      return rawMsg.join(', ');
+    }
+    if (typeof rawMsg === 'string' && rawMsg.trim().length > 0) {
+      if (rawMsg.toLowerCase() === 'internal server error') {
+        return 'Erro interno no servidor. Tente novamente mais tarde.';
+      }
+      return rawMsg;
+    }
+    return fallback;
   }
 
   vehicleForm: FormGroup = this.fb.group({
@@ -439,6 +458,13 @@ export class VehicleListComponent implements OnInit {
 
   startScheduledMaintenanceFromModal(maintenance: Maintenance): void {
     const vehicle = this.selectedVehicle();
+    if (this.isInUse(vehicle)) {
+      const msg = 'Não é possível iniciar a manutenção: o veículo está em viagem/uso no momento.';
+      this.actionError.set(msg);
+      this.toastService.warning(msg);
+      return;
+    }
+
     this.isActionLoading.set(true);
     this.actionError.set(null);
 
@@ -451,7 +477,7 @@ export class VehicleListComponent implements OnInit {
       },
       error: (err) => {
         this.isActionLoading.set(false);
-        const msg = err.error?.message || 'Erro ao iniciar manutenção agendada.';
+        const msg = this.extractErrorMessage(err, 'Erro ao iniciar manutenção agendada.');
         this.actionError.set(msg);
         this.toastService.error(msg);
       }
@@ -482,12 +508,13 @@ export class VehicleListComponent implements OnInit {
   openSendMaintenanceModal(vehicle: Vehicle): void {
     this.selectedVehicle.set(vehicle);
     this.actionError.set(null);
+    const inUse = this.isInUse(vehicle);
     this.sendMaintenanceForm.reset({
       type: 'CORRETIVA',
       description: '',
       serviceProvider: '',
       scheduledDate: '',
-      startImmediately: true,
+      startImmediately: !inUse,
     });
     this.isSendMaintenanceModalOpen.set(true);
   }
@@ -507,9 +534,17 @@ export class VehicleListComponent implements OnInit {
       return;
     }
 
+    const formVal = this.sendMaintenanceForm.value;
+
+    if (formVal.startImmediately && this.isInUse(vehicle)) {
+      const msg = 'Não é possível enviar para manutenção imediata: o veículo está em viagem/uso no momento.';
+      this.actionError.set(msg);
+      this.toastService.warning(msg);
+      return;
+    }
+
     this.isActionLoading.set(true);
     this.actionError.set(null);
-    const formVal = this.sendMaintenanceForm.value;
 
     if (formVal.startImmediately) {
       this.maintenanceRepository
@@ -529,7 +564,7 @@ export class VehicleListComponent implements OnInit {
           },
           error: (err) => {
             this.isActionLoading.set(false);
-            const msg = err.error?.message || 'Não foi possível enviar o veículo para manutenção.';
+            const msg = this.extractErrorMessage(err, 'Não foi possível enviar o veículo para manutenção.');
             this.actionError.set(msg);
             this.toastService.error(msg);
           },
@@ -552,7 +587,7 @@ export class VehicleListComponent implements OnInit {
           },
           error: (err) => {
             this.isActionLoading.set(false);
-            const msg = err.error?.message || 'Não foi possível agendar a manutenção.';
+            const msg = this.extractErrorMessage(err, 'Não foi possível agendar a manutenção.');
             this.actionError.set(msg);
             this.toastService.error(msg);
           },
@@ -601,7 +636,7 @@ export class VehicleListComponent implements OnInit {
                 },
                 error: (err) => {
                   this.isActionLoading.set(false);
-                  const msg = err.error?.message || 'Não foi possível finalizar a manutenção.';
+                  const msg = this.extractErrorMessage(err, 'Não foi possível finalizar a manutenção.');
                   this.actionError.set(msg);
                   this.toastService.error(msg);
                 },
@@ -617,7 +652,7 @@ export class VehicleListComponent implements OnInit {
               },
               error: (err) => {
                 this.isActionLoading.set(false);
-                const msg = err.error?.message || 'Não foi possível finalizar a manutenção.';
+                const msg = this.extractErrorMessage(err, 'Não foi possível finalizar a manutenção.');
                 this.actionError.set(msg);
                 this.toastService.error(msg);
               },
@@ -634,7 +669,7 @@ export class VehicleListComponent implements OnInit {
             },
             error: (err) => {
               this.isActionLoading.set(false);
-              const msg = err.error?.message || 'Não foi possível finalizar a manutenção.';
+              const msg = this.extractErrorMessage(err, 'Não foi possível finalizar a manutenção.');
               this.actionError.set(msg);
               this.toastService.error(msg);
             },

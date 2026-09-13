@@ -72,11 +72,31 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
           authState.clear();
           router.navigate(['/admin-login']);
         }
-      } else if (error.status === 500) {
-        console.error('Erro interno no servidor. Tente novamente mais tarde.');
       }
 
-      return throwError(() => error);
+      let handledError = error;
+      const isInternalServerError =
+        error.status === 500 ||
+        error.error?.message === 'Internal server error' ||
+        (typeof error.error === 'string' && error.error.toLowerCase().includes('internal server error'));
+
+      if (isInternalServerError) {
+        console.error('Erro interno no servidor. Tente novamente mais tarde.');
+        const sanitizedBody =
+          typeof error.error === 'object' && error.error !== null
+            ? { ...error.error, message: 'Ocorreu um erro interno no servidor. Tente novamente mais tarde.' }
+            : { message: 'Ocorreu um erro interno no servidor. Tente novamente mais tarde.' };
+
+        handledError = new HttpErrorResponse({
+          error: sanitizedBody,
+          headers: error.headers,
+          status: error.status,
+          statusText: error.statusText,
+          url: error.url ?? undefined,
+        });
+      }
+
+      return throwError(() => handledError);
     })
   );
 };

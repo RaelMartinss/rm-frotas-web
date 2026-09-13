@@ -65,6 +65,7 @@ import {
     LucideDollarSign,
     LucideLayers,
     LucideTrash2,
+    LucideAlertTriangle,
     LucideChevronLeft,
     LucideChevronRight,
     LucideChevronsLeft,
@@ -280,15 +281,43 @@ export class MaintenanceListComponent implements OnInit {
     this.actionError.set(null);
   }
 
+  isVehicleInUse(vehicleId?: string | null): boolean {
+    if (!vehicleId) return false;
+    const v = this.vehicles().find((veh) => veh.id === vehicleId);
+    return v?.status === 'IN_USE' || v?.status === 'EM_VIAGEM';
+  }
+
+  private extractErrorMessage(err: any, fallback: string): string {
+    const rawMsg = err?.error?.message;
+    if (Array.isArray(rawMsg)) {
+      return rawMsg.join(', ');
+    }
+    if (typeof rawMsg === 'string' && rawMsg.trim().length > 0) {
+      if (rawMsg.toLowerCase() === 'internal server error') {
+        return 'Erro interno no servidor. Tente novamente mais tarde.';
+      }
+      return rawMsg;
+    }
+    return fallback;
+  }
+
   submitCreate(): void {
     if (this.createForm.invalid) {
       this.createForm.markAllAsTouched();
       return;
     }
 
+    const formVal = this.createForm.value;
+
+    if (formVal.startImmediately && this.isVehicleInUse(formVal.vehicleId)) {
+      const msg = 'Não é possível iniciar a manutenção imediatamente: este veículo está atualmente em viagem.';
+      this.actionError.set(msg);
+      this.toastService.warning(msg);
+      return;
+    }
+
     this.isActionLoading.set(true);
     this.actionError.set(null);
-    const formVal = this.createForm.value;
 
     if (formVal.startImmediately) {
       this.maintenanceRepo
@@ -308,7 +337,7 @@ export class MaintenanceListComponent implements OnInit {
           },
           error: (err) => {
             this.isActionLoading.set(false);
-            const msg = err.error?.message || 'Erro ao iniciar manutenção.';
+            const msg = this.extractErrorMessage(err, 'Erro ao iniciar manutenção.');
             this.actionError.set(msg);
             this.toastService.error(msg);
           },
@@ -332,7 +361,7 @@ export class MaintenanceListComponent implements OnInit {
           },
           error: (err) => {
             this.isActionLoading.set(false);
-            const msg = err.error?.message || 'Erro ao agendar manutenção.';
+            const msg = this.extractErrorMessage(err, 'Erro ao agendar manutenção.');
             this.actionError.set(msg);
             this.toastService.error(msg);
           },
@@ -357,6 +386,13 @@ export class MaintenanceListComponent implements OnInit {
     const m = this.selectedMaintenance();
     if (!m) return;
 
+    if (this.isVehicleInUse(m.vehicleId)) {
+      const msg = 'Não é possível iniciar a manutenção: este veículo está atualmente em viagem.';
+      this.actionError.set(msg);
+      this.toastService.warning(msg);
+      return;
+    }
+
     this.isActionLoading.set(true);
     this.actionError.set(null);
 
@@ -370,7 +406,7 @@ export class MaintenanceListComponent implements OnInit {
       },
       error: (err) => {
         this.isActionLoading.set(false);
-        const msg = err.error?.message || 'Erro ao iniciar manutenção.';
+        const msg = this.extractErrorMessage(err, 'Erro ao iniciar manutenção.');
         this.actionError.set(msg);
         this.toastService.error(msg);
       },
@@ -456,7 +492,7 @@ export class MaintenanceListComponent implements OnInit {
         },
         error: (err) => {
           this.isActionLoading.set(false);
-          const msg = err.error?.message || 'Erro ao finalizar manutenção.';
+          const msg = this.extractErrorMessage(err, 'Erro ao finalizar manutenção.');
           this.actionError.set(msg);
           this.toastService.error(msg);
         },
@@ -494,7 +530,7 @@ export class MaintenanceListComponent implements OnInit {
       },
       error: (err) => {
         this.isActionLoading.set(false);
-        const msg = err.error?.message || 'Erro ao cancelar manutenção.';
+        const msg = this.extractErrorMessage(err, 'Erro ao cancelar manutenção.');
         this.actionError.set(msg);
         this.toastService.error(msg);
       },
