@@ -1,4 +1,4 @@
-import { ApplicationConfig, provideZonelessChangeDetection, provideAppInitializer, inject, LOCALE_ID } from '@angular/core';
+import { ApplicationConfig, provideZonelessChangeDetection, provideAppInitializer, inject, LOCALE_ID, ErrorHandler } from '@angular/core';
 import { registerLocaleData } from '@angular/common';
 import localePt from '@angular/common/locales/pt';
 import { provideRouter } from '@angular/router';
@@ -7,6 +7,7 @@ import { firstValueFrom, of, catchError } from 'rxjs';
 import { routes } from './app.routes';
 import { tokenInterceptor } from './core/interceptors/token.interceptor';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
+import { SentryErrorHandler } from './core/services/sentry-error-handler';
 import { IAuthRepository } from './domain/repositories/auth.repository.interface';
 import { HttpAuthRepository } from './core/adapters/http-auth.repository';
 import { AuthStateService } from './core/services/auth-state.service';
@@ -55,6 +56,7 @@ export const appConfig: ApplicationConfig = {
     { provide: IClientRepository, useClass: HttpClientRepository },
     { provide: IDriverPortalRepository, useClass: HttpDriverPortalRepository },
     { provide: IIncidentRepository, useClass: HttpIncidentRepository },
+    { provide: ErrorHandler, useClass: SentryErrorHandler },
     provideAppInitializer(async () => {
       const authRepository = inject(IAuthRepository);
       const authState = inject(AuthStateService);
