@@ -32,21 +32,23 @@
         <span>Manutenções</span>
       </a>
 
-      <button
-        (click)="openImportModal()"
-        class="inline-flex items-center gap-2 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs px-3.5 py-2.5 rounded-xl border border-slate-200/90 transition-all shadow-2xs hover:shadow-xs cursor-pointer"
-      >
-        <svg lucideFileText class="size-4 text-emerald-600"></svg>
-        <span>Importar CSV</span>
-      </button>
+      @if (!impersonationService.isReadOnly()) {
+        <button
+          (click)="openImportModal()"
+          class="inline-flex items-center gap-2 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs px-3.5 py-2.5 rounded-xl border border-slate-200/90 transition-all shadow-2xs hover:shadow-xs cursor-pointer"
+        >
+          <svg lucideFileText class="size-4 text-emerald-600"></svg>
+          <span>Importar CSV</span>
+        </button>
 
-      <button
-        (click)="openModal()"
-        class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs px-4 py-2.5 rounded-xl transition-all shadow-xs hover:shadow-sm cursor-pointer"
-      >
-        <svg lucidePlus class="size-4"></svg>
-        <span>Novo Veículo</span>
-      </button>
+        <button
+          (click)="openModal()"
+          class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs px-4 py-2.5 rounded-xl transition-all shadow-xs hover:shadow-sm cursor-pointer"
+        >
+          <svg lucidePlus class="size-4"></svg>
+          <span>Novo Veículo</span>
+        </button>
+      }
     </div>
   </div>
 
@@ -229,44 +231,46 @@
                 </td>
                 <td class="py-3.5 px-4 text-right">
                   <div class="inline-flex items-center justify-end gap-1.5">
-                    <!-- Ação de Manutenção Inteligente (Informativo se já houver manutenção, ou formulário de envio se livre) -->
-                    <button
-                      (click)="openMaintenanceAction(vehicle)"
-                      [title]="getMaintenanceButtonTitle(vehicle)"
-                      class="p-1.5 rounded-lg border transition-colors cursor-pointer"
-                      [ngClass]="getMaintenanceButtonClass(vehicle)"
-                    >
-                      <svg lucideWrench class="size-3.5"></svg>
-                    </button>
-
-                    <!-- Finalizar Manutenção (Apenas quando em manutenção) -->
-                    @if (isInMaintenance(vehicle)) {
+                    @if (!impersonationService.isReadOnly()) {
+                      <!-- Ação de Manutenção Inteligente (Informativo se já houver manutenção, ou formulário de envio se livre) -->
                       <button
-                        (click)="openFinishMaintenanceModal(vehicle)"
-                        title="Finalizar Manutenção e Liberar Veículo"
-                        class="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg border border-emerald-200/60 transition-colors cursor-pointer"
+                        (click)="openMaintenanceAction(vehicle)"
+                        [title]="getMaintenanceButtonTitle(vehicle)"
+                        class="p-1.5 rounded-lg border transition-colors cursor-pointer"
+                        [ngClass]="getMaintenanceButtonClass(vehicle)"
                       >
-                        <svg lucideCheckCircle2 class="size-3.5"></svg>
+                        <svg lucideWrench class="size-3.5"></svg>
+                      </button>
+
+                      <!-- Finalizar Manutenção (Apenas quando em manutenção) -->
+                      @if (isInMaintenance(vehicle)) {
+                        <button
+                          (click)="openFinishMaintenanceModal(vehicle)"
+                          title="Finalizar Manutenção e Liberar Veículo"
+                          class="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg border border-emerald-200/60 transition-colors cursor-pointer"
+                        >
+                          <svg lucideCheckCircle2 class="size-3.5"></svg>
+                        </button>
+                      }
+
+                      <!-- Atualizar KM -->
+                      <button
+                        (click)="openUpdateKmModal(vehicle)"
+                        title="Atualizar Quilometragem"
+                        class="p-1.5 text-slate-600 hover:bg-slate-100 rounded-lg border border-slate-200 transition-colors cursor-pointer"
+                      >
+                        <svg lucideGauge class="size-3.5"></svg>
+                      </button>
+
+                      <!-- Atualizar / Renovar CRLV -->
+                      <button
+                        (click)="openUpdateCrlvModal(vehicle)"
+                        title="Atualizar / Renovar CRLV"
+                        class="p-1.5 text-indigo-600 hover:bg-indigo-50 rounded-lg border border-indigo-200/60 transition-colors cursor-pointer"
+                      >
+                        <svg lucideFileText class="size-3.5"></svg>
                       </button>
                     }
-
-                    <!-- Atualizar KM -->
-                    <button
-                      (click)="openUpdateKmModal(vehicle)"
-                      title="Atualizar Quilometragem"
-                      class="p-1.5 text-slate-600 hover:bg-slate-100 rounded-lg border border-slate-200 transition-colors cursor-pointer"
-                    >
-                      <svg lucideGauge class="size-3.5"></svg>
-                    </button>
-
-                    <!-- Atualizar / Renovar CRLV -->
-                    <button
-                      (click)="openUpdateCrlvModal(vehicle)"
-                      title="Atualizar / Renovar CRLV"
-                      class="p-1.5 text-indigo-600 hover:bg-indigo-50 rounded-lg border border-indigo-200/60 transition-colors cursor-pointer"
-                    >
-                      <svg lucideFileText class="size-3.5"></svg>
-                    </button>
 
                     <!-- Abastecimentos do Veículo -->
                     <a

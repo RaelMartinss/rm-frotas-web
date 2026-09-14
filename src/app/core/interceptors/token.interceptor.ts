@@ -16,7 +16,11 @@ export const tokenInterceptor: HttpInterceptorFn = (req, next) => {
   }
 
   const authState = inject(AuthStateService);
-  const token = authState.getToken();
+  const isStartImpersonation = req.url.includes('/support/impersonate/') && req.method === 'POST';
+  const impersonationToken = !isStartImpersonation
+    ? sessionStorage.getItem('rm_frotas_impersonation_token')
+    : null;
+  const token = impersonationToken || authState.getToken();
 
   const authReq = req.clone({
     withCredentials: true,

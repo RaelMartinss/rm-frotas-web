@@ -22,13 +22,15 @@
         <svg lucideFuel class="size-4 text-emerald-600"></svg>
         <span>Abastecimentos</span>
       </a>
-      <button
-        (click)="openTripModal()"
-        class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs px-4 py-2.5 rounded-xl transition-all shadow-xs hover:shadow-sm cursor-pointer"
-      >
-        <svg lucideNavigation class="size-4"></svg>
-        <span>Nova Viagem</span>
-      </button>
+      @if (!impersonationService.isReadOnly()) {
+        <button
+          (click)="openTripModal()"
+          class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs px-4 py-2.5 rounded-xl transition-all shadow-xs hover:shadow-sm cursor-pointer"
+        >
+          <svg lucideNavigation class="size-4"></svg>
+          <span>Nova Viagem</span>
+        </button>
+      }
     </div>
   </div>
 
@@ -198,13 +200,15 @@
                       <div class="flex-1">
                         <span class="font-bold">🚨 SOS [{{ sos.category }}]:</span> {{ sos.description }}
                       </div>
-                      <button
-                        (click)="resolveSos(sos.id)"
-                        title="Marcar SOS como atendido"
-                        class="px-1.5 py-0.5 bg-white hover:bg-rose-100 text-rose-700 font-bold rounded border border-rose-300 text-[9px] cursor-pointer shrink-0"
-                      >
-                        Atendido
-                      </button>
+                      @if (!impersonationService.isReadOnly()) {
+                        <button
+                          (click)="resolveSos(sos.id)"
+                          title="Marcar SOS como atendido"
+                          class="px-1.5 py-0.5 bg-white hover:bg-rose-100 text-rose-700 font-bold rounded border border-rose-300 text-[9px] cursor-pointer shrink-0"
+                        >
+                          Atendido
+                        </button>
+                      }
                     </div>
                   }
                 </td>
@@ -231,36 +235,38 @@
                 <td class="py-3.5 px-4 text-right">
                   <div class="flex items-center justify-end gap-1.5">
                     @if (trip.status === 'PLANNED' || trip.status === 'PROGRAMADA') {
-                      <button
-                        (click)="startTrip(trip)"
-                        [disabled]="actionLoadingId() === trip.id"
-                        class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold rounded-lg text-[11px] transition-colors border border-emerald-200/70 cursor-pointer disabled:opacity-50 shadow-2xs"
-                        title="Iniciar Viagem"
-                      >
-                        @if (actionLoadingId() === trip.id) {
-                          <svg lucideLoader2 class="size-3.5 animate-spin"></svg>
-                        } @else {
-                          <svg lucidePlay class="size-3 fill-emerald-600 text-emerald-600"></svg>
-                        }
-                        Iniciar
-                      </button>
+                      @if (!impersonationService.isReadOnly()) {
+                        <button
+                          (click)="startTrip(trip)"
+                          [disabled]="actionLoadingId() === trip.id"
+                          class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold rounded-lg text-[11px] transition-colors border border-emerald-200/70 cursor-pointer disabled:opacity-50 shadow-2xs"
+                          title="Iniciar Viagem"
+                        >
+                          @if (actionLoadingId() === trip.id) {
+                            <svg lucideLoader2 class="size-3.5 animate-spin"></svg>
+                          } @else {
+                            <svg lucidePlay class="size-3 fill-emerald-600 text-emerald-600"></svg>
+                          }
+                          Iniciar
+                        </button>
 
-                      <button
-                        (click)="openSupplyModal(trip.id)"
-                        class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 font-semibold rounded-lg text-[11px] transition-colors border border-amber-200/60 cursor-pointer"
-                        title="Registrar Abastecimento"
-                      >
-                        <svg lucideFuel class="size-3.5"></svg>
-                        Abastecer
-                      </button>
+                        <button
+                          (click)="openSupplyModal(trip.id)"
+                          class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 font-semibold rounded-lg text-[11px] transition-colors border border-amber-200/60 cursor-pointer"
+                          title="Registrar Abastecimento"
+                        >
+                          <svg lucideFuel class="size-3.5"></svg>
+                          Abastecer
+                        </button>
 
-                      <button
-                        (click)="openCancelModal(trip)"
-                        class="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg transition-colors border border-rose-200/70 cursor-pointer"
-                        title="Cancelar Viagem"
-                      >
-                        <svg lucideBan class="size-3.5"></svg>
-                      </button>
+                        <button
+                          (click)="openCancelModal(trip)"
+                          class="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg transition-colors border border-rose-200/70 cursor-pointer"
+                          title="Cancelar Viagem"
+                        >
+                          <svg lucideBan class="size-3.5"></svg>
+                        </button>
+                      }
                     }
                     @else if (trip.status === 'IN_PROGRESS' || trip.status === 'EM_ANDAMENTO') {
                       <button
@@ -271,26 +277,30 @@
                         <svg lucideMap class="size-3.5 text-emerald-600"></svg>
                         Ver Rota
                       </button>
-                      <button
-                        (click)="openCompleteModal(trip)"
-                        [disabled]="actionLoadingId() === trip.id"
-                        class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold rounded-lg text-[11px] transition-colors border border-blue-200/70 cursor-pointer disabled:opacity-50 shadow-2xs"
-                        title="Concluir Viagem"
-                      >
-                        @if (actionLoadingId() === trip.id) {
-                          <svg lucideLoader2 class="size-3.5 animate-spin"></svg>
-                        } @else {
-                          <svg lucideCheckCircle2 class="size-3.5 text-blue-600"></svg>
-                        }
-                        Concluir
-                      </button>
-                      <button
-                        (click)="openSupplyModal(trip.id)"
-                        class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 font-semibold rounded-lg text-[11px] transition-colors border border-amber-200/60 cursor-pointer"
-                      >
-                        <svg lucideFuel class="size-3.5"></svg>
-                        Abastecer
-                      </button>
+
+                      @if (!impersonationService.isReadOnly()) {
+                        <button
+                          (click)="openCompleteModal(trip)"
+                          [disabled]="actionLoadingId() === trip.id"
+                          class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold rounded-lg text-[11px] transition-colors border border-blue-200/70 cursor-pointer disabled:opacity-50 shadow-2xs"
+                          title="Concluir Viagem"
+                        >
+                          @if (actionLoadingId() === trip.id) {
+                            <svg lucideLoader2 class="size-3.5 animate-spin"></svg>
+                          } @else {
+                            <svg lucideCheckCircle2 class="size-3.5 text-blue-600"></svg>
+                          }
+                          Concluir
+                        </button>
+
+                        <button
+                          (click)="openSupplyModal(trip.id)"
+                          class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 font-semibold rounded-lg text-[11px] transition-colors border border-amber-200/60 cursor-pointer"
+                        >
+                          <svg lucideFuel class="size-3.5"></svg>
+                          Abastecer
+                        </button>
+                      }
                     }
                     @else if (trip.status === 'COMPLETED' || trip.status === 'CONCLUIDA') {
                       <button

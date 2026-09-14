@@ -22,8 +22,16 @@
         />
       </div>
 
-      <!-- INDICADOR DE EMPRESA (exibido para usuários de um cliente, não para SUPER_ADMIN) -->
-      @if (currentUser()?.clientName) {
+      <!-- INDICADOR DE EMPRESA (exibido para usuários de um cliente ou em modo suporte) -->
+      @if (impersonationService.activeSession()) {
+        <div class="px-4 py-2.5 border-b border-amber-500/30 flex items-center gap-2.5 bg-amber-500/10">
+          <svg lucideWrench class="size-3.5 text-amber-400 shrink-0"></svg>
+          <div class="min-w-0">
+            <p class="text-[9px] text-amber-400 font-bold uppercase tracking-wider leading-none mb-0.5">Empresa em Suporte</p>
+            <p class="text-xs text-amber-200 font-semibold truncate leading-tight">{{ impersonationService.activeSession()?.targetClientName }}</p>
+          </div>
+        </div>
+      } @else if (currentUser()?.clientName) {
         <div class="px-4 py-2.5 border-b border-slate-800/40 flex items-center gap-2.5 bg-slate-900/40">
           <svg lucideBuilding2 class="size-3.5 text-emerald-500 shrink-0"></svg>
           <div class="min-w-0">
@@ -197,6 +205,46 @@
 
   <!-- ÁREA DE CONTEÚDO PRINCIPAL -->
   <div class="flex-1 flex flex-col min-w-0">
+    <!-- BANNER FIXO MODO SUPORTE (STICKY) -->
+    @if (impersonationService.isImpersonating()) {
+      <div class="sticky top-0 z-30 bg-amber-500 text-amber-950 px-4 sm:px-6 py-2.5 shadow-md flex flex-wrap items-center justify-between gap-2 border-b border-amber-600/30 text-xs font-medium">
+        <div class="flex items-center gap-2 sm:gap-2.5 min-w-0">
+          <span class="flex items-center justify-center size-6 rounded-full bg-amber-950/15 text-amber-950 shrink-0 font-bold">
+            🔧
+          </span>
+          <div class="truncate">
+            <span class="font-bold">Modo Suporte</span>
+            <span class="hidden sm:inline"> — visualizando como</span>
+            <span class="font-bold ml-1">{{ impersonationService.activeSession()?.targetClientName }}</span>
+            <span class="hidden md:inline text-amber-900 ml-1">({{ formatCpfCnpj(impersonationService.activeSession()?.targetClientDocument) }})</span>
+            <span class="mx-1.5 opacity-60">·</span>
+            <span class="text-amber-900 font-semibold">
+              expira em <span class="font-mono font-bold text-amber-950">{{ impersonationService.formattedRemainingTime() }}</span>
+            </span>
+            <span class="hidden lg:inline-block ml-2 px-1.5 py-0.5 rounded bg-amber-600/20 text-[10px] font-bold uppercase tracking-wider">
+              Somente Leitura
+            </span>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          (click)="exitImpersonation()"
+          [disabled]="exitingImpersonation()"
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-950 hover:bg-amber-900 text-amber-100 font-bold transition-colors cursor-pointer text-xs shrink-0 shadow-xs disabled:opacity-50"
+          title="Encerrar sessão de suporte e retornar à lista de clientes"
+        >
+          @if (exitingImpersonation()) {
+            <svg lucideLoader2 class="size-3.5 animate-spin"></svg>
+            <span>Saindo...</span>
+          } @else {
+            <svg lucideLogOut class="size-3.5"></svg>
+            <span>Sair do modo suporte</span>
+          }
+        </button>
+      </div>
+    }
+
     <!-- CABEÇALHO SUPERIOR -->
     <header class="h-16 bg-white border-b border-slate-200/80 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-20">
       <div class="flex items-center gap-3 sm:gap-4">

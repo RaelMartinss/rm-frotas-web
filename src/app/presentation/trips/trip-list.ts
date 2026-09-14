@@ -10,6 +10,7 @@ import { IDriverRepository } from '../../domain/repositories/driver.repository.i
 import { IIncidentRepository } from '../../domain/repositories/incident.repository.interface';
 import { LiveAlertsService } from '../../core/services/live-alerts.service';
 import { ToastService } from '../../core/services/toast.service';
+import { ImpersonationService } from '../../core/services/impersonation.service';
 import { Trip, FuelSupply } from '../../domain/models/trip.model';
 import { Incident } from '../../domain/models/incident.model';
 import { Vehicle } from '../../domain/models/vehicle.model';
@@ -92,6 +93,7 @@ export class TripListComponent implements OnInit, OnDestroy {
   private readonly liveAlertsService = inject(LiveAlertsService);
   private readonly toastService = inject(ToastService);
   private readonly fb = inject(FormBuilder);
+  protected readonly impersonationService = inject(ImpersonationService);
 
   trips = signal<Trip[]>([]);
   vehicles = signal<Vehicle[]>([]);
@@ -392,6 +394,7 @@ export class TripListComponent implements OnInit, OnDestroy {
   }
 
   resolveSos(incidentId: string): void {
+    if (this.impersonationService.isReadOnly()) return;
     this.liveAlertsService.resolveIncident(incidentId);
   }
 
@@ -478,6 +481,7 @@ export class TripListComponent implements OnInit, OnDestroy {
   }
 
   openTripModal(trip?: Trip): void {
+    if (this.impersonationService.isReadOnly()) return;
     this.errorMessage.set(null);
     this.loadAvailability(trip?.id);
     this.tripForm.reset({
@@ -500,6 +504,7 @@ export class TripListComponent implements OnInit, OnDestroy {
   }
 
   openSupplyModal(tripId: string): void {
+    if (this.impersonationService.isReadOnly()) return;
     this.selectedTripId.set(tripId);
     this.supplyForm.reset({
       fuelType: 'DIESEL',
@@ -519,6 +524,7 @@ export class TripListComponent implements OnInit, OnDestroy {
   // --- AÇÕES DO CICLO DE VIDA DA VIAGEM ---
 
   startTrip(trip: Trip): void {
+    if (this.impersonationService.isReadOnly()) return;
     this.actionLoadingId.set(trip.id);
     this.tripRepository.startTrip(trip.id).subscribe({
       next: () => {
@@ -538,6 +544,7 @@ export class TripListComponent implements OnInit, OnDestroy {
   }
 
   openCompleteModal(trip: Trip): void {
+    if (this.impersonationService.isReadOnly()) return;
     this.tripToComplete.set(trip);
   }
 
@@ -569,6 +576,7 @@ export class TripListComponent implements OnInit, OnDestroy {
   }
 
   openCancelModal(trip: Trip): void {
+    if (this.impersonationService.isReadOnly()) return;
     this.tripToCancel.set(trip);
   }
 

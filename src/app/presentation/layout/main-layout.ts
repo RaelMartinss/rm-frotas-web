@@ -31,7 +31,9 @@ import {
   LucideShieldAlert,
   LucideSparkles,
   LucideBuilding2,
+  LucideLoader2,
 } from '@lucide/angular';
+import { ImpersonationService } from '../../core/services/impersonation.service';
 
 export interface CommandItem {
   id: string;
@@ -87,6 +89,7 @@ export interface NotificationItem {
     LucideShieldAlert,
     LucideSparkles,
     LucideBuilding2,
+    LucideLoader2,
   ],
   templateUrl: './main-layout.html',
   styleUrl: './main-layout.css'
@@ -96,6 +99,7 @@ export class MainLayoutComponent {
   private readonly authState = inject(AuthStateService);
   private readonly liveAlertsService = inject(LiveAlertsService);
   private readonly router = inject(Router);
+  readonly impersonationService = inject(ImpersonationService);
 
   @ViewChild('paletteInput') paletteInputRef?: ElementRef<HTMLInputElement>;
 
@@ -106,6 +110,7 @@ export class MainLayoutComponent {
   notificationsOpen = signal(false);
   searchQuery = signal('');
   selectedIndex = signal(0);
+  exitingImpersonation = signal(false);
 
   readonly hasActiveSos = this.liveAlertsService.hasActiveSos;
   readonly activeSosCount = this.liveAlertsService.activeSosCount;
@@ -409,6 +414,27 @@ export class MainLayoutComponent {
       next: () => this.router.navigate(['/login']),
       error: () => this.router.navigate(['/login'])
     });
+  }
+
+  exitImpersonation(): void {
+    if (this.exitingImpersonation()) return;
+    this.exitingImpersonation.set(true);
+    this.impersonationService.endImpersonation().subscribe({
+      next: () => this.exitingImpersonation.set(false),
+      error: () => this.exitingImpersonation.set(false),
+    });
+  }
+
+  formatCpfCnpj(val?: string | null): string {
+    if (!val) return '';
+    const clean = val.replace(/\D/g, '');
+    if (clean.length === 11) {
+      return clean.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+    }
+    if (clean.length === 14) {
+      return clean.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
+    }
+    return val;
   }
 }
 

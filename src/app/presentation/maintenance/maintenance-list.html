@@ -14,14 +14,16 @@
     </div>
 
     <div class="flex items-center gap-2">
-      <button
-        type="button"
-        (click)="openCreateModal()"
-        class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-xl transition-all shadow-sm flex items-center gap-2 cursor-pointer active:scale-95"
-      >
-        <svg lucidePlus class="size-4"></svg>
-        Nova Manutenção
-      </button>
+      @if (!impersonationService.isReadOnly()) {
+        <button
+          type="button"
+          (click)="openCreateModal()"
+          class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-xl transition-all shadow-sm flex items-center gap-2 cursor-pointer active:scale-95"
+        >
+          <svg lucidePlus class="size-4"></svg>
+          Nova Manutenção
+        </button>
+      }
     </div>
   </div>
 
@@ -264,40 +266,42 @@
                       <svg lucideEye class="size-4"></svg>
                     </button>
 
-                    <!-- Iniciar (se Agendada) -->
-                    @if (m.status === 'AGENDADA') {
-                      <button
-                        type="button"
-                        (click)="openStartModal(m)"
-                        title="Iniciar Manutenção"
-                        class="p-1.5 text-amber-500 hover:text-amber-700 hover:bg-amber-50 rounded-lg transition-colors cursor-pointer"
-                      >
-                        <svg lucidePlay class="size-4"></svg>
-                      </button>
-                    }
+                    @if (!impersonationService.isReadOnly()) {
+                      <!-- Iniciar (se Agendada) -->
+                      @if (m.status === 'AGENDADA') {
+                        <button
+                          type="button"
+                          (click)="openStartModal(m)"
+                          title="Iniciar Manutenção"
+                          class="p-1.5 text-amber-500 hover:text-amber-700 hover:bg-amber-50 rounded-lg transition-colors cursor-pointer"
+                        >
+                          <svg lucidePlay class="size-4"></svg>
+                        </button>
+                      }
 
-                    <!-- Finalizar / Liberar Veículo (se Em Andamento) -->
-                    @if (m.status === 'EM_ANDAMENTO') {
-                      <button
-                        type="button"
-                        (click)="openFinishModal(m)"
-                        title="Finalizar e Liberar Veículo"
-                        class="p-1.5 text-emerald-600 hover:text-emerald-800 hover:bg-emerald-50 rounded-lg transition-colors cursor-pointer"
-                      >
-                        <svg lucideCheckCircle2 class="size-4"></svg>
-                      </button>
-                    }
+                      <!-- Finalizar / Liberar Veículo (se Em Andamento) -->
+                      @if (m.status === 'EM_ANDAMENTO') {
+                        <button
+                          type="button"
+                          (click)="openFinishModal(m)"
+                          title="Finalizar e Liberar Veículo"
+                          class="p-1.5 text-emerald-600 hover:text-emerald-800 hover:bg-emerald-50 rounded-lg transition-colors cursor-pointer"
+                        >
+                          <svg lucideCheckCircle2 class="size-4"></svg>
+                        </button>
+                      }
 
-                    <!-- Cancelar (se Agendada ou Em Andamento) -->
-                    @if (m.status === 'AGENDADA' || m.status === 'EM_ANDAMENTO') {
-                      <button
-                        type="button"
-                        (click)="openCancelModal(m)"
-                        title="Cancelar Manutenção"
-                        class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
-                      >
-                        <svg lucideBan class="size-4"></svg>
-                      </button>
+                      <!-- Cancelar (se Agendada ou Em Andamento) -->
+                      @if (m.status === 'AGENDADA' || m.status === 'EM_ANDAMENTO') {
+                        <button
+                          type="button"
+                          (click)="openCancelModal(m)"
+                          title="Cancelar Manutenção"
+                          class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                        >
+                          <svg lucideBan class="size-4"></svg>
+                        </button>
+                      }
                     }
                   </div>
                 </td>

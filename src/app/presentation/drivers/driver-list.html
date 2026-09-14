@@ -33,13 +33,15 @@
         <span>Abastecimentos</span>
       </a>
 
-      <button
-        (click)="openModal()"
-        class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs px-4 py-2.5 rounded-xl transition-all shadow-xs hover:shadow-sm cursor-pointer"
-      >
-        <svg lucidePlus class="size-4"></svg>
-        <span>Novo Motorista</span>
-      </button>
+      @if (!impersonationService.isReadOnly()) {
+        <button
+          (click)="openModal()"
+          class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs px-4 py-2.5 rounded-xl transition-all shadow-xs hover:shadow-sm cursor-pointer"
+        >
+          <svg lucidePlus class="size-4"></svg>
+          <span>Novo Motorista</span>
+        </button>
+      }
     </div>
   </div>
 
@@ -212,67 +214,69 @@
                 </td>
                 <td class="py-3.5 px-4 text-right">
                   <div class="inline-flex items-center justify-end gap-1.5">
-                    <!-- Reativar Motorista (Quando Suspenso) -->
-                    @if (isSuspended(driver)) {
+                    @if (!impersonationService.isReadOnly()) {
+                      <!-- Reativar Motorista (Quando Suspenso) -->
+                      @if (isSuspended(driver)) {
+                        <button
+                          (click)="openLiftModal(driver)"
+                          title="Reativar Motorista / Encerrar Suspensão"
+                          class="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg border border-emerald-200/60 transition-colors cursor-pointer"
+                        >
+                          <svg lucidePlay class="size-3.5"></svg>
+                        </button>
+                      }
+
+                      <!-- Ativar Motorista (Quando Inativo) -->
+                      @if (isInactive(driver)) {
+                        <button
+                          (click)="openStatusConfirmModal(driver, 'activate')"
+                          title="Ativar Motorista"
+                          class="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg border border-emerald-200/60 transition-colors cursor-pointer"
+                        >
+                          <svg lucideUserCheck class="size-3.5"></svg>
+                        </button>
+                      }
+
+                      <!-- Desativar Motorista (Quando Ativo) -->
+                      @if (isActive(driver)) {
+                        <button
+                          (click)="openStatusConfirmModal(driver, 'deactivate')"
+                          title="Desativar Motorista"
+                          class="p-1.5 text-slate-600 hover:bg-slate-100 rounded-lg border border-slate-200 transition-colors cursor-pointer"
+                        >
+                          <svg lucideBan class="size-3.5"></svg>
+                        </button>
+                      }
+
+                      <!-- Suspender Motorista (Quando Ativo) -->
+                      @if (isActive(driver)) {
+                        <button
+                          (click)="openSuspendModal(driver)"
+                          title="Suspender Motorista"
+                          class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg border border-rose-200/60 transition-colors cursor-pointer"
+                        >
+                          <svg lucidePauseCircle class="size-3.5"></svg>
+                        </button>
+                      }
+
+                      <!-- Resetar Senha de Acesso ao App -->
                       <button
-                        (click)="openLiftModal(driver)"
-                        title="Reativar Motorista / Encerrar Suspensão"
-                        class="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg border border-emerald-200/60 transition-colors cursor-pointer"
+                        (click)="openResetPasswordModal(driver)"
+                        title="Resetar Senha de Acesso ao Aplicativo"
+                        class="p-1.5 text-amber-600 hover:bg-amber-50 rounded-lg border border-amber-200/60 transition-colors cursor-pointer"
                       >
-                        <svg lucidePlay class="size-3.5"></svg>
+                        <svg lucideKeyRound class="size-3.5"></svg>
+                      </button>
+
+                      <!-- Atualizar CNH -->
+                      <button
+                        (click)="openUpdateCnhModal(driver)"
+                        title="Atualizar / Renovar CNH"
+                        class="p-1.5 text-indigo-600 hover:bg-indigo-50 rounded-lg border border-indigo-200/60 transition-colors cursor-pointer"
+                      >
+                        <svg lucideIdCard class="size-3.5"></svg>
                       </button>
                     }
-
-                    <!-- Ativar Motorista (Quando Inativo) -->
-                    @if (isInactive(driver)) {
-                      <button
-                        (click)="openStatusConfirmModal(driver, 'activate')"
-                        title="Ativar Motorista"
-                        class="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg border border-emerald-200/60 transition-colors cursor-pointer"
-                      >
-                        <svg lucideUserCheck class="size-3.5"></svg>
-                      </button>
-                    }
-
-                    <!-- Desativar Motorista (Quando Ativo) -->
-                    @if (isActive(driver)) {
-                      <button
-                        (click)="openStatusConfirmModal(driver, 'deactivate')"
-                        title="Desativar Motorista"
-                        class="p-1.5 text-slate-600 hover:bg-slate-100 rounded-lg border border-slate-200 transition-colors cursor-pointer"
-                      >
-                        <svg lucideBan class="size-3.5"></svg>
-                      </button>
-                    }
-
-                    <!-- Suspender Motorista (Quando Ativo) -->
-                    @if (isActive(driver)) {
-                      <button
-                        (click)="openSuspendModal(driver)"
-                        title="Suspender Motorista"
-                        class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg border border-rose-200/60 transition-colors cursor-pointer"
-                      >
-                        <svg lucidePauseCircle class="size-3.5"></svg>
-                      </button>
-                    }
-
-                    <!-- Resetar Senha de Acesso ao App -->
-                    <button
-                      (click)="openResetPasswordModal(driver)"
-                      title="Resetar Senha de Acesso ao Aplicativo"
-                      class="p-1.5 text-amber-600 hover:bg-amber-50 rounded-lg border border-amber-200/60 transition-colors cursor-pointer"
-                    >
-                      <svg lucideKeyRound class="size-3.5"></svg>
-                    </button>
-
-                    <!-- Atualizar CNH -->
-                    <button
-                      (click)="openUpdateCnhModal(driver)"
-                      title="Atualizar / Renovar CNH"
-                      class="p-1.5 text-indigo-600 hover:bg-indigo-50 rounded-lg border border-indigo-200/60 transition-colors cursor-pointer"
-                    >
-                      <svg lucideIdCard class="size-3.5"></svg>
-                    </button>
 
                     <!-- Abastecimentos do Motorista -->
                     <a

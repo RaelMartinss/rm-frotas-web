@@ -14,6 +14,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { IMaintenanceRepository } from '../../domain/repositories/maintenance.repository.interface';
 import { IVehicleRepository } from '../../domain/repositories/vehicle.repository.interface';
 import { ToastService } from '../../core/services/toast.service';
+import { ImpersonationService } from '../../core/services/impersonation.service';
 import {
   Maintenance,
   MaintenanceItem,
@@ -78,6 +79,7 @@ export class MaintenanceListComponent implements OnInit {
   private readonly vehicleRepo = inject(IVehicleRepository);
   private readonly toastService = inject(ToastService);
   private readonly fb = inject(FormBuilder);
+  protected readonly impersonationService = inject(ImpersonationService);
 
   // --- SIGNALS DE ESTADO ---
   maintenances = signal<Maintenance[]>([]);
@@ -264,6 +266,7 @@ export class MaintenanceListComponent implements OnInit {
 
   // --- MODAIS ---
   openCreateModal(): void {
+    if (this.impersonationService.isReadOnly()) return;
     this.createForm.reset({
       vehicleId: '',
       type: 'PREVENTIVA',
@@ -371,6 +374,7 @@ export class MaintenanceListComponent implements OnInit {
 
   // Iniciar Manutenção Agendada
   openStartModal(m: Maintenance): void {
+    if (this.impersonationService.isReadOnly()) return;
     this.selectedMaintenance.set(m);
     this.actionError.set(null);
     this.isStartModalOpen.set(true);
@@ -415,6 +419,7 @@ export class MaintenanceListComponent implements OnInit {
 
   // Finalizar Manutenção
   openFinishModal(m: Maintenance): void {
+    if (this.impersonationService.isReadOnly()) return;
     this.selectedMaintenance.set(m);
     this.actionError.set(null);
     this.finishItems.clear();
@@ -501,6 +506,7 @@ export class MaintenanceListComponent implements OnInit {
 
   // Cancelar Manutenção
   openCancelModal(m: Maintenance): void {
+    if (this.impersonationService.isReadOnly()) return;
     this.selectedMaintenance.set(m);
     this.cancelForm.reset({ reason: '' });
     this.actionError.set(null);

@@ -15,14 +15,16 @@
 
     <!-- BOTÕES DE AÇÃO -->
     <div class="flex items-center gap-2.5">
-      <button
-        type="button"
-        (click)="openCreateModal()"
-        class="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-xl shadow-xs hover:shadow-sm transition-all cursor-pointer"
-      >
-        <svg lucidePlus class="size-4"></svg>
-        <span>Novo Abastecimento</span>
-      </button>
+      @if (!impersonationService.isReadOnly()) {
+        <button
+          type="button"
+          (click)="openCreateModal()"
+          class="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-xl shadow-xs hover:shadow-sm transition-all cursor-pointer"
+        >
+          <svg lucidePlus class="size-4"></svg>
+          <span>Novo Abastecimento</span>
+        </button>
+      }
     </div>
   </div>
 
@@ -309,22 +311,24 @@
                         <svg lucideEye class="size-3.5"></svg>
                       </button>
 
-                      <button
-                        (click)="openEditModal(r)"
-                        title="Editar Abastecimento"
-                        class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg border border-blue-200/60 transition-colors cursor-pointer"
-                      >
-                        <svg lucideEdit class="size-3.5"></svg>
-                      </button>
-
-                      @if (!isDriverUser()) {
+                      @if (!impersonationService.isReadOnly()) {
                         <button
-                          (click)="openDeleteModal(r)"
-                          title="Excluir Registro"
-                          class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg border border-rose-200/60 transition-colors cursor-pointer"
+                          (click)="openEditModal(r)"
+                          title="Editar Abastecimento"
+                          class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg border border-blue-200/60 transition-colors cursor-pointer"
                         >
-                          <svg lucideTrash2 class="size-3.5"></svg>
+                          <svg lucideEdit class="size-3.5"></svg>
                         </button>
+
+                        @if (!isDriverUser()) {
+                          <button
+                            (click)="openDeleteModal(r)"
+                            title="Excluir Registro"
+                            class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg border border-rose-200/60 transition-colors cursor-pointer"
+                          >
+                            <svg lucideTrash2 class="size-3.5"></svg>
+                          </button>
+                        }
                       }
                     </div>
                   </td>

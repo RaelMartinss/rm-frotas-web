@@ -13,13 +13,15 @@
       <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Gestão de Usuários</h1>
       <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Cadastre e gerencie as credenciais e permissões da equipe da sua empresa.</p>
     </div>
-    <button
-      (click)="openModal()"
-      class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs px-4 py-2.5 rounded-xl transition-all shadow-xs hover:shadow-sm cursor-pointer"
-    >
-      <svg lucideUserPlus class="size-4"></svg>
-      <span>Novo Usuário</span>
-    </button>
+    @if (!impersonationService.isReadOnly()) {
+      <button
+        (click)="openModal()"
+        class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs px-4 py-2.5 rounded-xl transition-all shadow-xs hover:shadow-sm cursor-pointer"
+      >
+        <svg lucideUserPlus class="size-4"></svg>
+        <span>Novo Usuário</span>
+      </button>
+    }
   </div>
 
   <!-- BARRA DE CONTROLE: BUSCA E FILTROS EM CHIPS -->
@@ -150,7 +152,7 @@
                 </td>
                 <td class="py-3.5 px-4 text-right">
                   <div class="flex items-center justify-end gap-2">
-                    @if (user.id !== currentUser()?.id) {
+                    @if (!impersonationService.isReadOnly() && user.id !== currentUser()?.id) {
                       <!-- Reset de Senha -->
                       <button
                         type="button"

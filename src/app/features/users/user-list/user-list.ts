@@ -6,6 +6,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { IAuthRepository } from '../../../domain/repositories/auth.repository.interface';
 import { AuthStateService } from '../../../core/services/auth-state.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { ImpersonationService } from '../../../core/services/impersonation.service';
 import { User, UserRole, formatUserRole, CreateUserResponse } from '../../../domain/models/auth.model';
 import {
   LucideUsers,
@@ -56,6 +57,7 @@ export class UserListComponent implements OnInit {
   private readonly authState = inject(AuthStateService);
   private readonly toastService = inject(ToastService);
   private readonly fb = inject(FormBuilder);
+  protected readonly impersonationService = inject(ImpersonationService);
 
   readonly formatUserRole = formatUserRole;
   currentUser = this.authState.currentUser;
@@ -245,6 +247,7 @@ export class UserListComponent implements OnInit {
   }
 
   openModal(): void {
+    if (this.impersonationService.isReadOnly()) return;
     this.errorMessage.set(null);
     const defaultRole = this.availableCreateRoles()[0]?.value ?? 'ADMIN';
     this.userForm.reset({
@@ -301,6 +304,7 @@ export class UserListComponent implements OnInit {
   }
 
   openResetPasswordModal(user: User): void {
+    if (this.impersonationService.isReadOnly()) return;
     this.userToReset.set(user);
     this.resetConfirmModalOpen.set(true);
   }
@@ -355,6 +359,7 @@ export class UserListComponent implements OnInit {
   }
 
   toggleStatus(user: User): void {
+    if (this.impersonationService.isReadOnly()) return;
     if (user.id === this.currentUser()?.id) {
       this.toastService.warning('Você não pode alterar o status do seu próprio usuário.');
       return;

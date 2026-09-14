@@ -2,8 +2,10 @@ import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
+import { Router } from '@angular/router';
 import { IClientRepository } from '../../../domain/repositories/client.repository.interface';
 import { ToastService } from '../../../core/services/toast.service';
+import { ImpersonationService, AuditLogEntry } from '../../../core/services/impersonation.service';
 import { Client, ClientStatus, OnboardClientResponse } from '../../../domain/models/client.model';
 import {
   LucideBuilding2,
@@ -25,6 +27,8 @@ import {
   LucideKeyRound,
   LucideMapPin,
   LucideUserCheck,
+  LucideEye,
+  LucideHistory,
 } from '@lucide/angular';
 
 @Component({
@@ -52,6 +56,8 @@ import {
     LucideKeyRound,
     LucideMapPin,
     LucideUserCheck,
+    LucideEye,
+    LucideHistory,
   ],
   templateUrl: './client-list.html',
 })
@@ -59,10 +65,25 @@ export class ClientListComponent implements OnInit {
   private readonly clientRepository = inject(IClientRepository);
   private readonly toastService = inject(ToastService);
   private readonly fb = inject(FormBuilder);
+  private readonly router = inject(Router);
+  readonly impersonationService = inject(ImpersonationService);
 
   clients = signal<Client[]>([]);
   totalCount = signal<number>(0);
   loading = signal<boolean>(true);
+
+  // Suporte & Impersonation
+  impersonatingClientId = signal<string | null>(null);
+
+  // Modal de Auditoria
+  auditModalOpen = signal<boolean>(false);
+  auditLogs = signal<AuditLogEntry[]>([]);
+  auditLoading = signal<boolean>(false);
+  auditTotal = signal<number>(0);
+  auditPage = signal<number>(1);
+  auditLimit = signal<number>(10);
+  auditTotalPages = signal<number>(1);
+  auditClientFilter = signal<string>('');
 
   // Paginação & Busca
   currentPage = signal<number>(1);
@@ -335,5 +356,84 @@ export class ClientListComponent implements OnInit {
       return clean.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
     }
     return val;
+  }
+
+  startImpersonation(client: Client): void {
+    if (this.impersonatingClientId()) return;
+    this.impersonatingClientId.set(client.id);
+
+    this.impersonationService.startImpersonation(client.id).subscribe({
+      next: () => {
+        this.impersonatingClientId.set(null);
+        this.toastService.success(`Acesso de suporte ativado para ${client.tradeName}.`);
+        this.router.navigate(['/dashboard']);
+      },
+      error: (err) => {
+        this.impersonatingClientId.set(null);
+        const msg = err.error?.message || 'Falha ao iniciar acesso de suporte.';
+        this.toastService.error(msg);
+      },
+    });
+  }
+
+  openAuditModal(clientId?: string): void {
+    this.auditClientFilter.set(clientId || '');
+    this.auditPage.set(1);
+    this.auditModalOpen.set(true);
+    this.loadAuditLogs();
+  }
+
+  closeAuditModal(): void {
+    this.auditModalOpen.set(false);
+  }
+
+  loadAuditLogs(): void {
+    this.auditLoading.set(true);
+    this.impersonationService
+      .getAuditLogs({
+        clientId: this.auditClientFilter() || undefined,
+        page: this.auditPage(),
+        limit: this.auditLimit(),
+      })
+      .subscribe({
+        next: (res) => {
+          this.auditLoading.set(false);
+          this.auditLogs.set(res.logs);
+          this.auditTotal.set(res.total);
+          this.auditTotalPages.set(res.totalPages || 1);
+        },
+        error: () => {
+          this.auditLoading.set(false);
+          this.toastService.error('Falha ao carregar logs de auditoria.');
+        },
+      });
+  }
+
+  onAuditPageChange(page: number): void {
+    if (page < 1 || page > this.auditTotalPages()) return;
+    this.auditPage.set(page);
+    this.loadAuditLogs();
+  }
+
+  formatAuditAction(action: string): { label: string; color: string } {
+    const map: Record<string, { label: string; color: string }> = {
+      IMPERSONATION_START: { label: 'Início de Suporte', color: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+      IMPERSONATION_END: { label: 'Fim de Suporte', color: 'bg-slate-100 text-slate-700 border-slate-200' },
+      IMPERSONATION_EXPIRED: { label: 'Suporte Expirado', color: 'bg-amber-50 text-amber-700 border-amber-200' },
+      VEHICLE_LIST: { label: 'Visualizou Veículos', color: 'bg-blue-50 text-blue-700 border-blue-200' },
+      VEHICLE_VIEW: { label: 'Detalhes de Veículo', color: 'bg-blue-50 text-blue-700 border-blue-200' },
+      DRIVER_LIST: { label: 'Visualizou Motoristas', color: 'bg-indigo-50 text-indigo-700 border-indigo-200' },
+      DRIVER_VIEW: { label: 'Detalhes de Motorista', color: 'bg-indigo-50 text-indigo-700 border-indigo-200' },
+      TRIP_LIST: { label: 'Visualizou Viagens', color: 'bg-purple-50 text-purple-700 border-purple-200' },
+      TRIP_VIEW: { label: 'Detalhes de Viagem', color: 'bg-purple-50 text-purple-700 border-purple-200' },
+      MAINTENANCE_LIST: { label: 'Visualizou Manutenções', color: 'bg-orange-50 text-orange-700 border-orange-200' },
+      MAINTENANCE_VIEW: { label: 'Detalhes de Manutenção', color: 'bg-orange-50 text-orange-700 border-orange-200' },
+      FUEL_LIST: { label: 'Visualizou Abastecimentos', color: 'bg-teal-50 text-teal-700 border-teal-200' },
+      FUEL_VIEW: { label: 'Detalhes de Abastecimento', color: 'bg-teal-50 text-teal-700 border-teal-200' },
+      ODOMETER_VIEW: { label: 'Visualizou Odômetro', color: 'bg-cyan-50 text-cyan-700 border-cyan-200' },
+      DASHBOARD_VIEW: { label: 'Visualizou Dashboard', color: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+    };
+
+    return map[action] || { label: action, color: 'bg-slate-50 text-slate-600 border-slate-200' };
   }
 }

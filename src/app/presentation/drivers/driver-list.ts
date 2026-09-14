@@ -6,6 +6,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { IDriverRepository } from '../../domain/repositories/driver.repository.interface';
 import { ToastService } from '../../core/services/toast.service';
+import { ImpersonationService } from '../../core/services/impersonation.service';
 import {
   Driver,
   CnhCategory,
@@ -92,6 +93,7 @@ export class DriverListComponent implements OnInit {
   private readonly driverRepository = inject(IDriverRepository);
   private readonly toastService = inject(ToastService);
   private readonly fb = inject(FormBuilder);
+  protected readonly impersonationService = inject(ImpersonationService);
 
   drivers = signal<Driver[]>([]);
   loading = signal<boolean>(true);
@@ -301,6 +303,7 @@ export class DriverListComponent implements OnInit {
   }
 
   openModal(): void {
+    if (this.impersonationService.isReadOnly()) return;
     this.errorMessage.set(null);
     this.driverForm.reset({ cnhCategory: 'D' });
     this.isModalOpen.set(true);
@@ -458,6 +461,7 @@ export class DriverListComponent implements OnInit {
 
   // --- AÇÕES: RESETAR SENHA DO MOTORISTA ---
   openResetPasswordModal(driver: Driver): void {
+    if (this.impersonationService.isReadOnly()) return;
     this.driverToReset.set(driver);
     this.resetConfirmModalOpen.set(true);
   }
@@ -513,6 +517,7 @@ export class DriverListComponent implements OnInit {
 
   // --- AÇÕES: ATIVAR / DESATIVAR MOTORISTA ---
   openStatusConfirmModal(driver: Driver, action: 'activate' | 'deactivate'): void {
+    if (this.impersonationService.isReadOnly()) return;
     this.selectedDriver.set(driver);
     this.pendingStatusAction.set(action);
     this.actionError.set(null);
@@ -564,6 +569,7 @@ export class DriverListComponent implements OnInit {
 
   // --- AÇÕES: SUSPENSÃO DEDICADA ---
   openSuspendModal(driver: Driver): void {
+    if (this.impersonationService.isReadOnly()) return;
     this.selectedDriver.set(driver);
     this.suspensionErrorMessage.set(null);
     this.suspendForm.reset({
@@ -631,6 +637,7 @@ export class DriverListComponent implements OnInit {
 
   // --- AÇÕES: ENCERRAMENTO DE SUSPENSÃO (REATIVAÇÃO) ---
   openLiftModal(driver: Driver): void {
+    if (this.impersonationService.isReadOnly()) return;
     this.selectedDriver.set(driver);
     this.liftForm.reset({ liftReason: '' });
     this.actionError.set(null);
@@ -695,6 +702,7 @@ export class DriverListComponent implements OnInit {
 
   // --- AÇÕES: ATUALIZAR / RENOVAR CNH ---
   openUpdateCnhModal(driver: Driver): void {
+    if (this.impersonationService.isReadOnly()) return;
     this.selectedDriver.set(driver);
     this.actionError.set(null);
 

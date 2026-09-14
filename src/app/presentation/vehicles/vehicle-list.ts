@@ -8,6 +8,7 @@ import { IVehicleRepository } from '../../domain/repositories/vehicle.repository
 import { IMaintenanceRepository } from '../../domain/repositories/maintenance.repository.interface';
 import { IFuelRepository } from '../../domain/repositories/fuel.repository.interface';
 import { ToastService } from '../../core/services/toast.service';
+import { ImpersonationService } from '../../core/services/impersonation.service';
 import { Vehicle, VehicleImportResult } from '../../domain/models/vehicle.model';
 import { Maintenance, MaintenanceStatus, MaintenanceType } from '../../domain/models/maintenance.model';
 import { FuelRecord, FuelType } from '../../domain/models/fuel.model';
@@ -78,6 +79,7 @@ export class VehicleListComponent implements OnInit {
   private readonly fuelRepository = inject(IFuelRepository);
   private readonly toastService = inject(ToastService);
   private readonly fb = inject(FormBuilder);
+  protected readonly impersonationService = inject(ImpersonationService);
 
   vehicles = signal<Vehicle[]>([]);
   vehicleMaintenances = signal<Maintenance[]>([]);
@@ -353,6 +355,7 @@ export class VehicleListComponent implements OnInit {
   }
 
   openModal(): void {
+    if (this.impersonationService.isReadOnly()) return;
     this.errorMessage.set(null);
     this.vehicleForm.reset({ year: new Date().getFullYear(), currentKm: 0, crlvExpiration: '', renavam: '' });
     this.isModalOpen.set(true);
@@ -506,6 +509,7 @@ export class VehicleListComponent implements OnInit {
 
   // --- AÇÕES: ENVIAR PARA MANUTENÇÃO ---
   openSendMaintenanceModal(vehicle: Vehicle): void {
+    if (this.impersonationService.isReadOnly()) return;
     this.selectedVehicle.set(vehicle);
     this.actionError.set(null);
     const inUse = this.isInUse(vehicle);
@@ -597,6 +601,7 @@ export class VehicleListComponent implements OnInit {
 
   // --- AÇÕES: FINALIZAR MANUTENÇÃO ---
   openFinishMaintenanceModal(vehicle: Vehicle): void {
+    if (this.impersonationService.isReadOnly()) return;
     this.selectedVehicle.set(vehicle);
     this.actionError.set(null);
     this.isFinishMaintenanceModalOpen.set(true);
@@ -680,6 +685,7 @@ export class VehicleListComponent implements OnInit {
 
   // --- AÇÕES: ATUALIZAR QUILOMETRAGEM ---
   openUpdateKmModal(vehicle: Vehicle): void {
+    if (this.impersonationService.isReadOnly()) return;
     this.selectedVehicle.set(vehicle);
     this.actionError.set(null);
     this.updateKmForm.reset({ currentKm: vehicle.currentKm });
@@ -729,6 +735,7 @@ export class VehicleListComponent implements OnInit {
 
   // --- AÇÕES: ATUALIZAR / RENOVAR CRLV ---
   openUpdateCrlvModal(vehicle: Vehicle): void {
+    if (this.impersonationService.isReadOnly()) return;
     this.selectedVehicle.set(vehicle);
     this.actionError.set(null);
     let dateStr = '';
@@ -885,6 +892,7 @@ export class VehicleListComponent implements OnInit {
   // ==========================================
 
   openImportModal(): void {
+    if (this.impersonationService.isReadOnly()) return;
     this.selectedFile.set(null);
     this.importResult.set(null);
     this.importErrorMessage.set(null);

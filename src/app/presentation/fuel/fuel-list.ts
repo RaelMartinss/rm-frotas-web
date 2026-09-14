@@ -15,6 +15,7 @@ import { IVehicleRepository } from '../../domain/repositories/vehicle.repository
 import { IDriverRepository } from '../../domain/repositories/driver.repository.interface';
 import { AuthStateService } from '../../core/services/auth-state.service';
 import { ToastService } from '../../core/services/toast.service';
+import { ImpersonationService } from '../../core/services/impersonation.service';
 import {
   FuelRecord,
   FuelType,
@@ -89,6 +90,7 @@ export class FuelListComponent implements OnInit {
   private readonly toastService = inject(ToastService);
   private readonly route = inject(ActivatedRoute);
   private readonly fb = inject(FormBuilder);
+  protected readonly impersonationService = inject(ImpersonationService);
 
   // --- SIGNALS DE ESTADO ---
   activeTab = signal<'LIST' | 'REPORT'>('LIST');
@@ -308,6 +310,7 @@ export class FuelListComponent implements OnInit {
 
   // --- MODAIS E AÇÕES ---
   openCreateModal(): void {
+    if (this.impersonationService.isReadOnly()) return;
     this.errorMessage.set(null);
     this.receiptPhotoPreview.set(null);
     this.fuelForm.reset({
@@ -334,6 +337,7 @@ export class FuelListComponent implements OnInit {
   }
 
   openEditModal(record: FuelRecord): void {
+    if (this.impersonationService.isReadOnly()) return;
     this.selectedRecord.set(record);
     this.errorMessage.set(null);
     this.receiptPhotoPreview.set(record.receiptUrl || null);
@@ -400,6 +404,7 @@ export class FuelListComponent implements OnInit {
   }
 
   openDeleteModal(record: FuelRecord): void {
+    if (this.impersonationService.isReadOnly()) return;
     this.selectedRecord.set(record);
     this.isDeleteModalOpen.set(true);
   }

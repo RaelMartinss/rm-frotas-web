@@ -4,14 +4,35 @@ import { Router } from '@angular/router';
 import { catchError, filter, switchMap, take, throwError } from 'rxjs';
 import { IAuthRepository } from '../../domain/repositories/auth.repository.interface';
 import { AuthStateService } from '../services/auth-state.service';
+import { ToastService } from '../services/toast.service';
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
   const authRepository = inject(IAuthRepository);
   const authState = inject(AuthStateService);
+  const toastService = inject(ToastService);
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
+      const hasImpersonationToken = !!sessionStorage.getItem('rm_frotas_impersonation_token');
+
+      // Se ocorrer 401 durante modo suporte, apenas encerra o suporte e volta para clientes
+      if (error.status === 401 && hasImpersonationToken) {
+        try {
+          sessionStorage.removeItem('rm_frotas_impersonation_token');
+          sessionStorage.removeItem('rm_frotas_impersonation_session');
+        } catch {}
+        toastService.warning('Sessão de suporte expirada ou finalizada.');
+        router.navigate(['/clientes']);
+        return throwError(() => error);
+      }
+
+      // Se ocorrer 403 durante modo suporte (tentativa de escrita em modo READ_ONLY)
+      if (error.status === 403 && hasImpersonationToken) {
+        toastService.warning('Modo Suporte: Modificações não são permitidas (somente leitura).');
+        return throwError(() => error);
+      }
+
       // Ignora rotas de autenticação para evitar loop infinito
       const isAuthRoute =
         req.url.includes('/auth/login') ||

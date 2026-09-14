@@ -13,14 +13,26 @@
       </p>
     </div>
 
-    <button
-      type="button"
-      (click)="openOnboardModal()"
-      class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-semibold text-xs shadow-sm hover:shadow transition-all cursor-pointer"
-    >
-      <svg lucidePlus class="size-4"></svg>
-      <span>Novo Cliente (Onboarding)</span>
-    </button>
+    <div class="flex items-center gap-2.5">
+      <button
+        type="button"
+        (click)="openAuditModal()"
+        class="inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs shadow-2xs hover:shadow-xs transition-all cursor-pointer"
+        title="Histórico de auditoria de acessos de suporte"
+      >
+        <svg lucideHistory class="size-4 text-slate-500"></svg>
+        <span>Histórico de Auditoria</span>
+      </button>
+
+      <button
+        type="button"
+        (click)="openOnboardModal()"
+        class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-semibold text-xs shadow-sm hover:shadow transition-all cursor-pointer"
+      >
+        <svg lucidePlus class="size-4"></svg>
+        <span>Novo Cliente (Onboarding)</span>
+      </button>
+    </div>
   </div>
 
   <!-- BARRA DE PESQUISA E FILTROS -->
@@ -156,6 +168,31 @@
                 </td>
                 <td class="px-6 py-4 text-right">
                   <div class="flex items-center justify-end gap-1.5">
+                    @if (client.status === 'ATIVO') {
+                      <button
+                        type="button"
+                        (click)="startImpersonation(client)"
+                        [disabled]="impersonatingClientId() === client.id"
+                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-900 transition text-[11px] font-semibold cursor-pointer shadow-2xs disabled:opacity-50"
+                        title="Acessar painel desta empresa em modo suporte auditado (somente leitura)"
+                      >
+                        @if (impersonatingClientId() === client.id) {
+                          <svg lucideLoader2 class="size-3 animate-spin text-amber-700"></svg>
+                          <span>Acessando...</span>
+                        } @else {
+                          <svg lucideEye class="size-3 text-amber-700"></svg>
+                          <span>Acessar painel</span>
+                        }
+                      </button>
+                    }
+                    <button
+                      type="button"
+                      (click)="openAuditModal(client.id)"
+                      class="p-1 rounded-lg border border-slate-200 text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition cursor-pointer"
+                      title="Ver logs de auditoria de suporte desta empresa"
+                    >
+                      <svg lucideHistory class="size-3.5"></svg>
+                    </button>
                     @if (client.status === 'ATIVO') {
                       <button
                         type="button"
@@ -582,6 +619,151 @@
             <svg lucideLoader2 class="size-3.5 animate-spin"></svg>
           }
           <span>Confirmar</span>
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- MODAL DE HISTÓRICO DE AUDITORIA DE SUPORTE -->
+@if (auditModalOpen()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs">
+    <div class="bg-white w-full max-w-4xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in-95 duration-150">
+      <!-- HEADER DO MODAL -->
+      <div class="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+        <div class="flex items-center gap-3">
+          <div class="size-10 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center">
+            <svg lucideHistory class="size-5"></svg>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-slate-900">Histórico de Auditoria — Modo Suporte</h2>
+            <p class="text-xs text-slate-500 mt-0.5">
+              Registros imutáveis de todas as sessões e consultas executadas pelo Super Admin.
+              @if (auditClientFilter()) {
+                <span class="inline-flex items-center gap-1 ml-1 px-2 py-0.5 rounded bg-amber-100 text-amber-900 font-semibold text-[10px]">
+                  Filtrado por empresa
+                </span>
+              }
+            </p>
+          </div>
+        </div>
+        <button
+          type="button"
+          (click)="closeAuditModal()"
+          class="size-8 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 flex items-center justify-center transition cursor-pointer"
+        >
+          <svg lucideX class="size-4"></svg>
+        </button>
+      </div>
+
+      <!-- CORPO COM TABELA DE LOGS -->
+      <div class="flex-1 overflow-y-auto p-6">
+        @if (auditLoading()) {
+          <div class="py-16 flex flex-col items-center justify-center gap-3 text-slate-400">
+            <svg lucideLoader2 class="size-8 animate-spin text-amber-600"></svg>
+            <span class="text-xs font-medium">Carregando logs de auditoria...</span>
+          </div>
+        } @else if (!auditLogs() || auditLogs().length === 0) {
+          <div class="py-16 flex flex-col items-center justify-center gap-3 text-center px-4">
+            <div class="size-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
+              <svg lucideShieldAlert class="size-6 text-slate-400"></svg>
+            </div>
+            <h3 class="text-sm font-semibold text-slate-700">Nenhum registro de auditoria</h3>
+            <p class="text-xs text-slate-400 max-w-sm">
+              Nenhuma sessão ou ação de suporte foi registrada para os critérios selecionados.
+            </p>
+          </div>
+        } @else {
+          <div class="border border-slate-200 rounded-xl overflow-hidden shadow-2xs">
+            <table class="w-full text-left text-xs text-slate-600">
+              <thead class="bg-slate-50 text-[11px] uppercase font-bold text-slate-500 border-b border-slate-200">
+                <tr>
+                  <th class="px-4 py-3">Data / Hora</th>
+                  <th class="px-4 py-3">Operador</th>
+                  <th class="px-4 py-3">Ação</th>
+                  <th class="px-4 py-3">Recurso / Alvo</th>
+                  <th class="px-4 py-3">Detalhes</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                @for (item of auditLogs(); track item.log.id) {
+                  <tr class="hover:bg-slate-50/60 transition-colors">
+                    <td class="px-4 py-3 font-mono text-[11px] text-slate-500 whitespace-nowrap">
+                      {{ item.log.createdAt | date:'dd/MM/yyyy HH:mm:ss' }}
+                    </td>
+                    <td class="px-4 py-3">
+                      <div class="font-semibold text-slate-800">{{ item.actor.name }}</div>
+                      <div class="text-[10px] text-slate-400">{{ item.actor.email }}</div>
+                    </td>
+                    <td class="px-4 py-3">
+                      <span
+                        class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold border whitespace-nowrap"
+                        [ngClass]="formatAuditAction(item.log.action).color"
+                      >
+                        {{ formatAuditAction(item.log.action).label }}
+                      </span>
+                    </td>
+                    <td class="px-4 py-3 font-medium text-slate-700">
+                      <div class="text-xs font-semibold">{{ item.log.resourceType }}</div>
+                      @if (item.log.resourceId) {
+                        <div class="text-[10px] font-mono text-slate-400 truncate max-w-[120px]" [title]="item.log.resourceId">
+                          {{ item.log.resourceId }}
+                        </div>
+                      }
+                    </td>
+                    <td class="px-4 py-3 text-[11px] text-slate-500 max-w-xs truncate">
+                      @if (item.log.metadata?.clientName) {
+                        <span>Empresa: <strong>{{ item.log.metadata.clientName }}</strong></span>
+                      } @else if (item.log.metadata?.path) {
+                        <span class="font-mono text-[10px] bg-slate-100 px-1 py-0.5 rounded">{{ item.log.metadata.method }} {{ item.log.metadata.path }}</span>
+                      } @else if (item.log.metadata?.reason) {
+                        <span>Motivo: {{ item.log.metadata.reason }}</span>
+                      } @else {
+                        <span class="text-slate-400">-</span>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+
+      <!-- FOOTER DO MODAL COM PAGINAÇÃO -->
+      <div class="p-4 border-t border-slate-100 bg-slate-50 flex items-center justify-between text-xs">
+        <div class="text-slate-500">
+          Total de <strong>{{ auditTotal() }}</strong> registros
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button
+            type="button"
+            (click)="onAuditPageChange(auditPage() - 1)"
+            [disabled]="auditPage() <= 1 || auditLoading()"
+            class="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed font-medium text-slate-700 transition cursor-pointer"
+          >
+            Anterior
+          </button>
+          <span class="text-slate-600 font-semibold px-1">
+            Página {{ auditPage() }} de {{ auditTotalPages() }}
+          </span>
+          <button
+            type="button"
+            (click)="onAuditPageChange(auditPage() + 1)"
+            [disabled]="auditPage() >= auditTotalPages() || auditLoading()"
+            class="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed font-medium text-slate-700 transition cursor-pointer"
+          >
+            Próxima
+          </button>
+        </div>
+
+        <button
+          type="button"
+          (click)="closeAuditModal()"
+          class="px-4 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-semibold text-xs transition cursor-pointer"
+        >
+          Fechar
         </button>
       </div>
     </div>
