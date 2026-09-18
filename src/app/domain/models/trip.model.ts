@@ -72,10 +72,18 @@ export interface CreateTripDTO {
 export interface CreateFuelSupplyDTO {
   tripId: string;
   liters: number;
-  totalValue: number;
-  fuelType: 'DIESEL' | 'GASOLINA' | 'ETANOL';
-  odometer: number;
-  date: string;
+  totalValue?: number;
+  totalCost?: number;
+  pricePerUnit?: number;
+  fuelType: string;
+  odometer?: number;
+  odometerAtFueling?: number;
+  fullTank?: boolean;
+  gasStation?: string;
+  receiptUrl?: string;
+  notes?: string;
+  date?: string;
+  fueledAt?: string;
 }
 
 export type MovementState = 'MOVING' | 'STOPPED';

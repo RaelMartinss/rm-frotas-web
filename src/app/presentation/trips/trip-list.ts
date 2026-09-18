@@ -15,6 +15,8 @@ import { Trip, FuelSupply } from '../../domain/models/trip.model';
 import { Incident } from '../../domain/models/incident.model';
 import { Vehicle } from '../../domain/models/vehicle.model';
 import { Driver } from '../../domain/models/driver.model';
+import { FuelType } from '../../domain/models/fuel.model';
+import { compressImage } from '../../core/utils/image-compressor';
 import { TripMapModalComponent } from './components/trip-map-modal/trip-map-modal.component';
 import {
   LucideNavigation,
@@ -44,6 +46,7 @@ import {
   LucideAlertTriangle,
   LucideZoomIn,
   LucideRefreshCw,
+  LucideTrash2,
 } from '@lucide/angular';
 
 @Component({
@@ -81,6 +84,7 @@ import {
     LucideAlertTriangle,
     LucideZoomIn,
     LucideRefreshCw,
+    LucideTrash2,
   ],
   templateUrl: './trip-list.html',
   styleUrl: './trip-list.css'
@@ -239,6 +243,7 @@ export class TripListComponent implements OnInit, OnDestroy {
   actionLoadingId = signal<string | null>(null);
   errorMessage = signal<string | null>(null);
   selectedTripId = signal<string | null>(null);
+  selectedTripForSupply = signal<Trip | null>(null);
 
   // Modais de Confirmação de Ações
   tripToCancel = signal<Trip | null>(null);
@@ -270,12 +275,28 @@ export class TripListComponent implements OnInit, OnDestroy {
     destinationState: ['PA', [Validators.required, Validators.maxLength(2)]],
   });
 
+  receiptPhotoPreview = signal<string | null>(null);
+
+  readonly fuelTypes: { value: FuelType; label: string }[] = [
+    { value: 'GASOLINA', label: 'Gasolina Comum' },
+    { value: 'ETANOL', label: 'Etanol Hidratado' },
+    { value: 'DIESEL', label: 'Diesel Comum' },
+    { value: 'DIESEL_S10', label: 'Diesel S-10' },
+    { value: 'GNV', label: 'GNV' },
+    { value: 'ELETRICO', label: 'Elétrico' },
+  ];
+
   supplyForm: FormGroup = this.fb.group({
-    liters: [0, [Validators.required, Validators.min(1)]],
-    totalValue: [0, [Validators.required, Validators.min(1)]],
-    fuelType: ['DIESEL', [Validators.required]],
+    liters: [null, [Validators.required, Validators.min(0.01)]],
+    pricePerUnit: [null, [Validators.min(0)]],
+    totalValue: [null, [Validators.required, Validators.min(0.01)]],
+    fuelType: ['DIESEL_S10', [Validators.required]],
     odometer: [0, [Validators.required, Validators.min(0)]],
-    date: [new Date().toISOString().substring(0, 10), [Validators.required]]
+    fullTank: [true],
+    gasStation: [''],
+    fueledAt: [new Date().toISOString().slice(0, 16), [Validators.required]],
+    receiptUrl: [''],
+    notes: [''],
   });
 
   ngOnInit(): void {
@@ -289,6 +310,23 @@ export class TripListComponent implements OnInit, OnDestroy {
     this.loadTrips(true);
     this.loadIncidents(true);
     this.loadAuxiliaryData();
+
+    // Recalcula totalValue quando liters ou pricePerUnit mudam no modal de abastecimento
+    this.supplyForm.get('liters')?.valueChanges.subscribe((liters) => {
+      const price = this.supplyForm.get('pricePerUnit')?.value;
+      if (liters && price && Number(price) > 0) {
+        const total = Math.round(Number(liters) * Number(price) * 100) / 100;
+        this.supplyForm.get('totalValue')?.setValue(total, { emitEvent: false });
+      }
+    });
+
+    this.supplyForm.get('pricePerUnit')?.valueChanges.subscribe((price) => {
+      const liters = this.supplyForm.get('liters')?.value;
+      if (liters && price && Number(liters) > 0) {
+        const total = Math.round(Number(liters) * Number(price) * 100) / 100;
+        this.supplyForm.get('totalValue')?.setValue(total, { emitEvent: false });
+      }
+    });
 
     // Atualização reativa periódica em segundo plano a cada 12 segundos
     this.pollInterval = setInterval(() => {
@@ -403,6 +441,11 @@ export class TripListComponent implements OnInit, OnDestroy {
     return v ? `${v.plate} (${v.model})` : 'Veículo ' + (vehicleId ? vehicleId.slice(0, 8) : '-');
   }
 
+  getVehicleCurrentKm(vehicleId: string): number {
+    const v = this.vehicles().find((item) => item.id === vehicleId);
+    return v?.currentKm || 0;
+  }
+
   getDriverName(driverId: string): string {
     const d = this.drivers().find((item) => item.id === driverId);
     return d ? d.name : 'Motorista ' + (driverId ? driverId.slice(0, 8) : '-');
@@ -503,15 +546,33 @@ export class TripListComponent implements OnInit, OnDestroy {
     this.errorMessage.set(null);
   }
 
-  openSupplyModal(tripId: string): void {
+  openSupplyModal(tripOrId: Trip | string): void {
     if (this.impersonationService.isReadOnly()) return;
+    const trip = typeof tripOrId === 'string' ? this.trips().find((t) => t.id === tripOrId) : tripOrId;
+    const tripId = typeof tripOrId === 'string' ? tripOrId : tripOrId.id;
+
     this.selectedTripId.set(tripId);
+    this.selectedTripForSupply.set(trip || null);
+
+    const vehicle = trip ? this.vehicles().find((v) => v.id === trip.vehicleId) : undefined;
+    const initialKm = vehicle?.currentKm || trip?.finalOdometer || trip?.initialOdometer || 0;
+
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    const nowLocal = now.toISOString().slice(0, 16);
+
+    this.receiptPhotoPreview.set(null);
     this.supplyForm.reset({
-      fuelType: 'DIESEL',
-      date: new Date().toISOString().substring(0, 10),
-      liters: 0,
-      totalValue: 0,
-      odometer: 0
+      fuelType: 'DIESEL_S10',
+      liters: null,
+      pricePerUnit: null,
+      totalValue: null,
+      odometer: initialKm,
+      fullTank: true,
+      gasStation: '',
+      fueledAt: nowLocal,
+      receiptUrl: '',
+      notes: '',
     });
     this.isSupplyModalOpen.set(true);
   }
@@ -519,6 +580,34 @@ export class TripListComponent implements OnInit, OnDestroy {
   closeSupplyModal(): void {
     this.isSupplyModalOpen.set(false);
     this.selectedTripId.set(null);
+    this.selectedTripForSupply.set(null);
+    this.receiptPhotoPreview.set(null);
+  }
+
+  async onReceiptFileSelected(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
+      try {
+        const compressedBase64 = await compressImage(file, 1280, 1280, 0.75);
+        this.receiptPhotoPreview.set(compressedBase64);
+        this.supplyForm.get('receiptUrl')?.setValue(compressedBase64);
+      } catch (err) {
+        console.error('Erro ao comprimir comprovante:', err);
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const res = e.target?.result as string;
+          this.receiptPhotoPreview.set(res);
+          this.supplyForm.get('receiptUrl')?.setValue(res);
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+  }
+
+  removeReceiptPhoto(): void {
+    this.receiptPhotoPreview.set(null);
+    this.supplyForm.get('receiptUrl')?.setValue('');
   }
 
   // --- AÇÕES DO CICLO DE VIDA DA VIAGEM ---
@@ -673,9 +762,39 @@ export class TripListComponent implements OnInit, OnDestroy {
     }
 
     this.isSaving.set(true);
-    const dto = {
-      ...this.supplyForm.value,
-      tripId: this.selectedTripId()!
+    const formVal = this.supplyForm.value;
+
+    const parseNum = (val: any): number => {
+      if (val === null || val === undefined || val === '') return 0;
+      if (typeof val === 'number') return isNaN(val) ? 0 : val;
+      const parsed = Number(String(val).replace(',', '.'));
+      return isNaN(parsed) ? 0 : parsed;
+    };
+
+    const liters = parseNum(formVal.liters);
+    const totalValue = parseNum(formVal.totalValue);
+    let pricePerUnit = parseNum(formVal.pricePerUnit);
+    if ((!pricePerUnit || pricePerUnit <= 0) && totalValue > 0 && liters > 0) {
+      pricePerUnit = Math.round((totalValue / liters) * 1000) / 1000;
+    }
+    const odometer = parseNum(formVal.odometer);
+    const fueledAtDate = formVal.fueledAt ? new Date(formVal.fueledAt) : new Date();
+
+    const dto: any = {
+      tripId: this.selectedTripId()!,
+      liters,
+      pricePerUnit: pricePerUnit > 0 ? pricePerUnit : undefined,
+      totalValue,
+      totalCost: totalValue,
+      fuelType: formVal.fuelType,
+      odometer,
+      odometerAtFueling: odometer,
+      fullTank: formVal.fullTank !== false,
+      gasStation: formVal.gasStation?.trim() || undefined,
+      receiptUrl: formVal.receiptUrl || undefined,
+      notes: formVal.notes?.trim() || undefined,
+      fueledAt: fueledAtDate.toISOString(),
+      date: fueledAtDate.toISOString().slice(0, 10),
     };
 
     this.tripRepository.addFuelSupply(dto).subscribe({
@@ -688,7 +807,16 @@ export class TripListComponent implements OnInit, OnDestroy {
       error: (err) => {
         this.isSaving.set(false);
         let msg = 'Erro ao registrar abastecimento.';
-        if (err.error?.message) {
+        if (err.status === 401) {
+          msg = 'Sua sessão expirou ou não possui autorização. Faça login novamente.';
+        } else if (err.status === 400 && err.error?.message) {
+          const raw = Array.isArray(err.error.message) ? err.error.message.join(', ') : err.error.message;
+          if (raw.includes('odometer') || raw.includes('quilometragem')) {
+            msg = 'Quilometragem inválida ou inconsistente com o odômetro do veículo.';
+          } else {
+            msg = raw;
+          }
+        } else if (err.error?.message) {
           msg = Array.isArray(err.error.message) ? err.error.message.join(', ') : err.error.message;
         }
         this.toastService.error(msg);

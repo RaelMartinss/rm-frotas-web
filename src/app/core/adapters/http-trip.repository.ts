@@ -59,6 +59,7 @@ export class HttpTripRepository implements ITripRepository {
   }
 
   addFuelSupply(supply: CreateFuelSupplyDTO): Observable<FuelSupply> {
-    return this.http.post<FuelSupply>(`${this.apiUrl}/${supply.tripId}/supplies`, supply);
+    const { tripId, ...body } = supply;
+    return this.http.post<FuelSupply>(`${this.apiUrl}/${tripId}/supplies`, body);
   }
 }

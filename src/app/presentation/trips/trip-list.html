@@ -251,7 +251,7 @@
                         </button>
 
                         <button
-                          (click)="openSupplyModal(trip.id)"
+                          (click)="openSupplyModal(trip)"
                           class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 font-semibold rounded-lg text-[11px] transition-colors border border-amber-200/60 cursor-pointer"
                           title="Registrar Abastecimento"
                         >
@@ -294,7 +294,7 @@
                         </button>
 
                         <button
-                          (click)="openSupplyModal(trip.id)"
+                          (click)="openSupplyModal(trip)"
                           class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 font-semibold rounded-lg text-[11px] transition-colors border border-amber-200/60 cursor-pointer"
                         >
                           <svg lucideFuel class="size-3.5"></svg>
@@ -1016,78 +1016,198 @@
 <!-- MODAL DE ABASTECIMENTO -->
 @if (isSupplyModalOpen()) {
   <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-150">
-    <div class="bg-white rounded-2xl border border-slate-200/90 shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-150">
-      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-        <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
-          <div class="size-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-200/60">
-            <svg lucideFuel class="size-4"></svg>
-          </div>
-          Registrar Abastecimento
-        </h2>
+    <div class="bg-white rounded-2xl border border-slate-200/90 shadow-2xl w-full max-w-xl max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-150">
+      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 shrink-0">
+        <div>
+          <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
+            <div class="size-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-200/60">
+              <svg lucideFuel class="size-4"></svg>
+            </div>
+            Registrar Abastecimento
+          </h2>
+          @if (selectedTripForSupply(); as sTrip) {
+            <p class="text-xs text-slate-500 mt-1">
+              Veículo: <span class="font-semibold text-slate-700">{{ getVehiclePlate(sTrip.vehicleId) }}</span>
+              • Motorista: <span class="font-semibold text-slate-700">{{ getDriverName(sTrip.driverId) }}</span>
+              @if (getVehicleCurrentKm(sTrip.vehicleId); as km) {
+                • Odômetro Atual: <span class="font-semibold text-slate-700">{{ km | number }} km</span>
+              }
+            </p>
+          }
+        </div>
         <button (click)="closeSupplyModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg transition-colors cursor-pointer">
           <svg lucideX class="size-5"></svg>
         </button>
       </div>
 
-      <form [formGroup]="supplyForm" (ngSubmit)="saveFuelSupply()" class="p-6 space-y-4">
-        <div class="grid grid-cols-2 gap-4">
+      <form [formGroup]="supplyForm" (ngSubmit)="saveFuelSupply()" class="p-6 overflow-y-auto space-y-4 text-xs">
+        <!-- Tipo de Combustível & Odômetro -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">Litros Abastecidos</label>
-            <input
-              type="number"
-              step="0.01"
-              formControlName="liters"
-              placeholder="Ex: 150.00"
-              class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-mono text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-amber-500/10 focus:border-amber-500 transition-all placeholder:font-sans placeholder:text-slate-400"
-            />
-          </div>
-
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">Valor Total (R$)</label>
-            <input
-              type="number"
-              step="0.01"
-              formControlName="totalValue"
-              placeholder="Ex: 850.00"
-              class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-mono text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-amber-500/10 focus:border-amber-500 transition-all placeholder:font-sans placeholder:text-slate-400"
-            />
-          </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">Tipo de Combustível</label>
+            <label class="block font-semibold text-slate-700 mb-1">Tipo de Combustível *</label>
             <select
               formControlName="fuelType"
-              class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-amber-500/10 focus:border-amber-500 transition-all"
+              class="w-full px-3 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 cursor-pointer"
             >
-              <option value="DIESEL">Diesel S10</option>
-              <option value="GASOLINA">Gasolina Comum</option>
-              <option value="ETANOL">Etanol Hidratado</option>
+              @for (ft of fuelTypes; track ft.value) {
+                <option [value]="ft.value">{{ ft.label }}</option>
+              }
             </select>
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">Odômetro Atual (KM)</label>
+            <label class="block font-semibold text-slate-700 mb-1">Odômetro no Abastecimento (KM) *</label>
             <input
               type="number"
               formControlName="odometer"
-              placeholder="Ex: 120500"
-              class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-mono text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-amber-500/10 focus:border-amber-500 transition-all placeholder:font-sans placeholder:text-slate-400"
+              placeholder="Ex: 50250"
+              class="w-full px-3 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 font-mono"
+              [ngClass]="supplyForm.get('odometer')?.invalid && supplyForm.get('odometer')?.touched ? 'border-rose-300 bg-rose-50/30' : ''"
             />
           </div>
         </div>
 
-        <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">Data do Abastecimento</label>
-          <input
-            type="date"
-            formControlName="date"
-            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-amber-500/10 focus:border-amber-500 transition-all"
-          />
+        <!-- Litros, Preço/L e Total -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Litros Abastecidos *</label>
+            <input
+              type="number"
+              step="0.01"
+              formControlName="liters"
+              placeholder="Ex: 45.5"
+              class="w-full px-3 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 font-mono"
+              [ngClass]="supplyForm.get('liters')?.invalid && supplyForm.get('liters')?.touched ? 'border-rose-300 bg-rose-50/30' : ''"
+            />
+          </div>
+
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Preço por Litro (R$)</label>
+            <input
+              type="number"
+              step="0.001"
+              formControlName="pricePerUnit"
+              placeholder="Ex: 5.89"
+              class="w-full px-3 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 font-mono"
+            />
+          </div>
+
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Valor Total (R$) *</label>
+            <input
+              type="number"
+              step="0.01"
+              formControlName="totalValue"
+              placeholder="Ex: 267.99"
+              class="w-full px-3 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 font-mono"
+              [ngClass]="supplyForm.get('totalValue')?.invalid && supplyForm.get('totalValue')?.touched ? 'border-rose-300 bg-rose-50/30' : ''"
+            />
+          </div>
         </div>
 
-        <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
+        <!-- TOGGLE EM DESTAQUE: TANQUE CHEIO -->
+        <div class="p-3.5 bg-emerald-50/60 rounded-2xl border border-emerald-200/80 flex items-start gap-3">
+          <input
+            type="checkbox"
+            id="tripFullTankToggle"
+            formControlName="fullTank"
+            class="mt-0.5 size-4 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500 cursor-pointer"
+          />
+          <label for="tripFullTankToggle" class="cursor-pointer">
+            <span class="font-bold text-slate-800 text-xs flex items-center gap-1.5">
+              Encheu o tanque? (Tanque Cheio)
+              <span class="px-1.5 py-0.5 rounded-full text-[9px] bg-emerald-200 text-emerald-800 font-bold">Importante</span>
+            </span>
+            <p class="text-[11px] text-slate-500 mt-0.5">
+              Marcar esta opção é indispensável para que o sistema consiga calcular com exatidão o consumo médio (Km/L) entre os abastecimentos.
+            </p>
+          </label>
+        </div>
+
+        <!-- Posto de Gasolina & Data/Hora -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Posto de Combustível</label>
+            <input
+              type="text"
+              formControlName="gasStation"
+              placeholder="Ex: Posto Ipiranga Centro"
+              class="w-full px-3 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
+            />
+          </div>
+
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Data e Hora do Abastecimento</label>
+            <input
+              type="datetime-local"
+              formControlName="fueledAt"
+              class="w-full px-3 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
+            />
+          </div>
+        </div>
+
+        <!-- Comprovante / Foto da Nota Fiscal -->
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Foto do Comprovante / Cupom Fiscal (Opcional)</label>
+          @if (receiptPhotoPreview()) {
+            <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-between gap-3">
+              <div class="flex items-center gap-3 overflow-hidden">
+                <img
+                  [src]="receiptPhotoPreview()"
+                  alt="Prévia do comprovante"
+                  class="size-14 rounded-xl object-cover border border-slate-200 shrink-0 bg-slate-900/10 cursor-pointer"
+                  (click)="openPhotoModal(receiptPhotoPreview()!)"
+                />
+                <div class="truncate">
+                  <span class="text-xs font-bold text-slate-800 block">Comprovante anexado</span>
+                  <button
+                    type="button"
+                    (click)="openPhotoModal(receiptPhotoPreview()!)"
+                    class="text-[11px] text-emerald-600 hover:text-emerald-700 font-semibold inline-flex items-center gap-1 hover:underline cursor-pointer"
+                  >
+                    Ver foto cheia
+                    <svg lucideExternalLink class="size-3"></svg>
+                  </button>
+                </div>
+              </div>
+              <button
+                type="button"
+                (click)="removeReceiptPhoto()"
+                title="Remover foto"
+                class="p-2 text-rose-600 hover:bg-rose-50 rounded-xl transition-colors cursor-pointer border border-rose-200/60 shrink-0"
+              >
+                <svg lucideTrash2 class="size-4"></svg>
+              </button>
+            </div>
+          } @else {
+            <label class="flex flex-col items-center justify-center p-4 border-2 border-dashed border-slate-200 hover:border-amber-500 rounded-2xl bg-slate-50/70 hover:bg-amber-50/30 cursor-pointer transition-all">
+              <div class="p-2 bg-white rounded-xl shadow-2xs border border-slate-100 text-slate-500 mb-1.5">
+                <svg lucideCamera class="size-5 text-amber-600"></svg>
+              </div>
+              <span class="text-xs font-bold text-slate-700">Clique para anexar foto do comprovante</span>
+              <span class="text-[11px] text-slate-400 mt-0.5">JPG, PNG ou foto da câmera (comprimida automaticamente)</span>
+              <input
+                type="file"
+                accept="image/*"
+                (change)="onReceiptFileSelected($event)"
+                class="hidden"
+              />
+            </label>
+          }
+        </div>
+
+        <!-- Observações -->
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Observações</label>
+          <textarea
+            formControlName="notes"
+            rows="2"
+            placeholder="Alguma observação sobre o abastecimento..."
+            class="w-full px-3 py-2 bg-slate-50 rounded-xl border border-slate-200 text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 resize-none"
+          ></textarea>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3 shrink-0">
           <button
             type="button"
             (click)="closeSupplyModal()"

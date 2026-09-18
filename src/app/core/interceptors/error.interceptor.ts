@@ -64,6 +64,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
               if (refreshErr?.status === 401) {
                 const wasSuperAdmin = authState.getUser()?.role === 'SUPER_ADMIN';
                 authState.clear();
+                toastService.warning('Sua sessão expirou. Por favor, faça login novamente.');
                 router.navigate([wasSuperAdmin ? '/admin-login' : '/login']);
               }
               return throwError(() => refreshErr);
