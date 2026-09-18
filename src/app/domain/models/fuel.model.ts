@@ -129,3 +129,161 @@ export interface PaginatedFuelResult {
     totalPages: number;
   };
 }
+
+export interface GetEfficiencyReportParams {
+  startDate?: string;
+  endDate?: string;
+  vehicleId?: string;
+  fuelType?: FuelType;
+  comparePreviousPeriod?: boolean;
+}
+
+export interface EfficiencyReportSummary {
+  totalCost: number;
+  totalLiters: number;
+  fuelingCount: number;
+  weightedAveragePrice: number;
+}
+
+export interface EfficiencyReportMetrics {
+  averageKmPerLiter: number | null;
+  distanceKm: number;
+  fuelConsumed: number;
+  costPerKm: number | null;
+  costPer100Km: number | null;
+  validCycles: number;
+}
+
+export interface EfficiencyDataQuality {
+  status: 'GOOD' | 'PARTIAL' | 'INSUFFICIENT';
+  totalFuelings: number;
+  validCycles: number;
+  insufficientVehiclesCount: number;
+  message: string;
+}
+
+export interface EfficiencyVehicleItem {
+  vehicleId: string;
+  plate: string;
+  model: string;
+  brand?: string | null;
+  status: string;
+  totalFuelings: number;
+  fullTankFuelings: number;
+  validCyclesCount: number;
+  averageKmPerLiter: number | null;
+  totalDistanceKm: number;
+  totalFuelConsumed: number;
+  totalCost: number;
+  costPerKm: number | null;
+  hasSufficientData: boolean;
+  message?: string;
+}
+
+export interface EfficiencyConsumptionEvolutionPoint {
+  cycleId: string;
+  date: string;
+  vehicleId: string;
+  vehiclePlate: string;
+  kmPerLiter: number;
+  distanceKm: number;
+  fuelConsumed: number;
+  totalCost: number;
+}
+
+export interface EfficiencyTimeSeriesPoint {
+  date: string;
+  value: number;
+}
+
+export interface EfficiencyFuelDistributionItem {
+  fuelType: string;
+  label: string;
+  totalLiters: number;
+  totalCost: number;
+  percentage: number;
+}
+
+export interface ConsumptionCycleFueling {
+  id: string;
+  vehicleId: string;
+  driverId?: string;
+  driverName?: string;
+  fueledAt: string;
+  odometerAtFueling: number;
+  liters: number;
+  pricePerUnit: number;
+  totalCost: number;
+  fuelType: string;
+  gasStation?: string | null;
+  fullTank: boolean;
+}
+
+export interface FuelConsumptionCycle {
+  id: string;
+  vehicleId: string;
+  vehiclePlate?: string;
+  vehicleModel?: string;
+  startFuelRecordId: string;
+  endFuelRecordId: string;
+  startDate: string;
+  endDate: string;
+  startOdometer: number;
+  endOdometer: number;
+  distanceKm: number;
+  fuelConsumed: number;
+  totalCost: number;
+  averagePricePerUnit: number;
+  kmPerLiter: number;
+  costPerKm: number;
+  costPer100Km: number;
+  fuelType: string;
+  fullTankFuelingsCount: number;
+  partialFuelingsCount: number;
+  intermediateFuelings: ConsumptionCycleFueling[];
+  startFueling: ConsumptionCycleFueling;
+  closingFueling: ConsumptionCycleFueling;
+}
+
+export interface EfficiencyAnomaly {
+  type: 'ODOMETER_INCONSISTENT' | 'ZERO_DISTANCE' | 'OUT_OF_BOUNDS_CONSUMPTION';
+  vehicleId: string;
+  vehiclePlate?: string;
+  title: string;
+  description: string;
+  startRecordId?: string;
+  endRecordId?: string;
+  startOdometer?: number;
+  endOdometer?: number;
+  differenceKm?: number;
+  recordedAt: string;
+}
+
+export interface PeriodComparisonItem {
+  consumptionDiffPercent: number | null;
+  costDiffPercent: number | null;
+  priceDiffPercent: number | null;
+  volumeDiffPercent: number | null;
+  previousSummary: EfficiencyReportSummary;
+  previousEfficiency: EfficiencyReportMetrics;
+}
+
+export interface FuelEfficiencyReportResponse {
+  period: {
+    startDate: string;
+    endDate: string;
+  };
+  summary: EfficiencyReportSummary;
+  efficiency: EfficiencyReportMetrics;
+  dataQuality: EfficiencyDataQuality;
+  vehicleEfficiency: EfficiencyVehicleItem[];
+  consumptionEvolution: EfficiencyConsumptionEvolutionPoint[];
+  costEvolution: EfficiencyTimeSeriesPoint[];
+  volumeEvolution: EfficiencyTimeSeriesPoint[];
+  priceEvolution: EfficiencyTimeSeriesPoint[];
+  fuelDistribution: EfficiencyFuelDistributionItem[];
+  consumptionCycles: FuelConsumptionCycle[];
+  anomalies: EfficiencyAnomaly[];
+  comparison?: PeriodComparisonItem | null;
+}
+

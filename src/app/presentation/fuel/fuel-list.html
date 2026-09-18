@@ -426,146 +426,581 @@
     </div>
   }
 
-  <!-- TAB 2: RELATÓRIO DE CONSUMO (KM/L) -->
+  <!-- TAB 2: RELATÓRIO OPERACIONAL DE EFICIÊNCIA (KM/L) -->
   @if (activeTab() === 'REPORT') {
     <div class="space-y-6">
-      @if (isReportLoading()) {
+      <!-- BARRA DE CONTROLE E FILTROS DO RELATÓRIO -->
+      <div class="p-4 bg-white rounded-2xl border border-slate-200/80 shadow-xs flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div class="flex flex-wrap items-center gap-2.5">
+          <!-- Seletor de Período Rápido -->
+          <div class="flex items-center gap-1.5 bg-slate-50 p-1 rounded-xl border border-slate-200">
+            <svg lucideCalendar class="size-4 text-slate-400 ml-1.5 shrink-0"></svg>
+            <select
+              [ngModel]="reportPreset()"
+              (ngModelChange)="onPresetChange($event)"
+              class="bg-transparent py-1 pr-2 text-xs font-semibold text-slate-700 focus:outline-none cursor-pointer"
+            >
+              <option value="TODAY">Hoje</option>
+              <option value="LAST_7_DAYS">Últimos 7 dias</option>
+              <option value="LAST_30_DAYS">Últimos 30 dias</option>
+              <option value="LAST_90_DAYS">Últimos 90 dias</option>
+              <option value="THIS_MONTH">Este mês</option>
+              <option value="LAST_MONTH">Mês anterior</option>
+              <option value="THIS_YEAR">Este ano</option>
+              <option value="CUSTOM">Personalizado</option>
+            </select>
+          </div>
+
+          <!-- Inputs de Data Personalizada -->
+          @if (reportPreset() === 'CUSTOM') {
+            <div class="flex items-center gap-2 animate-in fade-in duration-150">
+              <input
+                type="date"
+                [ngModel]="reportStartDate()"
+                (ngModelChange)="reportStartDate.set($event)"
+                class="px-2.5 py-1 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-700 focus:outline-none focus:border-emerald-500"
+              />
+              <span class="text-slate-400">até</span>
+              <input
+                type="date"
+                [ngModel]="reportEndDate()"
+                (ngModelChange)="reportEndDate.set($event)"
+                class="px-2.5 py-1 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-700 focus:outline-none focus:border-emerald-500"
+              />
+            </div>
+          }
+
+          <!-- Seletor de Veículo -->
+          <div class="flex items-center gap-1.5 bg-slate-50 p-1 rounded-xl border border-slate-200">
+            <svg lucideTruck class="size-4 text-slate-400 ml-1.5 shrink-0"></svg>
+            <select
+              [ngModel]="reportVehicleId()"
+              (ngModelChange)="reportVehicleId.set($event)"
+              class="bg-transparent py-1 pr-2 text-xs text-slate-700 focus:outline-none cursor-pointer"
+            >
+              <option value="ALL">Todos os Veículos</option>
+              @for (v of vehicles(); track v.id) {
+                <option [value]="v.id">{{ v.plate }} - {{ v.model }}</option>
+              }
+            </select>
+          </div>
+
+          <!-- Seletor de Combustível -->
+          <div class="flex items-center gap-1.5 bg-slate-50 p-1 rounded-xl border border-slate-200">
+            <svg lucideFuel class="size-4 text-slate-400 ml-1.5 shrink-0"></svg>
+            <select
+              [ngModel]="reportFuelType()"
+              (ngModelChange)="reportFuelType.set($event)"
+              class="bg-transparent py-1 pr-2 text-xs text-slate-700 focus:outline-none cursor-pointer"
+            >
+              <option value="ALL">Todos os Combustíveis</option>
+              @for (ft of fuelTypes; track ft.value) {
+                <option [value]="ft.value">{{ ft.label }}</option>
+              }
+            </select>
+          </div>
+
+          <!-- Toggle: Comparar com Período Anterior -->
+          <label class="inline-flex items-center gap-2 px-2.5 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition-colors text-slate-600 select-none">
+            <input
+              type="checkbox"
+              [ngModel]="reportComparePrevious()"
+              (ngModelChange)="reportComparePrevious.set($event); loadEfficiencyReport()"
+              class="rounded text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+            />
+            <span class="text-xs font-medium">Comparar com período anterior</span>
+          </label>
+        </div>
+
+        <!-- Botão Atualizar -->
+        <button
+          type="button"
+          (click)="loadEfficiencyReport()"
+          [disabled]="isEfficiencyLoading()"
+          class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-xl text-xs flex items-center gap-1.5 shadow-xs transition-all cursor-pointer disabled:opacity-50"
+        >
+          <svg lucideRefreshCw class="size-3.5" [class.animate-spin]="isEfficiencyLoading()"></svg>
+          <span>Atualizar Relatório</span>
+        </button>
+      </div>
+
+      <!-- ESTADO DE CARREGAMENTO -->
+      @if (isEfficiencyLoading()) {
         <div class="p-16 bg-white rounded-2xl border border-slate-200/80 shadow-xs flex flex-col items-center justify-center gap-3 text-slate-400">
           <svg lucideLoader2 class="size-8 animate-spin text-emerald-600"></svg>
-          <span class="text-xs font-medium">Calculando médias de consumo por veículo...</span>
+          <span class="text-xs font-medium">Calculando ciclos de consumo e auditoria da frota...</span>
         </div>
-      } @else if (consumptionReport()) {
-        <!-- RESUMO GERAL DA FROTA -->
-        <div class="p-6 bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-2xl shadow-md grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div>
-            <span class="text-xs text-slate-400 font-medium">Consumo Médio Geral da Frota</span>
-            <div class="text-3xl font-black font-mono mt-1 text-emerald-400">
-              {{ consumptionReport()?.fleetAverageKmPerLiter ? (consumptionReport()?.fleetAverageKmPerLiter + ' km/L') : '—' }}
+      } @else if (efficiencyReport()) {
+        <!-- ESTADO VAZIO: SEM ABASTECIMENTOS -->
+        @if (efficiencyReport()!.summary.fuelingCount === 0) {
+          <div class="p-16 bg-white rounded-2xl border border-slate-200/80 shadow-xs text-center space-y-4">
+            <div class="size-14 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
+              <svg lucideFuel class="size-7"></svg>
             </div>
-            <p class="text-[11px] text-slate-400 mt-1">Calculado entre ciclos de tanque cheio</p>
-          </div>
-
-          <div>
-            <span class="text-xs text-slate-400 font-medium">Distância Total Calculada</span>
-            <div class="text-2xl font-bold font-mono mt-1">
-              {{ (consumptionReport()?.fleetTotalDistanceKm ?? 0) | number }} km
+            <div>
+              <h3 class="text-base font-bold text-slate-800">Nenhum abastecimento encontrado</h3>
+              <p class="text-xs text-slate-400 mt-1">Não existem abastecimentos registrados para o período ou filtros selecionados.</p>
             </div>
+            @if (!impersonationService.isReadOnly()) {
+              <button
+                type="button"
+                (click)="openCreateModal()"
+                class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs rounded-xl shadow-xs transition-colors cursor-pointer"
+              >
+                + Novo Abastecimento
+              </button>
+            }
           </div>
-
+        } @else {
+          <!-- LINHA 1 DE KPIS: RESUMO FINANCEIRO (TODOS OS ABASTECIMENTOS) -->
           <div>
-            <span class="text-xs text-slate-400 font-medium">Volume Total Consumido</span>
-            <div class="text-2xl font-bold font-mono mt-1">
-              {{ (consumptionReport()?.fleetTotalLiters ?? 0) | number:'1.2-2' }} L
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Resumo de Abastecimentos no Período</h3>
+              <span class="text-[11px] text-slate-400">Considera todos os abastecimentos registrados</span>
             </div>
-          </div>
-
-          <div>
-            <span class="text-xs text-slate-400 font-medium">Gasto Total no Período</span>
-            <div class="text-2xl font-bold font-mono mt-1 text-amber-300">
-              {{ (consumptionReport()?.fleetTotalCost ?? 0) | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
-            </div>
-          </div>
-        </div>
-
-        <!-- RELATÓRIO POR VEÍCULO -->
-        <div class="space-y-4">
-          <h2 class="text-sm font-bold text-slate-800">Eficiência por Veículo da Frota</h2>
-
-          <div class="grid grid-cols-1 gap-4">
-            @for (vRep of consumptionReport()?.vehicles; track vRep.vehicleId) {
-              <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs space-y-4">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
-                  <div class="flex items-center gap-3">
-                    <div class="p-2.5 bg-slate-100 rounded-xl text-slate-700">
-                      <svg lucideTruck class="size-5"></svg>
-                    </div>
-                    <div>
-                      <div class="flex items-center gap-2">
-                        <span class="text-sm font-bold text-slate-900 font-mono">{{ vRep.plate }}</span>
-                        <span class="text-xs text-slate-500">• {{ vRep.brand }} {{ vRep.model }}</span>
-                      </div>
-                      <span class="text-[11px] text-slate-400">
-                        {{ vRep.totalFuelings }} abastecimento(s) • {{ vRep.fullTankFuelings }} com tanque cheio
-                      </span>
-                    </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <!-- Gasto Total -->
+              <div class="p-4 bg-white rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
+                <div>
+                  <span class="text-[11px] font-medium text-slate-400">Gasto Total</span>
+                  <div class="text-xl font-black text-slate-800 font-mono mt-0.5">
+                    {{ efficiencyReport()!.summary.totalCost | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
                   </div>
-
-                  <!-- Badge de Eficiência -->
-                  <div class="flex items-center gap-2">
-                    <div class="text-right">
-                      <span class="text-[10px] text-slate-400 font-medium uppercase block">Consumo Médio</span>
-                      <span class="text-xl font-extrabold font-mono text-emerald-600">
-                        {{ vRep.averageKmPerLiter ? (vRep.averageKmPerLiter + ' km/L') : 'Dados insuficientes' }}
-                      </span>
+                  @if (efficiencyReport()!.comparison?.costDiffPercent !== null && efficiencyReport()!.comparison?.costDiffPercent !== undefined) {
+                    <div class="text-[10px] font-semibold mt-1 flex items-center gap-1"
+                      [ngClass]="efficiencyReport()!.comparison!.costDiffPercent! > 0 ? 'text-rose-600' : 'text-emerald-600'">
+                      <span>{{ efficiencyReport()!.comparison!.costDiffPercent! > 0 ? '↑' : '↓' }} {{ efficiencyReport()!.comparison!.costDiffPercent! }}%</span>
+                      <span class="text-slate-400">vs. período anterior</span>
                     </div>
+                  }
+                </div>
+                <div class="size-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+                  <svg lucideDollarSign class="size-5"></svg>
+                </div>
+              </div>
+
+              <!-- Volume Abastecido -->
+              <div class="p-4 bg-white rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
+                <div>
+                  <span class="text-[11px] font-medium text-slate-400">Volume Abastecido</span>
+                  <div class="text-xl font-black text-slate-800 font-mono mt-0.5">
+                    {{ efficiencyReport()!.summary.totalLiters | number:'1.2-2' }} L
+                  </div>
+                  @if (efficiencyReport()!.comparison?.volumeDiffPercent !== null && efficiencyReport()!.comparison?.volumeDiffPercent !== undefined) {
+                    <div class="text-[10px] font-semibold mt-1 flex items-center gap-1"
+                      [ngClass]="efficiencyReport()!.comparison!.volumeDiffPercent! > 0 ? 'text-amber-600' : 'text-slate-500'">
+                      <span>{{ efficiencyReport()!.comparison!.volumeDiffPercent! > 0 ? '↑' : '↓' }} {{ efficiencyReport()!.comparison!.volumeDiffPercent! }}%</span>
+                      <span class="text-slate-400">vs. anterior</span>
+                    </div>
+                  }
+                </div>
+                <div class="size-10 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center shrink-0">
+                  <svg lucideFuel class="size-5"></svg>
+                </div>
+              </div>
+
+              <!-- Preço Médio Ponderado -->
+              <div class="p-4 bg-white rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
+                <div>
+                  <span class="text-[11px] font-medium text-slate-400">Preço Médio Ponderado</span>
+                  <div class="text-xl font-black text-slate-800 font-mono mt-0.5">
+                    {{ efficiencyReport()!.summary.weightedAveragePrice | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}<span class="text-xs text-slate-400 font-normal">/L</span>
+                  </div>
+                  @if (efficiencyReport()!.comparison?.priceDiffPercent !== null && efficiencyReport()!.comparison?.priceDiffPercent !== undefined) {
+                    <div class="text-[10px] font-semibold mt-1 flex items-center gap-1"
+                      [ngClass]="efficiencyReport()!.comparison!.priceDiffPercent! > 0 ? 'text-rose-600' : 'text-emerald-600'">
+                      <span>{{ efficiencyReport()!.comparison!.priceDiffPercent! > 0 ? '↑' : '↓' }} {{ efficiencyReport()!.comparison!.priceDiffPercent! }}%</span>
+                      <span class="text-slate-400">vs. anterior</span>
+                    </div>
+                  }
+                </div>
+                <div class="size-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                  <svg lucideTrendingUp class="size-5"></svg>
+                </div>
+              </div>
+
+              <!-- Quantidade de Abastecimentos -->
+              <div class="p-4 bg-white rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
+                <div>
+                  <span class="text-[11px] font-medium text-slate-400">Abastecimentos</span>
+                  <div class="text-xl font-black text-slate-800 font-mono mt-0.5">
+                    {{ efficiencyReport()!.summary.fuelingCount }}
+                  </div>
+                  <span class="text-[10px] text-slate-400">Registros totais no período</span>
+                </div>
+                <div class="size-10 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center shrink-0">
+                  <svg lucideLayers class="size-5"></svg>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- LINHA 2 DE KPIS: EFICIÊNCIA OPERACIONAL (CICLOS DE TANQUE CHEIO) -->
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-700">Eficiência Calculada (Ciclos de Tanque Cheio)</h3>
+              <span class="text-[11px] text-slate-400">Baseado exclusivamente em ciclos fechados de consumo</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <!-- Consumo Médio da Frota -->
+              <div class="p-4 bg-gradient-to-br from-slate-900 via-slate-850 to-slate-900 text-white rounded-2xl shadow-md border border-slate-800 flex flex-col justify-between">
+                <div>
+                  <div class="flex items-center justify-between">
+                    <span class="text-[11px] font-semibold text-slate-400">Consumo Médio da Frota</span>
+                    <span class="p-1 rounded-md bg-emerald-500/10 text-emerald-400">
+                      <svg lucideGauge class="size-4"></svg>
+                    </span>
+                  </div>
+                  <div class="text-2xl font-black text-emerald-400 font-mono mt-2">
+                    {{ efficiencyReport()!.efficiency.averageKmPerLiter ? (efficiencyReport()!.efficiency.averageKmPerLiter + ' km/L') : '—' }}
                   </div>
                 </div>
+                <div class="mt-2 pt-2 border-t border-slate-800 text-[11px] text-slate-400">
+                  Baseado em <strong class="text-slate-200">{{ efficiencyReport()!.efficiency.validCycles }}</strong> ciclo(s) válido(s)
+                </div>
+              </div>
 
-                <!-- Resumo Numérico do Veículo -->
-                <div class="grid grid-cols-3 gap-3 text-xs bg-slate-50/70 p-3 rounded-xl">
-                  <div>
-                    <span class="text-slate-400 text-[11px]">Distância Coberta:</span>
-                    <div class="font-bold text-slate-700 font-mono">{{ vRep.totalDistanceKm | number }} km</div>
-                  </div>
-                  <div>
-                    <span class="text-slate-400 text-[11px]">Volume Total:</span>
-                    <div class="font-bold text-slate-700 font-mono">{{ vRep.totalLiters | number:'1.2-2' }} L</div>
-                  </div>
-                  <div>
-                    <span class="text-slate-400 text-[11px]">Custo Total:</span>
-                    <div class="font-bold text-emerald-700 font-mono">{{ vRep.totalCost | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</div>
+              <!-- Distância Analisada nos Ciclos -->
+              <div class="p-4 bg-white rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+                <div>
+                  <span class="text-[11px] font-medium text-slate-400">Distância Analisada</span>
+                  <div class="text-xl font-bold text-slate-800 font-mono mt-1">
+                    {{ efficiencyReport()!.efficiency.distanceKm | number }} km
                   </div>
                 </div>
+                <div class="text-[11px] text-slate-400 pt-2 border-t border-slate-100">
+                  Quilometragem coberta nos ciclos
+                </div>
+              </div>
 
-                <!-- Segmentos de Ciclo de Tanque Cheio -->
-                @if (vRep.segments.length > 0) {
-                  <div class="space-y-2">
-                    <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Ciclos de Tanque Cheio</span>
-                    <div class="overflow-x-auto">
-                      <table class="w-full text-[11px]">
-                        <thead>
-                          <tr class="text-slate-400 border-b border-slate-100">
-                            <th class="py-1.5 text-left">Período</th>
-                            <th class="py-1.5 text-right">Odômetro Inicial</th>
-                            <th class="py-1.5 text-right">Odômetro Final</th>
-                            <th class="py-1.5 text-right">Km Rodado</th>
-                            <th class="py-1.5 text-right">Litros</th>
-                            <th class="py-1.5 text-right">Custo</th>
-                            <th class="py-1.5 text-right font-bold text-emerald-700">Média (Km/L)</th>
-                          </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100 font-mono">
-                          @for (seg of vRep.segments; track seg.startDate) {
-                            <tr>
-                              <td class="py-1.5 text-slate-600 font-sans">
-                                {{ seg.startDate | date:'dd/MM' }} até {{ seg.endDate | date:'dd/MM/yyyy' }}
-                              </td>
-                              <td class="py-1.5 text-right text-slate-600">{{ seg.startOdometer | number }} km</td>
-                              <td class="py-1.5 text-right text-slate-600">{{ seg.endOdometer | number }} km</td>
-                              <td class="py-1.5 text-right font-bold text-slate-800">{{ seg.distanceKm | number }} km</td>
-                              <td class="py-1.5 text-right text-slate-600">{{ seg.litersConsumed | number:'1.2-2' }} L</td>
-                              <td class="py-1.5 text-right text-slate-600">{{ seg.totalCost | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</td>
-                              <td class="py-1.5 text-right font-bold text-emerald-600">{{ seg.kmPerLiter }} km/L</td>
-                            </tr>
-                          }
-                        </tbody>
-                      </table>
-                    </div>
+              <!-- Combustível Consumido nos Ciclos -->
+              <div class="p-4 bg-white rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+                <div>
+                  <span class="text-[11px] font-medium text-slate-400">Combustível no Cálculo</span>
+                  <div class="text-xl font-bold text-slate-800 font-mono mt-1">
+                    {{ efficiencyReport()!.efficiency.fuelConsumed | number:'1.2-2' }} L
                   </div>
+                </div>
+                <div class="text-[11px] text-slate-400 pt-2 border-t border-slate-100">
+                  Volume gasto nos ciclos fechados
+                </div>
+              </div>
+
+              <!-- Custo por Km e por 100 Km -->
+              <div class="p-4 bg-white rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+                <div>
+                  <span class="text-[11px] font-medium text-slate-400">Custo por Km</span>
+                  <div class="text-xl font-bold text-emerald-700 font-mono mt-1">
+                    {{ efficiencyReport()!.efficiency.costPerKm ? (efficiencyReport()!.efficiency.costPerKm | currency:'BRL':'symbol':'1.2-2':'pt-BR') + '/km' : '—' }}
+                  </div>
+                </div>
+                <div class="text-[11px] text-slate-500 pt-2 border-t border-slate-100 flex items-center justify-between">
+                  <span>Custo por 100 km:</span>
+                  <strong class="font-mono text-slate-800">
+                    {{ efficiencyReport()!.efficiency.costPer100Km ? (efficiencyReport()!.efficiency.costPer100Km | currency:'BRL':'symbol':'1.2-2':'pt-BR') : '—' }}
+                  </strong>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- BLOCO: QUALIDADE DOS DADOS & AVISO CONTEXTUAL (SEÇÕES 18 E 19 DA SPEC) -->
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <!-- Card de Qualidade dos Dados -->
+            <div class="p-4 rounded-2xl border shadow-xs"
+              [ngClass]="{
+                'bg-emerald-50/70 border-emerald-200/80 text-emerald-900': efficiencyReport()!.dataQuality.status === 'GOOD',
+                'bg-amber-50/70 border-amber-200/80 text-amber-900': efficiencyReport()!.dataQuality.status === 'PARTIAL',
+                'bg-rose-50/70 border-rose-200/80 text-rose-900': efficiencyReport()!.dataQuality.status === 'INSUFFICIENT'
+              }">
+              <div class="flex items-center gap-2">
+                @if (efficiencyReport()!.dataQuality.status === 'GOOD') {
+                  <span class="size-2.5 rounded-full bg-emerald-500"></span>
+                  <span class="text-xs font-bold uppercase tracking-wider">Qualidade dos Dados: Boa</span>
+                } @else if (efficiencyReport()!.dataQuality.status === 'PARTIAL') {
+                  <span class="size-2.5 rounded-full bg-amber-500"></span>
+                  <span class="text-xs font-bold uppercase tracking-wider">Qualidade dos Dados: Parcial</span>
                 } @else {
-                  <div class="p-3 bg-amber-50 rounded-xl border border-amber-200/60 text-amber-800 text-xs flex items-center gap-2">
-                    <svg lucideInfo class="size-4 text-amber-600 shrink-0"></svg>
-                    <span>São necessários pelo menos 2 abastecimentos com a opção "Tanque Cheio" para calcular a média de consumo deste veículo.</span>
+                  <span class="size-2.5 rounded-full bg-rose-500"></span>
+                  <span class="text-xs font-bold uppercase tracking-wider">Qualidade dos Dados: Insuficiente</span>
+                }
+              </div>
+              <p class="text-xs mt-1.5 font-medium leading-relaxed">{{ efficiencyReport()!.dataQuality.message }}</p>
+              @if (efficiencyReport()!.dataQuality.insufficientVehiclesCount > 0) {
+                <div class="text-[11px] opacity-80 mt-1">
+                  {{ efficiencyReport()!.dataQuality.insufficientVehiclesCount }} veículo(s) ainda sem ciclos completos de tanque cheio.
+                </div>
+              }
+            </div>
+
+            <!-- Aviso Contextual (Seção 19 da Spec) -->
+            <div class="lg:col-span-2 p-4 bg-slate-50/90 rounded-2xl border border-slate-200/80 shadow-xs flex items-start gap-3.5">
+              <div class="p-2.5 bg-indigo-50 text-indigo-600 rounded-xl shrink-0 mt-0.5 border border-indigo-100/80">
+                <svg lucideHelpCircle class="size-4"></svg>
+              </div>
+              <div class="text-xs leading-relaxed text-slate-600 space-y-1">
+                <strong class="text-slate-800 font-semibold block">Por que o volume total abastecido difere do combustível no cálculo?</strong>
+                <p>
+                  O <strong class="text-slate-700">Volume Total</strong> contabiliza <em>todos</em> os abastecimentos e despesas financeiras registradas na frota.
+                </p>
+                <p>
+                  Já a média de <strong class="text-slate-700">Consumo (Km/L)</strong> utiliza exclusivamente ciclos fechados entre abastecimentos marcados como
+                  <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-semibold text-[10px] bg-emerald-100 text-emerald-800 border border-emerald-200/80 align-middle">
+                    <svg lucideFuel class="size-3 text-emerald-600"></svg>
+                    Tanque Cheio
+                  </span>,
+                  somando também todos os abastecimentos parciais realizados entre eles para apurar a eficiência real.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- GRID DE GRÁFICOS: EVOLUÇÃO DO CONSUMO & EVOLUÇÃO TEMPORAL -->
+          <div class="space-y-4">
+            <!-- Gráfico 1: Evolução do Consumo (km/L) -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+              <div class="flex items-center justify-between mb-4">
+                <div>
+                  <h4 class="text-sm font-bold text-slate-800">Evolução do Consumo (Km/L)</h4>
+                  <p class="text-xs text-slate-400">Histórico de eficiência por ciclo de tanque cheio concluído</p>
+                </div>
+                <span class="px-2.5 py-1 bg-emerald-50 text-emerald-700 text-xs font-semibold rounded-lg">
+                  {{ efficiencyReport()!.consumptionEvolution.length }} ciclos registrados
+                </span>
+              </div>
+              <div class="h-64 relative">
+                @if (efficiencyReport()!.consumptionEvolution.length === 0) {
+                  <div class="h-full flex items-center justify-center text-xs text-slate-400">
+                    Ainda não há ciclos de consumo suficientes para gerar o gráfico de evolução.
+                  </div>
+                }
+                <canvas #consumptionChartCanvas></canvas>
+              </div>
+            </div>
+
+            <!-- Grid com 3 Gráficos: Gastos, Volume e Preço Médio -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <!-- Gastos com Combustível -->
+              <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
+                <div class="mb-3">
+                  <h4 class="text-xs font-bold text-slate-800">Evolução dos Gastos (R$)</h4>
+                  <p class="text-[11px] text-slate-400">Despesas por período</p>
+                </div>
+                <div class="h-44 relative">
+                  <canvas #costChartCanvas></canvas>
+                </div>
+              </div>
+
+              <!-- Volume Abastecido -->
+              <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
+                <div class="mb-3">
+                  <h4 class="text-xs font-bold text-slate-800">Volume de Combustível (L)</h4>
+                  <p class="text-[11px] text-slate-400">Litros por período</p>
+                </div>
+                <div class="h-44 relative">
+                  <canvas #volumeChartCanvas></canvas>
+                </div>
+              </div>
+
+              <!-- Preço Médio do Combustível -->
+              <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
+                <div class="mb-3">
+                  <h4 class="text-xs font-bold text-slate-800">Evolução do Preço (R$/L)</h4>
+                  <p class="text-[11px] text-slate-400">Média ponderada por volume</p>
+                </div>
+                <div class="h-44 relative">
+                  <canvas #priceChartCanvas></canvas>
+                </div>
+              </div>
+            </div>
+
+            <!-- Gráfico 5: Distribuição por Combustível -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+              <div class="mb-3">
+                <h4 class="text-xs font-bold text-slate-800">Distribuição por Combustível</h4>
+                <p class="text-[11px] text-slate-400">Percentual de consumo volumétrico na frota</p>
+              </div>
+              <div class="h-48 relative">
+                <canvas #distributionChartCanvas></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- SEÇÃO: EFICIÊNCIA POR VEÍCULO (SEÇÕES 25 E 26 DA SPEC) -->
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <h3 class="text-sm font-bold text-slate-800">Eficiência por Veículo</h3>
+              <span class="text-xs text-slate-400">{{ efficiencyReport()!.vehicleEfficiency.length }} veículo(s) analisado(s)</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              @for (veh of efficiencyReport()!.vehicleEfficiency; track veh.vehicleId) {
+                <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs flex flex-col justify-between gap-3">
+                  <div class="flex items-start justify-between gap-3 pb-3 border-b border-slate-100">
+                    <div class="flex items-center gap-3">
+                      <div class="size-10 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center shrink-0">
+                        <svg lucideTruck class="size-5"></svg>
+                      </div>
+                      <div>
+                        <div class="flex items-center gap-2">
+                          <span class="text-sm font-bold text-slate-900 font-mono">{{ veh.plate }}</span>
+                          <span class="text-xs text-slate-500">• {{ veh.brand }} {{ veh.model }}</span>
+                        </div>
+                        <div class="text-[11px] text-slate-400 mt-0.5">
+                          {{ veh.totalFuelings }} abastecimento(s) • {{ veh.fullTankFuelings }} tanque cheio • {{ veh.validCyclesCount }} ciclo(s)
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Consumo Médio Badge -->
+                    <div class="text-right shrink-0">
+                      <span class="text-[10px] text-slate-400 uppercase font-semibold block">Consumo Médio</span>
+                      @if (veh.hasSufficientData) {
+                        <span class="text-lg font-black font-mono text-emerald-600">
+                          {{ veh.averageKmPerLiter }} km/L
+                        </span>
+                      } @else {
+                        <span class="text-xs font-semibold text-amber-600">Dados insuficientes</span>
+                      }
+                    </div>
+                  </div>
+
+                  @if (veh.hasSufficientData) {
+                    <!-- Métricas Numéricas do Veículo -->
+                    <div class="grid grid-cols-3 gap-2 bg-slate-50/80 p-2.5 rounded-xl text-xs">
+                      <div>
+                        <span class="text-[10px] text-slate-400 block">Distância:</span>
+                        <strong class="font-mono text-slate-800">{{ veh.totalDistanceKm | number }} km</strong>
+                      </div>
+                      <div>
+                        <span class="text-[10px] text-slate-400 block">Combustível:</span>
+                        <strong class="font-mono text-slate-800">{{ veh.totalFuelConsumed | number:'1.2-2' }} L</strong>
+                      </div>
+                      <div>
+                        <span class="text-[10px] text-slate-400 block">Custo por km:</span>
+                        <strong class="font-mono text-emerald-700">
+                          {{ veh.costPerKm ? (veh.costPerKm | currency:'BRL':'symbol':'1.2-2':'pt-BR') : '—' }}
+                        </strong>
+                      </div>
+                    </div>
+                  } @else {
+                    <!-- Aviso de Dados Insuficientes detalhado e orientador -->
+                    <div class="p-3 bg-amber-50/80 rounded-xl border border-amber-200/60 text-amber-800 text-xs flex items-start gap-2">
+                      <svg lucideInfo class="size-4 text-amber-600 shrink-0 mt-0.5"></svg>
+                      <div class="leading-relaxed">
+                        <strong class="font-semibold block">Ainda não é possível calcular a eficiência</strong>
+                        {{ veh.message }}
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- SEÇÃO: HISTÓRICO DE EFICIÊNCIA (CICLOS DE CONSUMO AUDITÁVEIS - SEÇÃO 27 DA SPEC) -->
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="text-sm font-bold text-slate-800">Histórico de Eficiência (Ciclos Auditáveis)</h3>
+                <p class="text-xs text-slate-400">Cada linha representa um ciclo concluído entre dois tanques cheios</p>
+              </div>
+              <span class="text-xs text-slate-400">{{ efficiencyReport()!.consumptionCycles.length }} ciclos no período</span>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+              <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr class="border-b border-slate-100 bg-slate-50/75 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                      <th class="py-3 px-4">Data Fim</th>
+                      <th class="py-3 px-4">Veículo</th>
+                      <th class="py-3 px-4 text-right">Distância</th>
+                      <th class="py-3 px-4 text-right">Combustível</th>
+                      <th class="py-3 px-4 text-right font-bold text-emerald-700">Consumo (Km/L)</th>
+                      <th class="py-3 px-4 text-right">Custo Total</th>
+                      <th class="py-3 px-4 text-right">R$ / Km</th>
+                      <th class="py-3 px-4 text-center">Detalhes</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100">
+                    @for (cycle of efficiencyReport()!.consumptionCycles; track cycle.id) {
+                      <tr class="hover:bg-slate-50/70 transition-colors">
+                        <td class="py-3 px-4 font-mono text-slate-600 whitespace-nowrap">
+                          {{ cycle.endDate | date:'dd/MM/yyyy HH:mm' }}
+                        </td>
+                        <td class="py-3 px-4">
+                          <span class="font-bold text-slate-800 font-mono">{{ cycle.vehiclePlate || '—' }}</span>
+                          <span class="text-[11px] text-slate-400 block">{{ cycle.vehicleModel }}</span>
+                        </td>
+                        <td class="py-3 px-4 text-right font-mono text-slate-700">
+                          {{ cycle.distanceKm | number }} km
+                        </td>
+                        <td class="py-3 px-4 text-right font-mono text-slate-700">
+                          {{ cycle.fuelConsumed | number:'1.2-2' }} L
+                          @if (cycle.partialFuelingsCount > 0) {
+                            <span class="text-[10px] text-slate-400 block">({{ cycle.partialFuelingsCount }} parcial)</span>
+                          }
+                        </td>
+                        <td class="py-3 px-4 text-right font-mono font-bold text-emerald-600 text-sm">
+                          {{ cycle.kmPerLiter }} km/L
+                        </td>
+                        <td class="py-3 px-4 text-right font-mono text-slate-800">
+                          {{ cycle.totalCost | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+                        </td>
+                        <td class="py-3 px-4 text-right font-mono text-slate-700">
+                          {{ cycle.costPerKm | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+                        </td>
+                        <td class="py-3 px-4 text-center">
+                          <button
+                            type="button"
+                            (click)="openCycleDetails(cycle)"
+                            class="px-2.5 py-1 text-xs font-semibold text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50 rounded-lg transition-colors cursor-pointer"
+                          >
+                            Ver detalhes
+                          </button>
+                        </td>
+                      </tr>
+                    } @empty {
+                      <tr>
+                        <td colspan="8" class="py-10 text-center text-slate-400">
+                          Nenhum ciclo de consumo fechado no período selecionado.
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- SEÇÃO: ALERTAS E INCONSISTÊNCIAS (SEÇÃO 29 DA SPEC) -->
+          @if (efficiencyReport()!.anomalies.length > 0) {
+            <div class="space-y-3">
+              <div class="flex items-center gap-2 text-rose-600">
+                <svg lucideAlertTriangle class="size-4"></svg>
+                <h3 class="text-sm font-bold uppercase tracking-wider">Atenção — Inconsistências Detectadas</h3>
+              </div>
+              <div class="space-y-2">
+                @for (anomaly of efficiencyReport()!.anomalies; track anomaly.title + anomaly.recordedAt) {
+                  <div class="p-4 bg-rose-50 border border-rose-200/80 rounded-2xl flex items-start gap-3 text-xs text-rose-800">
+                    <svg lucideAlertCircle class="size-4 text-rose-600 shrink-0 mt-0.5"></svg>
+                    <div class="space-y-1">
+                      <div class="font-bold flex items-center gap-2">
+                        <span>{{ anomaly.title }}</span>
+                        @if (anomaly.vehiclePlate) {
+                          <span class="font-mono bg-rose-100 text-rose-700 px-1.5 py-0.5 rounded text-[10px]">{{ anomaly.vehiclePlate }}</span>
+                        }
+                      </div>
+                      <p class="text-rose-700 leading-relaxed">{{ anomaly.description }}</p>
+                      <span class="text-[10px] text-rose-500 block">Registrado em {{ anomaly.recordedAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                    </div>
                   </div>
                 }
               </div>
-            } @empty {
-              <div class="py-12 text-center text-slate-400 bg-white rounded-2xl border border-slate-200/80">
-                Nenhum dado de veículo disponível para o relatório.
-              </div>
-            }
-          </div>
-        </div>
+            </div>
+          }
+        }
       }
     </div>
   }
@@ -986,3 +1421,214 @@
     </div>
   </div>
 }
+
+<!-- MODAL DE AUDITORIA DO CICLO DE CONSUMO (SEÇÃO 28 DA SPEC) -->
+@if (isCycleDetailsModalOpen() && selectedCycle()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-150">
+    <div class="bg-white rounded-2xl border border-slate-200/90 shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-150 flex flex-col max-h-[90vh]">
+      <!-- Header do Modal -->
+      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 shrink-0">
+        <div class="flex items-center gap-3">
+          <div class="p-2 bg-emerald-50 text-emerald-600 rounded-xl border border-emerald-100">
+            <svg lucideGauge class="size-5"></svg>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-slate-800">Auditoria do Ciclo de Consumo</h3>
+            <p class="text-[11px] text-slate-400">Rastreabilidade e memória de cálculo entre tanques cheios</p>
+          </div>
+        </div>
+        <button
+          type="button"
+          (click)="closeCycleDetails()"
+          class="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+        >
+          <svg lucideX class="size-4"></svg>
+        </button>
+      </div>
+
+      <!-- Conteúdo com Scroll -->
+      <div class="p-6 overflow-y-auto space-y-5 text-xs">
+        <!-- Barra de Identificação do Veículo -->
+        <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200/70 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <div class="size-10 rounded-xl bg-white border border-slate-200 text-slate-700 flex items-center justify-center shrink-0">
+              <svg lucideTruck class="size-5"></svg>
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-slate-900 font-mono text-sm">{{ selectedCycle()!.vehiclePlate }}</span>
+                <span class="text-xs text-slate-500">• {{ selectedCycle()!.vehicleModel }}</span>
+              </div>
+              <span class="text-[11px] text-slate-400">
+                Período: {{ selectedCycle()!.startDate | date:'dd/MM/yyyy HH:mm' }} até {{ selectedCycle()!.endDate | date:'dd/MM/yyyy HH:mm' }}
+              </span>
+            </div>
+          </div>
+          <div class="text-right">
+            <span class="text-[10px] text-slate-400 font-semibold uppercase block">Resultado do Ciclo</span>
+            <span class="text-lg font-black font-mono text-emerald-600">{{ selectedCycle()!.kmPerLiter }} km/L</span>
+          </div>
+        </div>
+
+        <!-- 1. Abastecimento Inicial -->
+        <div class="space-y-2">
+          <div class="flex items-center gap-2">
+            <span class="size-2 rounded-full bg-blue-500"></span>
+            <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider">1. Abastecimento Inicial (Abertura do Ciclo)</h4>
+          </div>
+          <div class="p-3.5 bg-blue-50/40 rounded-xl border border-blue-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-slate-800 font-mono">{{ selectedCycle()!.startFueling.fueledAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800">Tanque Cheio Inicial</span>
+              </div>
+              <p class="text-[11px] text-slate-500 mt-1">
+                Posto: {{ selectedCycle()!.startFueling.gasStation || 'Não informado' }}
+              </p>
+            </div>
+            <div class="text-right font-mono">
+              <span class="text-[10px] text-slate-400 block">Odômetro Inicial</span>
+              <span class="font-bold text-slate-800">{{ selectedCycle()!.startOdometer | number }} km</span>
+            </div>
+          </div>
+          <p class="text-[11px] text-slate-400 italic">
+            * O volume abastecido neste registro encheu o reservatório antes do início do trajeto. O combustível medido neste ciclo começará a ser consumido a partir daqui.
+          </p>
+        </div>
+
+        <!-- 2. Abastecimentos Intermediários (Parciais) se houver -->
+        @if (selectedCycle()!.intermediateFuelings.length > 0) {
+          <div class="space-y-2">
+            <div class="flex items-center gap-2">
+              <span class="size-2 rounded-full bg-amber-500"></span>
+              <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                2. Abastecimentos Intermediários ({{ selectedCycle()!.intermediateFuelings.length }} parcial/ais acumulados)
+              </h4>
+            </div>
+            <div class="space-y-2">
+              @for (inter of selectedCycle()!.intermediateFuelings; track inter.id; let idx = $index) {
+                <div class="p-3 bg-amber-50/40 rounded-xl border border-amber-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <span class="font-bold text-slate-800 font-mono">{{ inter.fueledAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                      <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">Parcial #{{ idx + 1 }}</span>
+                    </div>
+                    <span class="text-[11px] text-slate-500">Posto: {{ inter.gasStation || 'Não informado' }}</span>
+                  </div>
+                  <div class="flex items-center gap-4 text-right font-mono text-xs">
+                    <div>
+                      <span class="text-[10px] text-slate-400 block">Odômetro</span>
+                      <span class="font-semibold text-slate-700">{{ inter.odometerAtFueling | number }} km</span>
+                    </div>
+                    <div>
+                      <span class="text-[10px] text-slate-400 block">Volume</span>
+                      <span class="font-bold text-amber-700">{{ inter.liters | number:'1.2-2' }} L</span>
+                    </div>
+                    <div>
+                      <span class="text-[10px] text-slate-400 block">Valor</span>
+                      <span class="font-semibold text-slate-800">{{ inter.totalCost | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- 3. Abastecimento Final (Fechamento do Ciclo) -->
+        <div class="space-y-2">
+          <div class="flex items-center gap-2">
+            <span class="size-2 rounded-full bg-emerald-500"></span>
+            <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider">
+              {{ selectedCycle()!.intermediateFuelings.length > 0 ? '3' : '2' }}. Abastecimento Final (Fechamento do Ciclo)
+            </h4>
+          </div>
+          <div class="p-3.5 bg-emerald-50/40 rounded-xl border border-emerald-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-slate-800 font-mono">{{ selectedCycle()!.closingFueling.fueledAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Tanque Cheio Final</span>
+              </div>
+              <p class="text-[11px] text-slate-500 mt-1">
+                Posto: {{ selectedCycle()!.closingFueling.gasStation || 'Não informado' }}
+              </p>
+            </div>
+            <div class="flex items-center gap-4 text-right font-mono text-xs">
+              <div>
+                <span class="text-[10px] text-slate-400 block">Odômetro Final</span>
+                <span class="font-bold text-slate-800">{{ selectedCycle()!.endOdometer | number }} km</span>
+              </div>
+              <div>
+                <span class="text-[10px] text-slate-400 block">Volume Fechamento</span>
+                <span class="font-bold text-emerald-700">{{ selectedCycle()!.closingFueling.liters | number:'1.2-2' }} L</span>
+              </div>
+              <div>
+                <span class="text-[10px] text-slate-400 block">Valor</span>
+                <span class="font-semibold text-slate-800">{{ selectedCycle()!.closingFueling.totalCost | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. Memória de Cálculo Auditável (Seção 28 da Spec) -->
+        <div class="p-4 bg-slate-900 text-slate-100 rounded-2xl space-y-3">
+          <div class="flex items-center gap-2 pb-2 border-b border-slate-800">
+            <svg lucideBarChart3 class="size-4 text-emerald-400"></svg>
+            <span class="font-bold text-xs uppercase tracking-wider text-slate-300">Memória de Cálculo (Fórmula Oficial)</span>
+          </div>
+
+          <div class="space-y-2 font-mono text-xs leading-relaxed">
+            <!-- Distância -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 p-2 bg-slate-800/60 rounded-xl">
+              <span class="text-slate-400">Distância Percorrida:</span>
+              <span class="text-slate-200">
+                {{ selectedCycle()!.endOdometer | number }} - {{ selectedCycle()!.startOdometer | number }} =
+                <strong class="text-emerald-400">{{ selectedCycle()!.distanceKm | number }} km</strong>
+              </span>
+            </div>
+
+            <!-- Combustível Consumido -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 p-2 bg-slate-800/60 rounded-xl">
+              <span class="text-slate-400">Combustível Total Reposto:</span>
+              <span class="text-slate-200">
+                @if (selectedCycle()!.intermediateFuelings.length > 0) {
+                  Parciais + Final =
+                }
+                <strong class="text-emerald-400">{{ selectedCycle()!.fuelConsumed | number:'1.2-2' }} L</strong>
+              </span>
+            </div>
+
+            <!-- Eficiência Km/L -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 p-2 bg-slate-800/60 rounded-xl">
+              <span class="text-slate-400">Consumo Médio (Km / Litros):</span>
+              <span class="text-slate-200">
+                {{ selectedCycle()!.distanceKm | number }} km / {{ selectedCycle()!.fuelConsumed | number:'1.2-2' }} L =
+                <strong class="text-emerald-400 text-sm">{{ selectedCycle()!.kmPerLiter }} km/L</strong>
+              </span>
+            </div>
+
+            <!-- Custo por Km -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 p-2 bg-slate-800/60 rounded-xl">
+              <span class="text-slate-400">Custo por Km Rodado:</span>
+              <span class="text-slate-200">
+                {{ selectedCycle()!.totalCost | currency:'BRL':'symbol':'1.2-2':'pt-BR' }} / {{ selectedCycle()!.distanceKm | number }} km =
+                <strong class="text-amber-400">{{ selectedCycle()!.costPerKm | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}/km</strong>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-2 flex justify-end">
+          <button
+            type="button"
+            (click)="closeCycleDetails()"
+            class="px-5 py-2.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer"
+          >
+            Fechar Auditoria
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+

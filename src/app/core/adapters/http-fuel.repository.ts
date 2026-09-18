@@ -11,6 +11,8 @@ import {
   FuelStats,
   FuelConsumptionReport,
   PaginatedFuelResult,
+  GetEfficiencyReportParams,
+  FuelEfficiencyReportResponse,
 } from '../../domain/models/fuel.model';
 
 @Injectable({
@@ -36,20 +38,17 @@ export class HttpFuelRepository implements IFuelRepository {
     return this.http.get<FuelRecord>(`${this.apiUrl}/${id}`);
   }
 
-  list(filter?: FuelFilterParams): Observable<PaginatedFuelResult> {
+  list(params?: FuelFilterParams): Observable<PaginatedFuelResult> {
     let httpParams = new HttpParams();
-
-    if (filter) {
-      if (filter.page !== undefined) httpParams = httpParams.set('page', filter.page.toString());
-      if (filter.limit !== undefined) httpParams = httpParams.set('limit', filter.limit.toString());
-      if (filter.vehicleId) httpParams = httpParams.set('vehicleId', filter.vehicleId);
-      if (filter.driverId) httpParams = httpParams.set('driverId', filter.driverId);
-      if (filter.fuelType) httpParams = httpParams.set('fuelType', filter.fuelType);
-      if (filter.fullTank !== undefined) httpParams = httpParams.set('fullTank', filter.fullTank.toString());
-      if (filter.startDate) httpParams = httpParams.set('startDate', filter.startDate);
-      if (filter.endDate) httpParams = httpParams.set('endDate', filter.endDate);
-      if (filter.search) httpParams = httpParams.set('search', filter.search);
-    }
+    if (params?.search) httpParams = httpParams.set('search', params.search);
+    if (params?.vehicleId) httpParams = httpParams.set('vehicleId', params.vehicleId);
+    if (params?.driverId) httpParams = httpParams.set('driverId', params.driverId);
+    if (params?.fuelType) httpParams = httpParams.set('fuelType', params.fuelType);
+    if (params?.fullTank !== undefined) httpParams = httpParams.set('fullTank', String(params.fullTank));
+    if (params?.startDate) httpParams = httpParams.set('startDate', params.startDate);
+    if (params?.endDate) httpParams = httpParams.set('endDate', params.endDate);
+    if (params?.page) httpParams = httpParams.set('page', params.page.toString());
+    if (params?.limit) httpParams = httpParams.set('limit', params.limit.toString());
 
     return this.http.get<PaginatedFuelResult>(this.apiUrl, { params: httpParams });
   }
@@ -64,9 +63,7 @@ export class HttpFuelRepository implements IFuelRepository {
     if (params?.startDate) httpParams = httpParams.set('startDate', params.startDate);
     if (params?.endDate) httpParams = httpParams.set('endDate', params.endDate);
 
-    return this.http.get<FuelConsumptionReport>(`${this.apiUrl}/consumption-report`, {
-      params: httpParams,
-    });
+    return this.http.get<FuelConsumptionReport>(`${this.apiUrl}/consumption-report`, { params: httpParams });
   }
 
   getCostStats(params?: {
@@ -82,5 +79,20 @@ export class HttpFuelRepository implements IFuelRepository {
     if (params?.endDate) httpParams = httpParams.set('endDate', params.endDate);
 
     return this.http.get<FuelStats>(`${this.apiUrl}/cost-stats`, { params: httpParams });
+  }
+
+  getEfficiencyReport(params?: GetEfficiencyReportParams): Observable<FuelEfficiencyReportResponse> {
+    let httpParams = new HttpParams();
+    if (params?.startDate) httpParams = httpParams.set('startDate', params.startDate);
+    if (params?.endDate) httpParams = httpParams.set('endDate', params.endDate);
+    if (params?.vehicleId) httpParams = httpParams.set('vehicleId', params.vehicleId);
+    if (params?.fuelType) httpParams = httpParams.set('fuelType', params.fuelType);
+    if (params?.comparePreviousPeriod !== undefined) {
+      httpParams = httpParams.set('comparePreviousPeriod', String(params.comparePreviousPeriod));
+    }
+
+    return this.http.get<FuelEfficiencyReportResponse>(`${this.apiUrl}/reports/efficiency`, {
+      params: httpParams,
+    });
   }
 }

@@ -7,6 +7,8 @@ import {
   FuelStats,
   FuelConsumptionReport,
   PaginatedFuelResult,
+  GetEfficiencyReportParams,
+  FuelEfficiencyReportResponse,
 } from '../models/fuel.model';
 
 export abstract class IFuelRepository {
@@ -26,4 +28,8 @@ export abstract class IFuelRepository {
     startDate?: string;
     endDate?: string;
   }): Observable<FuelStats>;
+  abstract getEfficiencyReport(
+    params?: GetEfficiencyReportParams
+  ): Observable<FuelEfficiencyReportResponse>;
 }
+
