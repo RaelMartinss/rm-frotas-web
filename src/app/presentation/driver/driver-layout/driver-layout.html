@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans select-none antialiased">
+<div class="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans select-none antialiased" style="overscroll-behavior-y: contain;">
   <!-- CABEÇALHO COMPACTO MOBILE COM SAFE AREA -->
   <header class="sticky top-0 z-30 bg-slate-900/95 backdrop-blur-md border-b border-slate-800/80 px-4 pt-safe-top pb-3 flex items-center justify-between shadow-xs">
     <button
@@ -92,9 +92,69 @@
     </div>
   }
 
-  <!-- ÁREA PRINCIPAL COM SCROLL SUAVE -->
-  <main class="flex-1 overflow-y-auto pb-24 px-4 pt-4 max-w-lg mx-auto w-full">
-    <router-outlet></router-outlet>
+  <!-- INDICADOR PULL-TO-REFRESH FLUTUANTE MOBILE -->
+  <div
+    class="w-full flex items-center justify-center overflow-hidden pointer-events-none"
+    [style.height.px]="pullDistance()"
+    [style.opacity]="pullDistance() > 8 ? 1 : 0"
+    [style.transition]="isDragging() ? 'none' : 'height 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.2s ease-out'"
+  >
+    <div
+      class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900/95 border shadow-xl backdrop-blur-md transition-all duration-200"
+      [ngClass]="{
+        'border-slate-800 text-slate-400': !isReadyToRefresh() && !isRefreshing() && !isSuccess(),
+        'border-emerald-500/60 text-emerald-400 shadow-emerald-500/10 scale-105': isReadyToRefresh() || isRefreshing(),
+        'border-emerald-400 text-emerald-300 bg-emerald-950/40 shadow-emerald-500/20 scale-105': isSuccess()
+      }"
+    >
+      <!-- Ícone Circular com Rotação ou Spinner ou Check -->
+      <div
+        class="size-5 rounded-full flex items-center justify-center transition-colors"
+        [ngClass]="{
+          'text-slate-400': !isReadyToRefresh() && !isRefreshing() && !isSuccess(),
+          'text-emerald-400': isReadyToRefresh() || isRefreshing(),
+          'text-emerald-300': isSuccess()
+        }"
+      >
+        @if (isSuccess()) {
+          <svg lucideCheck class="size-4 text-emerald-400 animate-in zoom-in-75 duration-200"></svg>
+        } @else {
+          <svg
+            lucideRefreshCw
+            class="size-3.5"
+            [class.animate-spin]="isRefreshing()"
+            [style.transform]="!isRefreshing() ? 'rotate(' + pullRotation() + 'deg)' : null"
+            [style.transition]="isRefreshing() ? null : 'transform 0.05s linear'"
+          ></svg>
+        }
+      </div>
+
+      <!-- Texto descritivo de status -->
+      <span class="text-[11px] font-semibold tracking-tight">
+        @if (isSuccess()) {
+          <span>Atualizado!</span>
+        } @else if (isRefreshing()) {
+          <span>Atualizando dados...</span>
+        } @else if (isReadyToRefresh()) {
+          <span>Solte para atualizar</span>
+        } @else {
+          <span>Puxe para atualizar</span>
+        }
+      </span>
+    </div>
+  </div>
+
+  <!-- ÁREA PRINCIPAL COM SCROLL SUAVE E PULL-TO-REFRESH -->
+  <main
+    #scrollContainer
+    (touchstart)="onTouchStart($event)"
+    (touchmove)="onTouchMove($event)"
+    (touchend)="onTouchEnd()"
+    (touchcancel)="onTouchEnd()"
+    class="flex-1 overflow-y-auto pb-24 px-4 pt-4 max-w-lg mx-auto w-full"
+    style="overscroll-behavior-y: contain;"
+  >
+    <router-outlet (activate)="onActivate($event)"></router-outlet>
   </main>
 
   <!-- BARRA DE NAVEGAÇÃO INFERIOR MOBILE (THUMB ZONE) -->
