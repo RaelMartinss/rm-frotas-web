@@ -29,16 +29,19 @@ import {
   FuelConsumptionCycle,
   GetEfficiencyReportParams,
 } from '../../domain/models/fuel.model';
-import { compressImage } from '../../core/utils/image-compressor';
 import { Vehicle } from '../../domain/models/vehicle.model';
 import { Driver } from '../../domain/models/driver.model';
+import { PaginationComponent } from '../shared/components/pagination/pagination.component';
+import {
+  FuelFormModalComponent,
+  FuelFormSubmitPayload
+} from './components/fuel-form-modal/fuel-form-modal.component';
+import { FuelDetailsModalComponent } from './components/fuel-details-modal/fuel-details-modal.component';
+import { FuelDeleteModalComponent } from './components/fuel-delete-modal/fuel-delete-modal.component';
+import { FuelCycleDetailsModalComponent } from './components/fuel-cycle-details-modal/fuel-cycle-details-modal.component';
 import {
   LucideAlertCircle,
   LucideCheck,
-  LucideChevronLeft,
-  LucideChevronRight,
-  LucideChevronsLeft,
-  LucideChevronsRight,
   LucideDollarSign,
   LucideEye,
   LucideFuel,
@@ -49,12 +52,10 @@ import {
   LucideSearch,
   LucideTrash2,
   LucideTruck,
-  LucideX,
   LucideEdit,
   LucideBarChart3,
   LucideInfo,
   LucideCamera,
-  LucideExternalLink,
   LucideTrendingUp,
   LucideRefreshCw,
   LucideAlertTriangle,
@@ -69,20 +70,20 @@ import {
     CommonModule,
     ReactiveFormsModule,
     FormsModule,
+    PaginationComponent,
+    FuelFormModalComponent,
+    FuelDetailsModalComponent,
+    FuelDeleteModalComponent,
+    FuelCycleDetailsModalComponent,
     LucideFuel,
     LucidePlus,
     LucideLoader2,
-    LucideX,
     LucideAlertCircle,
     LucideCheck,
     LucideEye,
     LucideDollarSign,
     LucideLayers,
     LucideTrash2,
-    LucideChevronLeft,
-    LucideChevronRight,
-    LucideChevronsLeft,
-    LucideChevronsRight,
     LucideTruck,
     LucideGauge,
     LucideSearch,
@@ -90,7 +91,6 @@ import {
     LucideBarChart3,
     LucideInfo,
     LucideCamera,
-    LucideExternalLink,
     LucideTrendingUp,
     LucideRefreshCw,
     LucideAlertTriangle,
@@ -178,7 +178,6 @@ export class FuelListComponent implements OnInit, OnDestroy {
   isEditModalOpen = signal(false);
   isDetailsModalOpen = signal(false);
   isDeleteModalOpen = signal(false);
-  receiptPhotoPreview = signal<string | null>(null);
 
   // Filtro
   filterForm = this.fb.group({
@@ -189,10 +188,7 @@ export class FuelListComponent implements OnInit, OnDestroy {
     fullTank: ['ALL'],
   });
 
-  // Formulário de Criação/Edição
-  fuelForm!: FormGroup;
-
-  // Tipos de Combustível disponíveis
+  // Tipos de Combustível disponíveis para filtros
   readonly fuelTypes: { value: FuelType; label: string }[] = [
     { value: 'GASOLINA', label: 'Gasolina Comum' },
     { value: 'ETANOL', label: 'Etanol' },
@@ -203,7 +199,6 @@ export class FuelListComponent implements OnInit, OnDestroy {
   ];
 
   ngOnInit(): void {
-    this.initForm();
     this.loadVehicles();
     this.loadDrivers();
 
@@ -230,50 +225,6 @@ export class FuelListComponent implements OnInit, OnDestroy {
         this.page.set(1);
         this.loadRecords();
       });
-  }
-
-  private initForm(): void {
-    this.fuelForm = this.fb.group({
-      vehicleId: ['', Validators.required],
-      driverId: [''],
-      fuelType: ['GASOLINA', Validators.required],
-      liters: [null, [Validators.required, Validators.min(0.01)]],
-      pricePerUnit: [null, [Validators.min(0)]],
-      totalCost: [null, [Validators.required, Validators.min(0.01)]],
-      odometerAtFueling: [null, [Validators.required, Validators.min(0)]],
-      gasStation: [''],
-      fullTank: [true],
-      receiptUrl: [''],
-      fueledAt: [new Date().toISOString().slice(0, 16)],
-      notes: [''],
-    });
-
-    // Recalcula totalCost quando liters ou pricePerUnit mudam
-    this.fuelForm.get('liters')?.valueChanges.subscribe((liters) => {
-      const price = this.fuelForm.get('pricePerUnit')?.value;
-      if (liters && price && price > 0) {
-        const total = Math.round(Number(liters) * Number(price) * 100) / 100;
-        this.fuelForm.get('totalCost')?.setValue(total, { emitEvent: false });
-      }
-    });
-
-    this.fuelForm.get('pricePerUnit')?.valueChanges.subscribe((price) => {
-      const liters = this.fuelForm.get('liters')?.value;
-      if (liters && price && liters > 0) {
-        const total = Math.round(Number(liters) * Number(price) * 100) / 100;
-        this.fuelForm.get('totalCost')?.setValue(total, { emitEvent: false });
-      }
-    });
-
-    // Quando seleciona um veículo, sugere o KM atual
-    this.fuelForm.get('vehicleId')?.valueChanges.subscribe((vId) => {
-      if (vId) {
-        const found = this.vehicles().find((v) => v.id === vId);
-        if (found && !this.fuelForm.get('odometerAtFueling')?.value) {
-          this.fuelForm.get('odometerAtFueling')?.setValue(found.currentKm);
-        }
-      }
-    });
   }
 
   loadVehicles(): void {
@@ -777,27 +728,12 @@ export class FuelListComponent implements OnInit, OnDestroy {
   openCreateModal(): void {
     if (this.impersonationService.isReadOnly()) return;
     this.errorMessage.set(null);
-    this.receiptPhotoPreview.set(null);
-    this.fuelForm.reset({
-      fuelType: 'GASOLINA',
-      fullTank: true,
-      fueledAt: new Date().toISOString().slice(0, 16),
-      receiptUrl: '',
-    });
-
-    if (!this.isDriverUser()) {
-      this.fuelForm.get('driverId')?.setValidators(Validators.required);
-    } else {
-      this.fuelForm.get('driverId')?.clearValidators();
-    }
-    this.fuelForm.get('driverId')?.updateValueAndValidity();
-
+    this.selectedRecord.set(null);
     this.isCreateModalOpen.set(true);
   }
 
   closeCreateModal(): void {
     this.isCreateModalOpen.set(false);
-    this.receiptPhotoPreview.set(null);
     this.errorMessage.set(null);
   }
 
@@ -805,57 +741,13 @@ export class FuelListComponent implements OnInit, OnDestroy {
     if (this.impersonationService.isReadOnly()) return;
     this.selectedRecord.set(record);
     this.errorMessage.set(null);
-    this.receiptPhotoPreview.set(record.receiptUrl || null);
-
-    this.fuelForm.patchValue({
-      vehicleId: record.vehicleId,
-      driverId: record.driverId,
-      fuelType: record.fuelType,
-      liters: record.liters,
-      pricePerUnit: record.pricePerUnit,
-      totalCost: record.totalCost,
-      odometerAtFueling: record.odometerAtFueling,
-      gasStation: record.gasStation || '',
-      fullTank: record.fullTank,
-      receiptUrl: record.receiptUrl || '',
-      fueledAt: record.fueledAt ? new Date(record.fueledAt).toISOString().slice(0, 16) : '',
-      notes: record.notes || '',
-    });
-
     this.isEditModalOpen.set(true);
   }
 
   closeEditModal(): void {
     this.isEditModalOpen.set(false);
-    this.receiptPhotoPreview.set(null);
     this.selectedRecord.set(null);
     this.errorMessage.set(null);
-  }
-
-  async onReceiptFileSelected(event: Event): Promise<void> {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files[0]) {
-      const file = input.files[0];
-      try {
-        const compressedBase64 = await compressImage(file, 1280, 1280, 0.75);
-        this.receiptPhotoPreview.set(compressedBase64);
-        this.fuelForm.get('receiptUrl')?.setValue(compressedBase64);
-      } catch (err) {
-        console.error('Erro ao comprimir imagem de comprovante:', err);
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const res = e.target?.result as string;
-          this.receiptPhotoPreview.set(res);
-          this.fuelForm.get('receiptUrl')?.setValue(res);
-        };
-        reader.readAsDataURL(file);
-      }
-    }
-  }
-
-  removeReceiptPhoto(): void {
-    this.receiptPhotoPreview.set(null);
-    this.fuelForm.get('receiptUrl')?.setValue('');
   }
 
   openDetailsModal(record: FuelRecord): void {
@@ -879,16 +771,17 @@ export class FuelListComponent implements OnInit, OnDestroy {
     this.selectedRecord.set(null);
   }
 
-  submitCreate(): void {
-    if (this.fuelForm.invalid) {
-      this.fuelForm.markAllAsTouched();
-      return;
+  handleSaveFuelForm(payload: FuelFormSubmitPayload): void {
+    if (this.isEditModalOpen()) {
+      this.submitEdit(payload.formValue);
+    } else {
+      this.submitCreate(payload.formValue);
     }
+  }
 
+  submitCreate(val: any): void {
     this.isSubmitting.set(true);
     this.errorMessage.set(null);
-
-    const val = this.fuelForm.value;
 
     this.fuelRepo
       .create({
@@ -926,16 +819,11 @@ export class FuelListComponent implements OnInit, OnDestroy {
       });
   }
 
-  submitEdit(): void {
-    if (this.fuelForm.invalid || !this.selectedRecord()) {
-      this.fuelForm.markAllAsTouched();
-      return;
-    }
+  submitEdit(val: any): void {
+    if (!this.selectedRecord()) return;
 
     this.isSubmitting.set(true);
     this.errorMessage.set(null);
-
-    const val = this.fuelForm.value;
 
     this.fuelRepo
       .update(this.selectedRecord()!.id, {
@@ -1036,13 +924,6 @@ export class FuelListComponent implements OnInit, OnDestroy {
       default:
         return 'bg-slate-50 text-slate-700 border-slate-200';
     }
-  }
-
-  getSelectedVehicleKm(): number | null {
-    const vId = this.fuelForm.get('vehicleId')?.value;
-    if (!vId) return null;
-    const v = this.vehicles().find((veh) => veh.id === vId);
-    return v ? v.currentKm : null;
   }
 
   openFullReceipt(url: string): void {
