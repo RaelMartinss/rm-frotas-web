@@ -7,6 +7,7 @@ import { Vehicle } from '../../../../domain/models/vehicle.model';
 import { Maintenance } from '../../../../domain/models/maintenance.model';
 import { FuelRecord } from '../../../../domain/models/fuel.model';
 import { ModalShellComponent } from '../../../shared/components/modal-shell/modal-shell.component';
+import { getVehicleBrandLogo } from '../../../../core/utils/vehicle-brand.util';
 import {
   LucideTruck,
   LucideWrench,
@@ -43,8 +44,12 @@ import {
       maxWidth="xl"
       (close)="onClose()"
     >
-      <div header-icon class="size-7 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center border border-slate-200">
-        <svg lucideTruck class="size-4"></svg>
+      <div header-icon class="size-7 rounded-lg bg-white p-1 flex items-center justify-center border border-slate-200 shadow-2xs">
+        @if (getBrandLogo(vehicle()?.brand); as logo) {
+          <img [src]="logo" [alt]="vehicle()?.brand ?? ''" class="size-full object-contain" />
+        } @else {
+          <svg lucideTruck class="size-4 text-slate-700"></svg>
+        }
       </div>
 
       <!-- ABAS DO MODAL -->
@@ -111,9 +116,16 @@ import {
 
           <!-- CARDS DE INFORMAÇÃO -->
           <div class="grid grid-cols-2 gap-3">
-            <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/70">
-              <div class="text-[11px] text-slate-400 font-medium">Marca & Modelo</div>
-              <div class="text-sm font-bold text-slate-800 mt-0.5">{{ vehicle()?.brand }} {{ vehicle()?.model }}</div>
+            <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/70 flex items-center justify-between">
+              <div>
+                <div class="text-[11px] text-slate-400 font-medium">Marca & Modelo</div>
+                <div class="text-sm font-bold text-slate-800 mt-0.5">{{ vehicle()?.brand }} {{ vehicle()?.model }}</div>
+              </div>
+              @if (getBrandLogo(vehicle()?.brand); as logo) {
+                <div class="size-8 rounded-lg bg-white border border-slate-200 p-1 flex items-center justify-center shrink-0 shadow-2xs">
+                  <img [src]="logo" [alt]="vehicle()?.brand ?? ''" class="size-full object-contain" />
+                </div>
+              }
             </div>
 
             <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/70">
@@ -353,6 +365,8 @@ export class VehicleDetailsModalComponent {
 
   isOpen = input<boolean>(false);
   vehicle = input<Vehicle | null>(null);
+
+  readonly getBrandLogo = getVehicleBrandLogo;
 
   close = output<void>();
   openRenewCrlv = output<Vehicle>();

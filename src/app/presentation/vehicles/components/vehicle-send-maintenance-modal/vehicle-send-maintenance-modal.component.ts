@@ -5,6 +5,7 @@ import { IMaintenanceRepository } from '../../../../domain/repositories/maintena
 import { ToastService } from '../../../../core/services/toast.service';
 import { Vehicle } from '../../../../domain/models/vehicle.model';
 import { ModalShellComponent } from '../../../shared/components/modal-shell/modal-shell.component';
+import { getVehicleBrandLogo } from '../../../../core/utils/vehicle-brand.util';
 import {
   LucideWrench,
   LucideLoader2,
@@ -40,8 +41,12 @@ import {
         <!-- Veículo Selecionado (Card de Destaque) -->
         <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80 flex items-center justify-between">
           <div class="flex items-center gap-3">
-            <div class="size-9 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-700 font-mono font-bold text-xs shadow-2xs">
-              {{ vehicle()?.plate?.substring(0, 3) }}
+            <div class="size-9 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-700 font-mono font-bold text-xs shadow-2xs p-1">
+              @if (getBrandLogo(vehicle()?.brand); as logo) {
+                <img [src]="logo" [alt]="vehicle()?.brand ?? ''" class="size-full object-contain" />
+              } @else {
+                {{ vehicle()?.plate?.substring(0, 3) }}
+              }
             </div>
             <div>
               <div class="flex items-center gap-2">
@@ -164,6 +169,8 @@ export class VehicleSendMaintenanceModalComponent {
 
   isOpen = input<boolean>(false);
   vehicle = input<Vehicle | null>(null);
+
+  readonly getBrandLogo = getVehicleBrandLogo;
 
   close = output<void>();
   maintenanceSaved = output<void>();

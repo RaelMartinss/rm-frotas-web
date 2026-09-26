@@ -193,8 +193,12 @@
                 <!-- Veículo -->
                 <td class="px-5 py-3.5">
                   <div class="flex items-center gap-2.5">
-                    <div class="size-8 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center border border-slate-200 shrink-0 font-mono font-bold text-[10px]">
-                      {{ m.vehicle?.plate?.substring(0, 3) || '---' }}
+                    <div class="size-8 rounded-lg bg-slate-50 text-slate-700 flex items-center justify-center border border-slate-200/80 shrink-0 shadow-2xs p-1">
+                      @if (getBrandLogo(m.vehicle?.brand); as logo) {
+                        <img [src]="logo" [alt]="m.vehicle?.brand ?? ''" class="size-full object-contain" />
+                      } @else {
+                        <span class="font-mono font-bold text-[10px]">{{ m.vehicle?.plate?.substring(0, 3) || '---' }}</span>
+                      }
                     </div>
                     <div>
                       <div class="font-bold text-slate-900 font-mono">{{ m.vehicle?.plate || 'Sem placa' }}</div>

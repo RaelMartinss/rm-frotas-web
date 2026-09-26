@@ -10,6 +10,7 @@ import { ToastService } from '../../core/services/toast.service';
 import { ImpersonationService } from '../../core/services/impersonation.service';
 import { Vehicle } from '../../domain/models/vehicle.model';
 import { Maintenance } from '../../domain/models/maintenance.model';
+import { getVehicleBrandLogo } from '../../core/utils/vehicle-brand.util';
 import { PaginationComponent } from '../shared/components/pagination/pagination.component';
 import { VehicleFormModalComponent } from './components/vehicle-form-modal/vehicle-form-modal.component';
 import { VehicleUpdateKmModalComponent } from './components/vehicle-update-km-modal/vehicle-update-km-modal.component';
@@ -71,6 +72,7 @@ export class VehicleListComponent implements OnInit {
   private readonly maintenanceRepository = inject(IMaintenanceRepository);
   private readonly toastService = inject(ToastService);
   protected readonly impersonationService = inject(ImpersonationService);
+  readonly getBrandLogo = getVehicleBrandLogo;
 
   vehicles = signal<Vehicle[]>([]);
   activeMaintenancesMap = signal<Map<string, Maintenance>>(new Map());

@@ -23,6 +23,7 @@ import {
   MaintenanceType,
 } from '../../domain/models/maintenance.model';
 import { Vehicle } from '../../domain/models/vehicle.model';
+import { getVehicleBrandLogo } from '../../core/utils/vehicle-brand.util';
 import {
   LucideAlertCircle,
   LucideAlertTriangle,
@@ -80,6 +81,7 @@ export class MaintenanceListComponent implements OnInit {
   private readonly toastService = inject(ToastService);
   private readonly fb = inject(FormBuilder);
   protected readonly impersonationService = inject(ImpersonationService);
+  readonly getBrandLogo = getVehicleBrandLogo;
 
   // --- SIGNALS DE ESTADO ---
   maintenances = signal<Maintenance[]>([]);

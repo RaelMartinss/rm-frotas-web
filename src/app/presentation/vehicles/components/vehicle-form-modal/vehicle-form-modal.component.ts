@@ -1,11 +1,16 @@
-import { Component, inject, input, output, signal } from '@angular/core';
+import { Component, computed, inject, input, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { IVehicleRepository } from '../../../../domain/repositories/vehicle.repository.interface';
 import { ToastService } from '../../../../core/services/toast.service';
 import { Vehicle } from '../../../../domain/models/vehicle.model';
 import { PlateMaskDirective } from '../../../shared/directives/input-mask.directives';
 import { ModalShellComponent } from '../../../shared/components/modal-shell/modal-shell.component';
+import {
+  POPULAR_VEHICLE_BRANDS,
+  getVehicleBrandLogo
+} from '../../../../core/utils/vehicle-brand.util';
 import {
   LucideTruck,
   LucideLoader2,
@@ -32,8 +37,12 @@ import {
       maxWidth="lg"
       (close)="onClose()"
     >
-      <div header-icon class="size-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-200/60">
-        <svg lucideTruck class="size-4"></svg>
+      <div header-icon class="size-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-200/60 p-1">
+        @if (currentBrandLogo(); as logo) {
+          <img [src]="logo" alt="Logo da Marca" class="size-full object-contain" />
+        } @else {
+          <svg lucideTruck class="size-4"></svg>
+        }
       </div>
 
       <form [formGroup]="vehicleForm" (ngSubmit)="saveVehicle()" class="p-6 space-y-4">
@@ -90,18 +99,38 @@ import {
         <div class="grid grid-cols-2 gap-4">
           <!-- Marca -->
           <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">
-              Marca / Fabricante <span class="text-rose-500">*</span>
+            <label class="block text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between">
+              <span>Marca / Fabricante <span class="text-rose-500">*</span></span>
+              @if (currentBrandLogo()) {
+                <span class="text-[10px] text-emerald-600 font-medium flex items-center gap-1">
+                  <span class="size-1.5 rounded-full bg-emerald-500"></span> Logo identificado
+                </span>
+              }
             </label>
-            <input
-              type="text"
-              formControlName="brand"
-              placeholder="Ex: Scania, Volvo, Ford"
-              class="w-full bg-slate-50 border rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all placeholder:text-slate-400"
-              [class.border-rose-400]="vehicleForm.get('brand')?.invalid && vehicleForm.get('brand')?.touched"
-              [class.bg-rose-50/50]="vehicleForm.get('brand')?.invalid && vehicleForm.get('brand')?.touched"
-              [class.border-slate-200]="!(vehicleForm.get('brand')?.invalid && vehicleForm.get('brand')?.touched)"
-            />
+            <div class="relative">
+              <input
+                type="text"
+                list="popular-brands-list"
+                formControlName="brand"
+                placeholder="Ex: Chevrolet, Scania, Fiat"
+                class="w-full bg-slate-50 border rounded-xl pl-9 pr-3 py-2 text-xs text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all placeholder:text-slate-400"
+                [class.border-rose-400]="vehicleForm.get('brand')?.invalid && vehicleForm.get('brand')?.touched"
+                [class.bg-rose-50/50]="vehicleForm.get('brand')?.invalid && vehicleForm.get('brand')?.touched"
+                [class.border-slate-200]="!(vehicleForm.get('brand')?.invalid && vehicleForm.get('brand')?.touched)"
+              />
+              <div class="absolute left-2.5 top-1/2 -translate-y-1/2 size-4.5 flex items-center justify-center pointer-events-none">
+                @if (currentBrandLogo(); as logo) {
+                  <img [src]="logo" alt="Logo" class="size-full object-contain" />
+                } @else {
+                  <svg lucideTruck class="size-3.5 text-slate-400"></svg>
+                }
+              </div>
+            </div>
+            <datalist id="popular-brands-list">
+              @for (brand of popularBrands; track brand.slug) {
+                <option [value]="brand.name">{{ brand.name }}</option>
+              }
+            </datalist>
             @if (vehicleForm.get('brand')?.touched && vehicleForm.get('brand')?.errors?.['required']) {
               <p class="text-[10px] text-rose-500 mt-1 font-medium">Campo obrigatório.</p>
             }
@@ -231,6 +260,12 @@ export class VehicleFormModalComponent {
     crlvExpiration: [''],
     renavam: ['']
   });
+
+  readonly popularBrands = POPULAR_VEHICLE_BRANDS;
+  private readonly brandValue = toSignal(this.vehicleForm.get('brand')!.valueChanges, {
+    initialValue: ''
+  });
+  readonly currentBrandLogo = computed(() => getVehicleBrandLogo(this.brandValue()));
 
   resetForm(): void {
     this.errorMessage.set(null);
