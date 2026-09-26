@@ -337,7 +337,9 @@ export class VehicleListComponent implements OnInit {
         return 'Em viagem';
       case 'IN_MAINTENANCE':
       case 'MANUTENCAO':
-        return 'Em manutenção';
+        return 'Indisponível';
+      case 'INDISPONIVEL':
+        return 'Indisponível';
       default:
         return status || 'Indisponível';
     }
