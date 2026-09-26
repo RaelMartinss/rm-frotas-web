@@ -139,100 +139,127 @@
       </div>
     } @else {
       <div class="overflow-x-auto">
-        <table class="w-full text-left text-xs">
-          <thead class="bg-slate-50/80 border-b border-slate-100 text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
-            <tr>
-              <th class="py-3.5 px-4">Placa / Modelo</th>
-              <th class="py-3.5 px-4">Ano</th>
-              <th class="py-3.5 px-4">Quilometragem</th>
-              <th class="py-3.5 px-4">Venc. CRLV</th>
-              <th class="py-3.5 px-4">Status</th>
-              <th class="py-3.5 px-4 text-right">Ações Rápidas</th>
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-slate-50/75 border-b border-slate-100 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+              <th class="py-3 px-4">Veículo / Placa</th>
+              <th class="py-3 px-4">Ano</th>
+              <th class="py-3 px-4">Odômetro</th>
+              <th class="py-3 px-4">Licenciamento (CRLV)</th>
+              <th class="py-3 px-4">Status</th>
+              <th class="py-3 px-4 text-right">Ações</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-slate-100">
+          <tbody class="divide-y divide-slate-100 text-xs">
             @for (vehicle of vehicles(); track vehicle.id) {
-              <tr class="hover:bg-slate-50/80 transition-colors">
+              <tr class="hover:bg-slate-50/80 transition-colors group">
+                <!-- Placa e Modelo -->
                 <td class="py-3.5 px-4">
-                  <div class="flex items-center gap-2">
-                    <span class="font-mono font-bold text-xs bg-slate-900 text-white px-2 py-0.5 rounded-md border border-slate-700 shadow-2xs">
-                      {{ vehicle.plate }}
-                    </span>
+                  <div class="flex items-center gap-3">
+                    <div class="size-9 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center shrink-0 border border-slate-200/60 font-mono font-bold text-xs shadow-2xs">
+                      {{ vehicle.plate.substring(0, 3) }}
+                    </div>
                     <div>
-                      <div class="font-semibold text-slate-800">{{ vehicle.brand }} {{ vehicle.model }}</div>
-                      @if (vehicle.renavam) {
-                        <div class="text-[10px] text-slate-400 font-mono">Renavam: {{ vehicle.renavam }}</div>
-                      }
+                      <div class="flex items-center gap-2">
+                        <span class="font-bold text-slate-900 font-mono tracking-wide text-xs">{{ vehicle.plate }}</span>
+                        @if (vehicle.renavam) {
+                          <span class="text-[10px] text-slate-400 font-mono">REN: {{ vehicle.renavam }}</span>
+                        }
+                      </div>
+                      <div class="text-[11px] text-slate-500 font-medium">
+                        {{ vehicle.brand }} {{ vehicle.model }}
+                      </div>
                     </div>
                   </div>
                 </td>
-                <td class="py-3.5 px-4 text-slate-600 font-medium">{{ vehicle.year }}</td>
-                <td class="py-3.5 px-4 text-slate-700 font-mono font-semibold">{{ vehicle.currentKm | number }} km</td>
-                <td class="py-3.5 px-4">
-                  @if (vehicle.crlvExpiration) {
-                    <div class="flex items-center gap-1.5">
-                      <span class="text-slate-600 font-medium">{{ vehicle.crlvExpiration | date:'dd/MM/yyyy' }}</span>
-                      @if (isCrlvExpired(vehicle.crlvExpiration)) {
-                        <button
-                          type="button"
-                          (click)="openUpdateCrlvModal(vehicle)"
-                          title="CRLV Vencido - Clique para atualizar/renovar"
-                          class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 transition-colors cursor-pointer inline-flex items-center gap-1"
-                        >
-                          <span>Vencido</span>
-                          <svg lucideRefreshCw class="size-2.5"></svg>
-                        </button>
-                      } @else if (isCrlvExpiringSoon(vehicle.crlvExpiration)) {
-                        <button
-                          type="button"
-                          (click)="openUpdateCrlvModal(vehicle)"
-                          title="CRLV a Vencer - Clique para atualizar/renovar"
-                          class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 transition-colors cursor-pointer inline-flex items-center gap-1"
-                        >
-                          <span>A vencer</span>
-                          <svg lucideRefreshCw class="size-2.5"></svg>
-                        </button>
-                      }
-                    </div>
-                  } @else {
-                    <button
-                      type="button"
-                      (click)="openUpdateCrlvModal(vehicle)"
-                      class="text-slate-400 hover:text-indigo-600 text-xs inline-flex items-center gap-1 cursor-pointer transition-colors"
-                      title="Definir vencimento do CRLV"
-                    >
-                      <span>-</span>
-                      <svg lucidePlus class="size-3"></svg>
-                    </button>
-                  }
-                </td>
-                <td class="py-3.5 px-4">
-                  <div class="flex flex-col items-start gap-1">
-                    <span
-                      class="px-2.5 py-1 rounded-full text-[11px] font-semibold inline-flex items-center gap-1.5 border shadow-2xs"
-                      [ngClass]="getStatusClass(vehicle.status)"
-                    >
-                      <span class="size-1.5 rounded-full" [ngClass]="getStatusDotClass(vehicle.status)"></span>
-                      {{ getStatusLabel(vehicle.status) }}
-                    </span>
 
-                    @if (isAvailable(vehicle) && activeMaintenancesMap().get(vehicle.id)?.status === 'AGENDADA') {
+                <!-- Ano -->
+                <td class="py-3.5 px-4 text-slate-600 font-medium">
+                  {{ vehicle.year }}
+                </td>
+
+                <!-- Odômetro -->
+                <td class="py-3.5 px-4 font-mono font-semibold text-slate-700">
+                  <div class="flex items-center gap-1.5">
+                    <span>{{ vehicle.currentKm | number }} km</span>
+                    @if (!impersonationService.isReadOnly()) {
                       <button
-                        type="button"
-                        (click)="openMaintenanceAction(vehicle)"
-                        title="Ver Manutenção Agendada"
-                        class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-200/80 hover:bg-blue-100 transition-colors inline-flex items-center gap-1 cursor-pointer"
+                        (click)="openUpdateKmModal(vehicle)"
+                        class="text-slate-300 hover:text-blue-600 p-0.5 rounded transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
+                        title="Ajustar Odômetro Manualmente"
                       >
-                        <svg lucideCalendar class="size-2.5"></svg>
-                        <span>Revisão agendada</span>
+                        <svg lucideGauge class="size-3.5"></svg>
                       </button>
                     }
                   </div>
                 </td>
+
+                <!-- Vencimento CRLV -->
+                <td class="py-3.5 px-4">
+                  @if (vehicle.crlvExpiration) {
+                    <div class="flex items-center gap-1.5">
+                      <span class="font-mono text-slate-600 text-xs">
+                        {{ vehicle.crlvExpiration | date:'dd/MM/yyyy' }}
+                      </span>
+                      @if (isCrlvExpired(vehicle.crlvExpiration)) {
+                        <span class="px-1.5 py-0.5 text-[10px] font-bold rounded bg-rose-50 text-rose-600 border border-rose-200">
+                          Vencido
+                        </span>
+                      } @else if (isCrlvExpiringSoon(vehicle.crlvExpiration)) {
+                        <span class="px-1.5 py-0.5 text-[10px] font-semibold rounded bg-amber-50 text-amber-700 border border-amber-200">
+                          Vence logo
+                        </span>
+                      }
+                    </div>
+                  } @else {
+                    <span class="text-slate-400 text-[11px]">Não cadastrado</span>
+                  }
+                </td>
+
+                <!-- Status Badge Contextual -->
+                <td class="py-3.5 px-4">
+                  <div class="flex items-center gap-1.5">
+                    @if (isInMaintenance(vehicle) && activeMaintenancesMap().get(vehicle.id); as activeMaint) {
+                      <button
+                        type="button"
+                        (click)="openMaintenanceInfoModal(vehicle, activeMaint)"
+                        class="px-2.5 py-1 rounded-full text-[11px] font-semibold inline-flex items-center gap-1.5 border shadow-2xs transition-all cursor-pointer hover:ring-2 hover:ring-amber-400/40"
+                        [ngClass]="getStatusClass(vehicle.status)"
+                        title="Clique para ver os detalhes da manutenção em andamento"
+                      >
+                        <span class="size-1.5 rounded-full" [ngClass]="getStatusDotClass(vehicle.status)"></span>
+                        <span>{{ getStatusLabel(vehicle.status) }}</span>
+                        <svg lucideWrench class="size-3 ml-0.5 text-amber-600"></svg>
+                      </button>
+                    } @else {
+                      <span
+                        class="px-2.5 py-1 rounded-full text-[11px] font-semibold inline-flex items-center gap-1.5 border shadow-2xs"
+                        [ngClass]="getStatusClass(vehicle.status)"
+                      >
+                        <span class="size-1.5 rounded-full" [ngClass]="getStatusDotClass(vehicle.status)"></span>
+                        <span>{{ getStatusLabel(vehicle.status) }}</span>
+                      </span>
+                    }
+
+                    @if (isAvailable(vehicle) && activeMaintenancesMap().get(vehicle.id)?.status === 'AGENDADA'; as scheduledMaint) {
+                      <button
+                        type="button"
+                        (click)="openMaintenanceInfoModal(vehicle, activeMaintenancesMap().get(vehicle.id)!)"
+                        class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200 inline-flex items-center gap-1 hover:bg-blue-100 transition-colors cursor-pointer"
+                        title="Manutenção periódica agendada para este veículo. Clique para detalhes."
+                      >
+                        <svg lucideCalendar class="size-3 text-blue-600"></svg>
+                        <span>Agendada</span>
+                      </button>
+                    }
+                  </div>
+                </td>
+
+                <!-- Ações -->
                 <td class="py-3.5 px-4 text-right">
                   <div class="inline-flex items-center justify-end gap-1.5">
                     @if (!impersonationService.isReadOnly()) {
-                      <!-- Ação de Manutenção Inteligente (Informativo se já houver manutenção, ou formulário de envio se livre) -->
+                      <!-- Manutenção Inteligente (Em Andamento / Agendada / Registrar) -->
                       <button
                         (click)="openMaintenanceAction(vehicle)"
                         [title]="getMaintenanceButtonTitle(vehicle)"
@@ -295,20 +322,18 @@
               </tr>
             } @empty {
               <tr>
-                <td colspan="6" class="py-12 text-center text-slate-400">
-                  <div class="size-10 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-2">
-                    <svg lucideTruck class="size-5"></svg>
+                <td colspan="6" class="py-12 px-4 text-center">
+                  <div class="size-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-3">
+                    <svg lucideTruck class="size-6"></svg>
                   </div>
                   <p class="text-xs font-semibold text-slate-700">Nenhum veículo encontrado</p>
-                  <p class="text-[11px] text-slate-400 mt-0.5">Tente ajustar os filtros ou a busca selecionada.</p>
-                  @if (searchTerm() || selectedStatus() !== 'ALL') {
-                    <button
-                      (click)="clearSearch(); setStatusFilter('ALL')"
-                      class="mt-3 text-xs font-semibold text-emerald-600 hover:underline cursor-pointer"
-                    >
-                      Limpar todos os filtros
-                    </button>
-                  }
+                  <p class="text-[11px] text-slate-400 mt-1 max-w-xs mx-auto">
+                    @if (searchTerm() || selectedStatus() !== 'ALL') {
+                      Tente ajustar seus filtros ou termo de busca para localizar o veículo.
+                    } @else {
+                      Comece cadastrando seu primeiro veículo na frota clicando no botão acima.
+                    }
+                  </p>
                 </td>
               </tr>
             }
@@ -316,1359 +341,76 @@
         </table>
       </div>
 
-      <!-- BARRA DE PAGINAÇÃO SERVER-SIDE -->
-      @if (totalItems() > 0) {
-        <div class="px-5 py-3.5 bg-slate-50/90 border-t border-slate-100 flex flex-col md:flex-row items-center justify-between gap-4 text-xs">
-          <!-- Resumo de Itens -->
-          <div class="text-slate-500 font-medium">
-            Mostrando <span class="font-bold text-slate-800">{{ startIndex() }}</span> a
-            <span class="font-bold text-slate-800">{{ endIndex() }}</span> de
-            <span class="font-bold text-slate-800">{{ totalItems() | number }}</span> veículos
-          </div>
-
-          @if (totalItems() > 10) {
-            <div class="flex flex-wrap items-center gap-4">
-              <!-- Seletor de Limite por Página -->
-              <div class="flex items-center gap-2">
-                <span class="text-slate-500 text-[11px]">Itens por página:</span>
-                <div class="inline-flex rounded-lg border border-slate-200 bg-white p-0.5 shadow-2xs">
-                  @for (size of pageSizeOptions; track size) {
-                    <button
-                      type="button"
-                      (click)="setPageSize(size)"
-                      class="px-2.5 py-1 rounded-md text-xs font-semibold transition-all cursor-pointer"
-                      [ngClass]="pageSize() === size ? 'bg-slate-900 text-white shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'"
-                    >
-                      {{ size }}
-                    </button>
-                  }
-                </div>
-              </div>
-
-              <!-- Controles de Navegação de Página -->
-              <div class="flex items-center gap-1">
-                <!-- Primeira Página -->
-                <button
-                  type="button"
-                  (click)="setPage(1)"
-                  [disabled]="currentPage() === 1"
-                  title="Primeira página"
-                  class="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:hover:bg-white transition-colors cursor-pointer disabled:cursor-not-allowed shadow-2xs"
-                >
-                  <svg lucideChevronsLeft class="size-3.5"></svg>
-                </button>
-
-                <!-- Página Anterior -->
-                <button
-                  type="button"
-                  (click)="prevPage()"
-                  [disabled]="currentPage() === 1"
-                  title="Página anterior"
-                  class="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:hover:bg-white transition-colors cursor-pointer disabled:cursor-not-allowed shadow-2xs"
-                >
-                  <svg lucideChevronLeft class="size-3.5"></svg>
-                </button>
-
-                <!-- Números de Página -->
-                <div class="flex items-center gap-1 px-1">
-                  @for (pageNum of pageNumbers(); track $index) {
-                    @if (pageNum === '...') {
-                      <span class="px-2 py-1 text-slate-400 text-xs font-mono">...</span>
-                    } @else {
-                      <button
-                        type="button"
-                        (click)="setPage(pageNum)"
-                        class="min-w-[30px] h-7.5 px-2 rounded-lg text-xs font-semibold transition-all cursor-pointer"
-                        [ngClass]="currentPage() === pageNum ? 'bg-emerald-600 text-white shadow-2xs' : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-100'"
-                      >
-                        {{ pageNum }}
-                      </button>
-                    }
-                  }
-                </div>
-
-                <!-- Próxima Página -->
-                <button
-                  type="button"
-                  (click)="nextPage()"
-                  [disabled]="currentPage() === totalPages()"
-                  title="Próxima página"
-                  class="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:hover:bg-white transition-colors cursor-pointer disabled:cursor-not-allowed shadow-2xs"
-                >
-                  <svg lucideChevronRight class="size-3.5"></svg>
-                </button>
-
-                <!-- Última Página -->
-                <button
-                  type="button"
-                  (click)="setPage(totalPages())"
-                  [disabled]="currentPage() === totalPages()"
-                  title="Última página"
-                  class="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:hover:bg-white transition-colors cursor-pointer disabled:cursor-not-allowed shadow-2xs"
-                >
-                  <svg lucideChevronsRight class="size-3.5"></svg>
-                </button>
-              </div>
-            </div>
-          }
-        </div>
-      }
+      <!-- COMPONENTE REUTILIZÁVEL DE PAGINAÇÃO -->
+      <app-pagination
+        [totalItems]="totalItems()"
+        [currentPage]="currentPage()"
+        [pageSize]="pageSize()"
+        [pageSizeOptions]="pageSizeOptions"
+        itemLabel="veículos"
+        (pageChange)="setPage($event)"
+        (pageSizeChange)="setPageSize($event)"
+      />
     }
   </div>
 </div>
 
-<!-- MODAL DE CADASTRO -->
-@if (isModalOpen()) {
-  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-150">
-    <div class="bg-white rounded-2xl border border-slate-200/90 shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-150">
-      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-        <div>
-          <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
-            <div class="size-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-200/60">
-              <svg lucideTruck class="size-4"></svg>
-            </div>
-            Cadastrar Novo Veículo
-          </h2>
-          <p class="text-[11px] text-slate-400 mt-0.5 ml-9">Preencha os dados do veículo e documentação para alocação.</p>
-        </div>
-        <button (click)="closeModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg transition-colors cursor-pointer">
-          <svg lucideX class="size-5"></svg>
-        </button>
-      </div>
-
-      <form [formGroup]="vehicleForm" (ngSubmit)="saveVehicle()" class="p-6 space-y-4">
-        @if (errorMessage()) {
-          <div class="p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-start gap-2 text-rose-800 text-xs">
-            <svg lucideAlertCircle class="size-4 text-rose-600 shrink-0 mt-0.5"></svg>
-            <div class="flex-1">
-              <span class="font-semibold">Erro no cadastro:</span> {{ errorMessage() }}
-            </div>
-          </div>
-        }
-
-        <div class="grid grid-cols-2 gap-4">
-          <!-- Placa -->
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">
-              Placa do Veículo <span class="text-rose-500">*</span>
-            </label>
-            <div class="relative">
-              <input
-                type="text"
-                appPlateMask
-                formControlName="plate"
-                placeholder="Ex: ABC1D23"
-                class="w-full bg-slate-50 border rounded-xl px-3 py-2 text-xs font-mono font-bold tracking-wider text-slate-800 uppercase focus:outline-hidden focus:ring-2 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all placeholder:font-sans placeholder:font-normal placeholder:tracking-normal placeholder:text-slate-400"
-                [class.border-rose-400]="vehicleForm.get('plate')?.invalid && vehicleForm.get('plate')?.touched"
-                [class.bg-rose-50/50]="vehicleForm.get('plate')?.invalid && vehicleForm.get('plate')?.touched"
-                [class.border-slate-200]="!(vehicleForm.get('plate')?.invalid && vehicleForm.get('plate')?.touched)"
-              />
-            </div>
-            @if (vehicleForm.get('plate')?.touched && vehicleForm.get('plate')?.errors?.['required']) {
-              <p class="text-[10px] text-rose-500 mt-1 font-medium">Campo obrigatório.</p>
-            } @else if (vehicleForm.get('plate')?.touched && vehicleForm.get('plate')?.errors?.['pattern']) {
-              <p class="text-[10px] text-rose-500 mt-1 font-medium">Formato inválido. Use ABC1234 ou ABC1D23.</p>
-            }
-          </div>
-
-          <!-- Código RENAVAM (Opcional) -->
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between">
-              <span>Código RENAVAM</span>
-              <span class="text-[10px] font-normal text-slate-400">Opcional</span>
-            </label>
-            <input
-              type="text"
-              formControlName="renavam"
-              maxlength="11"
-              placeholder="Ex: 00123456789"
-              class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-mono text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all placeholder:font-sans placeholder:text-slate-400"
-            />
-          </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4">
-          <!-- Marca -->
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">
-              Marca / Fabricante <span class="text-rose-500">*</span>
-            </label>
-            <input
-              type="text"
-              formControlName="brand"
-              placeholder="Ex: Scania, Volvo, Ford"
-              class="w-full bg-slate-50 border rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all placeholder:text-slate-400"
-              [class.border-rose-400]="vehicleForm.get('brand')?.invalid && vehicleForm.get('brand')?.touched"
-              [class.bg-rose-50/50]="vehicleForm.get('brand')?.invalid && vehicleForm.get('brand')?.touched"
-              [class.border-slate-200]="!(vehicleForm.get('brand')?.invalid && vehicleForm.get('brand')?.touched)"
-            />
-            @if (vehicleForm.get('brand')?.touched && vehicleForm.get('brand')?.errors?.['required']) {
-              <p class="text-[10px] text-rose-500 mt-1 font-medium">Campo obrigatório.</p>
-            }
-          </div>
-
-          <!-- Modelo -->
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">
-              Modelo Comercial <span class="text-rose-500">*</span>
-            </label>
-            <input
-              type="text"
-              formControlName="model"
-              placeholder="Ex: R 450, FH 540, Cargo"
-              class="w-full bg-slate-50 border rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all placeholder:text-slate-400"
-              [class.border-rose-400]="vehicleForm.get('model')?.invalid && vehicleForm.get('model')?.touched"
-              [class.bg-rose-50/50]="vehicleForm.get('model')?.invalid && vehicleForm.get('model')?.touched"
-              [class.border-slate-200]="!(vehicleForm.get('model')?.invalid && vehicleForm.get('model')?.touched)"
-            />
-            @if (vehicleForm.get('model')?.touched && vehicleForm.get('model')?.errors?.['required']) {
-              <p class="text-[10px] text-rose-500 mt-1 font-medium">Campo obrigatório.</p>
-            }
-          </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4">
-          <!-- Ano -->
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">
-              Ano de Fabricação <span class="text-rose-500">*</span>
-            </label>
-            <input
-              type="number"
-              formControlName="year"
-              placeholder="2024"
-              class="w-full bg-slate-50 border rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all placeholder:text-slate-400"
-              [class.border-rose-400]="vehicleForm.get('year')?.invalid && vehicleForm.get('year')?.touched"
-              [class.bg-rose-50/50]="vehicleForm.get('year')?.invalid && vehicleForm.get('year')?.touched"
-              [class.border-slate-200]="!(vehicleForm.get('year')?.invalid && vehicleForm.get('year')?.touched)"
-            />
-            @if (vehicleForm.get('year')?.touched && vehicleForm.get('year')?.errors?.['required']) {
-              <p class="text-[10px] text-rose-500 mt-1 font-medium">Campo obrigatório.</p>
-            } @else if (vehicleForm.get('year')?.touched && vehicleForm.get('year')?.errors?.['min']) {
-              <p class="text-[10px] text-rose-500 mt-1 font-medium">Ano deve ser maior que 1900.</p>
-            }
-          </div>
-
-          <!-- Quilometragem Inicial -->
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">
-              KM Inicial do Odômetro <span class="text-rose-500">*</span>
-            </label>
-            <input
-              type="number"
-              formControlName="currentKm"
-              placeholder="0"
-              class="w-full bg-slate-50 border rounded-xl px-3 py-2 text-xs font-mono text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all placeholder:font-sans placeholder:text-slate-400"
-              [class.border-rose-400]="vehicleForm.get('currentKm')?.invalid && vehicleForm.get('currentKm')?.touched"
-              [class.bg-rose-50/50]="vehicleForm.get('currentKm')?.invalid && vehicleForm.get('currentKm')?.touched"
-              [class.border-slate-200]="!(vehicleForm.get('currentKm')?.invalid && vehicleForm.get('currentKm')?.touched)"
-            />
-            @if (vehicleForm.get('currentKm')?.touched && vehicleForm.get('currentKm')?.errors?.['required']) {
-              <p class="text-[10px] text-rose-500 mt-1 font-medium">Campo obrigatório.</p>
-            } @else if (vehicleForm.get('currentKm')?.touched && vehicleForm.get('currentKm')?.errors?.['min']) {
-              <p class="text-[10px] text-rose-500 mt-1 font-medium">KM não pode ser negativo.</p>
-            }
-          </div>
-        </div>
-
-        <!-- Vencimento CRLV -->
-        <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">
-            Vencimento do CRLV
-          </label>
-          <input
-            type="date"
-            formControlName="crlvExpiration"
-            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all"
-          />
-        </div>
-
-        <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
-          <button
-            type="button"
-            (click)="closeModal()"
-            class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
-          >
-            Cancelar
-          </button>
-          <button
-            type="submit"
-            [disabled]="isSaving()"
-            class="px-4 py-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-colors flex items-center gap-2 disabled:opacity-50 cursor-pointer shadow-xs"
-          >
-            @if (isSaving()) {
-              <svg lucideLoader2 class="size-4 animate-spin"></svg>
-            }
-            Salvar Veículo
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-}
-
-<!-- MODAL: ENVIAR / REGISTRAR PARA MANUTENÇÃO -->
-@if (isSendMaintenanceModalOpen() && selectedVehicle()) {
-  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-150">
-    <div class="bg-white rounded-2xl border border-slate-200/90 shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-150">
-      <!-- HEADER DO MODAL -->
-      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-        <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
-          <div class="size-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-200/60">
-            <svg lucideWrench class="size-4"></svg>
-          </div>
-          Registrar / Agendar Manutenção
-        </h2>
-        <button (click)="closeSendMaintenanceModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg transition-colors cursor-pointer">
-          <svg lucideX class="size-5"></svg>
-        </button>
-      </div>
-
-      <form [formGroup]="sendMaintenanceForm" (ngSubmit)="confirmSendMaintenance()" class="p-6 space-y-4">
-        <!-- Veículo Selecionado (Card de Destaque) -->
-        <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80 flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <div class="size-9 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-700 font-mono font-bold text-xs shadow-2xs">
-              {{ selectedVehicle()?.plate?.substring(0, 3) }}
-            </div>
-            <div>
-              <div class="flex items-center gap-2">
-                <span class="font-bold text-slate-900 font-mono text-sm">{{ selectedVehicle()?.plate }}</span>
-                <span class="text-xs text-slate-500 font-medium">• {{ selectedVehicle()?.brand }} {{ selectedVehicle()?.model }}</span>
-              </div>
-              <div class="text-[11px] text-slate-500 mt-0.5">
-                KM Atual: <span class="font-mono font-semibold text-slate-700">{{ selectedVehicle()?.currentKm | number }} km</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-3">
-          <!-- Tipo -->
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">Tipo de Manutenção *</label>
-            <select
-              formControlName="type"
-              class="w-full text-xs bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all cursor-pointer"
-            >
-              <option value="PREVENTIVA">Preventiva (Revisão periódica)</option>
-              <option value="CORRETIVA">Corretiva (Reparo de avaria)</option>
-            </select>
-          </div>
-
-          <!-- Data Prevista -->
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">Data Prevista</label>
-            <input
-              type="date"
-              formControlName="scheduledDate"
-              class="w-full text-xs bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all"
-            />
-          </div>
-        </div>
-
-        <!-- Descrição -->
-        <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">Descrição do Serviço / Motivo *</label>
-          <textarea
-            formControlName="description"
-            rows="3"
-            placeholder="Ex: Troca de óleo, pastilhas de freio, revisão do motor ou reparo emergencial..."
-            class="w-full text-xs bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all"
-          ></textarea>
-          @if (sendMaintenanceForm.get('description')?.touched && sendMaintenanceForm.get('description')?.invalid) {
-            <p class="text-[11px] text-rose-600 mt-1">A descrição é obrigatória (mínimo 3 caracteres).</p>
-          }
-        </div>
-
-        <!-- Oficina / Prestador -->
-        <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">Oficina / Prestador de Serviço</label>
-          <input
-            type="text"
-            formControlName="serviceProvider"
-            placeholder="Ex: Auto Mecânica Silva & Irmãos"
-            class="w-full text-xs bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all"
-          />
-        </div>
-
-        <!-- Iniciar Imediatamente -->
-        <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 flex flex-col gap-2">
-          <div class="flex items-center gap-3">
-            <input
-              type="checkbox"
-              id="sendStartImmediately"
-              formControlName="startImmediately"
-              [disabled]="isInUse(selectedVehicle())"
-              class="size-4 text-amber-600 rounded border-slate-300 focus:ring-amber-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-            />
-            <label for="sendStartImmediately" class="text-xs text-slate-700 font-medium cursor-pointer" [class.cursor-not-allowed]="isInUse(selectedVehicle())">
-              Iniciar manutenção imediatamente <span class="text-slate-400 font-normal">(altera status do veículo para "Em Manutenção")</span>
-            </label>
-          </div>
-          @if (isInUse(selectedVehicle())) {
-            <p class="text-[11px] text-amber-700 flex items-center gap-1.5 pl-7 font-medium">
-              <svg lucideAlertTriangle class="size-3.5 shrink-0"></svg>
-              <span>Veículo em viagem: só é permitido registrar como agendamento futuro.</span>
-            </p>
-          }
-        </div>
-
-        @if (actionError()) {
-          <div class="p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-center gap-2 text-rose-800 text-xs">
-            <svg lucideAlertCircle class="size-4 text-rose-600 shrink-0"></svg>
-            <span>{{ actionError() }}</span>
-          </div>
-        }
-
-        <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
-          <button
-            type="button"
-            (click)="closeSendMaintenanceModal()"
-            [disabled]="isActionLoading()"
-            class="px-4 py-2.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
-          >
-            Cancelar
-          </button>
-          <button
-            type="submit"
-            [disabled]="isActionLoading()"
-            class="px-5 py-2.5 text-xs font-semibold text-white bg-amber-600 hover:bg-amber-700 rounded-xl transition-colors flex items-center gap-2 disabled:opacity-50 cursor-pointer shadow-xs"
-          >
-            @if (isActionLoading()) {
-              <svg lucideLoader2 class="size-4 animate-spin"></svg>
-            }
-            Confirmar Manutenção
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-}
-
-<!-- MODAL: INFORMATIVO DE MANUTENÇÃO (EM ANDAMENTO OU AGENDADA) -->
-@if (isMaintenanceInfoModalOpen() && selectedVehicle() && selectedMaintenanceForInfo()) {
-  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-150">
-    <div class="bg-white rounded-2xl border border-slate-200/90 shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-150">
-      <!-- HEADER DO MODAL -->
-      <div
-        class="px-6 py-4 border-b border-slate-100 flex items-center justify-between"
-        [ngClass]="selectedMaintenanceForInfo()?.status === 'EM_ANDAMENTO' ? 'bg-amber-50/50' : 'bg-blue-50/50'"
-      >
-        <div class="flex items-center gap-2.5">
-          <div
-            class="size-8 rounded-lg flex items-center justify-center border shadow-2xs"
-            [ngClass]="selectedMaintenanceForInfo()?.status === 'EM_ANDAMENTO' ? 'bg-amber-100 text-amber-700 border-amber-200' : 'bg-blue-100 text-blue-700 border-blue-200'"
-          >
-            <svg lucideWrench class="size-4"></svg>
-          </div>
-          <div>
-            <h2 class="text-sm font-bold text-slate-900">Informativo de Manutenção</h2>
-            <p class="text-[11px] text-slate-500 font-mono">{{ selectedVehicle()?.plate }} • {{ selectedVehicle()?.brand }} {{ selectedVehicle()?.model }}</p>
-          </div>
-        </div>
-        <button (click)="closeMaintenanceInfoModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg transition-colors cursor-pointer">
-          <svg lucideX class="size-5"></svg>
-        </button>
-      </div>
-
-      <div class="p-6 space-y-4">
-        <!-- Status Badge Card -->
-        <div
-          class="p-4 rounded-xl border flex items-center justify-between"
-          [ngClass]="selectedMaintenanceForInfo()?.status === 'EM_ANDAMENTO' ? 'bg-amber-50/70 border-amber-200' : 'bg-blue-50/70 border-blue-200'"
-        >
-          <div>
-            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">Status da Manutenção</span>
-            <div
-              class="text-sm font-bold mt-0.5 flex items-center gap-1.5"
-              [ngClass]="selectedMaintenanceForInfo()?.status === 'EM_ANDAMENTO' ? 'text-amber-800' : 'text-blue-800'"
-            >
-              <span
-                class="size-2 rounded-full animate-pulse"
-                [ngClass]="selectedMaintenanceForInfo()?.status === 'EM_ANDAMENTO' ? 'bg-amber-500' : 'bg-blue-500'"
-              ></span>
-              {{ selectedMaintenanceForInfo()?.status === 'EM_ANDAMENTO' ? 'Em Andamento na Oficina' : 'Manutenção Agendada' }}
-            </div>
-          </div>
-          <span
-            class="px-2.5 py-1 rounded-full text-xs font-bold border"
-            [ngClass]="selectedMaintenanceForInfo()?.type === 'PREVENTIVA' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-rose-50 text-rose-700 border-rose-200'"
-          >
-            {{ selectedMaintenanceForInfo()?.type === 'PREVENTIVA' ? 'Revisão Preventiva' : 'Manutenção Corretiva' }}
-          </span>
-        </div>
-
-        <!-- Detalhes do Serviço -->
-        <div class="bg-slate-50 rounded-xl p-4 border border-slate-200/80 space-y-3">
-          <div>
-            <span class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 block">Descrição do Serviço / Motivo</span>
-            <p class="text-xs text-slate-800 font-medium mt-1 leading-relaxed whitespace-pre-line">
-              {{ selectedMaintenanceForInfo()?.description }}
-            </p>
-          </div>
-
-          <div class="grid grid-cols-2 gap-3 pt-2 border-t border-slate-200/60">
-            <div>
-              <span class="text-[10px] font-semibold text-slate-400 block">Oficina / Prestador</span>
-              <span class="text-xs font-semibold text-slate-700">
-                {{ selectedMaintenanceForInfo()?.serviceProvider || 'Oficina interna / Não inf.' }}
-              </span>
-            </div>
-            <div>
-              @if (selectedMaintenanceForInfo()?.status === 'EM_ANDAMENTO') {
-                <span class="text-[10px] font-semibold text-slate-400 block">Iniciado em</span>
-                <span class="text-xs font-semibold text-slate-700 font-mono">
-                  {{ selectedMaintenanceForInfo()?.startedAt ? (selectedMaintenanceForInfo()?.startedAt | date:'dd/MM/yyyy') : '-' }}
-                </span>
-              } @else {
-                <span class="text-[10px] font-semibold text-slate-400 block">Data Prevista</span>
-                <span class="text-xs font-semibold text-slate-700 font-mono">
-                  {{ selectedMaintenanceForInfo()?.scheduledDate ? (selectedMaintenanceForInfo()?.scheduledDate | date:'dd/MM/yyyy') : '-' }}
-                </span>
-              }
-            </div>
-          </div>
-
-          @if (selectedMaintenanceForInfo()?.cost || (selectedMaintenanceForInfo()?.items && selectedMaintenanceForInfo()!.items!.length > 0)) {
-            <div class="pt-2 border-t border-slate-200/60 flex justify-between items-center text-xs">
-              <span class="text-slate-500 font-medium">Custo Estimado / Registrado:</span>
-              <span class="font-bold text-slate-900 font-mono">
-                {{ selectedMaintenanceForInfo()?.cost | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
-              </span>
-            </div>
-          }
-        </div>
-
-        @if (isInUse(selectedVehicle())) {
-          <div class="p-3 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-2.5 text-amber-800 text-xs">
-            <svg lucideAlertTriangle class="size-4 text-amber-600 shrink-0 mt-0.5"></svg>
-            <div>
-              <strong class="font-semibold block">Veículo em Viagem / Uso</strong>
-              <span>Este veículo está atualmente em viagem. Conclua ou finalize a viagem antes de iniciar a manutenção.</span>
-            </div>
-          </div>
-        }
-
-        @if (actionError()) {
-          <div class="p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-center gap-2 text-rose-800 text-xs">
-            <svg lucideAlertCircle class="size-4 text-rose-600 shrink-0"></svg>
-            <span>{{ actionError() }}</span>
-          </div>
-        }
-
-        <!-- Botões de Ação -->
-        <div class="pt-2 border-t border-slate-100 flex flex-col gap-2.5">
-          <div class="flex items-center gap-2">
-            <!-- Botão Ir para Gestão de Manutenções -->
-            <button
-              type="button"
-              (click)="goToMaintenanceModule(selectedVehicle()?.id)"
-              class="flex-1 py-2.5 px-3 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
-            >
-              <svg lucideExternalLink class="size-3.5 text-slate-500"></svg>
-              <span>Ver em Manutenções</span>
-            </button>
-
-            <!-- Ação contextual: Iniciar (se Agendada) ou Finalizar (se Em Andamento) -->
-            @if (selectedMaintenanceForInfo()?.status === 'AGENDADA') {
-              <button
-                type="button"
-                (click)="startScheduledMaintenanceFromModal(selectedMaintenanceForInfo()!)"
-                [disabled]="isActionLoading() || isInUse(selectedVehicle())"
-                [title]="isInUse(selectedVehicle()) ? 'Veículo em viagem: finalize a viagem antes de iniciar a manutenção' : 'Iniciar Agora'"
-                class="flex-1 py-2.5 px-3 text-xs font-semibold text-white bg-amber-600 hover:bg-amber-700 rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-xs disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                @if (isActionLoading()) {
-                  <svg lucideLoader2 class="size-3.5 animate-spin"></svg>
-                } @else {
-                  <svg lucidePlay class="size-3.5"></svg>
-                }
-                <span>Iniciar Agora</span>
-              </button>
-            } @else if (selectedMaintenanceForInfo()?.status === 'EM_ANDAMENTO') {
-              <button
-                type="button"
-                (click)="closeMaintenanceInfoModal(); openFinishMaintenanceModal(selectedVehicle()!)"
-                class="flex-1 py-2.5 px-3 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
-              >
-                <svg lucideCheckCircle2 class="size-3.5"></svg>
-                <span>Finalizar Manutenção</span>
-              </button>
-            }
-          </div>
-
-          <button
-            type="button"
-            (click)="closeMaintenanceInfoModal()"
-            class="w-full py-2 text-xs font-medium text-slate-500 hover:text-slate-800 transition-colors cursor-pointer text-center"
-          >
-            Fechar
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-}
-
-<!-- MODAL: FINALIZAR MANUTENÇÃO -->
-@if (isFinishMaintenanceModalOpen() && selectedVehicle()) {
-  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-150">
-    <div class="bg-white rounded-2xl border border-slate-200/90 shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-150">
-      <div class="p-6 text-center space-y-4">
-        <div class="size-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto border border-emerald-200">
-          <svg lucideCheckCircle2 class="size-6"></svg>
-        </div>
-        <div>
-          <h3 class="text-base font-bold text-slate-800">Finalizar Manutenção</h3>
-          <p class="text-xs text-slate-500 mt-1">
-            Os serviços foram concluídos? O veículo retornará ao status <strong>Disponível</strong>.
-          </p>
-        </div>
-
-        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200/70 text-left space-y-2">
-          <div class="flex justify-between items-center text-xs">
-            <span class="text-slate-500">Placa:</span>
-            <span class="font-mono font-bold text-slate-800 bg-white px-2 py-0.5 rounded border border-slate-200">{{ selectedVehicle()?.plate }}</span>
-          </div>
-          <div class="flex justify-between items-center text-xs">
-            <span class="text-slate-500">Modelo:</span>
-            <span class="font-semibold text-slate-700">{{ selectedVehicle()?.brand }} {{ selectedVehicle()?.model }}</span>
-          </div>
-        </div>
-
-        @if (actionError()) {
-          <div class="p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-center gap-2 text-rose-800 text-xs text-left">
-            <svg lucideAlertCircle class="size-4 text-rose-600 shrink-0"></svg>
-            <span>{{ actionError() }}</span>
-          </div>
-        }
-
-        <div class="flex items-center gap-3 pt-2">
-          <button
-            type="button"
-            (click)="closeFinishMaintenanceModal()"
-            [disabled]="isActionLoading()"
-            class="flex-1 py-2.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
-          >
-            Voltar
-          </button>
-          <button
-            type="button"
-            (click)="confirmFinishMaintenance()"
-            [disabled]="isActionLoading()"
-            class="flex-1 py-2.5 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-colors flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer shadow-xs"
-          >
-            @if (isActionLoading()) {
-              <svg lucideLoader2 class="size-4 animate-spin"></svg>
-            }
-            Liberar Veículo
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-}
-
-<!-- MODAL: ATUALIZAR QUILOMETRAGEM -->
-@if (isUpdateKmModalOpen() && selectedVehicle()) {
-  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-150">
-    <div class="bg-white rounded-2xl border border-slate-200/90 shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-150">
-      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-        <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
-          <div class="size-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-200/60">
-            <svg lucideGauge class="size-4"></svg>
-          </div>
-          Atualizar Quilometragem
-        </h2>
-        <button (click)="closeUpdateKmModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg transition-colors cursor-pointer">
-          <svg lucideX class="size-5"></svg>
-        </button>
-      </div>
-
-      <form [formGroup]="updateKmForm" (ngSubmit)="confirmUpdateKm()" class="p-6 space-y-4">
-        @if (actionError()) {
-          <div class="p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-center gap-2 text-rose-800 text-xs">
-            <svg lucideAlertCircle class="size-4 text-rose-600 shrink-0"></svg>
-            <span>{{ actionError() }}</span>
-          </div>
-        }
-
-        <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/70 space-y-1.5 text-xs">
-          <div class="text-slate-500 text-[11px]">Veículo selecionado:</div>
-          <div class="font-bold text-slate-800">{{ selectedVehicle()?.brand }} {{ selectedVehicle()?.model }}</div>
-          <div class="flex items-center justify-between text-slate-600 pt-1 border-t border-slate-200/60">
-            <span>KM Atual no Odômetro:</span>
-            <span class="font-mono font-bold text-blue-600 text-sm">{{ selectedVehicle()?.currentKm | number }} km</span>
-          </div>
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">
-            Nova Quilometragem Acumulada <span class="text-rose-500">*</span>
-          </label>
-          <input
-            type="number"
-            formControlName="currentKm"
-            placeholder="Ex: 50000"
-            class="w-full bg-slate-50 border rounded-xl px-3 py-2 text-xs font-mono text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all placeholder:font-sans placeholder:text-slate-400"
-            [class.border-rose-400]="updateKmForm.get('currentKm')?.invalid && updateKmForm.get('currentKm')?.touched"
-            [class.border-slate-200]="!(updateKmForm.get('currentKm')?.invalid && updateKmForm.get('currentKm')?.touched)"
-          />
-          @if (updateKmForm.get('currentKm')?.touched && updateKmForm.get('currentKm')?.errors?.['min']) {
-            <p class="text-[10px] text-rose-500 mt-1 font-medium">
-              A nova quilometragem não pode ser menor que a atual ({{ selectedVehicle()?.currentKm | number }} km).
-            </p>
-          }
-        </div>
-
-        <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
-          <button
-            type="button"
-            (click)="closeUpdateKmModal()"
-            [disabled]="isActionLoading()"
-            class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
-          >
-            Cancelar
-          </button>
-          <button
-            type="submit"
-            [disabled]="isActionLoading()"
-            class="px-4 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition-colors flex items-center gap-2 disabled:opacity-50 cursor-pointer shadow-xs"
-          >
-            @if (isActionLoading()) {
-              <svg lucideLoader2 class="size-4 animate-spin"></svg>
-            }
-            Atualizar KM
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-}
-
-<!-- MODAL DE ATUALIZAÇÃO / RENOVAÇÃO DE CRLV -->
-@if (isUpdateCrlvModalOpen() && selectedVehicle()) {
-  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-150">
-    <div class="bg-white rounded-2xl border border-slate-200/90 shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-150">
-      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-        <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
-          <div class="size-7 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-200/60">
-            <svg lucideFileText class="size-4"></svg>
-          </div>
-          Renovar / Atualizar CRLV
-        </h2>
-        <button (click)="closeUpdateCrlvModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg transition-colors cursor-pointer">
-          <svg lucideX class="size-5"></svg>
-        </button>
-      </div>
-
-      <form [formGroup]="updateCrlvForm" (ngSubmit)="confirmUpdateCrlv()" class="p-6 space-y-4">
-        @if (actionError()) {
-          <div class="p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-center gap-2 text-rose-800 text-xs">
-            <svg lucideAlertCircle class="size-4 text-rose-600 shrink-0"></svg>
-            <span>{{ actionError() }}</span>
-          </div>
-        }
-
-        <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/70 space-y-1.5 text-xs">
-          <div class="text-slate-500 text-[11px]">Veículo selecionado:</div>
-          <div class="flex items-center justify-between">
-            <span class="font-bold text-slate-800">{{ selectedVehicle()?.brand }} {{ selectedVehicle()?.model }}</span>
-            <span class="font-mono font-bold text-xs bg-slate-900 text-white px-2 py-0.5 rounded-md border border-slate-700">
-              {{ selectedVehicle()?.plate }}
-            </span>
-          </div>
-          <div class="flex items-center justify-between text-slate-600 pt-1 border-t border-slate-200/60">
-            <span>Vencimento Atual:</span>
-            <span class="font-medium text-xs">
-              {{ (selectedVehicle()?.crlvExpiration | date:'dd/MM/yyyy') || 'Não cadastrado' }}
-            </span>
-          </div>
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">
-            Nova Data de Vencimento do CRLV <span class="text-rose-500">*</span>
-          </label>
-          <input
-            type="date"
-            formControlName="crlvExpiration"
-            class="w-full bg-slate-50 border rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all"
-            [class.border-rose-400]="updateCrlvForm.get('crlvExpiration')?.invalid && updateCrlvForm.get('crlvExpiration')?.touched"
-            [class.border-slate-200]="!(updateCrlvForm.get('crlvExpiration')?.invalid && updateCrlvForm.get('crlvExpiration')?.touched)"
-          />
-          @if (updateCrlvForm.get('crlvExpiration')?.touched && updateCrlvForm.get('crlvExpiration')?.errors?.['required']) {
-            <p class="text-[10px] text-rose-500 mt-1 font-medium">
-              A nova data de vencimento é obrigatória.
-            </p>
-          }
-        </div>
-
-        <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
-          <button
-            type="button"
-            (click)="closeUpdateCrlvModal()"
-            [disabled]="isActionLoading()"
-            class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
-          >
-            Cancelar
-          </button>
-          <button
-            type="submit"
-            [disabled]="isActionLoading()"
-            class="px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition-colors flex items-center gap-2 disabled:opacity-50 cursor-pointer shadow-xs"
-          >
-            @if (isActionLoading()) {
-              <svg lucideLoader2 class="size-4 animate-spin"></svg>
-            }
-            Salvar Novo Vencimento
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-}
-
-<!-- MODAL: FICHA / DETALHES DO VEÍCULO -->
-@if (isDetailsModalOpen() && selectedVehicle()) {
-  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-150">
-    <div class="bg-white rounded-2xl border border-slate-200/90 shadow-2xl w-full max-w-xl overflow-hidden animate-in zoom-in-95 duration-150 flex flex-col max-h-[90vh]">
-      <!-- HEADER DO MODAL -->
-      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 shrink-0">
-        <div>
-          <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
-            <div class="size-7 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center border border-slate-200">
-              <svg lucideTruck class="size-4"></svg>
-            </div>
-            Ficha Técnica do Veículo
-          </h2>
-          <p class="text-xs text-slate-500 mt-0.5">{{ selectedVehicle()?.brand }} {{ selectedVehicle()?.model }} • {{ selectedVehicle()?.plate }}</p>
-        </div>
-        <button (click)="closeDetailsModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg transition-colors cursor-pointer">
-          <svg lucideX class="size-5"></svg>
-        </button>
-      </div>
-
-      <!-- ABAS DO MODAL -->
-      <div class="flex border-b border-slate-200 bg-slate-50/40 px-6 shrink-0 gap-6 text-xs">
-        <button
-          type="button"
-          (click)="setDetailsTab('OVERVIEW')"
-          class="py-3 font-semibold border-b-2 transition-colors flex items-center gap-2 cursor-pointer"
-          [ngClass]="activeDetailsTab() === 'OVERVIEW' ? 'border-emerald-600 text-emerald-700' : 'border-transparent text-slate-500 hover:text-slate-800'"
-        >
-          <svg lucideTruck class="size-4"></svg>
-          Visão Geral
-        </button>
-        <button
-          type="button"
-          (click)="setDetailsTab('MAINTENANCE')"
-          class="py-3 font-semibold border-b-2 transition-colors flex items-center gap-2 cursor-pointer"
-          [ngClass]="activeDetailsTab() === 'MAINTENANCE' ? 'border-emerald-600 text-emerald-700' : 'border-transparent text-slate-500 hover:text-slate-800'"
-        >
-          <svg lucideWrench class="size-4"></svg>
-          Histórico de Manutenção
-          @if (vehicleMaintenances().length > 0) {
-            <span class="px-1.5 py-0.5 rounded-full text-[10px] bg-slate-200 text-slate-700 font-bold font-mono">
-              {{ vehicleMaintenances().length }}
-            </span>
-          }
-        </button>
-        <button
-          type="button"
-          (click)="setDetailsTab('FUEL')"
-          class="py-3 font-semibold border-b-2 transition-colors flex items-center gap-2 cursor-pointer"
-          [ngClass]="activeDetailsTab() === 'FUEL' ? 'border-emerald-600 text-emerald-700' : 'border-transparent text-slate-500 hover:text-slate-800'"
-        >
-          <svg lucideFuel class="size-4"></svg>
-          Histórico de Abastecimento
-          @if (vehicleFuelRecords().length > 0) {
-            <span class="px-1.5 py-0.5 rounded-full text-[10px] bg-slate-200 text-slate-700 font-bold font-mono">
-              {{ vehicleFuelRecords().length }}
-            </span>
-          }
-        </button>
-      </div>
-
-      <!-- CORPO DO MODAL COM SCROLL -->
-      <div class="p-6 overflow-y-auto space-y-6">
-        @if (activeDetailsTab() === 'OVERVIEW') {
-          <!-- PLACA MERCOSUL DESIGN -->
-          <div class="flex flex-col items-center gap-1.5">
-            <div class="w-56 border-2 border-slate-800 rounded-xl overflow-hidden shadow-sm bg-white">
-              <div class="bg-blue-700 text-white px-3 py-1 flex items-center justify-between text-[10px] font-bold tracking-wider">
-                <span>BRASIL</span>
-                <div class="size-2 rounded-full bg-yellow-400"></div>
-              </div>
-              <div class="py-2 text-center font-extrabold text-2xl tracking-widest text-slate-900 font-mono">
-                {{ selectedVehicle()?.plate }}
-              </div>
-            </div>
-            @if (selectedVehicle()?.renavam) {
-              <div class="text-xs text-slate-500 font-medium">
-                RENAVAM: <span class="font-mono font-bold text-slate-800">{{ selectedVehicle()?.renavam }}</span>
-              </div>
-            }
-          </div>
-
-          <!-- CARDS DE INFORMAÇÃO -->
-          <div class="grid grid-cols-2 gap-3">
-            <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/70">
-              <div class="text-[11px] text-slate-400 font-medium">Marca & Modelo</div>
-              <div class="text-sm font-bold text-slate-800 mt-0.5">{{ selectedVehicle()?.brand }} {{ selectedVehicle()?.model }}</div>
-            </div>
-
-            <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/70">
-              <div class="text-[11px] text-slate-400 font-medium">Ano de Fabricação</div>
-              <div class="text-sm font-bold text-slate-800 mt-0.5">{{ selectedVehicle()?.year }}</div>
-            </div>
-
-            <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/70">
-              <div class="text-[11px] text-slate-400 font-medium">Código RENAVAM</div>
-              <div class="text-sm font-bold text-slate-800 mt-0.5 font-mono">
-                {{ selectedVehicle()?.renavam || 'Não informado' }}
-              </div>
-            </div>
-
-            <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/70">
-              <div class="text-[11px] text-slate-400 font-medium">Odômetro Atual</div>
-              <div class="text-sm font-bold text-slate-800 mt-0.5 font-mono">{{ selectedVehicle()?.currentKm | number }} km</div>
-            </div>
-
-            <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/70 col-span-2">
-              <div class="text-[11px] text-slate-400 font-medium">Status Operacional</div>
-              <div class="mt-1">
-                <span
-                  class="px-2.5 py-1 rounded-full text-[11px] font-semibold inline-flex items-center gap-1.5 border shadow-2xs"
-                  [ngClass]="getStatusClass(selectedVehicle()!.status)"
-                >
-                  <span class="size-1.5 rounded-full" [ngClass]="getStatusDotClass(selectedVehicle()!.status)"></span>
-                  {{ getStatusLabel(selectedVehicle()!.status) }}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <!-- VENCIMENTO CRLV CARD -->
-          <div class="p-4 rounded-xl border flex items-center justify-between"
-            [ngClass]="isCrlvExpired(selectedVehicle()?.crlvExpiration) ? 'bg-rose-50/50 border-rose-200' : (isCrlvExpiringSoon(selectedVehicle()?.crlvExpiration) ? 'bg-amber-50/50 border-amber-200' : 'bg-slate-50 border-slate-200/70')"
-          >
-            <div class="flex items-center gap-3">
-              <div class="size-9 rounded-lg flex items-center justify-center"
-                [ngClass]="isCrlvExpired(selectedVehicle()?.crlvExpiration) ? 'bg-rose-100 text-rose-600' : (isCrlvExpiringSoon(selectedVehicle()?.crlvExpiration) ? 'bg-amber-100 text-amber-600' : 'bg-slate-200 text-slate-600')"
-              >
-                <svg lucideCalendar class="size-5"></svg>
-              </div>
-              <div>
-                <div class="text-xs font-bold text-slate-800">Licenciamento / CRLV</div>
-                <div class="text-[11px] text-slate-500">
-                  {{ (selectedVehicle()?.crlvExpiration | date:'dd/MM/yyyy') || 'Não informado' }}
-                </div>
-              </div>
-            </div>
-
-            <div class="flex items-center gap-2">
-              @if (isCrlvExpired(selectedVehicle()?.crlvExpiration)) {
-                <span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-100 text-rose-700 border border-rose-200">
-                  Vencido
-                </span>
-              } @else if (isCrlvExpiringSoon(selectedVehicle()?.crlvExpiration)) {
-                <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-700 border border-amber-200">
-                  Próximo do Vencimento
-                </span>
-              } @else if (selectedVehicle()?.crlvExpiration) {
-                <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-700 border border-emerald-200">
-                  Regular
-                </span>
-              }
-              <button
-                type="button"
-                (click)="openUpdateCrlvModal(selectedVehicle()!)"
-                class="px-2.5 py-1 text-xs font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-lg transition-colors cursor-pointer inline-flex items-center gap-1.5 shadow-2xs"
-                title="Renovar / Atualizar data do CRLV"
-              >
-                <svg lucideRefreshCw class="size-3"></svg>
-                <span>Renovar</span>
-              </button>
-            </div>
-          </div>
-        } @else if (activeDetailsTab() === 'MAINTENANCE') {
-          <!-- HISTÓRICO DE MANUTENÇÕES -->
-          <div class="space-y-3">
-            <div class="flex items-center justify-between pb-1 border-b border-slate-100">
-              <span class="text-xs font-semibold text-slate-700">Histórico de Ordens</span>
-              <a
-                [routerLink]="['/manutencoes']"
-                [queryParams]="{ vehicleId: selectedVehicle()?.id }"
-                (click)="closeDetailsModal()"
-                class="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-600 hover:text-emerald-700 hover:underline cursor-pointer"
-              >
-                <span>Abrir na Central</span>
-                <svg lucideExternalLink class="size-3.5"></svg>
-              </a>
-            </div>
-
-            @if (isLoadingMaintenances()) {
-              <div class="py-12 flex flex-col items-center justify-center gap-2 text-slate-400 text-xs">
-                <svg lucideLoader2 class="size-6 animate-spin text-emerald-600"></svg>
-                <span>Carregando histórico de manutenção...</span>
-              </div>
-            } @else if (vehicleMaintenances().length === 0) {
-              <div class="py-12 flex flex-col items-center justify-center gap-2 text-slate-400 text-xs">
-                <div class="size-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center">
-                  <svg lucideWrench class="size-6"></svg>
-                </div>
-                <span class="font-medium text-slate-600">Nenhuma manutenção registrada</span>
-                <p class="text-[11px] text-slate-400">Este veículo ainda não possui ordens de serviço cadastradas.</p>
-              </div>
-            } @else {
-              <div class="space-y-3">
-                @for (m of vehicleMaintenances(); track m.id) {
-                  <div class="p-4 bg-slate-50/80 rounded-xl border border-slate-200/80 space-y-2.5">
-                    <div class="flex items-center justify-between">
-                      <div class="flex items-center gap-2">
-                        <span
-                          class="px-2 py-0.5 rounded-full text-[10px] font-bold border"
-                          [ngClass]="getMaintenanceTypeClass(m.type)"
-                        >
-                          {{ m.type === 'PREVENTIVA' ? 'Preventiva' : 'Corretiva' }}
-                        </span>
-                        <span
-                          class="px-2 py-0.5 rounded-full text-[10px] font-semibold border"
-                          [ngClass]="getMaintenanceStatusClass(m.status)"
-                        >
-                          {{ getMaintenanceStatusLabel(m.status) }}
-                        </span>
-                      </div>
-                      <span class="font-mono font-bold text-xs text-slate-800">
-                        {{ m.cost | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
-                      </span>
-                    </div>
-
-                    <p class="text-xs text-slate-700 font-medium">{{ m.description }}</p>
-
-                    <div class="flex items-center justify-between text-[11px] text-slate-400 pt-1 border-t border-slate-200/50">
-                      <div>
-                        @if (m.serviceProvider) {
-                          <span>Oficina: <strong class="text-slate-600 font-normal">{{ m.serviceProvider }}</strong></span>
-                        }
-                      </div>
-                      <div>
-                        {{ (m.finishedAt || m.startedAt || m.createdAt) | date:'dd/MM/yyyy' }}
-                        @if (m.odometerAtService) {
-                          • {{ m.odometerAtService | number }} km
-                        }
-                      </div>
-                    </div>
-                  </div>
-                }
-              </div>
-            }
-          </div>
-        } @else if (activeDetailsTab() === 'FUEL') {
-          <!-- HISTÓRICO DE ABASTECIMENTOS -->
-          <div class="space-y-3">
-            <div class="flex items-center justify-between pb-1 border-b border-slate-100">
-              <span class="text-xs font-semibold text-slate-700">Histórico de Abastecimentos</span>
-              <a
-                [routerLink]="['/abastecimentos']"
-                [queryParams]="{ vehicleId: selectedVehicle()?.id }"
-                (click)="closeDetailsModal()"
-                class="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-600 hover:text-emerald-700 hover:underline cursor-pointer"
-              >
-                <span>Abrir na Central</span>
-                <svg lucideExternalLink class="size-3.5"></svg>
-              </a>
-            </div>
-
-            @if (isLoadingFuelRecords()) {
-              <div class="py-12 flex flex-col items-center justify-center gap-2 text-slate-400 text-xs">
-                <svg lucideLoader2 class="size-6 animate-spin text-emerald-600"></svg>
-                <span>Carregando histórico de abastecimento...</span>
-              </div>
-            } @else if (vehicleFuelRecords().length === 0) {
-              <div class="py-12 flex flex-col items-center justify-center gap-2 text-slate-400 text-xs">
-                <div class="size-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center">
-                  <svg lucideFuel class="size-6"></svg>
-                </div>
-                <span class="font-medium text-slate-600">Nenhum abastecimento registrado</span>
-                <p class="text-[11px] text-slate-400">Este veículo ainda não possui registros de abastecimento.</p>
-              </div>
-            } @else {
-              <div class="space-y-3">
-                @for (f of vehicleFuelRecords(); track f.id) {
-                  <div class="p-4 bg-slate-50/80 rounded-xl border border-slate-200/80 space-y-2.5">
-                    <div class="flex items-center justify-between">
-                      <div class="flex items-center gap-2">
-                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-200 text-slate-700">
-                          {{ f.fuelType }}
-                        </span>
-                        @if (f.fullTank) {
-                          <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-700">
-                            Tanque Cheio
-                          </span>
-                        }
-                      </div>
-                      <span class="font-mono font-bold text-xs text-slate-800">
-                        {{ f.totalCost | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
-                      </span>
-                    </div>
-
-                    <div class="flex items-center justify-between text-xs text-slate-700 font-medium">
-                      <span>{{ f.liters | number:'1.2-2' }} L • {{ f.pricePerUnit | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}/L</span>
-                      <span class="font-mono text-slate-600">{{ f.odometerAtFueling | number }} km</span>
-                    </div>
-
-                    <div class="flex items-center justify-between text-[11px] text-slate-400 pt-1 border-t border-slate-200/50">
-                      <div>
-                        @if (f.gasStation) {
-                          <span>Posto: <strong class="text-slate-600 font-normal">{{ f.gasStation }}</strong></span>
-                        }
-                      </div>
-                      <div>
-                        {{ f.fueledAt | date:'dd/MM/yyyy HH:mm' }}
-                      </div>
-                    </div>
-                  </div>
-                }
-              </div>
-            }
-          </div>
-        }
-
-        <div class="pt-2 flex justify-end">
-          <button
-            type="button"
-            (click)="closeDetailsModal()"
-            class="px-5 py-2.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer"
-          >
-            Fechar
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-}
-
-<!-- MODAL DE IMPORTAÇÃO DE VEÍCULOS CSV -->
-@if (isImportModalOpen()) {
-  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-150">
-    <div class="bg-white rounded-2xl border border-slate-200/90 shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-150 flex flex-col max-h-[90vh]">
-      <!-- Header do Modal -->
-      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 shrink-0">
-        <div>
-          <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
-            <div class="size-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-200/60">
-              <svg lucideFileText class="size-4"></svg>
-            </div>
-            Importação em Lote de Veículos
-          </h2>
-          <p class="text-xs text-slate-500 mt-0.5">Suba uma planilha CSV para cadastrar múltiplos veículos de uma só vez.</p>
-        </div>
-        <button
-          (click)="closeImportModal()"
-          class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
-        >
-          <svg lucideX class="size-4"></svg>
-        </button>
-      </div>
-
-      <!-- Corpo do Modal com Scroll -->
-      <div class="p-6 overflow-y-auto space-y-5">
-        <!-- Banner de Download do Modelo -->
-        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          <div class="flex items-start gap-3">
-            <div class="size-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 mt-0.5">
-              <svg lucideFileText class="size-4.5"></svg>
-            </div>
-            <div>
-              <h3 class="text-xs font-bold text-slate-800">Planilha Modelo Padronizada</h3>
-              <p class="text-[11px] text-slate-500 mt-0.5 leading-relaxed">
-                Utilize nosso modelo com cabeçalhos em português ou inglês (<code class="bg-white px-1 py-0.5 rounded border border-slate-200 font-mono text-[10px]">placa, marca, modelo, ano, km, vencimento_crlv</code>).
-              </p>
-            </div>
-          </div>
-          <button
-            type="button"
-            (click)="downloadTemplateCsv()"
-            class="inline-flex items-center gap-1.5 px-3 py-2 bg-white hover:bg-slate-100 text-slate-700 text-xs font-semibold rounded-lg border border-slate-200/90 shadow-2xs transition-colors shrink-0 cursor-pointer"
-          >
-            <svg class="size-3.5 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-            </svg>
-            <span>Baixar Modelo CSV</span>
-          </button>
-        </div>
-
-        <!-- Se ainda não tem resultado de importação, exibe área de upload -->
-        @if (!importResult()) {
-          <!-- Dropzone de Arquivo -->
-          <div
-            (dragover)="onDragOver($event)"
-            (dragleave)="onDragLeave($event)"
-            (drop)="onFileDropped($event)"
-            class="border-2 border-dashed rounded-2xl p-6 text-center transition-all cursor-pointer relative"
-            [ngClass]="isDragging() ? 'border-emerald-500 bg-emerald-50/40' : 'border-slate-200 hover:border-slate-300 bg-slate-50/40 hover:bg-slate-50/70'"
-          >
-            <input
-              type="file"
-              accept=".csv,text/csv,text/plain"
-              (change)="onFileSelected($event)"
-              class="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
-            />
-            <div class="flex flex-col items-center">
-              <div class="size-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mb-3 border border-emerald-200/60">
-                <svg class="size-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                </svg>
-              </div>
-              <p class="text-xs font-bold text-slate-800">
-                Arraste seu arquivo CSV aqui ou <span class="text-emerald-600 hover:underline">clique para selecionar</span>
-              </p>
-              <p class="text-[11px] text-slate-400 mt-1">
-                Suporta formato CSV (UTF-8 ou Windows Excel) até 5MB
-              </p>
-            </div>
-          </div>
-
-          <!-- Arquivo Selecionado -->
-          @if (selectedFile()) {
-            <div class="p-3 bg-emerald-50/60 border border-emerald-200/80 rounded-xl flex items-center justify-between">
-              <div class="flex items-center gap-2.5">
-                <div class="size-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center shrink-0">
-                  <svg lucideFileText class="size-4"></svg>
-                </div>
-                <div>
-                  <div class="text-xs font-bold text-slate-900">{{ selectedFile()!.name }}</div>
-                  <div class="text-[10px] text-slate-500">{{ formatFileSize(selectedFile()!.size) }}</div>
-                </div>
-              </div>
-              <button
-                type="button"
-                (click)="removeSelectedFile()"
-                class="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
-                title="Remover arquivo"
-              >
-                <svg lucideX class="size-4"></svg>
-              </button>
-            </div>
-          }
-
-          <!-- Mensagem de Erro Geral -->
-          @if (importErrorMessage()) {
-            <div class="p-3.5 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700 flex items-start gap-2.5">
-              <svg lucideAlertCircle class="size-4 shrink-0 mt-0.5 text-rose-500"></svg>
-              <span>{{ importErrorMessage() }}</span>
-            </div>
-          }
-        } @else {
-          <!-- RELATÓRIO DO RESULTADO DA IMPORTAÇÃO -->
-          <div class="space-y-4">
-            <!-- Cards de Métricas -->
-            <div class="grid grid-cols-3 gap-3">
-              <div class="p-3.5 bg-slate-50 border border-slate-200/80 rounded-xl text-center">
-                <div class="text-[11px] font-medium text-slate-500">Total no Arquivo</div>
-                <div class="text-lg font-bold text-slate-800 mt-0.5">{{ importResult()!.totalLinhas }}</div>
-              </div>
-              <div class="p-3.5 bg-emerald-50 border border-emerald-200/80 rounded-xl text-center">
-                <div class="text-[11px] font-medium text-emerald-700">Importados com Sucesso</div>
-                <div class="text-lg font-bold text-emerald-700 mt-0.5">{{ importResult()!.importadosComSucesso }}</div>
-              </div>
-              <div class="p-3.5 border rounded-xl text-center"
-                [ngClass]="importResult()!.erros.length > 0 ? 'bg-rose-50 border-rose-200/80 text-rose-700' : 'bg-slate-50 border-slate-200/80 text-slate-400'"
-              >
-                <div class="text-[11px] font-medium">Rejeitados / Erros</div>
-                <div class="text-lg font-bold mt-0.5">{{ importResult()!.erros.length }}</div>
-              </div>
-            </div>
-
-            <!-- Tabela de Linhas Rejeitadas (se houver erros) -->
-            @if (importResult()!.erros.length > 0) {
-              <div class="border border-rose-200/80 rounded-xl overflow-hidden">
-                <div class="px-4 py-2.5 bg-rose-50 border-b border-rose-200/70 flex items-center justify-between">
-                  <span class="text-xs font-bold text-rose-800 flex items-center gap-1.5">
-                    <svg lucideAlertTriangle class="size-3.5 text-rose-600"></svg>
-                    Linhas com inconsistência ({{ importResult()!.erros.length }})
-                  </span>
-                </div>
-                <div class="max-h-60 overflow-y-auto">
-                  <table class="w-full text-left text-xs">
-                    <thead class="bg-slate-50/90 text-slate-500 text-[10px] uppercase tracking-wider sticky top-0 border-b border-slate-100">
-                      <tr>
-                        <th class="py-2 px-3 font-semibold w-16">Linha</th>
-                        <th class="py-2 px-3 font-semibold w-24">Placa</th>
-                        <th class="py-2 px-3 font-semibold">Motivo da Rejeição</th>
-                      </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100">
-                      @for (err of importResult()!.erros; track err.linha) {
-                        <tr class="hover:bg-slate-50/80">
-                          <td class="py-2 px-3 font-mono font-bold text-slate-700">#{{ err.linha }}</td>
-                          <td class="py-2 px-3 font-mono text-slate-600 font-semibold">{{ err.placa || '-' }}</td>
-                          <td class="py-2 px-3 text-rose-600 font-medium">{{ err.motivo }}</td>
-                        </tr>
-                      }
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            } @else {
-              <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-center">
-                <div class="size-10 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto mb-2">
-                  <svg lucideCheck class="size-5"></svg>
-                </div>
-                <div class="text-xs font-bold text-emerald-800">Todos os veículos foram importados com sucesso!</div>
-                <div class="text-[11px] text-emerald-600 mt-0.5">Nenhuma linha apresentou erro.</div>
-              </div>
-            }
-          </div>
-        }
-      </div>
-
-      <!-- Rodapé do Modal -->
-      <div class="px-6 py-4 border-t border-slate-100 flex items-center justify-between bg-slate-50/50 shrink-0">
-        @if (!importResult()) {
-          <button
-            type="button"
-            (click)="closeImportModal()"
-            [disabled]="isImporting()"
-            class="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer disabled:opacity-50"
-          >
-            Cancelar
-          </button>
-          <button
-            type="button"
-            (click)="executeImport()"
-            [disabled]="!selectedFile() || isImporting()"
-            class="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-semibold text-xs rounded-xl shadow-xs transition-all cursor-pointer disabled:cursor-not-allowed"
-          >
-            @if (isImporting()) {
-              <svg lucideLoader2 class="size-4 animate-spin"></svg>
-              <span>Processando e Validando...</span>
-            } @else {
-              <span>Importar Veículos</span>
-            }
-          </button>
-        } @else {
-          <button
-            type="button"
-            (click)="openImportModal()"
-            class="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
-          >
-            Importar Outro Arquivo
-          </button>
-          <button
-            type="button"
-            (click)="closeImportModal()"
-            class="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs rounded-xl shadow-xs transition-all cursor-pointer"
-          >
-            Concluir e Ver Frota
-          </button>
-        }
-      </div>
-    </div>
-  </div>
-}
-
-
+<!-- ============================================================== -->
+<!-- MODAIS MODULARIZADOS (COMPONENTE ESPECÍFICOS DE DOMÍNIO)       -->
+<!-- ============================================================== -->
+
+<app-vehicle-form-modal
+  [isOpen]="isModalOpen()"
+  (close)="closeModal()"
+  (vehicleCreated)="onVehicleCreated()"
+/>
+
+<app-vehicle-update-km-modal
+  [isOpen]="isUpdateKmModalOpen()"
+  [vehicle]="selectedVehicle()"
+  (close)="closeUpdateKmModal()"
+  (kmUpdated)="loadVehicles()"
+/>
+
+<app-vehicle-update-crlv-modal
+  [isOpen]="isUpdateCrlvModalOpen()"
+  [vehicle]="selectedVehicle()"
+  (close)="closeUpdateCrlvModal()"
+  (crlvUpdated)="onCrlvUpdated($event)"
+/>
+
+<app-vehicle-send-maintenance-modal
+  [isOpen]="isSendMaintenanceModalOpen()"
+  [vehicle]="selectedVehicle()"
+  (close)="closeSendMaintenanceModal()"
+  (maintenanceSaved)="loadVehicles()"
+/>
+
+<app-vehicle-maintenance-info-modal
+  [isOpen]="isMaintenanceInfoModalOpen()"
+  [vehicle]="selectedVehicle()"
+  [maintenance]="selectedMaintenanceForInfo()"
+  (close)="closeMaintenanceInfoModal()"
+  (openFinish)="openFinishMaintenanceModal($event)"
+  (maintenanceStarted)="loadVehicles()"
+/>
+
+<app-vehicle-finish-maintenance-modal
+  [isOpen]="isFinishMaintenanceModalOpen()"
+  [vehicle]="selectedVehicle()"
+  (close)="closeFinishMaintenanceModal()"
+  (maintenanceFinished)="loadVehicles()"
+/>
+
+<app-vehicle-details-modal
+  [isOpen]="isDetailsModalOpen()"
+  [vehicle]="selectedVehicle()"
+  (close)="closeDetailsModal()"
+  (openRenewCrlv)="openUpdateCrlvModal($event)"
+/>
+
+<app-vehicle-import-modal
+  [isOpen]="isImportModalOpen()"
+  (close)="closeImportModal()"
+  (importCompleted)="loadVehicles()"
+/>
