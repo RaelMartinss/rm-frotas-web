@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, HostListener, inject, OnInit, signal } from '@angular/core';
 import { CommonModule, DatePipe, DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -31,7 +31,9 @@ import {
   LucideCalendar,
   LucideFileText,
   LucideFuel,
-  LucideCheckCircle2
+  LucideCheckCircle2,
+  LucideEllipsisVertical,
+  LucidePencil
 } from '@lucide/angular';
 
 @Component({
@@ -62,7 +64,9 @@ import {
     LucideCalendar,
     LucideFileText,
     LucideFuel,
-    LucideCheckCircle2
+    LucideCheckCircle2,
+    LucideEllipsisVertical,
+    LucidePencil
   ],
   templateUrl: './vehicle-list.html',
   styleUrl: './vehicle-list.css'
@@ -95,6 +99,7 @@ export class VehicleListComponent implements OnInit {
   isUpdateKmModalOpen = signal<boolean>(false);
   isUpdateCrlvModalOpen = signal<boolean>(false);
   isDetailsModalOpen = signal<boolean>(false);
+  activeDropdownVehicleId = signal<string | null>(null);
 
   // Busca e Filtros
   searchControl = new FormControl('', { nonNullable: true });
@@ -324,6 +329,21 @@ export class VehicleListComponent implements OnInit {
   closeDetailsModal(): void {
     this.isDetailsModalOpen.set(false);
     this.selectedVehicle.set(null);
+  }
+
+  toggleDropdown(vehicleId: string): void {
+    this.activeDropdownVehicleId.update((current) => (current === vehicleId ? null : vehicleId));
+  }
+
+  closeDropdown(): void {
+    this.activeDropdownVehicleId.set(null);
+  }
+
+  @HostListener('document:click')
+  onDocumentClick(): void {
+    if (this.activeDropdownVehicleId()) {
+      this.activeDropdownVehicleId.set(null);
+    }
   }
 
   // --- HELPERS VISUAIS ---
