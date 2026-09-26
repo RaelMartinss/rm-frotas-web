@@ -6,6 +6,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { IVehicleRepository } from '../../domain/repositories/vehicle.repository.interface';
 import { IMaintenanceRepository } from '../../domain/repositories/maintenance.repository.interface';
+import { IDashboardRepository } from '../../domain/repositories/dashboard.repository.interface';
 import { ToastService } from '../../core/services/toast.service';
 import { ImpersonationService } from '../../core/services/impersonation.service';
 import { Vehicle } from '../../domain/models/vehicle.model';
@@ -74,6 +75,7 @@ import {
 export class VehicleListComponent implements OnInit {
   private readonly vehicleRepository = inject(IVehicleRepository);
   private readonly maintenanceRepository = inject(IMaintenanceRepository);
+  private readonly dashboardRepository = inject(IDashboardRepository);
   private readonly toastService = inject(ToastService);
   protected readonly impersonationService = inject(ImpersonationService);
   readonly getBrandLogo = getVehicleBrandLogo;
@@ -140,11 +142,37 @@ export class VehicleListComponent implements OnInit {
   }
 
   loadStatusCounts(): void {
+    const term = this.searchControl.value?.trim();
+
+    if (!term) {
+      this.dashboardRepository.getSummary().subscribe({
+        next: (summary) => {
+          if (summary?.kpis) {
+            this.statusCounts.set({
+              all: summary.kpis.activeVehicles ?? 0,
+              available: summary.kpis.availableVehicles ?? 0,
+              inUse: summary.kpis.unavailableVehicles ?? 0,
+              inMaintenance: summary.kpis.inMaintenanceVehicles ?? 0,
+            });
+          } else {
+            this.loadCountsFromVehicles(term);
+          }
+        },
+        error: () => {
+          this.loadCountsFromVehicles(term);
+        }
+      });
+    } else {
+      this.loadCountsFromVehicles(term);
+    }
+  }
+
+  private loadCountsFromVehicles(term: string): void {
     this.vehicleRepository
       .getAll({
         page: 1,
-        limit: 1000,
-        search: this.searchControl.value,
+        limit: 100,
+        search: term,
       })
       .subscribe({
         next: (response) => {
