@@ -1,7 +1,7 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { IDriverRepository } from '../../domain/repositories/driver.repository.interface';
@@ -12,38 +12,45 @@ import {
   CnhCategory,
   DriverSuspension,
   SuspensionReasonCategory,
-  SUSPENSION_REASON_LABELS,
   formatSuspensionReason,
 } from '../../domain/models/driver.model';
-import { CpfMaskDirective, PhoneMaskDirective, CnhMaskDirective } from '../shared/directives/input-mask.directives';
+import { PaginationComponent } from '../shared/components/pagination/pagination.component';
+import {
+  DriverFormModalComponent,
+  DriverFormPayload
+} from './components/driver-form-modal/driver-form-modal.component';
+import { DriverStatusModalComponent } from './components/driver-status-modal/driver-status-modal.component';
+import {
+  DriverSuspendModalComponent,
+  SuspendFormSubmitPayload
+} from './components/driver-suspend-modal/driver-suspend-modal.component';
+import { DriverLiftSuspensionModalComponent } from './components/driver-lift-suspension-modal/driver-lift-suspension-modal.component';
+import {
+  DriverUpdateCnhModalComponent,
+  UpdateCnhSubmitPayload
+} from './components/driver-update-cnh-modal/driver-update-cnh-modal.component';
+import { DriverDetailsModalComponent } from './components/driver-details-modal/driver-details-modal.component';
+import { DriverResetPasswordModalComponent } from './components/driver-reset-password-modal/driver-reset-password-modal.component';
+import {
+  DriverTempPasswordModalComponent,
+  TempPasswordModalData
+} from './components/driver-temp-password-modal/driver-temp-password-modal.component';
 import {
   LucideUsers,
   LucidePlus,
   LucideSearch,
-  LucideLoader2,
   LucideX,
   LucideAlertTriangle,
   LucidePhone,
   LucideIdCard,
   LucideEye,
-  LucideAlertCircle,
-  LucideCheck,
   LucideBan,
   LucidePauseCircle,
   LucidePlay,
   LucideUserCheck,
-  LucideChevronLeft,
-  LucideChevronRight,
-  LucideChevronsLeft,
-  LucideChevronsRight,
   LucideFuel,
-  LucideExternalLink,
-  LucideFileText,
-  LucideHistory,
   LucideKeyRound,
-  LucideCopy,
   LucideMail,
-  LucideShieldCheck,
   LucideSmartphone,
 } from '@lucide/angular';
 
@@ -54,37 +61,31 @@ import {
     CommonModule,
     RouterLink,
     ReactiveFormsModule,
-    CpfMaskDirective,
-    PhoneMaskDirective,
-    CnhMaskDirective,
+    PaginationComponent,
+    DriverFormModalComponent,
+    DriverStatusModalComponent,
+    DriverSuspendModalComponent,
+    DriverLiftSuspensionModalComponent,
+    DriverUpdateCnhModalComponent,
+    DriverDetailsModalComponent,
+    DriverResetPasswordModalComponent,
+    DriverTempPasswordModalComponent,
     LucideUsers,
     LucidePlus,
     LucideSmartphone,
     LucideSearch,
-    LucideLoader2,
     LucideX,
     LucideAlertTriangle,
     LucidePhone,
     LucideIdCard,
     LucideEye,
-    LucideAlertCircle,
-    LucideCheck,
     LucideBan,
     LucidePauseCircle,
     LucidePlay,
     LucideUserCheck,
-    LucideChevronLeft,
-    LucideChevronRight,
-    LucideChevronsLeft,
-    LucideChevronsRight,
     LucideFuel,
-    LucideExternalLink,
-    LucideFileText,
-    LucideHistory,
     LucideKeyRound,
-    LucideCopy,
     LucideMail,
-    LucideShieldCheck,
   ],
   templateUrl: './driver-list.html',
   styleUrl: './driver-list.css'
@@ -92,7 +93,6 @@ import {
 export class DriverListComponent implements OnInit {
   private readonly driverRepository = inject(IDriverRepository);
   private readonly toastService = inject(ToastService);
-  private readonly fb = inject(FormBuilder);
   protected readonly impersonationService = inject(ImpersonationService);
 
   drivers = signal<Driver[]>([]);
@@ -101,9 +101,9 @@ export class DriverListComponent implements OnInit {
   // --- PAGINAÇÃO SERVER-SIDE (OFFSET / LIMIT) ---
   currentPage = signal<number>(1);
   pageSize = signal<number>(10);
+  pageSizeOptions: number[] = [10, 20, 50, 100];
   totalItems = signal<number>(0);
   totalPages = signal<number>(1);
-  pageSizeOptions: number[] = [10, 25, 50];
 
   // Modais de Criação e Ações
   isModalOpen = signal<boolean>(false);
@@ -112,11 +112,7 @@ export class DriverListComponent implements OnInit {
 
   // Modal de Exibição de Senha Temporária
   tempPasswordModalOpen = signal<boolean>(false);
-  tempPasswordData = signal<{
-    userName: string;
-    temporaryPassword: string;
-    title?: string;
-  } | null>(null);
+  tempPasswordData = signal<TempPasswordModalData | null>(null);
   copied = signal<boolean>(false);
 
   // Modal de Confirmação de Reset de Senha
@@ -127,7 +123,6 @@ export class DriverListComponent implements OnInit {
   selectedDriver = signal<Driver | null>(null);
   isUpdateCnhModalOpen = signal<boolean>(false);
   isDetailsModalOpen = signal<boolean>(false);
-  detailsTab = signal<'info' | 'suspensions'>('info');
 
   // Modal de Suspensão Dedicado
   isSuspendModalOpen = signal<boolean>(false);
@@ -169,38 +164,6 @@ export class DriverListComponent implements OnInit {
     { initialValue: '' }
   );
 
-  startIndex = computed(() => {
-    if (this.totalItems() === 0) return 0;
-    return (this.currentPage() - 1) * this.pageSize() + 1;
-  });
-
-  endIndex = computed(() => {
-    return Math.min(this.currentPage() * this.pageSize(), this.totalItems());
-  });
-
-  pageNumbers = computed(() => {
-    const total = this.totalPages();
-    const current = this.currentPage();
-    const delta = 1;
-    const range: (number | string)[] = [];
-
-    if (total <= 7) {
-      for (let i = 1; i <= total; i++) range.push(i);
-      return range;
-    }
-
-    const left = Math.max(2, current - delta);
-    const right = Math.min(total - 1, current + delta);
-
-    range.push(1);
-    if (left > 2) range.push('...');
-    for (let i = left; i <= right; i++) range.push(i);
-    if (right < total - 1) range.push('...');
-    range.push(total);
-
-    return range;
-  });
-
   clearSearch(): void {
     this.searchControl.setValue('');
     this.currentPage.set(1);
@@ -213,24 +176,12 @@ export class DriverListComponent implements OnInit {
     this.loadDrivers();
   }
 
-  setPage(page: number | string): void {
-    if (typeof page !== 'number' || page < 1 || page > this.totalPages() || page === this.currentPage()) {
+  setPage(page: number): void {
+    if (page < 1 || page > this.totalPages() || page === this.currentPage()) {
       return;
     }
     this.currentPage.set(page);
     this.loadDrivers();
-  }
-
-  nextPage(): void {
-    if (this.currentPage() < this.totalPages()) {
-      this.setPage(this.currentPage() + 1);
-    }
-  }
-
-  prevPage(): void {
-    if (this.currentPage() > 1) {
-      this.setPage(this.currentPage() - 1);
-    }
   }
 
   setPageSize(newSize: number): void {
@@ -238,35 +189,6 @@ export class DriverListComponent implements OnInit {
     this.currentPage.set(1);
     this.loadDrivers();
   }
-
-  // --- FORMULÁRIOS REATIVOS ---
-  driverForm: FormGroup = this.fb.group({
-    name: ['', [Validators.required, Validators.minLength(3)]],
-    email: ['', [Validators.required, Validators.email]],
-    cpf: ['', [Validators.required, Validators.pattern(/^\d{3}\.\d{3}\.\d{3}-\d{2}$|^\d{11}$/)]],
-    phone: [''],
-    cnhNumber: ['', [Validators.required, Validators.pattern(/^\d{11}$/)]],
-    cnhCategory: ['D', [Validators.required]],
-    cnhExpiration: ['', [Validators.required]]
-  });
-
-  updateCnhForm: FormGroup = this.fb.group({
-    cnhNumber: ['', [Validators.required, Validators.pattern(/^\d{11}$/)]],
-    cnhCategory: ['D', [Validators.required]],
-    cnhExpirationDate: ['', [Validators.required]]
-  });
-
-  suspendForm: FormGroup = this.fb.group({
-    reasonCategory: ['CNH_VENCIDA' as SuspensionReasonCategory, [Validators.required]],
-    reasonDetails: [''],
-    indefinite: [false],
-    expectedReturnDate: [''],
-    attachmentUrl: ['']
-  });
-
-  liftForm: FormGroup = this.fb.group({
-    liftReason: ['']
-  });
 
   ngOnInit(): void {
     this.searchControl.valueChanges
@@ -300,18 +222,6 @@ export class DriverListComponent implements OnInit {
           this.toastService.error('Erro ao carregar lista de motoristas.');
         }
       });
-  }
-
-  openModal(): void {
-    if (this.impersonationService.isReadOnly()) return;
-    this.errorMessage.set(null);
-    this.driverForm.reset({ cnhCategory: 'D' });
-    this.isModalOpen.set(true);
-  }
-
-  closeModal(): void {
-    this.isModalOpen.set(false);
-    this.errorMessage.set(null);
   }
 
   getCnhNumber(driver: Driver): string {
@@ -408,17 +318,20 @@ export class DriverListComponent implements OnInit {
     return driver.status === 'SUSPENDED' || driver.status === 'AFASTADO';
   }
 
-  saveDriver(): void {
+  openModal(): void {
+    if (this.impersonationService.isReadOnly()) return;
     this.errorMessage.set(null);
+    this.isModalOpen.set(true);
+  }
 
-    if (this.driverForm.invalid) {
-      this.driverForm.markAllAsTouched();
-      this.toastService.error('Por favor, preencha todos os campos obrigatórios corretamente.');
-      return;
-    }
+  closeModal(): void {
+    this.isModalOpen.set(false);
+    this.errorMessage.set(null);
+  }
 
+  saveDriver(formValue: DriverFormPayload): void {
+    this.errorMessage.set(null);
     this.isSaving.set(true);
-    const formValue = this.driverForm.value;
 
     const payload = {
       name: formValue.name,
@@ -572,13 +485,6 @@ export class DriverListComponent implements OnInit {
     if (this.impersonationService.isReadOnly()) return;
     this.selectedDriver.set(driver);
     this.suspensionErrorMessage.set(null);
-    this.suspendForm.reset({
-      reasonCategory: 'CNH_VENCIDA',
-      reasonDetails: '',
-      indefinite: false,
-      expectedReturnDate: '',
-      attachmentUrl: ''
-    });
     this.isSuspendModalOpen.set(true);
   }
 
@@ -587,21 +493,9 @@ export class DriverListComponent implements OnInit {
     this.suspensionErrorMessage.set(null);
   }
 
-  confirmSuspendDriver(): void {
+  confirmSuspendDriver(formValue: SuspendFormSubmitPayload): void {
     const driver = this.selectedDriver();
     if (!driver) return;
-
-    const formValue = this.suspendForm.value;
-
-    if (formValue.reasonCategory === 'OUTRO' && (!formValue.reasonDetails || formValue.reasonDetails.trim().length === 0)) {
-      this.suspensionErrorMessage.set('Para o motivo "Outro", é obrigatório fornecer os detalhes da justificativa.');
-      return;
-    }
-
-    if (!formValue.indefinite && !formValue.expectedReturnDate) {
-      this.suspensionErrorMessage.set('Informe a data prevista de retorno ou marque a opção "Sem prazo definido".');
-      return;
-    }
 
     this.isActionLoading.set(true);
     this.suspensionErrorMessage.set(null);
@@ -639,7 +533,6 @@ export class DriverListComponent implements OnInit {
   openLiftModal(driver: Driver): void {
     if (this.impersonationService.isReadOnly()) return;
     this.selectedDriver.set(driver);
-    this.liftForm.reset({ liftReason: '' });
     this.actionError.set(null);
     this.isLiftModalOpen.set(true);
   }
@@ -649,17 +542,15 @@ export class DriverListComponent implements OnInit {
     this.actionError.set(null);
   }
 
-  confirmLiftSuspension(): void {
+  confirmLiftSuspension(data: { liftReason?: string }): void {
     const driver = this.selectedDriver();
     if (!driver) return;
 
     this.isActionLoading.set(true);
     this.actionError.set(null);
 
-    const formValue = this.liftForm.value;
-
     this.driverRepository.liftSuspension(driver.id, {
-      liftReason: formValue.liftReason || undefined,
+      liftReason: data.liftReason || undefined,
     }).subscribe({
       next: () => {
         this.isActionLoading.set(false);
@@ -693,28 +584,11 @@ export class DriverListComponent implements OnInit {
     });
   }
 
-  setDetailsTab(tab: 'info' | 'suspensions'): void {
-    this.detailsTab.set(tab);
-    if (tab === 'suspensions' && this.selectedDriver()) {
-      this.loadDriverSuspensions(this.selectedDriver()!.id);
-    }
-  }
-
   // --- AÇÕES: ATUALIZAR / RENOVAR CNH ---
   openUpdateCnhModal(driver: Driver): void {
     if (this.impersonationService.isReadOnly()) return;
     this.selectedDriver.set(driver);
     this.actionError.set(null);
-
-    const currentExp = this.getCnhExpiration(driver);
-    const dateFormatted = currentExp ? currentExp.split('T')[0] : '';
-
-    this.updateCnhForm.reset({
-      cnhNumber: this.getCnhNumber(driver) === '-' ? '' : this.getCnhNumber(driver),
-      cnhCategory: this.getCnhCategory(driver) === '-' ? 'D' : this.getCnhCategory(driver),
-      cnhExpirationDate: dateFormatted
-    });
-
     this.isUpdateCnhModalOpen.set(true);
   }
 
@@ -724,24 +598,16 @@ export class DriverListComponent implements OnInit {
     this.actionError.set(null);
   }
 
-  confirmUpdateCnh(): void {
+  confirmUpdateCnh(formValue: UpdateCnhSubmitPayload): void {
     const driver = this.selectedDriver();
     if (!driver) return;
-
-    if (this.updateCnhForm.invalid) {
-      this.updateCnhForm.markAllAsTouched();
-      this.toastService.error('Preencha os dados da CNH corretamente.');
-      return;
-    }
 
     this.isActionLoading.set(true);
     this.actionError.set(null);
 
-    const formValue = this.updateCnhForm.value;
-
     this.driverRepository.updateCnh(driver.id, {
       cnhNumber: formValue.cnhNumber,
-      cnhCategory: formValue.cnhCategory,
+      cnhCategory: formValue.cnhCategory as CnhCategory,
       cnhExpirationDate: formValue.cnhExpirationDate
     }).subscribe({
       next: (updatedDriver) => {
@@ -764,7 +630,6 @@ export class DriverListComponent implements OnInit {
   // --- AÇÕES: DETALHES / FICHA DO MOTORISTA ---
   openDetailsModal(driver: Driver): void {
     this.selectedDriver.set(driver);
-    this.detailsTab.set('info');
     this.isDetailsModalOpen.set(true);
     this.loadDriverSuspensions(driver.id);
   }
