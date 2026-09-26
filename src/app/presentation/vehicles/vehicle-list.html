@@ -14,24 +14,6 @@
       <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Cadastre, acompanhe o odômetro e controle manutenções da frota.</p>
     </div>
     <div class="flex items-center gap-2">
-      <a
-        routerLink="/abastecimentos"
-        class="inline-flex items-center gap-2 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs px-3.5 py-2.5 rounded-xl border border-slate-200/90 transition-all shadow-2xs hover:shadow-xs cursor-pointer"
-        title="Acessar Central de Abastecimentos"
-      >
-        <svg lucideFuel class="size-4 text-emerald-600"></svg>
-        <span>Abastecimentos</span>
-      </a>
-
-      <a
-        routerLink="/manutencoes"
-        class="inline-flex items-center gap-2 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs px-3.5 py-2.5 rounded-xl border border-slate-200/90 transition-all shadow-2xs hover:shadow-xs cursor-pointer"
-        title="Acessar Central de Manutenções"
-      >
-        <svg lucideWrench class="size-4 text-amber-600"></svg>
-        <span>Manutenções</span>
-      </a>
-
       @if (!impersonationService.isReadOnly()) {
         <button
           (click)="openImportModal()"
@@ -74,7 +56,7 @@
       }
     </div>
 
-    <!-- Chips de Filtro de Status -->
+    <!-- Chips de Filtro de Status com Contadores -->
     <div class="flex items-center gap-1.5 overflow-x-auto pb-1 lg:pb-0">
       <button
         type="button"
@@ -83,6 +65,12 @@
         [ngClass]="selectedStatus() === 'ALL' ? 'bg-slate-900 text-white border-slate-900 shadow-2xs' : 'bg-slate-50 text-slate-600 border-slate-200/80 hover:bg-slate-100'"
       >
         <span>Todos</span>
+        <span
+          class="ml-0.5 px-1.5 py-0.2 rounded-full text-[10px] font-bold transition-colors"
+          [ngClass]="selectedStatus() === 'ALL' ? 'bg-white/20 text-white' : 'bg-slate-200/70 text-slate-700'"
+        >
+          {{ statusCounts().all }}
+        </span>
       </button>
 
       <button
@@ -93,6 +81,12 @@
       >
         <span class="size-1.5 rounded-full" [ngClass]="selectedStatus() === 'AVAILABLE' ? 'bg-white' : 'bg-emerald-500'"></span>
         <span>Disponíveis</span>
+        <span
+          class="ml-0.5 px-1.5 py-0.2 rounded-full text-[10px] font-bold transition-colors"
+          [ngClass]="selectedStatus() === 'AVAILABLE' ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-800'"
+        >
+          {{ statusCounts().available }}
+        </span>
       </button>
 
       <button
@@ -103,6 +97,12 @@
       >
         <span class="size-1.5 rounded-full" [ngClass]="selectedStatus() === 'IN_USE' ? 'bg-white' : 'bg-blue-500'"></span>
         <span>Em Viagem</span>
+        <span
+          class="ml-0.5 px-1.5 py-0.2 rounded-full text-[10px] font-bold transition-colors"
+          [ngClass]="selectedStatus() === 'IN_USE' ? 'bg-white/20 text-white' : 'bg-blue-100 text-blue-800'"
+        >
+          {{ statusCounts().inUse }}
+        </span>
       </button>
 
       <button
@@ -113,6 +113,12 @@
       >
         <span class="size-1.5 rounded-full" [ngClass]="selectedStatus() === 'IN_MAINTENANCE' ? 'bg-white' : 'bg-amber-500'"></span>
         <span>Em Manutenção</span>
+        <span
+          class="ml-0.5 px-1.5 py-0.2 rounded-full text-[10px] font-bold transition-colors"
+          [ngClass]="selectedStatus() === 'IN_MAINTENANCE' ? 'bg-white/20 text-white' : 'bg-amber-100 text-amber-800'"
+        >
+          {{ statusCounts().inMaintenance }}
+        </span>
       </button>
     </div>
   </div>
@@ -438,7 +444,7 @@
   [isOpen]="isSendMaintenanceModalOpen()"
   [vehicle]="selectedVehicle()"
   (close)="closeSendMaintenanceModal()"
-  (maintenanceSaved)="loadVehicles()"
+  (maintenanceSaved)="refreshData()"
 />
 
 <app-vehicle-maintenance-info-modal
@@ -447,14 +453,14 @@
   [maintenance]="selectedMaintenanceForInfo()"
   (close)="closeMaintenanceInfoModal()"
   (openFinish)="openFinishMaintenanceModal($event)"
-  (maintenanceStarted)="loadVehicles()"
+  (maintenanceStarted)="refreshData()"
 />
 
 <app-vehicle-finish-maintenance-modal
   [isOpen]="isFinishMaintenanceModalOpen()"
   [vehicle]="selectedVehicle()"
   (close)="closeFinishMaintenanceModal()"
-  (maintenanceFinished)="loadVehicles()"
+  (maintenanceFinished)="refreshData()"
 />
 
 <app-vehicle-details-modal
@@ -467,5 +473,5 @@
 <app-vehicle-import-modal
   [isOpen]="isImportModalOpen()"
   (close)="closeImportModal()"
-  (importCompleted)="loadVehicles()"
+  (importCompleted)="refreshData()"
 />

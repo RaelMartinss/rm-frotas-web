@@ -101,6 +101,19 @@ export class VehicleListComponent implements OnInit {
   isDetailsModalOpen = signal<boolean>(false);
   activeDropdownVehicleId = signal<string | null>(null);
 
+  // Contadores por Status para os Chips
+  statusCounts = signal<{
+    all: number;
+    available: number;
+    inUse: number;
+    inMaintenance: number;
+  }>({
+    all: 0,
+    available: 0,
+    inUse: 0,
+    inMaintenance: 0,
+  });
+
   // Busca e Filtros
   searchControl = new FormControl('', { nonNullable: true });
   selectedStatus = signal<string>('ALL');
@@ -119,9 +132,47 @@ export class VehicleListComponent implements OnInit {
       .subscribe(() => {
         this.currentPage.set(1);
         this.loadVehicles();
+        this.loadStatusCounts();
       });
 
     this.loadVehicles();
+    this.loadStatusCounts();
+  }
+
+  loadStatusCounts(): void {
+    this.vehicleRepository
+      .getAll({
+        page: 1,
+        limit: 1000,
+        search: this.searchControl.value,
+      })
+      .subscribe({
+        next: (response) => {
+          const list = response.data || [];
+          const available = list.filter(
+            (v) => v.status === 'AVAILABLE' || v.status === 'DISPONIVEL'
+          ).length;
+          const inUse = list.filter(
+            (v) => v.status === 'IN_USE' || v.status === 'EM_VIAGEM'
+          ).length;
+          const inMaintenance = list.filter(
+            (v) => v.status === 'IN_MAINTENANCE' || v.status === 'MANUTENCAO'
+          ).length;
+
+          this.statusCounts.set({
+            all: response.total || list.length,
+            available,
+            inUse,
+            inMaintenance,
+          });
+        },
+        error: () => {}
+      });
+  }
+
+  refreshData(): void {
+    this.loadVehicles();
+    this.loadStatusCounts();
   }
 
   loadVehicles(): void {
@@ -175,6 +226,7 @@ export class VehicleListComponent implements OnInit {
     this.searchControl.setValue('');
     this.currentPage.set(1);
     this.loadVehicles();
+    this.loadStatusCounts();
   }
 
   setPage(page: number): void {
@@ -201,7 +253,7 @@ export class VehicleListComponent implements OnInit {
 
   onVehicleCreated(): void {
     this.currentPage.set(1);
-    this.loadVehicles();
+    this.refreshData();
   }
 
   openImportModal(): void {
