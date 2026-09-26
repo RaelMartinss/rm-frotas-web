@@ -112,7 +112,7 @@
         [ngClass]="selectedStatus() === 'IN_MAINTENANCE' ? 'bg-amber-600 text-white border-amber-600 shadow-2xs' : 'bg-slate-50 text-slate-600 border-slate-200/80 hover:bg-slate-100'"
       >
         <span class="size-1.5 rounded-full" [ngClass]="selectedStatus() === 'IN_MAINTENANCE' ? 'bg-white' : 'bg-amber-500'"></span>
-        <span>Manutenção</span>
+        <span>Em Manutenção</span>
       </button>
     </div>
   </div>
@@ -133,6 +133,7 @@
             <div class="h-3 bg-slate-200 rounded w-20"></div>
             <div class="h-4 bg-slate-100 rounded w-24"></div>
             <div class="h-6 bg-slate-200 rounded-full w-24"></div>
+            <div class="h-6 bg-slate-200 rounded-full w-24"></div>
             <div class="h-7 bg-slate-100 rounded-lg w-28"></div>
           </div>
         }
@@ -147,6 +148,7 @@
               <th class="py-3 px-4">Odômetro</th>
               <th class="py-3 px-4">Licenciamento (CRLV)</th>
               <th class="py-3 px-4">Status</th>
+              <th class="py-3 px-4">Manutenção</th>
               <th class="py-3 px-4 text-right">Ações</th>
             </tr>
           </thead>
@@ -225,43 +227,56 @@
                   }
                 </td>
 
-                <!-- Status Badge Contextual -->
-                <td class="py-3.5 px-4">
-                  <div class="flex items-center gap-1.5">
-                    @if (isInMaintenance(vehicle) && activeMaintenancesMap().get(vehicle.id); as activeMaint) {
+                <!-- Status Operacional -->
+                <td class="py-3.5 px-4 whitespace-nowrap">
+                  <span
+                    class="px-2.5 py-1 rounded-full text-[11px] font-semibold inline-flex items-center gap-1.5 border shadow-2xs"
+                    [ngClass]="getStatusClass(vehicle.status)"
+                  >
+                    <span class="size-1.5 rounded-full" [ngClass]="getStatusDotClass(vehicle.status)"></span>
+                    <span>{{ getStatusLabel(vehicle.status) }}</span>
+                  </span>
+                </td>
+
+                <!-- Situação de Manutenção -->
+                <td class="py-3.5 px-4 whitespace-nowrap">
+                  @if (activeMaintenancesMap().get(vehicle.id); as activeMaint) {
+                    @if (activeMaint.status === 'EM_ANDAMENTO' || isInMaintenance(vehicle)) {
                       <button
                         type="button"
                         (click)="openMaintenanceInfoModal(vehicle, activeMaint)"
-                        class="px-2.5 py-1 rounded-full text-[11px] font-semibold inline-flex items-center gap-1.5 border shadow-2xs transition-all cursor-pointer hover:ring-2 hover:ring-amber-400/40"
-                        [ngClass]="getStatusClass(vehicle.status)"
-                        title="Clique para ver os detalhes da manutenção em andamento"
+                        class="px-2.5 py-1 rounded-full text-[11px] font-semibold inline-flex items-center gap-1.5 border shadow-2xs transition-all cursor-pointer bg-amber-50 text-amber-800 border-amber-200/80 hover:bg-amber-100 hover:ring-2 hover:ring-amber-300/40"
+                        title="Manutenção em andamento. Clique para ver detalhes ou concluir."
                       >
-                        <span class="size-1.5 rounded-full" [ngClass]="getStatusDotClass(vehicle.status)"></span>
-                        <span>{{ getStatusLabel(vehicle.status) }}</span>
-                        <svg lucideWrench class="size-3 ml-0.5 text-amber-600"></svg>
+                        <span class="size-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                        <svg lucideWrench class="size-3 text-amber-600"></svg>
+                        <span>Em andamento</span>
                       </button>
-                    } @else {
-                      <span
-                        class="px-2.5 py-1 rounded-full text-[11px] font-semibold inline-flex items-center gap-1.5 border shadow-2xs"
-                        [ngClass]="getStatusClass(vehicle.status)"
-                      >
-                        <span class="size-1.5 rounded-full" [ngClass]="getStatusDotClass(vehicle.status)"></span>
-                        <span>{{ getStatusLabel(vehicle.status) }}</span>
-                      </span>
-                    }
-
-                    @if (isAvailable(vehicle) && activeMaintenancesMap().get(vehicle.id)?.status === 'AGENDADA'; as scheduledMaint) {
+                    } @else if (activeMaint.status === 'AGENDADA') {
                       <button
                         type="button"
-                        (click)="openMaintenanceInfoModal(vehicle, activeMaintenancesMap().get(vehicle.id)!)"
-                        class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200 inline-flex items-center gap-1 hover:bg-blue-100 transition-colors cursor-pointer"
-                        title="Manutenção periódica agendada para este veículo. Clique para detalhes."
+                        (click)="openMaintenanceInfoModal(vehicle, activeMaint)"
+                        class="px-2.5 py-1 rounded-full text-[11px] font-semibold inline-flex items-center gap-1.5 border shadow-2xs transition-all cursor-pointer bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100 hover:ring-2 hover:ring-blue-300/40"
+                        title="Manutenção periódica agendada. Clique para ver detalhes."
                       >
                         <svg lucideCalendar class="size-3 text-blue-600"></svg>
                         <span>Agendada</span>
                       </button>
                     }
-                  </div>
+                  } @else if (isInMaintenance(vehicle)) {
+                    <button
+                      type="button"
+                      (click)="openMaintenanceAction(vehicle)"
+                      class="px-2.5 py-1 rounded-full text-[11px] font-semibold inline-flex items-center gap-1.5 border shadow-2xs transition-all cursor-pointer bg-amber-50 text-amber-800 border-amber-200/80 hover:bg-amber-100 hover:ring-2 hover:ring-amber-300/40"
+                      title="Veículo em manutenção. Clique para detalhes."
+                    >
+                      <span class="size-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                      <svg lucideWrench class="size-3 text-amber-600"></svg>
+                      <span>Em andamento</span>
+                    </button>
+                  } @else {
+                    <span class="text-slate-400 text-xs pl-2.5 font-mono">—</span>
+                  }
                 </td>
 
                 <!-- Ações -->
