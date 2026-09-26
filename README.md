@@ -5,9 +5,10 @@
 ![Angular](https://img.shields.io/badge/Angular-DD0031?style=for-the-badge&logo=angular&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![Capacitor](https://img.shields.io/badge/Capacitor-119EFF?style=for-the-badge&logo=capacitor&logoColor=white)
+![Android](https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white)
 ![Chart.js](https://img.shields.io/badge/Chart.js-FF6384?style=for-the-badge&logo=chartdotjs&logoColor=white)
 ![Vitest](https://img.shields.io/badge/Vitest-6E9F18?style=for-the-badge&logo=vitest&logoColor=white)
-![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)
 
 Interface moderna, reativa e profissional para gestão executiva e operacional de frotas veiculares, motoristas, viagens e manutenções.
 
@@ -15,8 +16,9 @@ Interface moderna, reativa e profissional para gestão executiva e operacional d
 [Funcionalidades](#-funcionalidades-chave) •
 [Arquitetura](#-arquitetura-do-frontend) •
 [Design System](#-design-system--ux) •
+[Mobile (Android)](#-mobile-android--capacitor) •
 [Instalação & Execução](#-instalação-e-execução) •
-[Deploy](#-deploy-vercel)
+[Testes](#-testes-automatizados--qualidade)
 
 </div>
 
@@ -43,11 +45,18 @@ A interface foi projetada para dois perfis principais de operação:
 - **Veículos**: Tabela paginada com status dinâmicos (*Disponível*, *Em Viagem*, *Em Manutenção*, *Inativo*), controle de quilometragem e data de licenciamento (CRLV).
 - **Motoristas**: Cadastro de condutores com validação de CNH, categoria e controle de pontuação/vencimento.
 - **Viagens / Despacho**: Registro de saídas, chegadas, hodômetro inicial/final e alocação de motorista/veículo.
+- **Abastecimentos (`Fuel`)**: Registro e acompanhamento de abastecimentos, postos, tipos de combustível, valores e cálculo de consumo médio.
+- **Manutenções (`Maintenance`)**: Ordens de serviço preventivas e corretivas, controle de fornecedores/oficinas e custos operacionais.
+- **Alertas & Vencimentos**: Monitoramento automático de prazos e alertas de expiração de CNH e licenciamento veicular.
+- **Clientes / Contratos**: Gestão de clientes e frotas conveniadas vinculadas à operação.
+- **Mapas Interativos (Leaflet)**: Visualização geográfica de posições, rotas e paradas operacionais.
+- **Portal do Motorista (Self-Service)**: Painel otimizado para o condutor com histórico de viagens, checklist e prestação de contas.
 - **Usuários & Permissões**: Painel administrativo para gestão de papéis (`ADMIN`, `FLEET_MANAGER`, `DRIVER`).
 
 ### ⚡ Produtividade & UX Avançada
 - **Command Palette Global (`Ctrl + K` / `Cmd + K`)**: Atalho de navegação rápida para qualquer módulo, atalhos de novo cadastro ou busca rápida.
 - **Central de Notificações & Feedback**: Toasts flutuantes com temporizador e dropdown de alertas com badges de status.
+- **Proteção de Sessão por Inatividade**: Modal com bloqueio automático de tela por tempo ocioso com desbloqueio via senha ou biometria.
 - **Máscaras de Entrada Inteligentes (Directives Standalone)**:
   - `[appPlateMask]`: Formatação e conversão automática para padrão Mercosul (`ABC-1D23` ou `ABC-1234`) com uppercase forçado.
   - `[appCpfMask]`: Formatação dinâmica para CPF (`000.000.000-00`).
@@ -104,6 +113,28 @@ src/app/
 
 ---
 
+## 📱 Mobile (Android / Capacitor)
+
+A aplicação conta com suporte nativo e compilação híbrida para dispositivos **Android** através do **Capacitor**:
+
+- **Autenticação Biométrica**: Desbloqueio e validação rápida por impressão digital ou reconhecimento facial.
+- **Rastreamento e Geolocalização**: Coleta de coordenadas em tempo real e em segundo plano durante viagens ativas.
+- **Notificações Operacionais**: Notificações push e locais para alertas de despacho, revisões e avisos operacionais.
+
+### Comandos de Sincronização Mobile:
+```bash
+# 1. Compila os arquivos estáticos do frontend
+npm run build
+
+# 2. Sincroniza a build web e dependências com a pasta nativa Android
+npx cap sync android
+
+# 3. Abre o projeto no Android Studio para emulação ou geração do APK
+npx cap open android
+```
+
+---
+
 ## 🚀 Instalação e Execução
 
 ### Pré-requisitos
@@ -114,7 +145,7 @@ src/app/
 
 1. **Clone o repositório:**
    ```bash
-   git clone https://github.com/seu-usuario/rm-frotas-web.git
+   git clone https://github.com/RaelMartinss/rm-frotas-web.git
    cd rm-frotas-web
    ```
 
@@ -154,36 +185,3 @@ npx vitest
 # Executar build de verificação
 npm run build
 ```
-
----
-
-## 🌐 Deploy (Vercel)
-
-O projeto está totalmente configurado para deploy automático na **Vercel** com suporte a Single Page Application (SPA Routing):
-
-### Configuração (`vercel.json`)
-```json
-{
-  "version": 2,
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist/rm-frotas-web/browser",
-  "framework": "angular",
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
-  ]
-}
-```
-
-### Passos para Deploy:
-1. Conecte o repositório na plataforma [Vercel](https://vercel.com/).
-2. A Vercel detectará automaticamente as configurações do `vercel.json`.
-3. Configure a variável de ambiente se necessário e clique em **Deploy**.
-
----
-
-## 📄 Licença
-
-Distribuído sob a licença **MIT**. Veja `LICENSE` para mais informações.
