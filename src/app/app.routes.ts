@@ -104,6 +104,11 @@ export const routes: Routes = [
           import('./presentation/drivers/driver-list').then((m) => m.DriverListComponent)
       },
       {
+        path: 'motoristas/:id',
+        loadComponent: () =>
+          import('./presentation/drivers/driver-edit/driver-edit').then((m) => m.DriverEditComponent)
+      },
+      {
         path: 'viagens',
         loadComponent: () =>
           import('./presentation/trips/trip-list').then((m) => m.TripListComponent)

@@ -1,0 +1,607 @@
+<div class="space-y-6 animate-in fade-in duration-200">
+  <!-- LINK VOLTAR -->
+  <div>
+    <a
+      routerLink="/motoristas"
+      class="inline-flex items-center gap-2 text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors group cursor-pointer"
+    >
+      <svg lucideArrowLeft class="size-4 transition-transform group-hover:-translate-x-0.5"></svg>
+      <span>Voltar para a lista de motoristas</span>
+    </a>
+  </div>
+
+  @if (loading()) {
+    <div class="bg-white rounded-2xl border border-slate-200/80 p-12 text-center shadow-2xs">
+      <svg lucideLoader2 class="size-8 animate-spin text-emerald-600 mx-auto mb-3"></svg>
+      <p class="text-sm font-semibold text-slate-700">Carregando dados do motorista...</p>
+    </div>
+  } @else if (driver()) {
+    <!-- CABEÇALHO DO MOTORISTA -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs">
+      <div class="flex items-center gap-4">
+        <div class="size-14 rounded-2xl bg-slate-900 text-white font-bold flex items-center justify-center text-lg shrink-0 shadow-md">
+          {{ initials }}
+        </div>
+        <div>
+          <div class="flex items-center gap-2.5 flex-wrap">
+            <h1 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+              {{ driver()?.name }}
+            </h1>
+            <span
+              class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold inline-flex items-center gap-1.5 border shadow-2xs"
+              [ngClass]="driverStatusClass"
+            >
+              <span class="size-1.5 rounded-full" [ngClass]="driverStatusDotClass"></span>
+              {{ driverStatusLabel }}
+            </span>
+          </div>
+          <div class="flex items-center gap-3 text-xs text-slate-500 mt-1 flex-wrap font-medium">
+            <span class="font-mono">CPF: {{ driver()?.cpf }}</span>
+            <span>•</span>
+            <span>E-mail: {{ driver()?.email || 'Não informado' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOTÕES DE AÇÃO DO HEADER -->
+      <div class="flex items-center gap-2.5 self-end md:self-center">
+        <a
+          routerLink="/motoristas"
+          class="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 font-semibold text-xs transition-colors cursor-pointer"
+        >
+          Cancelar
+        </a>
+        @if (!impersonationService.isReadOnly()) {
+          <button
+            type="button"
+            (click)="save()"
+            [disabled]="saving()"
+            class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs px-5 py-2.5 rounded-xl transition-all shadow-xs hover:shadow-sm cursor-pointer disabled:opacity-50"
+          >
+            @if (saving()) {
+              <svg lucideLoader2 class="size-4 animate-spin"></svg>
+            } @else {
+              <svg lucideSave class="size-4"></svg>
+            }
+            <span>Salvar alterações</span>
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- CORPO PRINCIPAL: FORMULÁRIO (ESQUERDA) + AÇÕES RÁPIDAS (DIREITA) -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+      <!-- COLUNA PRINCIPAL DE CARDS (2/3) -->
+      <div class="lg:col-span-2 space-y-6">
+        <form [formGroup]="form" class="space-y-6">
+          <!-- CARD 1: DADOS PESSOAIS -->
+          <div class="bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-6 shadow-2xs space-y-5">
+            <div class="flex items-center gap-2.5 pb-4 border-b border-slate-100">
+              <div class="size-8 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center border border-slate-200/60">
+                <svg lucideUser class="size-4 text-slate-700"></svg>
+              </div>
+              <div>
+                <h2 class="text-sm font-bold text-slate-900">Dados Pessoais</h2>
+                <p class="text-[11px] text-slate-500">Informações cadastrais e dados de contato do condutor</p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <!-- Nome Completo -->
+              <div class="sm:col-span-2">
+                <label class="block text-xs font-semibold text-slate-700 mb-1.5">
+                  Nome completo <span class="text-rose-500">*</span>
+                </label>
+                <div class="relative">
+                  <svg lucideUser class="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></svg>
+                  <input
+                    type="text"
+                    formControlName="name"
+                    placeholder="Nome completo do motorista"
+                    class="w-full bg-slate-50 text-slate-800 text-xs rounded-xl pl-9 pr-3 py-2.5 border border-slate-200 focus:outline-hidden focus:border-emerald-500 focus:bg-white transition-colors"
+                  />
+                </div>
+                @if (form.get('name')?.touched && form.get('name')?.invalid) {
+                  <span class="text-[11px] text-rose-500 mt-1 block">O nome completo é obrigatório.</span>
+                }
+              </div>
+
+              <!-- CPF (Read-only) -->
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1.5">
+                  CPF <span class="text-slate-400 font-normal">(não editável)</span>
+                </label>
+                <div class="relative">
+                  <svg lucideIdCard class="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></svg>
+                  <input
+                    type="text"
+                    formControlName="cpf"
+                    class="w-full bg-slate-100 text-slate-500 text-xs font-mono rounded-xl pl-9 pr-3 py-2.5 border border-slate-200 cursor-not-allowed"
+                  />
+                </div>
+              </div>
+
+              <!-- Telefone / WhatsApp -->
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1.5">
+                  Telefone / WhatsApp <span class="text-rose-500">*</span>
+                </label>
+                <div class="relative">
+                  <svg lucidePhone class="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></svg>
+                  <input
+                    type="text"
+                    formControlName="phone"
+                    placeholder="(00) 00000-0000"
+                    class="w-full bg-slate-50 text-slate-800 text-xs rounded-xl pl-9 pr-3 py-2.5 border border-slate-200 focus:outline-hidden focus:border-emerald-500 focus:bg-white transition-colors"
+                  />
+                </div>
+                @if (form.get('phone')?.touched && form.get('phone')?.invalid) {
+                  <span class="text-[11px] text-rose-500 mt-1 block">O telefone é obrigatório.</span>
+                }
+              </div>
+
+              <!-- E-mail de acesso -->
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1.5">
+                  E-mail de acesso <span class="text-rose-500">*</span>
+                </label>
+                <div class="relative">
+                  <svg lucideMail class="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></svg>
+                  <input
+                    type="email"
+                    formControlName="email"
+                    placeholder="email@empresa.com.br"
+                    class="w-full bg-slate-50 text-slate-800 text-xs rounded-xl pl-9 pr-3 py-2.5 border border-slate-200 focus:outline-hidden focus:border-emerald-500 focus:bg-white transition-colors"
+                  />
+                </div>
+                @if (form.get('email')?.touched && form.get('email')?.invalid) {
+                  <span class="text-[11px] text-rose-500 mt-1 block">Informe um e-mail válido.</span>
+                }
+              </div>
+
+              <!-- Data de Nascimento -->
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1.5">
+                  Data de nascimento
+                </label>
+                <div class="relative">
+                  <svg lucideCalendar class="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></svg>
+                  <input
+                    type="date"
+                    formControlName="birthDate"
+                    class="w-full bg-slate-50 text-slate-800 text-xs rounded-xl pl-9 pr-3 py-2.5 border border-slate-200 focus:outline-hidden focus:border-emerald-500 focus:bg-white transition-colors"
+                  />
+                </div>
+              </div>
+
+              <!-- Cargo / Função -->
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1.5">
+                  Cargo / Função
+                </label>
+                <div class="relative">
+                  <svg lucideBriefcase class="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></svg>
+                  <input
+                    type="text"
+                    formControlName="role"
+                    placeholder="Ex: Motorista Carreteiro"
+                    class="w-full bg-slate-50 text-slate-800 text-xs rounded-xl pl-9 pr-3 py-2.5 border border-slate-200 focus:outline-hidden focus:border-emerald-500 focus:bg-white transition-colors"
+                  />
+                </div>
+              </div>
+
+              <!-- Endereço -->
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1.5">
+                  Endereço
+                </label>
+                <div class="relative">
+                  <svg lucideMapPin class="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></svg>
+                  <input
+                    type="text"
+                    formControlName="address"
+                    placeholder="Cidade, UF ou logradouro"
+                    class="w-full bg-slate-50 text-slate-800 text-xs rounded-xl pl-9 pr-3 py-2.5 border border-slate-200 focus:outline-hidden focus:border-emerald-500 focus:bg-white transition-colors"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- CARD 2: CNH E DOCUMENTAÇÃO -->
+          <div class="bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-6 shadow-2xs space-y-5">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100 flex-wrap gap-2">
+              <div class="flex items-center gap-2.5">
+                <div class="size-8 rounded-xl bg-indigo-50 text-indigo-700 flex items-center justify-center border border-indigo-200/60">
+                  <svg lucideIdCard class="size-4 text-indigo-700"></svg>
+                </div>
+                <div>
+                  <h2 class="text-sm font-bold text-slate-900">CNH e Documentação</h2>
+                  <p class="text-[11px] text-slate-500">Dados da Carteira Nacional de Habilitação</p>
+                </div>
+              </div>
+
+              <span
+                class="px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wide inline-flex items-center gap-1.5 border shadow-2xs uppercase"
+                [ngClass]="cnhStatus.class"
+              >
+                <span class="size-1.5 rounded-full" [ngClass]="cnhStatus.dotClass"></span>
+                {{ cnhStatus.label }}
+              </span>
+            </div>
+
+            <!-- Banner Informativo da Situação da CNH -->
+            @if (cnhStatus.isExpired) {
+              <div class="p-3.5 bg-rose-50 border border-rose-200/80 rounded-xl flex items-start gap-2.5 text-rose-800 text-xs">
+                <svg lucideShieldAlert class="size-4 text-rose-600 shrink-0 mt-0.5"></svg>
+                <div>
+                  <span class="font-bold block">Atenção: A CNH deste motorista está vencida</span>
+                  <span class="text-[11px] text-rose-700 mt-0.5 block">
+                    Atualize a data de validade com a nova via renovada antes de escalar este condutor em viagens.
+                  </span>
+                </div>
+              </div>
+            } @else if (cnhStatus.isSoon) {
+              <div class="p-3.5 bg-amber-50 border border-amber-200/80 rounded-xl flex items-start gap-2.5 text-amber-800 text-xs">
+                <svg lucideAlertTriangle class="size-4 text-amber-600 shrink-0 mt-0.5"></svg>
+                <div>
+                  <span class="font-bold block">Aviso: A CNH vencerá em breve</span>
+                  <span class="text-[11px] text-amber-700 mt-0.5 block">
+                    A habilitação está próxima da data de expiração. Solicite a renovação com antecedência.
+                  </span>
+                </div>
+              </div>
+            } @else {
+              <div class="p-3.5 bg-emerald-50/70 border border-emerald-200/60 rounded-xl flex items-start gap-2.5 text-emerald-800 text-xs">
+                <svg lucideShieldCheck class="size-4 text-emerald-600 shrink-0 mt-0.5"></svg>
+                <div>
+                  <span class="font-bold block">Documentação regular</span>
+                  <span class="text-[11px] text-emerald-700 mt-0.5 block">
+                    A CNH deste condutor está válida e em dia com a legislação de trânsito.
+                  </span>
+                </div>
+              </div>
+            }
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <!-- Número da CNH -->
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1.5">
+                  Número da CNH <span class="text-rose-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  formControlName="cnhNumber"
+                  placeholder="11 dígitos"
+                  maxlength="11"
+                  class="w-full bg-slate-50 text-slate-800 text-xs font-mono rounded-xl px-3 py-2.5 border border-slate-200 focus:outline-hidden focus:border-emerald-500 focus:bg-white transition-colors"
+                />
+                @if (form.get('cnhNumber')?.touched && form.get('cnhNumber')?.invalid) {
+                  <span class="text-[11px] text-rose-500 mt-1 block">A CNH deve conter 11 dígitos numéricos.</span>
+                }
+              </div>
+
+              <!-- Categoria CNH -->
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1.5">
+                  Categoria <span class="text-rose-500">*</span>
+                </label>
+                <select
+                  formControlName="cnhCategory"
+                  class="w-full bg-slate-50 text-slate-800 text-xs rounded-xl px-3 py-2.5 border border-slate-200 focus:outline-hidden focus:border-emerald-500 focus:bg-white transition-colors cursor-pointer"
+                >
+                  @for (cat of cnhCategories; track cat) {
+                    <option [value]="cat">Categoria {{ cat }}</option>
+                  }
+                </select>
+              </div>
+
+              <!-- Validade da CNH -->
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1.5">
+                  Validade da CNH <span class="text-rose-500">*</span>
+                </label>
+                <input
+                  type="date"
+                  formControlName="cnhExpirationDate"
+                  class="w-full bg-slate-50 text-slate-800 text-xs rounded-xl px-3 py-2.5 border border-slate-200 focus:outline-hidden focus:border-emerald-500 focus:bg-white transition-colors"
+                />
+                @if (form.get('cnhExpirationDate')?.touched && form.get('cnhExpirationDate')?.invalid) {
+                  <span class="text-[11px] text-rose-500 mt-1 block">A data de validade é obrigatória.</span>
+                }
+              </div>
+            </div>
+          </div>
+
+          <!-- CARD 3: VEÍCULO VINCULADO -->
+          <div class="bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-6 shadow-2xs space-y-4">
+            <div class="flex items-center gap-2.5 pb-4 border-b border-slate-100">
+              <div class="size-8 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center border border-blue-200/60">
+                <svg lucideCar class="size-4 text-blue-700"></svg>
+              </div>
+              <div>
+                <h2 class="text-sm font-bold text-slate-900">Veículo(s) Vinculado(s)</h2>
+                <p class="text-[11px] text-slate-500">Veículo atualmente sob responsabilidade ou em viagem com o condutor</p>
+              </div>
+            </div>
+
+            @if (activeTrip()) {
+              <div class="p-4 bg-blue-50/50 border border-blue-200/70 rounded-xl flex items-center justify-between flex-wrap gap-3">
+                <div class="flex items-center gap-3">
+                  <div class="size-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-xs">
+                    <svg lucideCar class="size-5"></svg>
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <span class="text-xs font-bold text-slate-900">
+                        {{ activeTrip()?.vehiclePlate || 'Veículo em rota' }}
+                      </span>
+                      <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-100 text-blue-800 border border-blue-200">
+                        Em Viagem
+                      </span>
+                    </div>
+                    <p class="text-[11px] text-slate-600 mt-0.5">
+                      Rota: {{ activeTrip()?.origin }} → {{ activeTrip()?.destination }}
+                    </p>
+                  </div>
+                </div>
+
+                <a
+                  [routerLink]="['/viagens']"
+                  class="text-xs font-semibold text-blue-700 hover:text-blue-800 hover:underline cursor-pointer"
+                >
+                  Ver Viagem →
+                </a>
+              </div>
+            } @else {
+              <div class="p-4 bg-slate-50/70 border border-slate-200/60 rounded-xl text-center py-6">
+                <svg lucideCar class="size-8 text-slate-300 mx-auto mb-2"></svg>
+                <p class="text-xs font-semibold text-slate-700">Nenhum veículo vinculado no momento</p>
+                <p class="text-[11px] text-slate-400 mt-0.5 max-w-sm mx-auto">
+                  O vínculo com veículos ocorre dinamicamente conforme o motorista é escalado para viagens na frota.
+                </p>
+              </div>
+            }
+          </div>
+
+          <!-- CARD 4: CONTROLE OPERACIONAL -->
+          <div class="bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-6 shadow-2xs space-y-5">
+            <div class="flex items-center gap-2.5 pb-4 border-b border-slate-100">
+              <div class="size-8 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center border border-slate-200/60">
+                <svg lucideUserCheck class="size-4 text-slate-700"></svg>
+              </div>
+              <div>
+                <h2 class="text-sm font-bold text-slate-900">Controle Operacional</h2>
+                <p class="text-[11px] text-slate-500">Parâmetros de status e anotações internas da gestão</p>
+              </div>
+            </div>
+
+            <!-- Switch: Motorista Ativo -->
+            <div class="flex items-center justify-between p-3.5 bg-slate-50 rounded-xl border border-slate-200/70">
+              <div>
+                <label class="text-xs font-bold text-slate-900 block">Motorista está ativo</label>
+                <span class="text-[11px] text-slate-500 block mt-0.5">
+                  Ativa ou desativa o acesso e a disponibilidade operacional do condutor na frota.
+                </span>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  formControlName="isActive"
+                  class="sr-only peer"
+                />
+                <div class="w-11 h-6 bg-slate-200 peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+              </label>
+            </div>
+
+            <!-- Data de Início no Sistema -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1.5">
+                Data de início no sistema
+              </label>
+              <div class="relative">
+                <svg lucideCalendar class="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></svg>
+                <input
+                  type="text"
+                  [value]="driver()?.createdAt | date:'dd/MM/yyyy'"
+                  disabled
+                  class="w-full bg-slate-100 text-slate-500 text-xs font-mono rounded-xl pl-9 pr-3 py-2.5 border border-slate-200 cursor-not-allowed"
+                />
+              </div>
+            </div>
+
+            <!-- Observações -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1.5">
+                Observações internas
+              </label>
+              <textarea
+                formControlName="notes"
+                rows="3"
+                placeholder="Observações operacionais sobre o motorista, preferências de rotas, etc."
+                class="w-full bg-slate-50 text-slate-800 text-xs rounded-xl p-3 border border-slate-200 focus:outline-hidden focus:border-emerald-500 focus:bg-white transition-colors"
+              ></textarea>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- COLUNA LATERAL: AÇÕES RÁPIDAS (1/3) -->
+      <div class="space-y-6">
+        <div class="bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-6 shadow-2xs space-y-4">
+          <div class="pb-3 border-b border-slate-100">
+            <h2 class="text-sm font-bold text-slate-900">Ações Rápidas</h2>
+            <p class="text-[11px] text-slate-500">Operações diretas sobre o cadastro do condutor</p>
+          </div>
+
+          <div class="space-y-2.5">
+            <!-- 1. Ver Abastecimentos -->
+            <a
+              [routerLink]="['/abastecimentos']"
+              [queryParams]="{ driverId: driver()?.id }"
+              class="flex items-start gap-3 p-3 rounded-xl border border-slate-200/70 hover:border-slate-300 hover:bg-slate-50 transition-colors group cursor-pointer text-left w-full"
+            >
+              <div class="size-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-200/60 mt-0.5">
+                <svg lucideFuel class="size-4"></svg>
+              </div>
+              <div class="flex-1">
+                <div class="text-xs font-bold text-slate-900 group-hover:text-emerald-700 transition-colors">
+                  Ver Abastecimentos
+                </div>
+                <div class="text-[11px] text-slate-500 mt-0.5">
+                  Consultar histórico de abastecimentos do condutor
+                </div>
+              </div>
+            </a>
+
+            <!-- 2. Resetar Senha do App -->
+            @if (!impersonationService.isReadOnly()) {
+              <button
+                type="button"
+                (click)="openResetPasswordModal()"
+                class="flex items-start gap-3 p-3 rounded-xl border border-slate-200/70 hover:border-slate-300 hover:bg-slate-50 transition-colors group cursor-pointer text-left w-full"
+              >
+                <div class="size-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 border border-amber-200/60 mt-0.5">
+                  <svg lucideKeyRound class="size-4"></svg>
+                </div>
+                <div class="flex-1">
+                  <div class="text-xs font-bold text-slate-900 group-hover:text-amber-700 transition-colors">
+                    Resetar Senha do App
+                  </div>
+                  <div class="text-[11px] text-slate-500 mt-0.5">
+                    Gerar nova senha temporária para acesso móvel
+                  </div>
+                </div>
+              </button>
+
+              <!-- 3. Ativar / Desativar Motorista -->
+              @if (isActive()) {
+                <button
+                  type="button"
+                  (click)="openStatusModal('deactivate')"
+                  class="flex items-start gap-3 p-3 rounded-xl border border-slate-200/70 hover:border-slate-300 hover:bg-slate-50 transition-colors group cursor-pointer text-left w-full"
+                >
+                  <div class="size-8 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center shrink-0 border border-slate-200 mt-0.5">
+                    <svg lucideBan class="size-4"></svg>
+                  </div>
+                  <div class="flex-1">
+                    <div class="text-xs font-bold text-slate-900 group-hover:text-slate-800 transition-colors">
+                      Desativar Motorista
+                    </div>
+                    <div class="text-[11px] text-slate-500 mt-0.5">
+                      Pausar disponibilidade operacional do condutor
+                    </div>
+                  </div>
+                </button>
+              } @else if (!isSuspended()) {
+                <button
+                  type="button"
+                  (click)="openStatusModal('activate')"
+                  class="flex items-start gap-3 p-3 rounded-xl border border-slate-200/70 hover:border-emerald-300 hover:bg-emerald-50/40 transition-colors group cursor-pointer text-left w-full"
+                >
+                  <div class="size-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-200/60 mt-0.5">
+                    <svg lucideUserCheck class="size-4"></svg>
+                  </div>
+                  <div class="flex-1">
+                    <div class="text-xs font-bold text-emerald-800 group-hover:text-emerald-900 transition-colors">
+                      Ativar Motorista
+                    </div>
+                    <div class="text-[11px] text-emerald-700 mt-0.5">
+                      Liberar cadastro para novas viagens
+                    </div>
+                  </div>
+                </button>
+              }
+
+              <!-- 4. Suspender / Encerrar Suspensão -->
+              @if (isSuspended()) {
+                <button
+                  type="button"
+                  (click)="openLiftModal()"
+                  class="flex items-start gap-3 p-3 rounded-xl border border-emerald-200 bg-emerald-50/50 hover:bg-emerald-50 transition-colors group cursor-pointer text-left w-full"
+                >
+                  <div class="size-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 border border-emerald-200 mt-0.5">
+                    <svg lucidePlay class="size-4"></svg>
+                  </div>
+                  <div class="flex-1">
+                    <div class="text-xs font-bold text-emerald-800 group-hover:text-emerald-900 transition-colors">
+                      Encerrar Suspensão
+                    </div>
+                    <div class="text-[11px] text-emerald-700 mt-0.5">
+                      Reativar condutor após suspensão
+                    </div>
+                  </div>
+                </button>
+              } @else {
+                <button
+                  type="button"
+                  (click)="openSuspendModal()"
+                  class="flex items-start gap-3 p-3 rounded-xl border border-slate-200/70 hover:border-rose-200 hover:bg-rose-50/30 transition-colors group cursor-pointer text-left w-full"
+                >
+                  <div class="size-8 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center shrink-0 border border-rose-200/60 mt-0.5">
+                    <svg lucidePauseCircle class="size-4"></svg>
+                  </div>
+                  <div class="flex-1">
+                    <div class="text-xs font-bold text-rose-900 group-hover:text-rose-800 transition-colors">
+                      Suspender Motorista
+                    </div>
+                    <div class="text-[11px] text-rose-700 mt-0.5">
+                      Registrar evento disciplinar ou afastamento
+                    </div>
+                  </div>
+                </button>
+              }
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>
+
+<!-- MODAL: RESETAR SENHA -->
+<app-driver-reset-password-modal
+  [isOpen]="resetModalOpen()"
+  [driver]="driver()"
+  [isLoading]="isResetting()"
+  (close)="closeResetModal()"
+  (confirm)="confirmResetPassword()"
+/>
+
+<!-- MODAL: EXIBIR SENHA TEMPORÁRIA -->
+<app-driver-temp-password-modal
+  [isOpen]="tempPasswordModalOpen()"
+  [data]="tempPasswordData()"
+  (close)="closeTempPasswordModal()"
+/>
+
+<!-- MODAL: STATUS (ATIVAR / DESATIVAR) -->
+<app-driver-status-modal
+  [isOpen]="statusModalOpen()"
+  [driver]="driver()"
+  [pendingAction]="statusAction()"
+  [isLoading]="isStatusLoading()"
+  [errorMessage]="actionError()"
+  (close)="closeStatusModal()"
+  (confirm)="confirmStatusChange()"
+/>
+
+<!-- MODAL: SUSPENDER MOTORISTA -->
+<app-driver-suspend-modal
+  [isOpen]="suspendModalOpen()"
+  [driver]="driver()"
+  [isLoading]="isSuspending()"
+  [errorMessage]="suspendError()"
+  (close)="closeSuspendModal()"
+  (confirm)="confirmSuspend($event)"
+/>
+
+<!-- MODAL: ENCERRAR SUSPENSÃO -->
+<app-driver-lift-suspension-modal
+  [isOpen]="liftModalOpen()"
+  [driver]="driver()"
+  [isLoading]="isLifting()"
+  [errorMessage]="liftError()"
+  (close)="closeLiftModal()"
+  (confirm)="confirmLift($event.liftReason)"
+/>

@@ -239,119 +239,15 @@
                 </td>
                 <td class="py-3.5 px-4 text-right">
                   <div class="inline-flex items-center justify-end gap-2">
-                    <!-- Botão Ficha / Detalhes -->
-                    <button
-                      type="button"
-                      (click)="openDetailsModal(driver)"
+                    <!-- Botão Editar -->
+                    <a
+                      [routerLink]="['/motoristas', driver.id]"
                       class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200/90 bg-white text-slate-700 hover:text-slate-900 hover:bg-slate-50 font-semibold text-xs transition-all shadow-2xs cursor-pointer hover:border-slate-300"
-                      title="Ver Ficha do Condutor"
+                      title="Editar Motorista"
                     >
-                      <svg lucideEye class="size-3.5 text-slate-500"></svg>
-                      <span>Detalhes</span>
-                    </button>
-
-                    <!-- Menu de 3 Pontinhos (⋮) -->
-                    <div class="relative inline-block text-left">
-                      <button
-                        type="button"
-                        (click)="$event.stopPropagation(); toggleDropdown(driver.id)"
-                        class="size-8 rounded-xl border transition-all cursor-pointer shadow-2xs flex items-center justify-center"
-                        [ngClass]="activeDropdownDriverId() === driver.id ? 'border-slate-900 bg-white ring-2 ring-slate-900/10 text-slate-900 shadow-sm' : 'border-slate-200/90 bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-50 hover:border-slate-300'"
-                        title="Mais opções"
-                        aria-label="Mais opções"
-                      >
-                        <svg lucideEllipsisVertical class="size-4"></svg>
-                      </button>
-
-                      <!-- Dropdown Flutuante -->
-                      @if (activeDropdownDriverId() === driver.id) {
-                        <div
-                          (click)="$event.stopPropagation()"
-                          class="absolute right-0 w-56 rounded-2xl bg-white p-1.5 shadow-xl border border-slate-100 ring-1 ring-slate-900/5 z-50 animate-in fade-in zoom-in-95 duration-100 text-left"
-                          [ngClass]="$index >= drivers().length - 2 && drivers().length > 2 ? 'bottom-full mb-1.5 origin-bottom-right' : 'top-full mt-1.5 origin-top-right'"
-                        >
-                          <!-- 1. Atualizar CNH -->
-                          @if (!impersonationService.isReadOnly()) {
-                            <button
-                              type="button"
-                              (click)="openUpdateCnhModal(driver); closeDropdown()"
-                              class="flex items-center gap-2.5 w-full px-3 py-2 text-xs font-semibold text-slate-700 rounded-xl hover:bg-slate-50 hover:text-slate-900 transition-colors cursor-pointer text-left"
-                            >
-                              <svg lucideIdCard class="size-4 text-indigo-600 shrink-0"></svg>
-                              <span>Atualizar CNH</span>
-                            </button>
-                          }
-
-                          <!-- 2. Abastecimentos do Motorista -->
-                          <a
-                            [routerLink]="['/abastecimentos']"
-                            [queryParams]="{ driverId: driver.id }"
-                            (click)="closeDropdown()"
-                            class="flex items-center gap-2.5 w-full px-3 py-2 text-xs font-semibold text-slate-700 rounded-xl hover:bg-slate-50 hover:text-slate-900 transition-colors cursor-pointer text-left"
-                          >
-                            <svg lucideFuel class="size-4 text-emerald-600 shrink-0"></svg>
-                            <span>Ver Abastecimentos</span>
-                          </a>
-
-                          <!-- 3. Resetar Senha do App -->
-                          @if (!impersonationService.isReadOnly()) {
-                            <button
-                              type="button"
-                              (click)="openResetPasswordModal(driver); closeDropdown()"
-                              class="flex items-center gap-2.5 w-full px-3 py-2 text-xs font-semibold text-slate-700 rounded-xl hover:bg-slate-50 hover:text-slate-900 transition-colors cursor-pointer text-left"
-                            >
-                              <svg lucideKeyRound class="size-4 text-amber-600 shrink-0"></svg>
-                              <span>Resetar Senha do App</span>
-                            </button>
-
-                            <div class="my-1 border-t border-slate-100"></div>
-
-                            <!-- Ações de Status do Motorista -->
-                            @if (isSuspended(driver)) {
-                              <button
-                                type="button"
-                                (click)="openLiftModal(driver); closeDropdown()"
-                                class="flex items-center gap-2.5 w-full px-3 py-2 text-xs font-semibold text-emerald-700 rounded-xl hover:bg-emerald-50 transition-colors cursor-pointer text-left"
-                              >
-                                <svg lucidePlay class="size-4 text-emerald-600 shrink-0"></svg>
-                                <span>Reativar Motorista</span>
-                              </button>
-                            }
-
-                            @if (isInactive(driver)) {
-                              <button
-                                type="button"
-                                (click)="openStatusConfirmModal(driver, 'activate'); closeDropdown()"
-                                class="flex items-center gap-2.5 w-full px-3 py-2 text-xs font-semibold text-emerald-700 rounded-xl hover:bg-emerald-50 transition-colors cursor-pointer text-left"
-                              >
-                                <svg lucideUserCheck class="size-4 text-emerald-600 shrink-0"></svg>
-                                <span>Ativar Motorista</span>
-                              </button>
-                            }
-
-                            @if (isActive(driver)) {
-                              <button
-                                type="button"
-                                (click)="openStatusConfirmModal(driver, 'deactivate'); closeDropdown()"
-                                class="flex items-center gap-2.5 w-full px-3 py-2 text-xs font-semibold text-slate-700 rounded-xl hover:bg-slate-50 hover:text-slate-900 transition-colors cursor-pointer text-left"
-                              >
-                                <svg lucideBan class="size-4 text-slate-500 shrink-0"></svg>
-                                <span>Desativar Motorista</span>
-                              </button>
-
-                              <button
-                                type="button"
-                                (click)="openSuspendModal(driver); closeDropdown()"
-                                class="flex items-center gap-2.5 w-full px-3 py-2 text-xs font-semibold text-rose-700 rounded-xl hover:bg-rose-50 transition-colors cursor-pointer text-left"
-                              >
-                                <svg lucidePauseCircle class="size-4 text-rose-600 shrink-0"></svg>
-                                <span>Suspender Motorista</span>
-                              </button>
-                            }
-                          }
-                        </div>
-                      }
-                    </div>
+                      <svg lucidePencil class="size-3.5 text-slate-500"></svg>
+                      <span>Editar</span>
+                    </a>
                   </div>
                 </td>
               </tr>
