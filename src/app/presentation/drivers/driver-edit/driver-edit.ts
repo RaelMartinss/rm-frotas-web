@@ -40,6 +40,10 @@ import {
   LucideCopy,
   LucideCheck,
 } from '@lucide/angular';
+import {
+  PhoneMaskDirective,
+  CnhMaskDirective,
+} from '../../shared/directives/input-mask.directives';
 
 @Component({
   selector: 'app-driver-edit',
@@ -48,6 +52,8 @@ import {
     CommonModule,
     RouterLink,
     ReactiveFormsModule,
+    PhoneMaskDirective,
+    CnhMaskDirective,
     LucideArrowLeft,
     LucideSave,
     LucideUser,
@@ -197,7 +203,7 @@ export class DriverEditComponent implements OnInit {
     this.form.patchValue({
       name: driver.name,
       cpf: driver.cpf,
-      phone: driver.phone || '',
+      phone: this.formatPhone(driver.phone || ''),
       email: driver.email || '',
       cnhNumber: driver.cnh?.number || driver.cnhNumber || '',
       cnhCategory: driver.cnh?.category || driver.cnhCategory || 'B',
@@ -205,6 +211,21 @@ export class DriverEditComponent implements OnInit {
       isActive: driver.status !== 'INACTIVE' && driver.status !== 'FOLGA',
       role: 'Motorista',
     });
+  }
+
+  formatPhone(value?: string | null): string {
+    if (!value) return '';
+    const digits = value.replace(/\D/g, '').slice(0, 11);
+    if (digits.length > 10) {
+      return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7, 11)}`;
+    } else if (digits.length > 6) {
+      return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
+    } else if (digits.length > 2) {
+      return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+    } else if (digits.length > 0) {
+      return `(${digits}`;
+    }
+    return value;
   }
 
   private formatDateForInput(dateVal?: string | Date): string {
