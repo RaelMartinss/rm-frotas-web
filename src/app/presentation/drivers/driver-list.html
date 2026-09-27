@@ -298,64 +298,6 @@
   (save)="saveDriver($event)"
 />
 
-<app-driver-status-modal
-  [isOpen]="isStatusConfirmModalOpen() && selectedDriver() !== null"
-  [driver]="selectedDriver()"
-  [pendingAction]="pendingStatusAction()"
-  [isLoading]="isActionLoading()"
-  [errorMessage]="actionError()"
-  (close)="closeStatusConfirmModal()"
-  (confirm)="confirmStatusChange()"
-/>
-
-<app-driver-suspend-modal
-  [isOpen]="isSuspendModalOpen() && selectedDriver() !== null"
-  [driver]="selectedDriver()"
-  [isLoading]="isActionLoading()"
-  [errorMessage]="suspensionErrorMessage()"
-  [reasonOptions]="suspensionReasonOptions"
-  (close)="closeSuspendModal()"
-  (confirm)="confirmSuspendDriver($event)"
-/>
-
-<app-driver-lift-suspension-modal
-  [isOpen]="isLiftModalOpen() && selectedDriver() !== null"
-  [driver]="selectedDriver()"
-  [isLoading]="isActionLoading()"
-  [errorMessage]="actionError()"
-  (close)="closeLiftModal()"
-  (confirm)="confirmLiftSuspension($event)"
-/>
-
-<app-driver-update-cnh-modal
-  [isOpen]="isUpdateCnhModalOpen() && selectedDriver() !== null"
-  [driver]="selectedDriver()"
-  [isLoading]="isActionLoading()"
-  [errorMessage]="actionError()"
-  [cnhCategories]="cnhCategories"
-  (close)="closeUpdateCnhModal()"
-  (confirm)="confirmUpdateCnh($event)"
-/>
-
-<app-driver-details-modal
-  [isOpen]="isDetailsModalOpen() && selectedDriver() !== null"
-  [driver]="selectedDriver()"
-  [suspensionHistory]="suspensionHistory()"
-  [loadingSuspensions]="loadingSuspensions()"
-  (close)="closeDetailsModal()"
-  (openLiftModal)="openLiftModal($event)"
-  (openUpdateCnhModal)="openUpdateCnhModal($event)"
-  (openResetPasswordModal)="openResetPasswordModal($event)"
-/>
-
-<app-driver-reset-password-modal
-  [isOpen]="resetConfirmModalOpen() && driverToReset() !== null"
-  [driver]="driverToReset()"
-  [isLoading]="isResetting()"
-  (close)="closeResetConfirmModal()"
-  (confirm)="confirmResetPassword()"
-/>
-
 <app-driver-temp-password-modal
   [isOpen]="tempPasswordModalOpen() && tempPasswordData() !== null"
   [data]="tempPasswordData()"
