@@ -456,15 +456,27 @@
                           </button>
 
                           @if (!impersonationService.isReadOnly()) {
-                            <!-- Atualizar status -->
-                            <button
-                              type="button"
-                              (click)="onUpdateStatus(trip)"
-                              class="flex items-center gap-2.5 w-full px-3 py-2 text-xs font-semibold text-slate-700 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer text-left"
-                            >
-                              <svg lucideRefreshCw class="size-4 text-emerald-600 shrink-0"></svg>
-                              <span>Atualizar status</span>
-                            </button>
+                            @if (trip.status === 'PLANNED' || trip.status === 'PROGRAMADA') {
+                              <!-- Iniciar viagem -->
+                              <button
+                                type="button"
+                                (click)="closeDropdown(); startTrip(trip)"
+                                class="flex items-center gap-2.5 w-full px-3 py-2 text-xs font-semibold text-emerald-700 rounded-xl hover:bg-emerald-50 transition-colors cursor-pointer text-left"
+                              >
+                                <svg lucidePlay class="size-4 text-emerald-600 shrink-0"></svg>
+                                <span>Iniciar viagem</span>
+                              </button>
+                            } @else if (trip.status === 'IN_PROGRESS' || trip.status === 'EM_ANDAMENTO') {
+                              <!-- Cancelar viagem (se iniciada) -->
+                              <button
+                                type="button"
+                                (click)="closeDropdown(); openCancelModal(trip)"
+                                class="flex items-center gap-2.5 w-full px-3 py-2 text-xs font-semibold text-rose-600 rounded-xl hover:bg-rose-50 hover:text-rose-700 transition-colors cursor-pointer text-left"
+                              >
+                                <svg lucideBan class="size-4 text-rose-500 shrink-0"></svg>
+                                <span>Cancelar viagem</span>
+                              </button>
+                            }
 
                             <!-- Registrar abastecimento -->
                             <button
@@ -497,7 +509,7 @@
                             <span>Ver detalhes</span>
                           </button>
 
-                          @if (!impersonationService.isReadOnly() && trip.status !== 'CANCELLED' && trip.status !== 'CANCELADA' && trip.status !== 'COMPLETED' && trip.status !== 'CONCLUIDA') {
+                          @if (!impersonationService.isReadOnly() && (trip.status === 'PLANNED' || trip.status === 'PROGRAMADA')) {
                             <div class="h-px bg-slate-100 my-1"></div>
                             <!-- Cancelar viagem -->
                             <button
