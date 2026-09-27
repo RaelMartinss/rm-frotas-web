@@ -35,6 +35,7 @@ import {
   LucideClock,
   LucideChevronRight,
   LucideSend,
+  LucideZap,
 } from '@lucide/angular';
 
 @Component({
@@ -65,6 +66,7 @@ import {
     LucideClock,
     LucideChevronRight,
     LucideSend,
+    LucideZap,
   ],
   templateUrl: './driver-home.html',
 })

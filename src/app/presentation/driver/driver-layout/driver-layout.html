@@ -1,6 +1,6 @@
-<div class="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans select-none antialiased" style="overscroll-behavior-y: contain;">
+<div class="h-screen h-dvh bg-slate-950 text-slate-100 flex flex-col font-sans antialiased overflow-hidden">
   <!-- CABEÇALHO COMPACTO MOBILE COM SAFE AREA -->
-  <header class="sticky top-0 z-30 bg-slate-900/95 backdrop-blur-md border-b border-slate-800/80 px-4 pt-safe-top pb-3 flex items-center justify-between shadow-xs">
+  <header class="shrink-0 bg-slate-900/95 backdrop-blur-md border-b border-slate-800/80 px-4 pt-safe-top pb-3 flex items-center justify-between shadow-xs z-30">
     <button
       type="button"
       (click)="openProfile()"
@@ -155,8 +155,8 @@
     (touchmove)="onTouchMove($event)"
     (touchend)="onTouchEnd()"
     (touchcancel)="onTouchEnd()"
-    class="flex-1 overflow-y-auto pb-24 px-4 pt-4 max-w-lg mx-auto w-full"
-    style="overscroll-behavior-y: contain;"
+    class="flex-1 min-h-0 overflow-y-auto pb-28 px-4 pt-3 max-w-lg mx-auto w-full overscroll-y-contain"
+    style="touch-action: pan-y; -webkit-overflow-scrolling: touch;"
   >
     <router-outlet (activate)="onActivate($event)"></router-outlet>
   </main>
