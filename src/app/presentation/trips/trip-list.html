@@ -76,7 +76,7 @@
       [ngClass]="selectedStatus() === 'ALL' ? 'border-emerald-500/60 ring-2 ring-emerald-500/15 bg-emerald-50/10' : 'border-slate-200/80'"
       title="Filtrar por todas as viagens"
     >
-      <div class="flex items-start gap-3">
+      <div class="flex items-center gap-3.5">
         <div class="size-11 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center shrink-0">
           <svg lucideMapPin class="size-5"></svg>
         </div>
@@ -84,12 +84,6 @@
           <span class="text-xs font-medium text-slate-500 block truncate">Total de viagens</span>
           <div class="text-xl sm:text-2xl font-bold text-slate-900 font-mono tabular-nums tracking-tight mt-0.5">
             {{ statusCounts().all }}
-          </div>
-          <div class="flex items-center justify-between text-[11px] mt-1 pt-0.5">
-            <span class="text-slate-400">neste período</span>
-            <span class="font-semibold text-emerald-600 flex items-center gap-0.5">
-              <span>↑</span> 12%
-            </span>
           </div>
         </div>
       </div>
@@ -102,7 +96,7 @@
       [ngClass]="selectedStatus() === 'IN_PROGRESS' ? 'border-blue-500/60 ring-2 ring-blue-500/15 bg-blue-50/10' : 'border-slate-200/80'"
       title="Filtrar por viagens em andamento"
     >
-      <div class="flex items-start gap-3">
+      <div class="flex items-center gap-3.5">
         <div class="size-11 rounded-2xl bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center shrink-0">
           <svg lucideTruck class="size-5"></svg>
         </div>
@@ -110,12 +104,6 @@
           <span class="text-xs font-medium text-slate-500 block truncate">Em andamento</span>
           <div class="text-xl sm:text-2xl font-bold text-slate-900 font-mono tabular-nums tracking-tight mt-0.5">
             {{ statusCounts().inProgress }}
-          </div>
-          <div class="flex items-center justify-between text-[11px] mt-1 pt-0.5">
-            <span class="text-slate-400">veículos em rota</span>
-            <span class="font-semibold text-emerald-600 flex items-center gap-0.5">
-              <span>↑</span> 33%
-            </span>
           </div>
         </div>
       </div>
@@ -128,7 +116,7 @@
       [ngClass]="selectedStatus() === 'COMPLETED' ? 'border-emerald-500/60 ring-2 ring-emerald-500/15 bg-emerald-50/10' : 'border-slate-200/80'"
       title="Filtrar por viagens concluídas"
     >
-      <div class="flex items-start gap-3">
+      <div class="flex items-center gap-3.5">
         <div class="size-11 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center shrink-0">
           <svg lucideCheckCircle2 class="size-5"></svg>
         </div>
@@ -136,12 +124,6 @@
           <span class="text-xs font-medium text-slate-500 block truncate">Concluídas</span>
           <div class="text-xl sm:text-2xl font-bold text-slate-900 font-mono tabular-nums tracking-tight mt-0.5">
             {{ statusCounts().completed }}
-          </div>
-          <div class="flex items-center justify-between text-[11px] mt-1 pt-0.5">
-            <span class="text-slate-400">neste período</span>
-            <span class="font-semibold text-emerald-600 flex items-center gap-0.5">
-              <span>↑</span> 9%
-            </span>
           </div>
         </div>
       </div>
@@ -154,7 +136,7 @@
       [ngClass]="selectedStatus() === 'PLANNED' ? 'border-amber-500/60 ring-2 ring-amber-500/15 bg-amber-50/10' : 'border-slate-200/80'"
       title="Filtrar por viagens programadas"
     >
-      <div class="flex items-start gap-3">
+      <div class="flex items-center gap-3.5">
         <div class="size-11 rounded-2xl bg-amber-50 text-amber-600 border border-amber-100 flex items-center justify-center shrink-0">
           <svg lucideClock class="size-5"></svg>
         </div>
@@ -162,12 +144,6 @@
           <span class="text-xs font-medium text-slate-500 block truncate">Programadas</span>
           <div class="text-xl sm:text-2xl font-bold text-slate-900 font-mono tabular-nums tracking-tight mt-0.5">
             {{ statusCounts().planned }}
-          </div>
-          <div class="flex items-center justify-between text-[11px] mt-1 pt-0.5">
-            <span class="text-slate-400">próximas 24h</span>
-            <span class="font-semibold text-slate-400 flex items-center gap-0.5">
-              <span>↓</span> 0%
-            </span>
           </div>
         </div>
       </div>
@@ -180,7 +156,7 @@
       [ngClass]="selectedStatus() === 'CANCELLED' ? 'border-rose-500/60 ring-2 ring-rose-500/15 bg-rose-50/10' : 'border-slate-200/80'"
       title="Filtrar por viagens canceladas"
     >
-      <div class="flex items-start gap-3">
+      <div class="flex items-center gap-3.5">
         <div class="size-11 rounded-2xl bg-rose-50 text-rose-600 border border-rose-100 flex items-center justify-center shrink-0">
           <svg lucideAlertCircle class="size-5"></svg>
         </div>
@@ -188,12 +164,6 @@
           <span class="text-xs font-medium text-slate-500 block truncate">Canceladas</span>
           <div class="text-xl sm:text-2xl font-bold text-slate-900 font-mono tabular-nums tracking-tight mt-0.5">
             {{ statusCounts().cancelled }}
-          </div>
-          <div class="flex items-center justify-between text-[11px] mt-1 pt-0.5">
-            <span class="text-slate-400">neste período</span>
-            <span class="font-semibold text-rose-500 flex items-center gap-0.5">
-              <span>↓</span> 50%
-            </span>
           </div>
         </div>
       </div>
