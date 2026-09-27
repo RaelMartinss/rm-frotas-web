@@ -1,18 +1,7 @@
 <div class="min-h-screen min-h-dvh bg-[#070D18] text-slate-100 flex flex-col font-sans antialiased relative">
-  <!-- BANNER CINEMATOGRÁFICO PANORÂMICO DE FUNDO (CAMINHÃO NA RODOVIA) -->
-  <div class="absolute top-0 inset-x-0 h-[440px] pointer-events-none overflow-hidden z-0">
-    <div
-      class="w-full h-full bg-cover bg-no-repeat"
-      style="background-image: url('images/truck-hero-bg.png'); background-position: 70% 30%;"
-    ></div>
-    <!-- Gradientes de contraste para legibilidade perfeita de textos e cards -->
-    <div class="absolute inset-0 bg-gradient-to-t from-[#070D18] via-[#070D18]/50 to-transparent"></div>
-    <div class="absolute inset-0 bg-gradient-to-r from-[#070D18]/90 via-[#070D18]/45 to-transparent"></div>
-    <div class="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-[#070D18]/80 via-[#070D18]/30 to-transparent"></div>
-  </div>
 
-  <!-- CABEÇALHO DO PERFIL (TRANSPARENTE SOBRE A FOTO PANORÂMICA) -->
-  <header class="shrink-0 bg-transparent px-4 pt-safe-top pb-2 flex items-start justify-between z-30 relative">
+  <!-- CABEÇALHO DO PERFIL -->
+  <header class="shrink-0 bg-[#070D18] px-4 pt-safe-top pb-2 flex items-start justify-between z-30 relative border-b border-slate-800/60">
     <button
       type="button"
       (click)="openProfile()"
