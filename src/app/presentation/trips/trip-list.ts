@@ -1,7 +1,7 @@
-import { Component, inject, OnInit, OnDestroy, signal, computed } from '@angular/core';
+import { Component, HostListener, inject, OnInit, OnDestroy, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { ITripRepository } from '../../domain/repositories/trip.repository.interface';
@@ -11,13 +11,20 @@ import { IIncidentRepository } from '../../domain/repositories/incident.reposito
 import { LiveAlertsService } from '../../core/services/live-alerts.service';
 import { ToastService } from '../../core/services/toast.service';
 import { ImpersonationService } from '../../core/services/impersonation.service';
-import { Trip, FuelSupply } from '../../domain/models/trip.model';
+import { Trip, CreateTripDTO } from '../../domain/models/trip.model';
 import { Incident } from '../../domain/models/incident.model';
 import { Vehicle } from '../../domain/models/vehicle.model';
 import { Driver } from '../../domain/models/driver.model';
-import { FuelType } from '../../domain/models/fuel.model';
-import { compressImage } from '../../core/utils/image-compressor';
+import { PaginationComponent } from '../shared/components/pagination/pagination.component';
 import { TripMapModalComponent } from './components/trip-map-modal/trip-map-modal.component';
+import { TripFormModalComponent } from './components/trip-form-modal/trip-form-modal.component';
+import { TripFinishModalComponent } from './components/trip-finish-modal/trip-finish-modal.component';
+import { TripCancelModalComponent } from './components/trip-cancel-modal/trip-cancel-modal.component';
+import { TripIncidentPhotoModalComponent } from './components/trip-incident-photo-modal/trip-incident-photo-modal.component';
+import {
+  FuelFormModalComponent,
+  FuelFormSubmitPayload,
+} from '../fuel/components/fuel-form-modal/fuel-form-modal.component';
 import {
   LucideNavigation,
   LucideLoader2,
@@ -26,7 +33,6 @@ import {
   LucideCheckCircle2,
   LucideMapPin,
   LucideUser,
-  LucideAlertCircle,
   LucideShieldAlert,
   LucidePlay,
   LucideBan,
@@ -34,10 +40,6 @@ import {
   LucideSearch,
   LucideMap,
   LucideCalendar,
-  LucideChevronLeft,
-  LucideChevronRight,
-  LucideChevronsLeft,
-  LucideChevronsRight,
   LucideCamera,
   LucidePhone,
   LucideClock,
@@ -46,7 +48,7 @@ import {
   LucideAlertTriangle,
   LucideZoomIn,
   LucideRefreshCw,
-  LucideTrash2,
+  LucideEllipsisVertical,
 } from '@lucide/angular';
 
 @Component({
@@ -56,14 +58,19 @@ import {
     CommonModule,
     RouterLink,
     ReactiveFormsModule,
+    PaginationComponent,
     TripMapModalComponent,
+    TripFormModalComponent,
+    TripFinishModalComponent,
+    TripCancelModalComponent,
+    TripIncidentPhotoModalComponent,
+    FuelFormModalComponent,
     LucideNavigation,
     LucideLoader2,
     LucideX,
     LucideFuel,
     LucideMapPin,
     LucideUser,
-    LucideAlertCircle,
     LucideShieldAlert,
     LucideCheckCircle2,
     LucidePlay,
@@ -72,10 +79,6 @@ import {
     LucideSearch,
     LucideMap,
     LucideCalendar,
-    LucideChevronLeft,
-    LucideChevronRight,
-    LucideChevronsLeft,
-    LucideChevronsRight,
     LucideCamera,
     LucidePhone,
     LucideClock,
@@ -84,7 +87,7 @@ import {
     LucideAlertTriangle,
     LucideZoomIn,
     LucideRefreshCw,
-    LucideTrash2,
+    LucideEllipsisVertical,
   ],
   templateUrl: './trip-list.html',
   styleUrl: './trip-list.css'
@@ -96,7 +99,6 @@ export class TripListComponent implements OnInit, OnDestroy {
   private readonly incidentRepository = inject(IIncidentRepository);
   private readonly liveAlertsService = inject(LiveAlertsService);
   private readonly toastService = inject(ToastService);
-  private readonly fb = inject(FormBuilder);
   protected readonly impersonationService = inject(ImpersonationService);
 
   trips = signal<Trip[]>([]);
@@ -122,10 +124,9 @@ export class TripListComponent implements OnInit, OnDestroy {
 
   // --- PAGINAÇÃO SERVER-SIDE (OFFSET / LIMIT) ---
   currentPage = signal<number>(1);
-  pageSize = signal<number>(10); // Inicializa com 10 registros
+  pageSize = signal<number>(10);
   totalItems = signal<number>(0);
   totalPages = signal<number>(1);
-  pageSizeOptions: number[] = [10, 25, 50];
 
   // Busca e Filtros Reativos com Server-Side Query
   searchControl = new FormControl('', { nonNullable: true });
@@ -139,39 +140,36 @@ export class TripListComponent implements OnInit, OnDestroy {
     { initialValue: '' }
   );
 
-  // Computed ranges para exibição na barra de paginação
-  startIndex = computed(() => {
-    if (this.totalItems() === 0) return 0;
-    return (this.currentPage() - 1) * this.pageSize() + 1;
+  // Contadores reativos por status
+  statusCounts = signal<{
+    all: number;
+    inProgress: number;
+    planned: number;
+    completed: number;
+    cancelled: number;
+  }>({
+    all: 0,
+    inProgress: 0,
+    planned: 0,
+    completed: 0,
+    cancelled: 0,
   });
 
-  endIndex = computed(() => {
-    return Math.min(this.currentPage() * this.pageSize(), this.totalItems());
-  });
+  // Controle de Dropdown de Ações por Linha
+  activeDropdownTripId = signal<string | null>(null);
 
-  // Gera lista de páginas com elipses (ex: [1, 2, 3, '...', 10])
-  pageNumbers = computed(() => {
-    const total = this.totalPages();
-    const current = this.currentPage();
-    const delta = 1;
-    const range: (number | string)[] = [];
+  toggleDropdown(tripId: string): void {
+    this.activeDropdownTripId.update((curr) => (curr === tripId ? null : tripId));
+  }
 
-    if (total <= 7) {
-      for (let i = 1; i <= total; i++) range.push(i);
-      return range;
-    }
+  closeDropdown(): void {
+    this.activeDropdownTripId.set(null);
+  }
 
-    const left = Math.max(2, current - delta);
-    const right = Math.min(total - 1, current + delta);
-
-    range.push(1);
-    if (left > 2) range.push('...');
-    for (let i = left; i <= right; i++) range.push(i);
-    if (right < total - 1) range.push('...');
-    range.push(total);
-
-    return range;
-  });
+  @HostListener('document:click')
+  onDocumentClick(): void {
+    this.closeDropdown();
+  }
 
   filteredIncidents = computed(() => {
     let list = this.allIncidents();
@@ -202,6 +200,7 @@ export class TripListComponent implements OnInit, OnDestroy {
     this.searchControl.setValue('');
     this.currentPage.set(1);
     this.loadTrips();
+    this.loadStatusCounts();
   }
 
   setStatusFilter(status: string): void {
@@ -210,24 +209,12 @@ export class TripListComponent implements OnInit, OnDestroy {
     this.loadTrips();
   }
 
-  setPage(page: number | string): void {
-    if (typeof page !== 'number' || page < 1 || page > this.totalPages() || page === this.currentPage()) {
+  setPage(page: number): void {
+    if (page < 1 || page > this.totalPages() || page === this.currentPage()) {
       return;
     }
     this.currentPage.set(page);
     this.loadTrips();
-  }
-
-  nextPage(): void {
-    if (this.currentPage() < this.totalPages()) {
-      this.setPage(this.currentPage() + 1);
-    }
-  }
-
-  prevPage(): void {
-    if (this.currentPage() > 1) {
-      this.setPage(this.currentPage() - 1);
-    }
   }
 
   setPageSize(newSize: number): void {
@@ -256,82 +243,25 @@ export class TripListComponent implements OnInit, OnDestroy {
     'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'
   ];
 
-  private getDefaultScheduledDate(): string {
-    const now = new Date();
-    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-    return now.toISOString().slice(0, 16);
-  }
-
-  // Formulário de Cadastro de Viagem alinhado ao backend
-  tripForm: FormGroup = this.fb.group({
-    vehicleId: ['', [Validators.required]],
-    driverId: ['', [Validators.required]],
-    scheduledDate: [this.getDefaultScheduledDate(), [Validators.required]],
-    originAddress: ['', [Validators.required, Validators.minLength(3)]],
-    originCity: ['', [Validators.required]],
-    originState: ['PA', [Validators.required, Validators.maxLength(2)]],
-    destinationAddress: ['', [Validators.required, Validators.minLength(3)]],
-    destinationCity: ['', [Validators.required]],
-    destinationState: ['PA', [Validators.required, Validators.maxLength(2)]],
-  });
-
-  receiptPhotoPreview = signal<string | null>(null);
-
-  readonly fuelTypes: { value: FuelType; label: string }[] = [
-    { value: 'GASOLINA', label: 'Gasolina Comum' },
-    { value: 'ETANOL', label: 'Etanol Hidratado' },
-    { value: 'DIESEL', label: 'Diesel Comum' },
-    { value: 'DIESEL_S10', label: 'Diesel S-10' },
-    { value: 'GNV', label: 'GNV' },
-    { value: 'ELETRICO', label: 'Elétrico' },
-  ];
-
-  supplyForm: FormGroup = this.fb.group({
-    liters: [null, [Validators.required, Validators.min(0.01)]],
-    pricePerUnit: [null, [Validators.min(0)]],
-    totalValue: [null, [Validators.required, Validators.min(0.01)]],
-    fuelType: ['DIESEL_S10', [Validators.required]],
-    odometer: [0, [Validators.required, Validators.min(0)]],
-    fullTank: [true],
-    gasStation: [''],
-    fueledAt: [new Date().toISOString().slice(0, 16), [Validators.required]],
-    receiptUrl: [''],
-    notes: [''],
-  });
-
   ngOnInit(): void {
     this.searchControl.valueChanges
       .pipe(debounceTime(350), distinctUntilChanged())
       .subscribe(() => {
         this.currentPage.set(1);
         this.loadTrips(true);
+        this.loadStatusCounts();
       });
 
     this.loadTrips(true);
+    this.loadStatusCounts();
     this.loadIncidents(true);
     this.loadAuxiliaryData();
-
-    // Recalcula totalValue quando liters ou pricePerUnit mudam no modal de abastecimento
-    this.supplyForm.get('liters')?.valueChanges.subscribe((liters) => {
-      const price = this.supplyForm.get('pricePerUnit')?.value;
-      if (liters && price && Number(price) > 0) {
-        const total = Math.round(Number(liters) * Number(price) * 100) / 100;
-        this.supplyForm.get('totalValue')?.setValue(total, { emitEvent: false });
-      }
-    });
-
-    this.supplyForm.get('pricePerUnit')?.valueChanges.subscribe((price) => {
-      const liters = this.supplyForm.get('liters')?.value;
-      if (liters && price && Number(liters) > 0) {
-        const total = Math.round(Number(liters) * Number(price) * 100) / 100;
-        this.supplyForm.get('totalValue')?.setValue(total, { emitEvent: false });
-      }
-    });
 
     // Atualização reativa periódica em segundo plano a cada 12 segundos
     this.pollInterval = setInterval(() => {
       this.loadTrips(false);
       this.loadIncidents(false);
+      this.loadStatusCounts();
     }, 12000);
   }
 
@@ -413,6 +343,34 @@ export class TripListComponent implements OnInit, OnDestroy {
             this.toastService.error('Erro ao carregar lista de viagens.');
           }
         }
+      });
+  }
+
+  loadStatusCounts(): void {
+    const term = (this.searchControl.value || '').trim();
+    this.tripRepository
+      .getAll({
+        page: 1,
+        limit: 100,
+        search: term || undefined,
+      })
+      .subscribe({
+        next: (response) => {
+          const list = response.data || [];
+          const inProgress = list.filter((t) => t.status === 'IN_PROGRESS' || t.status === 'EM_ANDAMENTO').length;
+          const planned = list.filter((t) => t.status === 'PLANNED' || t.status === 'PROGRAMADA').length;
+          const completed = list.filter((t) => t.status === 'COMPLETED' || t.status === 'CONCLUIDA').length;
+          const cancelled = list.filter((t) => t.status === 'CANCELLED' || t.status === 'CANCELADA').length;
+
+          this.statusCounts.set({
+            all: response.total ?? list.length,
+            inProgress,
+            planned,
+            completed,
+            cancelled,
+          });
+        },
+        error: () => {},
       });
   }
 
@@ -523,21 +481,11 @@ export class TripListComponent implements OnInit, OnDestroy {
     });
   }
 
-  openTripModal(trip?: Trip): void {
+  openTripModal(): void {
     if (this.impersonationService.isReadOnly()) return;
+    this.closeDropdown();
     this.errorMessage.set(null);
-    this.loadAvailability(trip?.id);
-    this.tripForm.reset({
-      originState: 'PA',
-      destinationState: 'PA',
-      vehicleId: '',
-      driverId: '',
-      scheduledDate: this.getDefaultScheduledDate(),
-      originAddress: '',
-      originCity: '',
-      destinationAddress: '',
-      destinationCity: ''
-    });
+    this.loadAvailability();
     this.isTripModalOpen.set(true);
   }
 
@@ -548,32 +496,12 @@ export class TripListComponent implements OnInit, OnDestroy {
 
   openSupplyModal(tripOrId: Trip | string): void {
     if (this.impersonationService.isReadOnly()) return;
+    this.closeDropdown();
     const trip = typeof tripOrId === 'string' ? this.trips().find((t) => t.id === tripOrId) : tripOrId;
     const tripId = typeof tripOrId === 'string' ? tripOrId : tripOrId.id;
 
     this.selectedTripId.set(tripId);
     this.selectedTripForSupply.set(trip || null);
-
-    const vehicle = trip ? this.vehicles().find((v) => v.id === trip.vehicleId) : undefined;
-    const initialKm = vehicle?.currentKm || trip?.finalOdometer || trip?.initialOdometer || 0;
-
-    const now = new Date();
-    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-    const nowLocal = now.toISOString().slice(0, 16);
-
-    this.receiptPhotoPreview.set(null);
-    this.supplyForm.reset({
-      fuelType: 'DIESEL_S10',
-      liters: null,
-      pricePerUnit: null,
-      totalValue: null,
-      odometer: initialKm,
-      fullTank: true,
-      gasStation: '',
-      fueledAt: nowLocal,
-      receiptUrl: '',
-      notes: '',
-    });
     this.isSupplyModalOpen.set(true);
   }
 
@@ -581,45 +509,20 @@ export class TripListComponent implements OnInit, OnDestroy {
     this.isSupplyModalOpen.set(false);
     this.selectedTripId.set(null);
     this.selectedTripForSupply.set(null);
-    this.receiptPhotoPreview.set(null);
-  }
-
-  async onReceiptFileSelected(event: Event): Promise<void> {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files[0]) {
-      const file = input.files[0];
-      try {
-        const compressedBase64 = await compressImage(file, 1280, 1280, 0.75);
-        this.receiptPhotoPreview.set(compressedBase64);
-        this.supplyForm.get('receiptUrl')?.setValue(compressedBase64);
-      } catch (err) {
-        console.error('Erro ao comprimir comprovante:', err);
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const res = e.target?.result as string;
-          this.receiptPhotoPreview.set(res);
-          this.supplyForm.get('receiptUrl')?.setValue(res);
-        };
-        reader.readAsDataURL(file);
-      }
-    }
-  }
-
-  removeReceiptPhoto(): void {
-    this.receiptPhotoPreview.set(null);
-    this.supplyForm.get('receiptUrl')?.setValue('');
   }
 
   // --- AÇÕES DO CICLO DE VIDA DA VIAGEM ---
 
   startTrip(trip: Trip): void {
     if (this.impersonationService.isReadOnly()) return;
+    this.closeDropdown();
     this.actionLoadingId.set(trip.id);
     this.tripRepository.startTrip(trip.id).subscribe({
       next: () => {
         this.actionLoadingId.set(null);
         this.toastService.success('Viagem iniciada com sucesso! Veículo em trânsito.');
         this.loadTrips();
+        this.loadStatusCounts();
       },
       error: (err) => {
         this.actionLoadingId.set(null);
@@ -634,6 +537,7 @@ export class TripListComponent implements OnInit, OnDestroy {
 
   openCompleteModal(trip: Trip): void {
     if (this.impersonationService.isReadOnly()) return;
+    this.closeDropdown();
     this.tripToComplete.set(trip);
   }
 
@@ -652,6 +556,7 @@ export class TripListComponent implements OnInit, OnDestroy {
         this.closeCompleteModal();
         this.toastService.success('Viagem concluída com sucesso! Veículo liberado.');
         this.loadTrips();
+        this.loadStatusCounts();
       },
       error: (err) => {
         this.actionLoadingId.set(null);
@@ -666,6 +571,7 @@ export class TripListComponent implements OnInit, OnDestroy {
 
   openCancelModal(trip: Trip): void {
     if (this.impersonationService.isReadOnly()) return;
+    this.closeDropdown();
     this.tripToCancel.set(trip);
   }
 
@@ -684,6 +590,7 @@ export class TripListComponent implements OnInit, OnDestroy {
         this.closeCancelModal();
         this.toastService.info('Viagem cancelada com sucesso.');
         this.loadTrips();
+        this.loadStatusCounts();
       },
       error: (err) => {
         this.actionLoadingId.set(null);
@@ -697,6 +604,7 @@ export class TripListComponent implements OnInit, OnDestroy {
   }
 
   openRouteMap(trip: Trip): void {
+    this.closeDropdown();
     this.tripToViewRoute.set(trip);
   }
 
@@ -704,36 +612,9 @@ export class TripListComponent implements OnInit, OnDestroy {
     this.tripToViewRoute.set(null);
   }
 
-  saveTrip(): void {
+  saveTrip(payload: CreateTripDTO): void {
     this.errorMessage.set(null);
-
-    if (this.tripForm.invalid) {
-      this.tripForm.markAllAsTouched();
-      this.toastService.error('Por favor, preencha todos os campos obrigatórios.');
-      return;
-    }
-
     this.isSaving.set(true);
-    const formValue = this.tripForm.value;
-
-    const payload: any = {
-      driverId: formValue.driverId,
-      vehicleId: formValue.vehicleId,
-      origin: {
-        address: formValue.originAddress?.trim(),
-        city: formValue.originCity?.trim(),
-        state: formValue.originState?.trim().toUpperCase(),
-      },
-      destination: {
-        address: formValue.destinationAddress?.trim(),
-        city: formValue.destinationCity?.trim(),
-        state: formValue.destinationState?.trim().toUpperCase(),
-      }
-    };
-
-    if (formValue.scheduledDate) {
-      payload.scheduledDate = new Date(formValue.scheduledDate).toISOString();
-    }
 
     this.tripRepository.create(payload).subscribe({
       next: () => {
@@ -742,6 +623,7 @@ export class TripListComponent implements OnInit, OnDestroy {
         this.closeTripModal();
         this.currentPage.set(1);
         this.loadTrips();
+        this.loadStatusCounts();
       },
       error: (err) => {
         this.isSaving.set(false);
@@ -755,14 +637,11 @@ export class TripListComponent implements OnInit, OnDestroy {
     });
   }
 
-  saveFuelSupply(): void {
-    if (this.supplyForm.invalid || !this.selectedTripId()) {
-      this.supplyForm.markAllAsTouched();
-      return;
-    }
+  saveFuelSupply(payload: FuelFormSubmitPayload): void {
+    if (!this.selectedTripId()) return;
 
     this.isSaving.set(true);
-    const formVal = this.supplyForm.value;
+    const formVal = payload.formValue;
 
     const parseNum = (val: any): number => {
       if (val === null || val === undefined || val === '') return 0;
@@ -772,20 +651,20 @@ export class TripListComponent implements OnInit, OnDestroy {
     };
 
     const liters = parseNum(formVal.liters);
-    const totalValue = parseNum(formVal.totalValue);
+    const totalCost = parseNum(formVal.totalCost);
     let pricePerUnit = parseNum(formVal.pricePerUnit);
-    if ((!pricePerUnit || pricePerUnit <= 0) && totalValue > 0 && liters > 0) {
-      pricePerUnit = Math.round((totalValue / liters) * 1000) / 1000;
+    if ((!pricePerUnit || pricePerUnit <= 0) && totalCost > 0 && liters > 0) {
+      pricePerUnit = Math.round((totalCost / liters) * 1000) / 1000;
     }
-    const odometer = parseNum(formVal.odometer);
+    const odometer = parseNum(formVal.odometerAtFueling);
     const fueledAtDate = formVal.fueledAt ? new Date(formVal.fueledAt) : new Date();
 
     const dto: any = {
       tripId: this.selectedTripId()!,
       liters,
       pricePerUnit: pricePerUnit > 0 ? pricePerUnit : undefined,
-      totalValue,
-      totalCost: totalValue,
+      totalValue: totalCost,
+      totalCost: totalCost,
       fuelType: formVal.fuelType,
       odometer,
       odometerAtFueling: odometer,
@@ -803,6 +682,7 @@ export class TripListComponent implements OnInit, OnDestroy {
         this.toastService.success('Abastecimento registrado com sucesso!');
         this.closeSupplyModal();
         this.loadTrips();
+        this.loadStatusCounts();
       },
       error: (err) => {
         this.isSaving.set(false);

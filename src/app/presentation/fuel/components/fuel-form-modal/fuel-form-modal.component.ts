@@ -327,6 +327,8 @@ export class FuelFormModalComponent {
   readonly isDriverUser = input<boolean>(false);
   readonly isSubmitting = input<boolean>(false);
   readonly errorMessage = input<string | null>(null);
+  readonly preselectedVehicleId = input<string | null>(null);
+  readonly preselectedDriverId = input<string | null>(null);
 
   readonly close = output<void>();
   readonly save = output<FuelFormSubmitPayload>();
@@ -422,13 +424,22 @@ export class FuelFormModalComponent {
       });
     } else {
       this.receiptPhotoPreview.set(null);
+      const initialVehicle = this.preselectedVehicleId() || '';
+      const initialDriver = this.preselectedDriverId() || '';
       this.fuelForm.reset({
         fuelType: 'GASOLINA',
         fullTank: true,
-        vehicleId: '',
-        driverId: '',
+        vehicleId: initialVehicle,
+        driverId: initialDriver,
         fueledAt: this.getNowDateTimeString()
       });
+
+      if (initialVehicle) {
+        const found = this.vehicles().find((v) => v.id === initialVehicle);
+        if (found) {
+          this.fuelForm.get('odometerAtFueling')?.setValue(found.currentKm);
+        }
+      }
     }
 
     if (!this.isDriverUser()) {

@@ -98,6 +98,12 @@
         [ngClass]="selectedStatus() === 'ALL' ? 'bg-slate-900 text-white border-slate-900 shadow-2xs' : 'bg-slate-50 text-slate-600 border-slate-200/80 hover:bg-slate-100'"
       >
         <span>Todas</span>
+        <span
+          class="px-1.5 py-0.2 rounded-full text-[10px] tabular-nums font-bold"
+          [ngClass]="selectedStatus() === 'ALL' ? 'bg-white/20 text-white' : 'bg-slate-200/70 text-slate-600'"
+        >
+          {{ statusCounts().all }}
+        </span>
       </button>
 
       <button
@@ -108,6 +114,12 @@
       >
         <span class="size-1.5 rounded-full" [ngClass]="selectedStatus() === 'IN_PROGRESS' ? 'bg-white' : 'bg-blue-500 animate-pulse'"></span>
         <span>Em Andamento</span>
+        <span
+          class="px-1.5 py-0.2 rounded-full text-[10px] tabular-nums font-bold"
+          [ngClass]="selectedStatus() === 'IN_PROGRESS' ? 'bg-white/20 text-white' : 'bg-blue-100 text-blue-700'"
+        >
+          {{ statusCounts().inProgress }}
+        </span>
       </button>
 
       <button
@@ -118,6 +130,12 @@
       >
         <span class="size-1.5 rounded-full" [ngClass]="selectedStatus() === 'PLANNED' ? 'bg-white' : 'bg-amber-500'"></span>
         <span>Programadas</span>
+        <span
+          class="px-1.5 py-0.2 rounded-full text-[10px] tabular-nums font-bold"
+          [ngClass]="selectedStatus() === 'PLANNED' ? 'bg-white/20 text-white' : 'bg-amber-100 text-amber-700'"
+        >
+          {{ statusCounts().planned }}
+        </span>
       </button>
 
       <button
@@ -128,6 +146,12 @@
       >
         <span class="size-1.5 rounded-full" [ngClass]="selectedStatus() === 'COMPLETED' ? 'bg-white' : 'bg-emerald-500'"></span>
         <span>Concluídas</span>
+        <span
+          class="px-1.5 py-0.2 rounded-full text-[10px] tabular-nums font-bold"
+          [ngClass]="selectedStatus() === 'COMPLETED' ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-700'"
+        >
+          {{ statusCounts().completed }}
+        </span>
       </button>
 
       <button
@@ -138,6 +162,12 @@
       >
         <span class="size-1.5 rounded-full" [ngClass]="selectedStatus() === 'CANCELLED' ? 'bg-white' : 'bg-rose-500'"></span>
         <span>Canceladas</span>
+        <span
+          class="px-1.5 py-0.2 rounded-full text-[10px] tabular-nums font-bold"
+          [ngClass]="selectedStatus() === 'CANCELLED' ? 'bg-white/20 text-white' : 'bg-rose-100 text-rose-700'"
+        >
+          {{ statusCounts().cancelled }}
+        </span>
       </button>
     </div>
   </div>
@@ -212,7 +242,7 @@
                     </div>
                   }
                 </td>
-                <td class="py-3.5 px-4 text-slate-600 font-medium">
+                <td class="py-3.5 px-4 text-slate-600 font-medium tabular-nums">
                   @if (trip.scheduledDate) {
                     <div class="flex items-center gap-1.5 text-slate-800 font-semibold">
                       <svg lucideCalendar class="size-3.5 text-emerald-600 shrink-0"></svg>
@@ -232,14 +262,16 @@
                     {{ getStatusLabel(trip.status) }}
                   </span>
                 </td>
-                <td class="py-3.5 px-4 text-right">
-                  <div class="flex items-center justify-end gap-1.5">
+                <td class="py-3.5 px-4 text-right whitespace-nowrap">
+                  <div class="inline-flex items-center justify-end gap-1.5">
                     @if (trip.status === 'PLANNED' || trip.status === 'PROGRAMADA') {
                       @if (!impersonationService.isReadOnly()) {
+                        <!-- Ação Primária: Iniciar -->
                         <button
+                          type="button"
                           (click)="startTrip(trip)"
                           [disabled]="actionLoadingId() === trip.id"
-                          class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold rounded-lg text-[11px] transition-colors border border-emerald-200/70 cursor-pointer disabled:opacity-50 shadow-2xs"
+                          class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold rounded-xl text-xs transition-colors border border-emerald-200/70 cursor-pointer disabled:opacity-50 shadow-2xs"
                           title="Iniciar Viagem"
                         >
                           @if (actionLoadingId() === trip.id) {
@@ -247,69 +279,122 @@
                           } @else {
                             <svg lucidePlay class="size-3 fill-emerald-600 text-emerald-600"></svg>
                           }
-                          Iniciar
+                          <span>Iniciar</span>
                         </button>
 
-                        <button
-                          (click)="openSupplyModal(trip)"
-                          class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 font-semibold rounded-lg text-[11px] transition-colors border border-amber-200/60 cursor-pointer"
-                          title="Registrar Abastecimento"
-                        >
-                          <svg lucideFuel class="size-3.5"></svg>
-                          Abastecer
-                        </button>
+                        <!-- Menu de 3 Pontinhos (⋮) -->
+                        <div class="relative inline-block text-left">
+                          <button
+                            type="button"
+                            (click)="$event.stopPropagation(); toggleDropdown(trip.id)"
+                            class="size-8 rounded-xl border transition-all cursor-pointer shadow-2xs flex items-center justify-center"
+                            [ngClass]="activeDropdownTripId() === trip.id ? 'border-slate-900 bg-white ring-2 ring-slate-900/10 text-slate-900 shadow-xs' : 'border-slate-200/90 bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-50 hover:border-slate-300'"
+                            title="Mais opções"
+                            aria-label="Mais opções"
+                          >
+                            <svg lucideEllipsisVertical class="size-4"></svg>
+                          </button>
 
-                        <button
-                          (click)="openCancelModal(trip)"
-                          class="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg transition-colors border border-rose-200/70 cursor-pointer"
-                          title="Cancelar Viagem"
-                        >
-                          <svg lucideBan class="size-3.5"></svg>
-                        </button>
+                          @if (activeDropdownTripId() === trip.id) {
+                            <div
+                              (click)="$event.stopPropagation()"
+                              class="absolute right-0 w-44 rounded-2xl bg-white p-1.5 shadow-xl border border-slate-100 ring-1 ring-slate-900/5 z-50 animate-in fade-in zoom-in-95 duration-100 text-left"
+                              [ngClass]="$index >= trips().length - 2 && trips().length > 2 ? 'bottom-full mb-1.5 origin-bottom-right' : 'top-full mt-1.5 origin-top-right'"
+                            >
+                              <button
+                                type="button"
+                                (click)="openSupplyModal(trip)"
+                                class="flex items-center gap-2.5 w-full px-3 py-2 text-xs font-semibold text-slate-700 rounded-xl hover:bg-amber-50 hover:text-amber-700 transition-colors cursor-pointer text-left"
+                              >
+                                <svg lucideFuel class="size-4 text-amber-500 shrink-0"></svg>
+                                <span>Abastecer</span>
+                              </button>
+
+                              <button
+                                type="button"
+                                (click)="openCancelModal(trip)"
+                                class="flex items-center gap-2.5 w-full px-3 py-2 text-xs font-semibold text-rose-600 rounded-xl hover:bg-rose-50 hover:text-rose-700 transition-colors cursor-pointer text-left"
+                              >
+                                <svg lucideBan class="size-4 text-rose-500 shrink-0"></svg>
+                                <span>Cancelar Viagem</span>
+                              </button>
+                            </div>
+                          }
+                        </div>
                       }
                     }
                     @else if (trip.status === 'IN_PROGRESS' || trip.status === 'EM_ANDAMENTO') {
+                      <!-- Ação Primária: Ver Rota -->
                       <button
+                        type="button"
                         (click)="openRouteMap(trip)"
-                        class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold rounded-lg text-[11px] transition-colors border border-emerald-200/70 cursor-pointer shadow-2xs"
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold rounded-xl text-xs transition-colors border border-emerald-200/70 cursor-pointer shadow-2xs"
                         title="Ver Rota no Mapa em Tempo Real"
                       >
                         <svg lucideMap class="size-3.5 text-emerald-600"></svg>
-                        Ver Rota
+                        <span>Ver Rota</span>
                       </button>
 
                       @if (!impersonationService.isReadOnly()) {
-                        <button
-                          (click)="openCompleteModal(trip)"
-                          [disabled]="actionLoadingId() === trip.id"
-                          class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold rounded-lg text-[11px] transition-colors border border-blue-200/70 cursor-pointer disabled:opacity-50 shadow-2xs"
-                          title="Concluir Viagem"
-                        >
-                          @if (actionLoadingId() === trip.id) {
-                            <svg lucideLoader2 class="size-3.5 animate-spin"></svg>
-                          } @else {
-                            <svg lucideCheckCircle2 class="size-3.5 text-blue-600"></svg>
-                          }
-                          Concluir
-                        </button>
+                        <!-- Menu de 3 Pontinhos (⋮) -->
+                        <div class="relative inline-block text-left">
+                          <button
+                            type="button"
+                            (click)="$event.stopPropagation(); toggleDropdown(trip.id)"
+                            class="size-8 rounded-xl border transition-all cursor-pointer shadow-2xs flex items-center justify-center"
+                            [ngClass]="activeDropdownTripId() === trip.id ? 'border-slate-900 bg-white ring-2 ring-slate-900/10 text-slate-900 shadow-xs' : 'border-slate-200/90 bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-50 hover:border-slate-300'"
+                            title="Mais opções"
+                            aria-label="Mais opções"
+                          >
+                            <svg lucideEllipsisVertical class="size-4"></svg>
+                          </button>
 
-                        <button
-                          (click)="openSupplyModal(trip)"
-                          class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 font-semibold rounded-lg text-[11px] transition-colors border border-amber-200/60 cursor-pointer"
-                        >
-                          <svg lucideFuel class="size-3.5"></svg>
-                          Abastecer
-                        </button>
+                          @if (activeDropdownTripId() === trip.id) {
+                            <div
+                              (click)="$event.stopPropagation()"
+                              class="absolute right-0 w-44 rounded-2xl bg-white p-1.5 shadow-xl border border-slate-100 ring-1 ring-slate-900/5 z-50 animate-in fade-in zoom-in-95 duration-100 text-left"
+                              [ngClass]="$index >= trips().length - 2 && trips().length > 2 ? 'bottom-full mb-1.5 origin-bottom-right' : 'top-full mt-1.5 origin-top-right'"
+                            >
+                              <button
+                                type="button"
+                                (click)="openCompleteModal(trip)"
+                                class="flex items-center gap-2.5 w-full px-3 py-2 text-xs font-semibold text-blue-700 rounded-xl hover:bg-blue-50 transition-colors cursor-pointer text-left"
+                              >
+                                <svg lucideCheckCircle2 class="size-4 text-blue-600 shrink-0"></svg>
+                                <span>Concluir Viagem</span>
+                              </button>
+
+                              <button
+                                type="button"
+                                (click)="openSupplyModal(trip)"
+                                class="flex items-center gap-2.5 w-full px-3 py-2 text-xs font-semibold text-slate-700 rounded-xl hover:bg-amber-50 hover:text-amber-700 transition-colors cursor-pointer text-left"
+                              >
+                                <svg lucideFuel class="size-4 text-amber-500 shrink-0"></svg>
+                                <span>Abastecer</span>
+                              </button>
+
+                              <button
+                                type="button"
+                                (click)="openCancelModal(trip)"
+                                class="flex items-center gap-2.5 w-full px-3 py-2 text-xs font-semibold text-rose-600 rounded-xl hover:bg-rose-50 hover:text-rose-700 transition-colors cursor-pointer text-left"
+                              >
+                                <svg lucideBan class="size-4 text-rose-500 shrink-0"></svg>
+                                <span>Cancelar Viagem</span>
+                              </button>
+                            </div>
+                          }
+                        </div>
                       }
                     }
                     @else if (trip.status === 'COMPLETED' || trip.status === 'CONCLUIDA') {
                       <button
+                        type="button"
                         (click)="openRouteMap(trip)"
-                        class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-700 font-semibold rounded-lg text-[11px] transition-colors border border-slate-200/70 cursor-pointer"
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-700 font-semibold rounded-xl text-xs transition-colors border border-slate-200/70 cursor-pointer shadow-2xs"
                         title="Ver Histórico da Rota Percorrida"
                       >
                         <svg lucideMap class="size-3.5 text-slate-600"></svg>
-                        Ver Rota
+                        <span>Ver Rota</span>
                       </button>
                       <span class="inline-flex items-center gap-1 px-2.5 py-1 text-slate-400 font-medium text-[11px] bg-slate-50 rounded-lg border border-slate-200/60">
                         <svg lucideCheck class="size-3 text-emerald-500"></svg>
@@ -350,88 +435,14 @@
 
       <!-- BARRA DE PAGINAÇÃO SERVER-SIDE -->
       @if (totalItems() > 0) {
-        <div class="px-5 py-3.5 bg-slate-50/90 border-t border-slate-100 flex flex-col md:flex-row items-center justify-between gap-4 text-xs">
-          <div class="text-slate-500 font-medium">
-            Mostrando <span class="font-bold text-slate-800">{{ startIndex() }}</span> a
-            <span class="font-bold text-slate-800">{{ endIndex() }}</span> de
-            <span class="font-bold text-slate-800">{{ totalItems() | number }}</span> viagens
-          </div>
-
-          @if (totalItems() > 10) {
-            <div class="flex flex-wrap items-center gap-4">
-              <div class="flex items-center gap-2">
-                <span class="text-slate-500 text-[11px]">Itens por página:</span>
-                <div class="inline-flex rounded-lg border border-slate-200 bg-white p-0.5 shadow-2xs">
-                  @for (size of pageSizeOptions; track size) {
-                    <button
-                      type="button"
-                      (click)="setPageSize(size)"
-                      class="px-2.5 py-1 rounded-md text-xs font-semibold transition-all cursor-pointer"
-                      [ngClass]="pageSize() === size ? 'bg-slate-900 text-white shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'"
-                    >
-                      {{ size }}
-                    </button>
-                  }
-                </div>
-              </div>
-
-              <div class="flex items-center gap-1">
-                <button
-                  type="button"
-                  (click)="setPage(1)"
-                  [disabled]="currentPage() === 1"
-                  title="Primeira página"
-                  class="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:hover:bg-white transition-colors cursor-pointer disabled:cursor-not-allowed shadow-2xs"
-                >
-                  <svg lucideChevronsLeft class="size-3.5"></svg>
-                </button>
-                <button
-                  type="button"
-                  (click)="prevPage()"
-                  [disabled]="currentPage() === 1"
-                  title="Página anterior"
-                  class="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:hover:bg-white transition-colors cursor-pointer disabled:cursor-not-allowed shadow-2xs"
-                >
-                  <svg lucideChevronLeft class="size-3.5"></svg>
-                </button>
-                <div class="flex items-center gap-1 px-1">
-                  @for (pageNum of pageNumbers(); track $index) {
-                    @if (pageNum === '...') {
-                      <span class="px-2 py-1 text-slate-400 text-xs font-mono">...</span>
-                    } @else {
-                      <button
-                        type="button"
-                        (click)="setPage(pageNum)"
-                        class="min-w-[30px] h-7.5 px-2 rounded-lg text-xs font-semibold transition-all cursor-pointer"
-                        [ngClass]="currentPage() === pageNum ? 'bg-emerald-600 text-white shadow-2xs' : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-100'"
-                      >
-                        {{ pageNum }}
-                      </button>
-                    }
-                  }
-                </div>
-                <button
-                  type="button"
-                  (click)="nextPage()"
-                  [disabled]="currentPage() === totalPages()"
-                  title="Próxima página"
-                  class="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:hover:bg-white transition-colors cursor-pointer disabled:cursor-not-allowed shadow-2xs"
-                >
-                  <svg lucideChevronRight class="size-3.5"></svg>
-                </button>
-                <button
-                  type="button"
-                  (click)="setPage(totalPages())"
-                  [disabled]="currentPage() === totalPages()"
-                  title="Última página"
-                  class="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:hover:bg-white transition-colors cursor-pointer disabled:cursor-not-allowed shadow-2xs"
-                >
-                  <svg lucideChevronsRight class="size-3.5"></svg>
-                </button>
-              </div>
-            </div>
-          }
-        </div>
+        <app-pagination
+          [totalItems]="totalItems()"
+          [currentPage]="currentPage()"
+          [pageSize]="pageSize()"
+          itemLabel="viagens"
+          (pageChange)="setPage($event)"
+          (pageSizeChange)="setPageSize($event)"
+        />
       }
     }
   </div>
@@ -794,530 +805,48 @@
 </div>
 
 <!-- MODAL DE CADASTRO DE VIAGEM -->
-@if (isTripModalOpen()) {
-  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-150">
-    <div class="bg-white rounded-2xl border border-slate-200/90 shadow-2xl w-full max-w-xl overflow-hidden animate-in zoom-in-95 duration-150">
-      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-        <div>
-          <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
-            <div class="size-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-200/60">
-              <svg lucideNavigation class="size-4"></svg>
-            </div>
-            Lançar Nova Viagem
-          </h2>
-          <p class="text-[11px] text-slate-400 mt-0.5 ml-9">Defina o trajeto, condutor e caminhão escalado para o despacho.</p>
-        </div>
-        <button (click)="closeTripModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg transition-colors cursor-pointer">
-          <svg lucideX class="size-5"></svg>
-        </button>
-      </div>
+<app-trip-form-modal
+  [isOpen]="isTripModalOpen()"
+  [isSaving]="isSaving()"
+  [errorMessage]="errorMessage()"
+  [availableVehicles]="availableVehicles()"
+  [availableDrivers]="availableDrivers()"
+  [loadingAvailability]="loadingAvailability()"
+  [states]="states"
+  (close)="closeTripModal()"
+  (save)="saveTrip($event)"
+/>
 
-      <form [formGroup]="tripForm" (ngSubmit)="saveTrip()" class="p-6 space-y-4">
-        @if (errorMessage()) {
-          <div class="p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-start gap-2 text-rose-800 text-xs">
-            <svg lucideAlertCircle class="size-4 text-rose-600 shrink-0 mt-0.5"></svg>
-            <div class="flex-1">
-              <span class="font-semibold">Erro no cadastro:</span> {{ errorMessage() }}
-            </div>
-          </div>
-        }
+<!-- MODAL DE ABASTECIMENTO REUTILIZANDO FuelFormModalComponent -->
+<app-fuel-form-modal
+  [isOpen]="isSupplyModalOpen()"
+  [vehicles]="vehicles()"
+  [drivers]="drivers()"
+  [isSubmitting]="isSaving()"
+  [errorMessage]="errorMessage()"
+  [preselectedVehicleId]="selectedTripForSupply()?.vehicleId || null"
+  [preselectedDriverId]="selectedTripForSupply()?.driverId || null"
+  (close)="closeSupplyModal()"
+  (save)="saveFuelSupply($event)"
+/>
 
-        <!-- Veículo e Motorista -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between">
-              <span>Veículo da Frota <span class="text-rose-500">*</span></span>
-              @if (loadingAvailability()) {
-                <span class="text-[10px] text-slate-400 font-normal flex items-center gap-1">
-                  <svg lucideLoader2 class="size-2.5 animate-spin"></svg> Verificando...
-                </span>
-              }
-            </label>
-            <select
-              formControlName="vehicleId"
-              class="w-full bg-slate-50 border rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all disabled:opacity-60"
-              [disabled]="loadingAvailability()"
-              [class.border-rose-400]="tripForm.get('vehicleId')?.invalid && tripForm.get('vehicleId')?.touched"
-              [class.bg-rose-50/50]="tripForm.get('vehicleId')?.invalid && tripForm.get('vehicleId')?.touched"
-              [class.border-slate-200]="!(tripForm.get('vehicleId')?.invalid && tripForm.get('vehicleId')?.touched)"
-            >
-              <option value="">{{ loadingAvailability() ? 'Carregando veículos...' : 'Selecione um veículo disponível...' }}</option>
-              @for (v of availableVehicles(); track v.id) {
-                <option [value]="v.id">{{ v.plate }} - {{ v.model }} ({{ v.brand }})</option>
-              }
-            </select>
-            @if (tripForm.get('vehicleId')?.touched && tripForm.get('vehicleId')?.errors?.['required']) {
-              <p class="text-[10px] text-rose-500 mt-1 font-medium">Selecione o veículo.</p>
-            }
-            @if (!loadingAvailability() && availableVehicles().length === 0) {
-              <p class="text-[10px] text-amber-600 mt-1 font-medium">Nenhum veículo disponível ou livre no momento.</p>
-            }
-          </div>
+<!-- MODAL DE CONCLUSÃO DE VIAGEM -->
+<app-trip-finish-modal
+  [trip]="tripToComplete()"
+  [isLoading]="actionLoadingId() === tripToComplete()?.id"
+  [vehiclePlate]="tripToComplete()?.vehiclePlate || (tripToComplete()?.vehicleId ? getVehiclePlate(tripToComplete()!.vehicleId) : '')"
+  (close)="closeCompleteModal()"
+  (confirm)="confirmCompleteTrip()"
+/>
 
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between">
-              <span>Motorista Escalado <span class="text-rose-500">*</span></span>
-              @if (loadingAvailability()) {
-                <span class="text-[10px] text-slate-400 font-normal flex items-center gap-1">
-                  <svg lucideLoader2 class="size-2.5 animate-spin"></svg> Verificando...
-                </span>
-              }
-            </label>
-            <select
-              formControlName="driverId"
-              class="w-full bg-slate-50 border rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all disabled:opacity-60"
-              [disabled]="loadingAvailability()"
-              [class.border-rose-400]="tripForm.get('driverId')?.invalid && tripForm.get('driverId')?.touched"
-              [class.bg-rose-50/50]="tripForm.get('driverId')?.invalid && tripForm.get('driverId')?.touched"
-              [class.border-slate-200]="!(tripForm.get('driverId')?.invalid && tripForm.get('driverId')?.touched)"
-            >
-              <option value="">{{ loadingAvailability() ? 'Carregando motoristas...' : 'Selecione um motorista disponível...' }}</option>
-              @for (d of availableDrivers(); track d.id) {
-                <option [value]="d.id">{{ d.name }} (CNH: {{ d.cnhNumber }})</option>
-              }
-            </select>
-            @if (tripForm.get('driverId')?.touched && tripForm.get('driverId')?.errors?.['required']) {
-              <p class="text-[10px] text-rose-500 mt-1 font-medium">Selecione o motorista.</p>
-            }
-            @if (!loadingAvailability() && availableDrivers().length === 0) {
-              <p class="text-[10px] text-amber-600 mt-1 font-medium">Nenhum motorista ativo ou livre no momento.</p>
-            }
-          </div>
-        </div>
-
-        <!-- Data e Hora Prevista de Saída -->
-        <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80">
-          <label class="block text-xs font-semibold text-slate-700 mb-1 flex items-center gap-1.5">
-            <svg lucideCalendar class="size-3.5 text-emerald-600"></svg>
-            <span>Data e Hora Prevista de Saída <span class="text-rose-500">*</span></span>
-          </label>
-          <input
-            type="datetime-local"
-            formControlName="scheduledDate"
-            class="w-full bg-white border rounded-lg px-3 py-1.5 text-xs text-slate-800 focus:outline-hidden focus:border-emerald-500 transition-colors"
-            [class.border-rose-400]="tripForm.get('scheduledDate')?.invalid && tripForm.get('scheduledDate')?.touched"
-            [class.border-slate-200]="!(tripForm.get('scheduledDate')?.invalid && tripForm.get('scheduledDate')?.touched)"
-          />
-          @if (tripForm.get('scheduledDate')?.touched && tripForm.get('scheduledDate')?.errors?.['required']) {
-            <p class="text-[10px] text-rose-500 mt-1 font-medium">Informe a data e horário previstos para a viagem.</p>
-          }
-        </div>
-
-        <!-- Origem -->
-        <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80 space-y-3">
-          <div class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-            <svg lucideMapPin class="size-3.5 text-emerald-600"></svg>
-            Local de Origem
-          </div>
-          <div>
-            <label class="block text-[11px] font-medium text-slate-600 mb-1">Logradouro / Ponto de Partida <span class="text-rose-500">*</span></label>
-            <input
-              type="text"
-              formControlName="originAddress"
-              placeholder="Ex: Pátio Matriz - Av. Transamazônica, 500"
-              class="w-full bg-white border rounded-lg px-3 py-1.5 text-xs text-slate-800 focus:outline-hidden focus:border-emerald-500 transition-colors placeholder:text-slate-400"
-              [class.border-rose-400]="tripForm.get('originAddress')?.invalid && tripForm.get('originAddress')?.touched"
-              [class.border-slate-200]="!(tripForm.get('originAddress')?.invalid && tripForm.get('originAddress')?.touched)"
-            />
-          </div>
-          <div class="grid grid-cols-3 gap-3">
-            <div class="col-span-2">
-              <label class="block text-[11px] font-medium text-slate-600 mb-1">Cidade <span class="text-rose-500">*</span></label>
-              <input
-                type="text"
-                formControlName="originCity"
-                placeholder="Ex: Paragominas"
-                class="w-full bg-white border rounded-lg px-3 py-1.5 text-xs text-slate-800 focus:outline-hidden focus:border-emerald-500 transition-colors placeholder:text-slate-400"
-                [class.border-rose-400]="tripForm.get('originCity')?.invalid && tripForm.get('originCity')?.touched"
-                [class.border-slate-200]="!(tripForm.get('originCity')?.invalid && tripForm.get('originCity')?.touched)"
-              />
-            </div>
-            <div>
-              <label class="block text-[11px] font-medium text-slate-600 mb-1">UF <span class="text-rose-500">*</span></label>
-              <select
-                formControlName="originState"
-                class="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-800 focus:outline-hidden focus:border-emerald-500 transition-colors"
-              >
-                @for (uf of states; track uf) {
-                  <option [value]="uf">{{ uf }}</option>
-                }
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <!-- Destino -->
-        <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80 space-y-3">
-          <div class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-            <svg lucideMapPin class="size-3.5 text-blue-600"></svg>
-            Local de Destino
-          </div>
-          <div>
-            <label class="block text-[11px] font-medium text-slate-600 mb-1">Logradouro / Ponto de Chegada <span class="text-rose-500">*</span></label>
-            <input
-              type="text"
-              formControlName="destinationAddress"
-              placeholder="Ex: Porto de Belém / Av. Almirante Barroso"
-              class="w-full bg-white border rounded-lg px-3 py-1.5 text-xs text-slate-800 focus:outline-hidden focus:border-emerald-500 transition-colors placeholder:text-slate-400"
-              [class.border-rose-400]="tripForm.get('destinationAddress')?.invalid && tripForm.get('destinationAddress')?.touched"
-              [class.border-slate-200]="!(tripForm.get('destinationAddress')?.invalid && tripForm.get('destinationAddress')?.touched)"
-            />
-          </div>
-          <div class="grid grid-cols-3 gap-3">
-            <div class="col-span-2">
-              <label class="block text-[11px] font-medium text-slate-600 mb-1">Cidade <span class="text-rose-500">*</span></label>
-              <input
-                type="text"
-                formControlName="destinationCity"
-                placeholder="Ex: Belém"
-                class="w-full bg-white border rounded-lg px-3 py-1.5 text-xs text-slate-800 focus:outline-hidden focus:border-emerald-500 transition-colors placeholder:text-slate-400"
-                [class.border-rose-400]="tripForm.get('destinationCity')?.invalid && tripForm.get('destinationCity')?.touched"
-                [class.border-slate-200]="!(tripForm.get('destinationCity')?.invalid && tripForm.get('destinationCity')?.touched)"
-              />
-            </div>
-            <div>
-              <label class="block text-[11px] font-medium text-slate-600 mb-1">UF <span class="text-rose-500">*</span></label>
-              <select
-                formControlName="destinationState"
-                class="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-800 focus:outline-hidden focus:border-emerald-500 transition-colors"
-              >
-                @for (uf of states; track uf) {
-                  <option [value]="uf">{{ uf }}</option>
-                }
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
-          <button
-            type="button"
-            (click)="closeTripModal()"
-            class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
-          >
-            Cancelar
-          </button>
-          <button
-            type="submit"
-            [disabled]="isSaving()"
-            class="px-4 py-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-colors flex items-center gap-2 disabled:opacity-50 cursor-pointer shadow-xs"
-          >
-            @if (isSaving()) {
-              <svg lucideLoader2 class="size-4 animate-spin"></svg>
-            }
-            Salvar Viagem
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-}
-
-<!-- MODAL DE ABASTECIMENTO -->
-@if (isSupplyModalOpen()) {
-  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-150">
-    <div class="bg-white rounded-2xl border border-slate-200/90 shadow-2xl w-full max-w-xl max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-150">
-      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 shrink-0">
-        <div>
-          <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
-            <div class="size-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-200/60">
-              <svg lucideFuel class="size-4"></svg>
-            </div>
-            Registrar Abastecimento
-          </h2>
-          @if (selectedTripForSupply(); as sTrip) {
-            <p class="text-xs text-slate-500 mt-1">
-              Veículo: <span class="font-semibold text-slate-700">{{ getVehiclePlate(sTrip.vehicleId) }}</span>
-              • Motorista: <span class="font-semibold text-slate-700">{{ getDriverName(sTrip.driverId) }}</span>
-              @if (getVehicleCurrentKm(sTrip.vehicleId); as km) {
-                • Odômetro Atual: <span class="font-semibold text-slate-700">{{ km | number }} km</span>
-              }
-            </p>
-          }
-        </div>
-        <button (click)="closeSupplyModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg transition-colors cursor-pointer">
-          <svg lucideX class="size-5"></svg>
-        </button>
-      </div>
-
-      <form [formGroup]="supplyForm" (ngSubmit)="saveFuelSupply()" class="p-6 overflow-y-auto space-y-4 text-xs">
-        <!-- Tipo de Combustível & Odômetro -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label class="block font-semibold text-slate-700 mb-1">Tipo de Combustível *</label>
-            <select
-              formControlName="fuelType"
-              class="w-full px-3 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 cursor-pointer"
-            >
-              @for (ft of fuelTypes; track ft.value) {
-                <option [value]="ft.value">{{ ft.label }}</option>
-              }
-            </select>
-          </div>
-
-          <div>
-            <label class="block font-semibold text-slate-700 mb-1">Odômetro no Abastecimento (KM) *</label>
-            <input
-              type="number"
-              formControlName="odometer"
-              placeholder="Ex: 50250"
-              class="w-full px-3 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 font-mono"
-              [ngClass]="supplyForm.get('odometer')?.invalid && supplyForm.get('odometer')?.touched ? 'border-rose-300 bg-rose-50/30' : ''"
-            />
-          </div>
-        </div>
-
-        <!-- Litros, Preço/L e Total -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div>
-            <label class="block font-semibold text-slate-700 mb-1">Litros Abastecidos *</label>
-            <input
-              type="number"
-              step="0.01"
-              formControlName="liters"
-              placeholder="Ex: 45.5"
-              class="w-full px-3 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 font-mono"
-              [ngClass]="supplyForm.get('liters')?.invalid && supplyForm.get('liters')?.touched ? 'border-rose-300 bg-rose-50/30' : ''"
-            />
-          </div>
-
-          <div>
-            <label class="block font-semibold text-slate-700 mb-1">Preço por Litro (R$)</label>
-            <input
-              type="number"
-              step="0.001"
-              formControlName="pricePerUnit"
-              placeholder="Ex: 5.89"
-              class="w-full px-3 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 font-mono"
-            />
-          </div>
-
-          <div>
-            <label class="block font-semibold text-slate-700 mb-1">Valor Total (R$) *</label>
-            <input
-              type="number"
-              step="0.01"
-              formControlName="totalValue"
-              placeholder="Ex: 267.99"
-              class="w-full px-3 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 font-mono"
-              [ngClass]="supplyForm.get('totalValue')?.invalid && supplyForm.get('totalValue')?.touched ? 'border-rose-300 bg-rose-50/30' : ''"
-            />
-          </div>
-        </div>
-
-        <!-- TOGGLE EM DESTAQUE: TANQUE CHEIO -->
-        <div class="p-3.5 bg-emerald-50/60 rounded-2xl border border-emerald-200/80 flex items-start gap-3">
-          <input
-            type="checkbox"
-            id="tripFullTankToggle"
-            formControlName="fullTank"
-            class="mt-0.5 size-4 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500 cursor-pointer"
-          />
-          <label for="tripFullTankToggle" class="cursor-pointer">
-            <span class="font-bold text-slate-800 text-xs flex items-center gap-1.5">
-              Encheu o tanque? (Tanque Cheio)
-              <span class="px-1.5 py-0.5 rounded-full text-[9px] bg-emerald-200 text-emerald-800 font-bold">Importante</span>
-            </span>
-            <p class="text-[11px] text-slate-500 mt-0.5">
-              Marcar esta opção é indispensável para que o sistema consiga calcular com exatidão o consumo médio (Km/L) entre os abastecimentos.
-            </p>
-          </label>
-        </div>
-
-        <!-- Posto de Gasolina & Data/Hora -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label class="block font-semibold text-slate-700 mb-1">Posto de Combustível</label>
-            <input
-              type="text"
-              formControlName="gasStation"
-              placeholder="Ex: Posto Ipiranga Centro"
-              class="w-full px-3 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
-            />
-          </div>
-
-          <div>
-            <label class="block font-semibold text-slate-700 mb-1">Data e Hora do Abastecimento</label>
-            <input
-              type="datetime-local"
-              formControlName="fueledAt"
-              class="w-full px-3 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
-            />
-          </div>
-        </div>
-
-        <!-- Comprovante / Foto da Nota Fiscal -->
-        <div>
-          <label class="block font-semibold text-slate-700 mb-1">Foto do Comprovante / Cupom Fiscal (Opcional)</label>
-          @if (receiptPhotoPreview()) {
-            <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-between gap-3">
-              <div class="flex items-center gap-3 overflow-hidden">
-                <img
-                  [src]="receiptPhotoPreview()"
-                  alt="Prévia do comprovante"
-                  class="size-14 rounded-xl object-cover border border-slate-200 shrink-0 bg-slate-900/10 cursor-pointer"
-                  (click)="openPhotoModal(receiptPhotoPreview()!)"
-                />
-                <div class="truncate">
-                  <span class="text-xs font-bold text-slate-800 block">Comprovante anexado</span>
-                  <button
-                    type="button"
-                    (click)="openPhotoModal(receiptPhotoPreview()!)"
-                    class="text-[11px] text-emerald-600 hover:text-emerald-700 font-semibold inline-flex items-center gap-1 hover:underline cursor-pointer"
-                  >
-                    Ver foto cheia
-                    <svg lucideExternalLink class="size-3"></svg>
-                  </button>
-                </div>
-              </div>
-              <button
-                type="button"
-                (click)="removeReceiptPhoto()"
-                title="Remover foto"
-                class="p-2 text-rose-600 hover:bg-rose-50 rounded-xl transition-colors cursor-pointer border border-rose-200/60 shrink-0"
-              >
-                <svg lucideTrash2 class="size-4"></svg>
-              </button>
-            </div>
-          } @else {
-            <label class="flex flex-col items-center justify-center p-4 border-2 border-dashed border-slate-200 hover:border-amber-500 rounded-2xl bg-slate-50/70 hover:bg-amber-50/30 cursor-pointer transition-all">
-              <div class="p-2 bg-white rounded-xl shadow-2xs border border-slate-100 text-slate-500 mb-1.5">
-                <svg lucideCamera class="size-5 text-amber-600"></svg>
-              </div>
-              <span class="text-xs font-bold text-slate-700">Clique para anexar foto do comprovante</span>
-              <span class="text-[11px] text-slate-400 mt-0.5">JPG, PNG ou foto da câmera (comprimida automaticamente)</span>
-              <input
-                type="file"
-                accept="image/*"
-                (change)="onReceiptFileSelected($event)"
-                class="hidden"
-              />
-            </label>
-          }
-        </div>
-
-        <!-- Observações -->
-        <div>
-          <label class="block font-semibold text-slate-700 mb-1">Observações</label>
-          <textarea
-            formControlName="notes"
-            rows="2"
-            placeholder="Alguma observação sobre o abastecimento..."
-            class="w-full px-3 py-2 bg-slate-50 rounded-xl border border-slate-200 text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 resize-none"
-          ></textarea>
-        </div>
-
-        <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3 shrink-0">
-          <button
-            type="button"
-            (click)="closeSupplyModal()"
-            class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
-          >
-            Cancelar
-          </button>
-          <button
-            type="submit"
-            [disabled]="isSaving()"
-            class="px-4 py-2 text-xs font-semibold text-white bg-amber-600 hover:bg-amber-700 rounded-xl transition-colors flex items-center gap-2 disabled:opacity-50 cursor-pointer shadow-xs"
-          >
-            @if (isSaving()) {
-              <svg lucideLoader2 class="size-4 animate-spin"></svg>
-            }
-            Registrar Abastecimento
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-}
-
-<!-- MODAL DE CONFIRMAÇÃO PARA CONCLUIR VIAGEM -->
-@if (tripToComplete(); as trip) {
-  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-150">
-    <div class="bg-white rounded-2xl border border-slate-200/90 shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-150">
-      <div class="p-6 text-center space-y-4">
-        <div class="size-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto border border-blue-200">
-          <svg lucideCheckCircle2 class="size-6"></svg>
-        </div>
-
-        <div>
-          <h3 class="text-base font-bold text-slate-800">Concluir Viagem?</h3>
-          <p class="text-xs text-slate-500 mt-1">
-            Deseja finalizar a viagem de <span class="font-semibold text-slate-700">{{ trip.origin }}</span> para <span class="font-semibold text-slate-700">{{ trip.destination }}</span>?
-          </p>
-          <div class="mt-3 p-3 bg-blue-50/50 rounded-xl border border-blue-100 text-[11px] text-blue-700 text-left">
-            ℹ️ Ao concluir, a viagem passará para o status <strong>Concluída</strong> e o veículo <strong class="font-mono">{{ trip.vehiclePlate || getVehiclePlate(trip.vehicleId) }}</strong> será liberado para novas viagens.
-          </div>
-        </div>
-
-        <div class="flex items-center justify-center gap-3 pt-2">
-          <button
-            type="button"
-            (click)="closeCompleteModal()"
-            class="flex-1 py-2.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
-          >
-            Voltar
-          </button>
-          <button
-            type="button"
-            (click)="confirmCompleteTrip()"
-            [disabled]="actionLoadingId() === trip.id"
-            class="flex-1 py-2.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition-colors flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer shadow-xs"
-          >
-            @if (actionLoadingId() === trip.id) {
-              <svg lucideLoader2 class="size-3.5 animate-spin"></svg>
-            }
-            Confirmar Conclusão
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-}
-
-<!-- MODAL DE CONFIRMAÇÃO PARA CANCELAR VIAGEM -->
-@if (tripToCancel(); as trip) {
-  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-150">
-    <div class="bg-white rounded-2xl border border-slate-200/90 shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-150">
-      <div class="p-6 text-center space-y-4">
-        <div class="size-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mx-auto border border-rose-200">
-          <svg lucideBan class="size-6"></svg>
-        </div>
-
-        <div>
-          <h3 class="text-base font-bold text-slate-800">Cancelar Viagem?</h3>
-          <p class="text-xs text-slate-500 mt-1">
-            Tem certeza que deseja cancelar a rota de <span class="font-semibold text-slate-700">{{ trip.origin }}</span> para <span class="font-semibold text-slate-700">{{ trip.destination }}</span>?
-          </p>
-          <div class="mt-3 p-3 bg-rose-50/50 rounded-xl border border-rose-100 text-[11px] text-rose-700 text-left">
-            ⚠️ Esta ação cancelará o agendamento e o veículo <strong class="font-mono">{{ trip.vehiclePlate || getVehiclePlate(trip.vehicleId) }}</strong> voltará a ficar disponível imediatamente.
-          </div>
-        </div>
-
-        <div class="flex items-center justify-center gap-3 pt-2">
-          <button
-            type="button"
-            (click)="closeCancelModal()"
-            class="flex-1 py-2.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
-          >
-            Voltar
-          </button>
-          <button
-            type="button"
-            (click)="confirmCancelTrip()"
-            [disabled]="actionLoadingId() === trip.id"
-            class="flex-1 py-2.5 text-xs font-semibold text-white bg-rose-600 hover:bg-rose-700 rounded-xl transition-colors flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer shadow-xs"
-          >
-            @if (actionLoadingId() === trip.id) {
-              <svg lucideLoader2 class="size-3.5 animate-spin"></svg>
-            }
-            Confirmar Cancelamento
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-}
+<!-- MODAL DE CANCELAMENTO DE VIAGEM -->
+<app-trip-cancel-modal
+  [trip]="tripToCancel()"
+  [isLoading]="actionLoadingId() === tripToCancel()?.id"
+  [vehiclePlate]="tripToCancel()?.vehiclePlate || (tripToCancel()?.vehicleId ? getVehiclePlate(tripToCancel()!.vehicleId) : '')"
+  (close)="closeCancelModal()"
+  (confirm)="confirmCancelTrip()"
+/>
 
 <!-- MODAL DE VISUALIZAÇÃO DE MAPA E ROTA -->
 @if (tripToViewRoute(); as trip) {
@@ -1326,61 +855,12 @@
     [vehiclePlate]="trip.vehiclePlate || getVehiclePlate(trip.vehicleId)"
     [driverName]="trip.driverName || getDriverName(trip.driverId)"
     (close)="closeRouteMap()"
-  ></app-trip-map-modal>
+  />
 }
 
 <!-- MODAL DE INSPEÇÃO DE FOTO DE AVARIA SOS -->
-@if (selectedPhotoUrl(); as photo) {
-  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-150">
-    <div class="bg-white rounded-2xl border border-slate-200/90 shadow-2xl w-full max-w-3xl overflow-hidden animate-in zoom-in-95 duration-150 flex flex-col max-h-[90vh]">
-      <div class="px-6 py-3.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
-        <div>
-          <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
-            <svg lucideCamera class="size-4 text-rose-600"></svg>
-            Evidência Fotográfica da Avaria
-            @if (selectedIncidentForInspection()?.protocol; as prot) {
-              <span class="font-mono text-xs px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 font-bold">{{ prot }}</span>
-            }
-          </h3>
-          <p class="text-[11px] text-slate-500">
-            Enviado por {{ selectedIncidentForInspection()?.driverName || 'Condutor' }} em {{ selectedIncidentForInspection()?.createdAt | date:'dd/MM/yyyy HH:mm' }}
-          </p>
-        </div>
-        <button (click)="closePhotoModal()" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg cursor-pointer">
-          <svg lucideX class="size-5"></svg>
-        </button>
-      </div>
-
-      <div class="p-4 overflow-auto flex-1 flex items-center justify-center bg-slate-950/90 min-h-[300px]">
-        <img [src]="photo" alt="Evidência da avaria" class="max-w-full max-h-[65vh] object-contain rounded-lg shadow-lg" />
-      </div>
-
-      @if (selectedIncidentForInspection(); as inc) {
-        <div class="p-4 bg-white border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-600">
-          <div class="flex flex-wrap items-center gap-3">
-            <span><strong>Tipo:</strong> {{ inc.category }}</span>
-            @if (inc.vehiclePlate) {
-              <span><strong>Placa:</strong> <span class="font-mono font-bold">{{ inc.vehiclePlate }}</span></span>
-            }
-            @if (inc.driverPhone) {
-              <a [href]="'tel:' + inc.driverPhone" class="text-emerald-700 hover:underline flex items-center gap-1 font-medium">
-                <svg lucidePhone class="size-3"></svg> {{ inc.driverPhone }}
-              </a>
-            }
-            @if (inc.latitude && inc.longitude) {
-              <a [href]="'https://www.google.com/maps?q=' + inc.latitude + ',' + inc.longitude" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline flex items-center gap-1 font-medium">
-                <svg lucideExternalLink class="size-3.5"></svg> Ver Local no GPS
-              </a>
-            }
-          </div>
-          <button (click)="closePhotoModal()" class="px-4 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs cursor-pointer">
-            Fechar
-          </button>
-        </div>
-      }
-    </div>
-  </div>
-}
-
-
-
+<app-trip-incident-photo-modal
+  [photoUrl]="selectedPhotoUrl()"
+  [incident]="selectedIncidentForInspection()"
+  (close)="closePhotoModal()"
+/>
