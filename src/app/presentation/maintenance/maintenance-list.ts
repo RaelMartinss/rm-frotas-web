@@ -1,14 +1,7 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { Component, HostListener, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
-import {
-  FormArray,
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { FormBuilder, FormControl, ReactiveFormsModule } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { IMaintenanceRepository } from '../../domain/repositories/maintenance.repository.interface';
@@ -17,36 +10,36 @@ import { ToastService } from '../../core/services/toast.service';
 import { ImpersonationService } from '../../core/services/impersonation.service';
 import {
   Maintenance,
-  MaintenanceItem,
   MaintenanceStats,
   MaintenanceStatus,
   MaintenanceType,
 } from '../../domain/models/maintenance.model';
 import { Vehicle } from '../../domain/models/vehicle.model';
 import { getVehicleBrandLogo } from '../../core/utils/vehicle-brand.util';
+import { PaginationComponent } from '../shared/components/pagination/pagination.component';
 import {
-  LucideAlertCircle,
-  LucideAlertTriangle,
-  LucideBan,
-  LucideCalendar,
-  LucideCheck,
-  LucideCheckCircle2,
-  LucideChevronLeft,
-  LucideChevronRight,
-  LucideChevronsLeft,
-  LucideChevronsRight,
-  LucideClock,
-  LucideDollarSign,
-  LucideEye,
-  LucideLayers,
-  LucideLoader2,
-  LucidePlay,
-  LucidePlus,
-  LucideSearch,
-  LucideTrash2,
-  LucideTruck,
+  MaintenanceFormModalComponent,
+  MaintenanceFormSubmitPayload,
+} from './components/maintenance-form-modal/maintenance-form-modal.component';
+import { MaintenanceStartModalComponent } from './components/maintenance-start-modal/maintenance-start-modal.component';
+import {
+  MaintenanceFinishModalComponent,
+  MaintenanceFinishSubmitPayload,
+} from './components/maintenance-finish-modal/maintenance-finish-modal.component';
+import { MaintenanceCancelModalComponent } from './components/maintenance-cancel-modal/maintenance-cancel-modal.component';
+import { MaintenanceDetailsModalComponent } from './components/maintenance-details-modal/maintenance-details-modal.component';
+import {
   LucideWrench,
-  LucideX,
+  LucidePlus,
+  LucideLoader2,
+  LucideCheckCircle2,
+  LucidePlay,
+  LucideBan,
+  LucideEye,
+  LucideDollarSign,
+  LucideLayers,
+  LucideEllipsisVertical,
+  LucideRotateCcw,
 } from '@lucide/angular';
 
 @Component({
@@ -55,23 +48,23 @@ import {
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    PaginationComponent,
+    MaintenanceFormModalComponent,
+    MaintenanceStartModalComponent,
+    MaintenanceFinishModalComponent,
+    MaintenanceCancelModalComponent,
+    MaintenanceDetailsModalComponent,
     LucideWrench,
     LucidePlus,
     LucideLoader2,
-    LucideX,
-    LucideAlertCircle,
     LucideCheckCircle2,
     LucidePlay,
     LucideBan,
     LucideEye,
     LucideDollarSign,
     LucideLayers,
-    LucideTrash2,
-    LucideAlertTriangle,
-    LucideChevronLeft,
-    LucideChevronRight,
-    LucideChevronsLeft,
-    LucideChevronsRight,
+    LucideEllipsisVertical,
+    LucideRotateCcw,
   ],
   templateUrl: './maintenance-list.html',
 })
@@ -80,6 +73,8 @@ export class MaintenanceListComponent implements OnInit {
   private readonly vehicleRepo = inject(IVehicleRepository);
   private readonly toastService = inject(ToastService);
   private readonly fb = inject(FormBuilder);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   protected readonly impersonationService = inject(ImpersonationService);
   readonly getBrandLogo = getVehicleBrandLogo;
 
@@ -93,11 +88,15 @@ export class MaintenanceListComponent implements OnInit {
   isActionLoading = signal(false);
   actionError = signal<string | null>(null);
 
+  // Dropdown de Ações por Linha
+  activeDropdownMaintenanceId = signal<string | null>(null);
+
   // Paginação
   totalItems = signal(0);
   page = signal(1);
   limit = signal(10);
   totalPages = computed(() => Math.ceil(this.totalItems() / this.limit()) || 1);
+  pageSizeOptions = [10, 20, 50];
 
   // Modais
   selectedMaintenance = signal<Maintenance | null>(null);
@@ -107,34 +106,14 @@ export class MaintenanceListComponent implements OnInit {
   isCancelModalOpen = signal(false);
   isDetailsModalOpen = signal(false);
 
-  // --- FORMULÁRIOS ---
+  // --- FORMULÁRIOS DE FILTRO ---
   filterForm = this.fb.group({
     status: new FormControl<'ALL' | MaintenanceStatus>('ALL'),
     type: new FormControl<'ALL' | MaintenanceType>('ALL'),
     vehicleId: new FormControl<string>(''),
   });
 
-  createForm = this.fb.group({
-    vehicleId: new FormControl('', [Validators.required]),
-    type: new FormControl<MaintenanceType>('PREVENTIVA', [Validators.required]),
-    description: new FormControl('', [Validators.required, Validators.minLength(3)]),
-    serviceProvider: new FormControl(''),
-    scheduledDate: new FormControl(''),
-    startImmediately: new FormControl(false),
-  });
-
-  finishForm = this.fb.group({
-    odometerAtService: new FormControl<number | null>(null, [
-      Validators.required,
-      Validators.min(0),
-    ]),
-    finishedAt: new FormControl(''),
-    items: this.fb.array<FormGroup>([]),
-  });
-
-  cancelForm = this.fb.group({
-    reason: new FormControl(''),
-  });
+  hasActiveFilters = signal(false);
 
   // Reativo aos filtros
   statusFilter = toSignal(this.filterForm.get('status')!.valueChanges, {
@@ -146,8 +125,6 @@ export class MaintenanceListComponent implements OnInit {
   vehicleFilter = toSignal(this.filterForm.get('vehicleId')!.valueChanges, {
     initialValue: '',
   });
-
-  private readonly route = inject(ActivatedRoute);
 
   ngOnInit(): void {
     const qp = this.route.snapshot.queryParams;
@@ -161,6 +138,7 @@ export class MaintenanceListComponent implements OnInit {
       this.filterForm.patchValue({ type: qp['type'] }, { emitEvent: false });
     }
 
+    this.checkActiveFilters();
     this.loadVehicles();
     this.loadStats();
     this.loadMaintenances();
@@ -169,35 +147,48 @@ export class MaintenanceListComponent implements OnInit {
     this.filterForm.valueChanges
       .pipe(debounceTime(250), distinctUntilChanged())
       .subscribe(() => {
+        this.checkActiveFilters();
         this.page.set(1);
         this.loadMaintenances();
       });
   }
 
-  // --- ITENS DE PEÇAS/SERVIÇOS NA FINALIZAÇÃO ---
-  get finishItems(): FormArray {
-    return this.finishForm.get('items') as FormArray;
+  // --- CONTROLE DE DROPDOWN ---
+  toggleDropdown(id: string): void {
+    this.activeDropdownMaintenanceId.update((curr) => (curr === id ? null : id));
   }
 
-  addFinishItem(): void {
-    const itemGroup = this.fb.group({
-      name: new FormControl('', [Validators.required]),
-      cost: new FormControl<number>(0, [Validators.required, Validators.min(0)]),
-      quantity: new FormControl<number>(1, [Validators.required, Validators.min(1)]),
+  closeDropdown(): void {
+    this.activeDropdownMaintenanceId.set(null);
+  }
+
+  @HostListener('document:click')
+  onDocumentClick(): void {
+    this.closeDropdown();
+  }
+
+  // --- FILTROS ---
+  checkActiveFilters(): void {
+    const v = this.filterForm.value;
+    const hasActive =
+      (!!v.status && v.status !== 'ALL') ||
+      (!!v.type && v.type !== 'ALL') ||
+      !!v.vehicleId;
+    this.hasActiveFilters.set(hasActive);
+  }
+
+  clearFilters(): void {
+    this.filterForm.reset({
+      status: 'ALL',
+      type: 'ALL',
+      vehicleId: '',
     });
-    this.finishItems.push(itemGroup);
-  }
-
-  removeFinishItem(index: number): void {
-    this.finishItems.removeAt(index);
-  }
-
-  calculateFinishTotalCost(): number {
-    return this.finishItems.controls.reduce((acc, ctrl) => {
-      const cost = Number(ctrl.get('cost')?.value) || 0;
-      const quantity = Number(ctrl.get('quantity')?.value) || 1;
-      return acc + cost * quantity;
-    }, 0);
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {},
+      replaceUrl: true,
+    });
+    this.hasActiveFilters.set(false);
   }
 
   // --- CARREGAMENTO DE DADOS ---
@@ -249,17 +240,15 @@ export class MaintenanceListComponent implements OnInit {
   }
 
   // --- PAGINAÇÃO ---
-  onPageChange(newPage: number): void {
+  setPage(newPage: number): void {
     if (newPage >= 1 && newPage <= this.totalPages() && newPage !== this.page()) {
       this.page.set(newPage);
       this.loadMaintenances();
     }
   }
 
-  onLimitChange(event: Event): void {
-    const target = event.target as HTMLSelectElement;
-    const newLimit = Number(target.value);
-    if (newLimit > 0) {
+  setPageSize(newLimit: number): void {
+    if (newLimit > 0 && newLimit !== this.limit()) {
       this.limit.set(newLimit);
       this.page.set(1);
       this.loadMaintenances();
@@ -269,14 +258,6 @@ export class MaintenanceListComponent implements OnInit {
   // --- MODAIS ---
   openCreateModal(): void {
     if (this.impersonationService.isReadOnly()) return;
-    this.createForm.reset({
-      vehicleId: '',
-      type: 'PREVENTIVA',
-      description: '',
-      serviceProvider: '',
-      scheduledDate: '',
-      startImmediately: false,
-    });
     this.actionError.set(null);
     this.isCreateModalOpen.set(true);
   }
@@ -306,15 +287,8 @@ export class MaintenanceListComponent implements OnInit {
     return fallback;
   }
 
-  submitCreate(): void {
-    if (this.createForm.invalid) {
-      this.createForm.markAllAsTouched();
-      return;
-    }
-
-    const formVal = this.createForm.value;
-
-    if (formVal.startImmediately && this.isVehicleInUse(formVal.vehicleId)) {
+  submitCreate(payload: MaintenanceFormSubmitPayload): void {
+    if (payload.startImmediately && this.isVehicleInUse(payload.vehicleId)) {
       const msg = 'Não é possível iniciar a manutenção imediatamente: este veículo está atualmente em viagem.';
       this.actionError.set(msg);
       this.toastService.warning(msg);
@@ -324,13 +298,13 @@ export class MaintenanceListComponent implements OnInit {
     this.isActionLoading.set(true);
     this.actionError.set(null);
 
-    if (formVal.startImmediately) {
+    if (payload.startImmediately) {
       this.maintenanceRepo
         .startDirect({
-          vehicleId: formVal.vehicleId!,
-          type: formVal.type!,
-          description: formVal.description!,
-          serviceProvider: formVal.serviceProvider || undefined,
+          vehicleId: payload.vehicleId,
+          type: payload.type,
+          description: payload.description,
+          serviceProvider: payload.serviceProvider,
         })
         .subscribe({
           next: () => {
@@ -350,11 +324,11 @@ export class MaintenanceListComponent implements OnInit {
     } else {
       this.maintenanceRepo
         .create({
-          vehicleId: formVal.vehicleId!,
-          type: formVal.type!,
-          description: formVal.description!,
-          serviceProvider: formVal.serviceProvider || undefined,
-          scheduledDate: formVal.scheduledDate || undefined,
+          vehicleId: payload.vehicleId,
+          type: payload.type,
+          description: payload.description,
+          serviceProvider: payload.serviceProvider,
+          scheduledDate: payload.scheduledDate,
         })
         .subscribe({
           next: () => {
@@ -424,32 +398,6 @@ export class MaintenanceListComponent implements OnInit {
     if (this.impersonationService.isReadOnly()) return;
     this.selectedMaintenance.set(m);
     this.actionError.set(null);
-    this.finishItems.clear();
-
-    // Se a manutenção já tem itens cadastrados, preenche
-    if (m.items && m.items.length > 0) {
-      for (const item of m.items) {
-        this.finishItems.push(
-          this.fb.group({
-            name: new FormControl(item.name, [Validators.required]),
-            cost: new FormControl<number>(item.cost, [Validators.required, Validators.min(0)]),
-            quantity: new FormControl<number>(item.quantity || 1, [
-              Validators.required,
-              Validators.min(1),
-            ]),
-          })
-        );
-      }
-    } else {
-      this.addFinishItem();
-    }
-
-    const currentKm = m.vehicle?.currentKm ?? m.odometerAtService ?? 0;
-    this.finishForm.patchValue({
-      odometerAtService: currentKm,
-      finishedAt: new Date().toISOString().substring(0, 10),
-    });
-
     this.isFinishModalOpen.set(true);
   }
 
@@ -459,33 +407,19 @@ export class MaintenanceListComponent implements OnInit {
     this.actionError.set(null);
   }
 
-  submitFinish(): void {
-    if (this.finishForm.invalid) {
-      this.finishForm.markAllAsTouched();
-      return;
-    }
-
+  submitFinish(payload: MaintenanceFinishSubmitPayload): void {
     const m = this.selectedMaintenance();
     if (!m) return;
 
     this.isActionLoading.set(true);
     this.actionError.set(null);
 
-    const formVal = this.finishForm.value;
-    const items = (formVal.items as any[])
-      .filter((i) => i.name && i.name.trim().length > 0)
-      .map((i) => ({
-        name: i.name,
-        cost: Number(i.cost) || 0,
-        quantity: Number(i.quantity) || 1,
-      }));
-
     this.maintenanceRepo
       .finish(m.id, {
-        odometerAtService: Number(formVal.odometerAtService),
-        finishedAt: formVal.finishedAt || undefined,
-        items: items.length > 0 ? items : undefined,
-        cost: items.length === 0 ? this.calculateFinishTotalCost() : undefined,
+        odometerAtService: payload.odometerAtService,
+        finishedAt: payload.finishedAt,
+        items: payload.items,
+        cost: payload.cost,
       })
       .subscribe({
         next: () => {
@@ -510,7 +444,6 @@ export class MaintenanceListComponent implements OnInit {
   openCancelModal(m: Maintenance): void {
     if (this.impersonationService.isReadOnly()) return;
     this.selectedMaintenance.set(m);
-    this.cancelForm.reset({ reason: '' });
     this.actionError.set(null);
     this.isCancelModalOpen.set(true);
   }
@@ -521,14 +454,14 @@ export class MaintenanceListComponent implements OnInit {
     this.actionError.set(null);
   }
 
-  confirmCancel(): void {
+  confirmCancel(reason?: string): void {
     const m = this.selectedMaintenance();
     if (!m) return;
 
     this.isActionLoading.set(true);
     this.actionError.set(null);
 
-    this.maintenanceRepo.cancel(m.id, this.cancelForm.value.reason || undefined).subscribe({
+    this.maintenanceRepo.cancel(m.id, reason).subscribe({
       next: () => {
         this.isActionLoading.set(false);
         this.toastService.success('Manutenção cancelada com sucesso.');
@@ -556,17 +489,34 @@ export class MaintenanceListComponent implements OnInit {
     this.selectedMaintenance.set(null);
   }
 
-  // --- HELPERS VISUAIS ---
+  // Helpers de Formatação e Estilos
+  getStatusLabel(status: MaintenanceStatus): string {
+    switch (status) {
+      case 'AGENDADA':
+        return 'Agendada';
+      case 'EM_ANDAMENTO':
+        return 'Em Andamento';
+      case 'CONCLUIDA':
+        return 'Concluída';
+      case 'CANCELADA':
+        return 'Cancelada';
+      default:
+        return status;
+    }
+  }
+
   getStatusClass(status: MaintenanceStatus): string {
     switch (status) {
       case 'AGENDADA':
-        return 'bg-blue-50 text-blue-700 border-blue-200';
+        return 'bg-blue-50 text-blue-700 border-blue-200/80';
       case 'EM_ANDAMENTO':
-        return 'bg-amber-50 text-amber-700 border-amber-200';
+        return 'bg-amber-50 text-amber-700 border-amber-200/80';
       case 'CONCLUIDA':
-        return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+        return 'bg-emerald-50 text-emerald-700 border-emerald-200/80';
       case 'CANCELADA':
         return 'bg-slate-100 text-slate-600 border-slate-200';
+      default:
+        return 'bg-slate-50 text-slate-700 border-slate-200';
     }
   }
 
@@ -580,29 +530,18 @@ export class MaintenanceListComponent implements OnInit {
         return 'bg-emerald-500';
       case 'CANCELADA':
         return 'bg-slate-400';
+      default:
+        return 'bg-slate-400';
     }
-  }
-
-  getStatusLabel(status: MaintenanceStatus): string {
-    switch (status) {
-      case 'AGENDADA':
-        return 'Agendada';
-      case 'EM_ANDAMENTO':
-        return 'Em Andamento';
-      case 'CONCLUIDA':
-        return 'Concluída';
-      case 'CANCELADA':
-        return 'Cancelada';
-    }
-  }
-
-  getTypeClass(type: MaintenanceType): string {
-    return type === 'PREVENTIVA'
-      ? 'bg-purple-50 text-purple-700 border-purple-200'
-      : 'bg-rose-50 text-rose-700 border-rose-200';
   }
 
   getTypeLabel(type: MaintenanceType): string {
     return type === 'PREVENTIVA' ? 'Preventiva' : 'Corretiva';
+  }
+
+  getTypeClass(type: MaintenanceType): string {
+    return type === 'PREVENTIVA'
+      ? 'bg-purple-50 text-purple-700 border-purple-200/60'
+      : 'bg-rose-50 text-rose-700 border-rose-200/60';
   }
 }
