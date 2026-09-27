@@ -304,7 +304,6 @@
               <th class="py-3.5 px-4">Distância</th>
               <th class="py-3.5 px-4">Previsão Chegada</th>
               <th class="py-3.5 px-4">Status</th>
-              <th class="py-3.5 px-4">Observações</th>
               <th class="py-3.5 px-4 text-right">Ações</th>
             </tr>
           </thead>
@@ -367,6 +366,12 @@
                       {{ trip.destinationCity ? (trip.destinationCity + (trip.destinationState ? ' - ' + trip.destinationState : '')) : trip.destination }}
                     </span>
                   </div>
+                  @if (trip.notes) {
+                    <div class="mt-1 text-[11px] text-slate-400 flex items-center gap-1 truncate max-w-xs" [title]="trip.notes">
+                      <span class="text-[9px] font-semibold text-slate-400 uppercase tracking-wider">Obs:</span>
+                      <span class="truncate italic">{{ trip.notes }}</span>
+                    </div>
+                  }
                   @if (getSosIncidentForTrip(trip.id); as sos) {
                     <div class="mt-1.5 p-1.5 bg-rose-50 border border-rose-200 rounded-lg text-rose-700 text-[10px] flex items-start gap-1.5 max-w-xs shadow-2xs">
                       <svg lucideShieldAlert class="size-3.5 text-rose-600 shrink-0 mt-0.5 animate-pulse"></svg>
@@ -405,11 +410,6 @@
                     <span class="size-1.5 rounded-full" [ngClass]="getStatusDotClass(trip.status)"></span>
                     {{ getStatusLabel(trip.status) }}
                   </span>
-                </td>
-
-                <!-- OBSERVAÇÕES -->
-                <td class="py-3.5 px-4 text-slate-500 text-xs max-w-[150px] truncate" [title]="trip.notes || 'Sem intercorrências'">
-                  {{ trip.notes || 'Sem intercorrências' }}
                 </td>
 
                 <!-- AÇÕES -->
@@ -529,7 +529,7 @@
               </tr>
             } @empty {
               <tr>
-                <td colspan="9" class="py-12 text-center text-slate-400">
+                <td colspan="8" class="py-12 text-center text-slate-400">
                   <div class="size-10 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-2">
                     <svg lucideNavigation class="size-5"></svg>
                   </div>
