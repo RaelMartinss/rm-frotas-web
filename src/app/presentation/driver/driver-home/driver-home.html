@@ -266,56 +266,6 @@
       </div>
     }
 
-    <!-- ROW DE 3 CARDS KPI DE MÉTRICAS (EXATAMENTE COMO A IMAGEM ORIGINAL) -->
-    <div class="grid grid-cols-3 gap-2.5">
-      <!-- 1. Abastecimentos -->
-      <div class="bg-[#0A1020]/90 border border-slate-800/80 rounded-2xl p-3.5 flex flex-col justify-between shadow-xs">
-        <div class="size-8 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 flex items-center justify-center">
-          <svg lucideFuel class="size-4"></svg>
-        </div>
-        <div class="mt-2.5">
-          <span class="text-2xl font-black text-white font-mono leading-none block">
-            {{ summary.monthFuelingsCount ?? 0 }}
-          </span>
-          <span class="text-xs text-slate-300 font-medium block mt-1 leading-tight">
-            Abastecimentos
-          </span>
-          <span class="text-[10px] text-emerald-400 font-medium block mt-0.5 leading-tight">
-            ↑ 12% vs. mês passado
-          </span>
-        </div>
-      </div>
-
-      <!-- 2. Viagens no mês -->
-      <div class="bg-[#0A1020]/90 border border-slate-800/80 rounded-2xl p-3.5 flex flex-col justify-between shadow-xs">
-        <div class="size-8 rounded-full bg-blue-500/15 text-blue-400 border border-blue-500/25 flex items-center justify-center">
-          <svg lucideMapPin class="size-4"></svg>
-        </div>
-        <div class="mt-2.5">
-          <span class="text-2xl font-black text-white font-mono leading-none block">
-            {{ summary.recentTripsCount ?? 0 }}
-          </span>
-          <span class="text-xs text-slate-300 font-medium block mt-1 leading-tight">
-            Viagens no mês
-          </span>
-        </div>
-      </div>
-
-      <!-- 3. Em rota -->
-      <div class="bg-[#0A1020]/90 border border-slate-800/80 rounded-2xl p-3.5 flex flex-col justify-between shadow-xs">
-        <div class="size-8 rounded-full bg-purple-500/15 text-purple-400 border border-purple-500/25 flex items-center justify-center">
-          <svg lucideSend class="size-4"></svg>
-        </div>
-        <div class="mt-2.5">
-          <span class="text-2xl font-black text-white font-mono leading-none block">
-            {{ (summary.trip?.status === 'IN_PROGRESS' || summary.trip?.status === 'EM_ANDAMENTO') ? 1 : 0 }}
-          </span>
-          <span class="text-xs text-slate-300 font-medium block mt-1 leading-tight">
-            Em rota
-          </span>
-        </div>
-      </div>
-    </div>
 
     <!-- SEÇÃO AÇÕES RÁPIDAS (COM ÍCONE DE RAIO VERDE E CARDS SEM TEXTO CORTADO) -->
     <div class="space-y-2.5">
