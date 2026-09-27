@@ -330,19 +330,31 @@
                   class="p-3.5 flex gap-3 hover:bg-slate-50 transition-colors cursor-pointer group"
                   [class.bg-slate-50/40]="!notif.read"
                 >
-                  <!-- Ícone por tipo -->
+                  <!-- Ícone por categoria e tipo -->
                   <div class="mt-0.5 shrink-0">
-                    @if (notif.type === 'CRITICAL') {
-                      <div class="size-7 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center border border-rose-200/60">
+                    @if (notif.category === 'SOS' || notif.type === 'CRITICAL') {
+                      <div class="size-7 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center border border-rose-200/60 shadow-xs">
                         <svg lucideShieldAlert class="size-4"></svg>
                       </div>
-                    } @else if (notif.type === 'WARNING') {
-                      <div class="size-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-200/60">
+                    } @else if (notif.category === 'TRIP') {
+                      <div class="size-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-200/60 shadow-xs">
+                        <svg lucideRoute class="size-4"></svg>
+                      </div>
+                    } @else if (notif.category === 'FUEL') {
+                      <div class="size-7 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center border border-sky-200/60 shadow-xs">
+                        <svg lucideFuel class="size-4"></svg>
+                      </div>
+                    } @else if (notif.category === 'DOCUMENT' || notif.type === 'WARNING') {
+                      <div class="size-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-200/60 shadow-xs">
                         <svg lucideAlertTriangle class="size-4"></svg>
                       </div>
-                    } @else {
-                      <div class="size-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-200/60">
+                    } @else if (notif.category === 'MAINTENANCE') {
+                      <div class="size-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-200/60 shadow-xs">
                         <svg lucideWrench class="size-4"></svg>
+                      </div>
+                    } @else {
+                      <div class="size-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-200/60 shadow-xs">
+                        <svg lucideBell class="size-4"></svg>
                       </div>
                     }
                   </div>
@@ -359,6 +371,13 @@
                       {{ notif.message }}
                     </p>
                   </div>
+
+                  <!-- Indicador sutil de não lida -->
+                  @if (!notif.read) {
+                    <div class="mt-1.5 shrink-0 self-center">
+                      <span class="size-2 rounded-full bg-emerald-500 inline-block ring-2 ring-emerald-100" title="Não lida"></span>
+                    </div>
+                  }
                 </a>
               } @empty {
                 <div class="py-8 text-center text-slate-400 text-xs">

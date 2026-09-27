@@ -34,6 +34,7 @@ import {
   LucideLoader2,
 } from '@lucide/angular';
 import { ImpersonationService } from '../../core/services/impersonation.service';
+import { FleetNotificationService, NotificationItem } from '../../core/services/fleet-notification.service';
 
 export interface CommandItem {
   id: string;
@@ -46,15 +47,7 @@ export interface CommandItem {
   shortcut?: string;
 }
 
-export interface NotificationItem {
-  id: string;
-  title: string;
-  message: string;
-  time: string;
-  type: 'CRITICAL' | 'WARNING' | 'INFO';
-  link: string;
-  read: boolean;
-}
+export type { NotificationItem };
 
 @Component({
   selector: 'app-main-layout',
@@ -98,6 +91,7 @@ export class MainLayoutComponent {
   private readonly authRepository = inject(IAuthRepository);
   private readonly authState = inject(AuthStateService);
   private readonly liveAlertsService = inject(LiveAlertsService);
+  private readonly fleetNotificationService = inject(FleetNotificationService);
   private readonly router = inject(Router);
   readonly impersonationService = inject(ImpersonationService);
 
@@ -112,57 +106,12 @@ export class MainLayoutComponent {
   selectedIndex = signal(0);
   exitingImpersonation = signal(false);
 
-  readonly hasActiveSos = this.liveAlertsService.hasActiveSos;
+  readonly hasActiveSos = this.fleetNotificationService.hasActiveSos;
   readonly activeSosCount = this.liveAlertsService.activeSosCount;
 
-  // Lista base de Notificações
-  notifications = signal<NotificationItem[]>([
-    {
-      id: '1',
-      title: 'CRLV Próximo do Vencimento',
-      message: 'Veículo Volvo FH 540 (ABC-1D23) vence em 8 dias.',
-      time: 'Há 15 min',
-      type: 'CRITICAL',
-      link: '/expiracoes',
-      read: false
-    },
-    {
-      id: '2',
-      title: 'CNH a Vencer',
-      message: 'Motorista Carlos Eduardo Silva com CNH vencendo em 18 dias.',
-      time: 'Há 2 horas',
-      type: 'WARNING',
-      link: '/motoristas',
-      read: false
-    },
-    {
-      id: '3',
-      title: 'Manutenção Preventiva',
-      message: 'Scania R450 atingiu 120.000 km. Revisão recomendada.',
-      time: 'Há 4 horas',
-      type: 'INFO',
-      link: '/manutencoes',
-      read: false
-    }
-  ]);
-
-  dynamicNotifications = computed<NotificationItem[]>(() => {
-    const sosItems: NotificationItem[] = this.liveAlertsService.activeIncidents().map((inc) => ({
-      id: `sos-${inc.id}`,
-      title: `🚨 SOS: ${inc.driverName || 'Motorista'} (${inc.category})`,
-      message: `"${inc.description}" • Veículo: ${inc.vehiclePlate || 'N/A'}${inc.tripRoute ? ' • ' + inc.tripRoute : ''}`,
-      time: 'Agora',
-      type: 'CRITICAL',
-      link: '/alertas',
-      read: false
-    }));
-
-    return [...sosItems, ...this.notifications()];
-  });
-
-  unreadNotificationsCount = computed(() => {
-    return this.dynamicNotifications().filter((n) => !n.read).length;
-  });
+  // Notificações reais da frota gerenciadas pelo FleetNotificationService (FIFO / Rotatividade)
+  dynamicNotifications = this.fleetNotificationService.notifications;
+  unreadNotificationsCount = this.fleetNotificationService.unreadCount;
 
   // Itens da Command Palette
   readonly commandItems: CommandItem[] = [
@@ -384,15 +333,11 @@ export class MainLayoutComponent {
   }
 
   markAllNotificationsAsRead(): void {
-    this.notifications.update((list) =>
-      list.map((n) => ({ ...n, read: true }))
-    );
+    this.fleetNotificationService.markAllAsRead();
   }
 
   markNotificationAsRead(id: string): void {
-    this.notifications.update((list) =>
-      list.map((n) => (n.id === id ? { ...n, read: true } : n))
-    );
+    this.fleetNotificationService.markAsRead(id);
   }
 
   onSearchInput(value: string): void {
