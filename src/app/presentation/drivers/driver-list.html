@@ -14,25 +14,6 @@
       <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Cadastre e acompanhe a situação das CNHs e condutores da frota.</p>
     </div>
     <div class="flex items-center gap-2">
-      <a
-        routerLink="/download"
-        target="_blank"
-        class="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-emerald-400 font-semibold text-xs px-3.5 py-2.5 rounded-xl border border-slate-800 transition-all shadow-2xs hover:shadow-xs cursor-pointer"
-        title="Abrir página de download do aplicativo do motorista"
-      >
-        <svg lucideSmartphone class="size-4"></svg>
-        <span>App dos Motoristas</span>
-      </a>
-
-      <a
-        routerLink="/abastecimentos"
-        class="inline-flex items-center gap-2 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs px-3.5 py-2.5 rounded-xl border border-slate-200/90 transition-all shadow-2xs hover:shadow-xs cursor-pointer"
-        title="Acessar Central de Abastecimentos"
-      >
-        <svg lucideFuel class="size-4 text-emerald-600"></svg>
-        <span>Abastecimentos</span>
-      </a>
-
       @if (!impersonationService.isReadOnly()) {
         <button
           (click)="openModal()"
@@ -76,6 +57,12 @@
         [ngClass]="selectedStatus() === 'ALL' ? 'bg-slate-900 text-white border-slate-900 shadow-2xs' : 'bg-slate-50 text-slate-600 border-slate-200/80 hover:bg-slate-100'"
       >
         <span>Todos</span>
+        <span
+          class="ml-0.5 px-1.5 py-0.2 rounded-full text-[10px] font-bold transition-colors"
+          [ngClass]="selectedStatus() === 'ALL' ? 'bg-white/20 text-white' : 'bg-slate-200/70 text-slate-700'"
+        >
+          {{ statusCounts().all }}
+        </span>
       </button>
 
       <button
@@ -86,6 +73,12 @@
       >
         <span class="size-1.5 rounded-full" [ngClass]="selectedStatus() === 'ACTIVE' ? 'bg-white' : 'bg-emerald-500'"></span>
         <span>Ativos</span>
+        <span
+          class="ml-0.5 px-1.5 py-0.2 rounded-full text-[10px] font-bold transition-colors"
+          [ngClass]="selectedStatus() === 'ACTIVE' ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-800'"
+        >
+          {{ statusCounts().active }}
+        </span>
       </button>
 
       <button
@@ -96,6 +89,12 @@
       >
         <span class="size-1.5 rounded-full" [ngClass]="selectedStatus() === 'IN_TRIP' ? 'bg-white' : 'bg-blue-500'"></span>
         <span>Em Viagem</span>
+        <span
+          class="ml-0.5 px-1.5 py-0.2 rounded-full text-[10px] font-bold transition-colors"
+          [ngClass]="selectedStatus() === 'IN_TRIP' ? 'bg-white/20 text-white' : 'bg-blue-100 text-blue-800'"
+        >
+          {{ statusCounts().inTrip }}
+        </span>
       </button>
 
       <button
@@ -104,7 +103,14 @@
         class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shrink-0 cursor-pointer border"
         [ngClass]="selectedStatus() === 'INACTIVE' ? 'bg-slate-700 text-white border-slate-700 shadow-2xs' : 'bg-slate-50 text-slate-600 border-slate-200/80 hover:bg-slate-100'"
       >
+        <span class="size-1.5 rounded-full" [ngClass]="selectedStatus() === 'INACTIVE' ? 'bg-white' : 'bg-slate-500'"></span>
         <span>Inativos</span>
+        <span
+          class="ml-0.5 px-1.5 py-0.2 rounded-full text-[10px] font-bold transition-colors"
+          [ngClass]="selectedStatus() === 'INACTIVE' ? 'bg-white/20 text-white' : 'bg-slate-200/70 text-slate-700'"
+        >
+          {{ statusCounts().inactive }}
+        </span>
       </button>
 
       <button
@@ -113,7 +119,14 @@
         class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shrink-0 cursor-pointer border"
         [ngClass]="selectedStatus() === 'SUSPENDED' ? 'bg-rose-600 text-white border-rose-600 shadow-2xs' : 'bg-slate-50 text-slate-600 border-slate-200/80 hover:bg-slate-100'"
       >
+        <span class="size-1.5 rounded-full" [ngClass]="selectedStatus() === 'SUSPENDED' ? 'bg-white' : 'bg-rose-500'"></span>
         <span>Suspensos</span>
+        <span
+          class="ml-0.5 px-1.5 py-0.2 rounded-full text-[10px] font-bold transition-colors"
+          [ngClass]="selectedStatus() === 'SUSPENDED' ? 'bg-white/20 text-white' : 'bg-rose-100 text-rose-800'"
+        >
+          {{ statusCounts().suspended }}
+        </span>
       </button>
     </div>
   </div>
@@ -187,21 +200,33 @@
                   </span>
                 </td>
                 <td class="py-3.5 px-4">
-                  <div class="flex items-center gap-1.5">
-                    @if (isCnhExpired(getCnhExpiration(driver))) {
-                      <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200 flex items-center gap-1">
-                        <svg lucideAlertTriangle class="size-3"></svg>
-                        Vencida ({{ (getCnhExpiration(driver) | date:'dd/MM/yyyy') }})
-                      </span>
-                    } @else if (isCnhExpiringSoon(getCnhExpiration(driver))) {
-                      <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1">
-                        <svg lucideAlertTriangle class="size-3"></svg>
-                        Vence em breve ({{ (getCnhExpiration(driver) | date:'dd/MM/yyyy') }})
-                      </span>
-                    } @else {
-                      <span class="text-slate-600 font-medium">{{ (getCnhExpiration(driver) | date:'dd/MM/yyyy') || '-' }}</span>
-                    }
-                  </div>
+                  @if (getCnhExpiration(driver)) {
+                    <div class="flex flex-col gap-1 items-start">
+                      <div class="flex items-center gap-1.5 text-slate-800 font-medium text-xs">
+                        <svg lucideCalendar class="size-3.5 text-slate-400 shrink-0"></svg>
+                        <span class="tabular-nums">{{ (getCnhExpiration(driver) | date:'dd/MM/yyyy') }}</span>
+                      </div>
+
+                      @if (isCnhExpired(getCnhExpiration(driver))) {
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-50 text-rose-700 border border-rose-200/70 shadow-2xs">
+                          <span class="size-1.5 rounded-full bg-rose-500"></span>
+                          <span>Vencida</span>
+                        </span>
+                      } @else if (isCnhExpiringSoon(getCnhExpiration(driver))) {
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-200/70 shadow-2xs">
+                          <span class="size-1.5 rounded-full bg-amber-500"></span>
+                          <span>{{ getCnhDaysLabel(getCnhExpiration(driver)) }}</span>
+                        </span>
+                      } @else {
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/70 shadow-2xs">
+                          <span class="size-1.5 rounded-full bg-emerald-500"></span>
+                          <span>Válida</span>
+                        </span>
+                      }
+                    </div>
+                  } @else {
+                    <span class="text-slate-400 font-medium">-</span>
+                  }
                 </td>
                 <td class="py-3.5 px-4">
                   <span

@@ -40,7 +40,6 @@ import {
   LucidePlus,
   LucideSearch,
   LucideX,
-  LucideAlertTriangle,
   LucidePhone,
   LucideIdCard,
   LucideEye,
@@ -51,8 +50,8 @@ import {
   LucideFuel,
   LucideKeyRound,
   LucideMail,
-  LucideSmartphone,
   LucideEllipsisVertical,
+  LucideCalendar,
 } from '@lucide/angular';
 
 @Component({
@@ -73,10 +72,8 @@ import {
     DriverTempPasswordModalComponent,
     LucideUsers,
     LucidePlus,
-    LucideSmartphone,
     LucideSearch,
     LucideX,
-    LucideAlertTriangle,
     LucidePhone,
     LucideIdCard,
     LucideEye,
@@ -88,6 +85,7 @@ import {
     LucideKeyRound,
     LucideMail,
     LucideEllipsisVertical,
+    LucideCalendar,
   ],
   templateUrl: './driver-list.html',
   styleUrl: './driver-list.css'
@@ -174,6 +172,21 @@ export class DriverListComponent implements OnInit {
   searchControl = new FormControl('', { nonNullable: true });
   selectedStatus = signal<string>('ALL');
 
+  // Contadores por Status para os Chips
+  statusCounts = signal<{
+    all: number;
+    active: number;
+    inTrip: number;
+    inactive: number;
+    suspended: number;
+  }>({
+    all: 0,
+    active: 0,
+    inTrip: 0,
+    inactive: 0,
+    suspended: 0,
+  });
+
   searchTerm = toSignal(
     this.searchControl.valueChanges.pipe(
       debounceTime(300),
@@ -186,6 +199,7 @@ export class DriverListComponent implements OnInit {
     this.searchControl.setValue('');
     this.currentPage.set(1);
     this.loadDrivers();
+    this.loadStatusCounts();
   }
 
   setStatusFilter(status: string): void {
@@ -214,9 +228,11 @@ export class DriverListComponent implements OnInit {
       .subscribe(() => {
         this.currentPage.set(1);
         this.loadDrivers();
+        this.loadStatusCounts();
       });
 
     this.loadDrivers();
+    this.loadStatusCounts();
   }
 
   loadDrivers(): void {
@@ -242,6 +258,42 @@ export class DriverListComponent implements OnInit {
       });
   }
 
+  loadStatusCounts(): void {
+    const term = this.searchControl.value?.trim();
+    this.driverRepository
+      .getAll({
+        page: 1,
+        limit: 100,
+        search: term,
+      })
+      .subscribe({
+        next: (response) => {
+          const list = response.data || [];
+          const active = list.filter(
+            (d) => d.status === 'ACTIVE' || d.status === 'DISPONIVEL'
+          ).length;
+          const inTrip = list.filter(
+            (d) => d.status === 'EM_VIAGEM'
+          ).length;
+          const inactive = list.filter(
+            (d) => d.status === 'INACTIVE' || d.status === 'FOLGA'
+          ).length;
+          const suspended = list.filter(
+            (d) => d.status === 'SUSPENDED' || d.status === 'AFASTADO'
+          ).length;
+
+          this.statusCounts.set({
+            all: response.total ?? list.length,
+            active,
+            inTrip,
+            inactive,
+            suspended,
+          });
+        },
+        error: () => {}
+      });
+  }
+
   getCnhNumber(driver: Driver): string {
     return driver.cnh?.number || driver.cnhNumber || '-';
   }
@@ -254,22 +306,33 @@ export class DriverListComponent implements OnInit {
     return driver.cnh?.expirationDate || driver.cnhExpiration || '';
   }
 
-  isCnhExpired(expirationDateStr?: string): boolean {
-    if (!expirationDateStr) return false;
+  getDaysUntilExpiration(expirationDateStr?: string): number | null {
+    if (!expirationDateStr) return null;
     const expirationDate = new Date(expirationDateStr);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return expirationDate < today;
-  }
-
-  isCnhExpiringSoon(expirationDateStr?: string): boolean {
-    if (!expirationDateStr) return false;
-    const expirationDate = new Date(expirationDateStr);
+    if (isNaN(expirationDate.getTime())) return null;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const diffTime = expirationDate.getTime() - today.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays >= 0 && diffDays <= 30;
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  }
+
+  isCnhExpired(expirationDateStr?: string): boolean {
+    const days = this.getDaysUntilExpiration(expirationDateStr);
+    return days !== null && days < 0;
+  }
+
+  isCnhExpiringSoon(expirationDateStr?: string): boolean {
+    const days = this.getDaysUntilExpiration(expirationDateStr);
+    return days !== null && days >= 0 && days <= 30;
+  }
+
+  getCnhDaysLabel(expirationDateStr?: string): string {
+    const days = this.getDaysUntilExpiration(expirationDateStr);
+    if (days === null) return '-';
+    if (days < 0) return 'Vencida';
+    if (days === 0) return 'Vence hoje';
+    if (days === 1) return 'Vence amanhã';
+    return `Vence em ${days} dias`;
   }
 
   getDriverStatusLabel(status: string): string {
@@ -368,6 +431,7 @@ export class DriverListComponent implements OnInit {
         this.toastService.success('Motorista cadastrado com sucesso!');
         this.currentPage.set(1);
         this.loadDrivers();
+        this.loadStatusCounts();
 
         if (response.temporaryPassword) {
           this.tempPasswordData.set({
@@ -487,6 +551,7 @@ export class DriverListComponent implements OnInit {
         );
         this.isActionLoading.set(false);
         this.toastService.success(successMessage);
+        this.loadStatusCounts();
         this.closeStatusConfirmModal();
       },
       error: (err) => {
@@ -532,6 +597,7 @@ export class DriverListComponent implements OnInit {
         this.toastService.success(`Motorista ${driver.name} suspenso com sucesso.`);
         this.closeSuspendModal();
         this.loadDrivers();
+        this.loadStatusCounts();
         if (this.isDetailsModalOpen()) {
           this.loadDriverSuspensions(driver.id);
         }
@@ -575,6 +641,7 @@ export class DriverListComponent implements OnInit {
         this.toastService.success(`Suspensão de ${driver.name} encerrada com sucesso! Motorista reativado.`);
         this.closeLiftModal();
         this.loadDrivers();
+        this.loadStatusCounts();
         if (this.isDetailsModalOpen()) {
           this.loadDriverSuspensions(driver.id);
         }
@@ -634,6 +701,7 @@ export class DriverListComponent implements OnInit {
         );
         this.isActionLoading.set(false);
         this.toastService.success(`CNH de ${driver.name} atualizada com sucesso!`);
+        this.loadStatusCounts();
         this.closeUpdateCnhModal();
       },
       error: (err) => {
