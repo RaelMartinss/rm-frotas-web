@@ -118,6 +118,7 @@ export class DriverListComponent implements OnInit {
       .subscribe(() => {
         this.currentPage.set(1);
         this.loadDrivers();
+        this.loadStatusCounts();
       });
   }
 
@@ -147,19 +148,26 @@ export class DriverListComponent implements OnInit {
   }
 
   loadStatusCounts(): void {
-    this.driverRepository.getAll({ limit: 1000 }).subscribe({
-      next: (res) => {
-        const all = res.data;
-        this.statusCounts.set({
-          all: res.total,
-          active: all.filter((d) => d.status === 'ACTIVE' || d.status === 'DISPONIVEL').length,
-          inTrip: all.filter((d) => d.status === 'EM_VIAGEM').length,
-          inactive: all.filter((d) => d.status === 'INACTIVE' || d.status === 'FOLGA').length,
-          suspended: all.filter((d) => d.status === 'SUSPENDED' || d.status === 'AFASTADO').length,
-        });
-      },
-      error: () => {},
-    });
+    const term = this.searchControl.value?.trim();
+    this.driverRepository
+      .getAll({
+        page: 1,
+        limit: 100,
+        search: term || undefined,
+      })
+      .subscribe({
+        next: (res) => {
+          const all = res.data || [];
+          this.statusCounts.set({
+            all: res.total ?? all.length,
+            active: all.filter((d) => d.status === 'ACTIVE' || d.status === 'DISPONIVEL').length,
+            inTrip: all.filter((d) => d.status === 'EM_VIAGEM').length,
+            inactive: all.filter((d) => d.status === 'INACTIVE' || d.status === 'FOLGA').length,
+            suspended: all.filter((d) => d.status === 'SUSPENDED' || d.status === 'AFASTADO').length,
+          });
+        },
+        error: () => {},
+      });
   }
 
   setStatusFilter(status: string): void {
