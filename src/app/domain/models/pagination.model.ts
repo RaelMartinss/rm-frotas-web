@@ -11,4 +11,6 @@ export interface PaginationParams {
   limit?: number;
   search?: string;
   status?: string;
+  driverId?: string;
+  vehicleId?: string;
 }

@@ -49,6 +49,9 @@ import {
   LucideZoomIn,
   LucideRefreshCw,
   LucideEllipsisVertical,
+  LucideFilter,
+  LucideChevronDown,
+  LucideAlertCircle,
 } from '@lucide/angular';
 
 @Component({
@@ -88,6 +91,9 @@ import {
     LucideZoomIn,
     LucideRefreshCw,
     LucideEllipsisVertical,
+    LucideFilter,
+    LucideChevronDown,
+    LucideAlertCircle,
   ],
   templateUrl: './trip-list.html',
   styleUrl: './trip-list.css'
@@ -130,6 +136,10 @@ export class TripListComponent implements OnInit, OnDestroy {
 
   // Busca e Filtros Reativos com Server-Side Query
   searchControl = new FormControl('', { nonNullable: true });
+  vehicleFilterControl = new FormControl('ALL', { nonNullable: true });
+  driverFilterControl = new FormControl('ALL', { nonNullable: true });
+  statusFilterControl = new FormControl('ALL', { nonNullable: true });
+  dateFilterControl = new FormControl('ALL', { nonNullable: true });
   selectedStatus = signal<string>('ALL');
 
   searchTerm = toSignal(
@@ -139,6 +149,16 @@ export class TripListComponent implements OnInit, OnDestroy {
     ),
     { initialValue: '' }
   );
+
+  hasActiveFilters = computed(() => {
+    return (
+      (this.searchTerm() || '').trim().length > 0 ||
+      this.selectedStatus() !== 'ALL' ||
+      this.vehicleFilterControl.value !== 'ALL' ||
+      this.driverFilterControl.value !== 'ALL' ||
+      this.dateFilterControl.value !== 'ALL'
+    );
+  });
 
   // Contadores reativos por status
   statusCounts = signal<{
@@ -203,8 +223,25 @@ export class TripListComponent implements OnInit, OnDestroy {
     this.loadStatusCounts();
   }
 
+  clearSearchInput(): void {
+    this.searchControl.setValue('');
+  }
+
+  clearAllFilters(): void {
+    this.searchControl.setValue('');
+    this.vehicleFilterControl.setValue('ALL');
+    this.driverFilterControl.setValue('ALL');
+    this.statusFilterControl.setValue('ALL');
+    this.dateFilterControl.setValue('ALL');
+    this.selectedStatus.set('ALL');
+    this.currentPage.set(1);
+    this.loadTrips();
+    this.loadStatusCounts();
+  }
+
   setStatusFilter(status: string): void {
     this.selectedStatus.set(status);
+    this.statusFilterControl.setValue(status, { emitEvent: false });
     this.currentPage.set(1);
     this.loadTrips();
   }
@@ -251,6 +288,30 @@ export class TripListComponent implements OnInit, OnDestroy {
         this.loadTrips(true);
         this.loadStatusCounts();
       });
+
+    this.vehicleFilterControl.valueChanges.subscribe(() => {
+      this.currentPage.set(1);
+      this.loadTrips(true);
+      this.loadStatusCounts();
+    });
+
+    this.driverFilterControl.valueChanges.subscribe(() => {
+      this.currentPage.set(1);
+      this.loadTrips(true);
+      this.loadStatusCounts();
+    });
+
+    this.statusFilterControl.valueChanges.subscribe((status) => {
+      this.selectedStatus.set(status);
+      this.currentPage.set(1);
+      this.loadTrips(true);
+    });
+
+    this.dateFilterControl.valueChanges.subscribe(() => {
+      this.currentPage.set(1);
+      this.loadTrips(true);
+      this.loadStatusCounts();
+    });
 
     this.loadTrips(true);
     this.loadStatusCounts();
@@ -327,6 +388,8 @@ export class TripListComponent implements OnInit, OnDestroy {
         limit: this.pageSize(),
         search: this.searchControl.value,
         status: this.selectedStatus(),
+        vehicleId: this.vehicleFilterControl.value !== 'ALL' ? this.vehicleFilterControl.value : undefined,
+        driverId: this.driverFilterControl.value !== 'ALL' ? this.driverFilterControl.value : undefined,
       })
       .subscribe({
         next: (response) => {
@@ -353,6 +416,8 @@ export class TripListComponent implements OnInit, OnDestroy {
         page: 1,
         limit: 100,
         search: term || undefined,
+        vehicleId: this.vehicleFilterControl.value !== 'ALL' ? this.vehicleFilterControl.value : undefined,
+        driverId: this.driverFilterControl.value !== 'ALL' ? this.driverFilterControl.value : undefined,
       })
       .subscribe({
         next: (response) => {

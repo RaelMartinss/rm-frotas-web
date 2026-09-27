@@ -21,6 +21,8 @@ export class HttpTripRepository implements ITripRepository {
       if (params.limit !== undefined) httpParams = httpParams.set('limit', params.limit.toString());
       if (params.search && params.search.trim()) httpParams = httpParams.set('search', params.search.trim());
       if (params.status && params.status !== 'ALL') httpParams = httpParams.set('status', params.status);
+      if (params.driverId && params.driverId !== 'ALL') httpParams = httpParams.set('driverId', params.driverId);
+      if (params.vehicleId && params.vehicleId !== 'ALL') httpParams = httpParams.set('vehicleId', params.vehicleId);
     }
 
     return this.http.get<PaginatedResponse<Trip>>(this.apiUrl, { params: httpParams });
