@@ -178,4 +178,12 @@ export class HttpDriverPortalRepository implements IDriverPortalRepository {
       { withCredentials: true }
     );
   }
+
+  updateProfilePhoto(photoUrl: string | null): Observable<{ success: boolean; photoUrl: string | null; message: string }> {
+    return this.http.patch<{ success: boolean; photoUrl: string | null; message: string }>(
+      `${this.baseUrl}/profile/photo`,
+      { photoUrl },
+      { withCredentials: true }
+    );
+  }
 }

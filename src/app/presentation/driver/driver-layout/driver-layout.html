@@ -7,8 +7,12 @@
       title="Toque para ver informações do motorista e versão"
       class="flex items-center gap-2.5 min-w-0 text-left cursor-pointer hover:opacity-85 active:scale-95 transition-all p-1 -m-1 rounded-xl"
     >
-      <div class="size-8 rounded-xl bg-emerald-500 text-slate-950 flex items-center justify-center font-black text-xs shrink-0 shadow-xs ring-2 ring-emerald-500/20">
-        {{ currentUser()?.name?.substring(0, 2)?.toUpperCase() || 'MO' }}
+      <div class="size-8 rounded-xl bg-emerald-500 text-slate-950 flex items-center justify-center font-black text-xs shrink-0 shadow-xs ring-2 ring-emerald-500/20 overflow-hidden">
+        @if (driverPhoto()) {
+          <img [src]="driverPhoto()" class="w-full h-full object-cover" alt="Foto do perfil" />
+        } @else {
+          {{ currentUser()?.name?.substring(0, 2)?.toUpperCase() || 'MO' }}
+        }
       </div>
       <div class="min-w-0">
         <div class="flex items-center gap-1.5">
@@ -404,18 +408,67 @@
 
         <!-- Conteúdo do Painel -->
         <div class="p-4 space-y-4 overflow-y-auto flex-1">
-          <!-- Card de Identificação com Avatar Grande -->
+          <!-- Card de Identificação com Avatar Grande e Upload de Foto -->
           <div class="flex items-center gap-3.5 bg-slate-800/50 border border-slate-700/60 p-3.5 rounded-2xl">
-            <div class="size-14 rounded-2xl bg-emerald-500 text-slate-950 flex items-center justify-center font-black text-xl shrink-0 shadow-md ring-2 ring-emerald-500/30">
-              {{ currentUser()?.name?.substring(0, 2)?.toUpperCase() || 'MO' }}
+            <div class="relative group size-16 rounded-2xl bg-emerald-500 text-slate-950 flex items-center justify-center font-black text-xl shrink-0 shadow-md ring-2 ring-emerald-500/30 overflow-hidden">
+              @if (driverPhoto()) {
+                <img [src]="driverPhoto()" class="w-full h-full object-cover" alt="Foto do perfil" />
+              } @else {
+                {{ currentUser()?.name?.substring(0, 2)?.toUpperCase() || 'MO' }}
+              }
+
+              @if (isUploadingPhoto()) {
+                <div class="absolute inset-0 bg-slate-950/70 flex items-center justify-center">
+                  <svg lucideLoader2 class="size-5 animate-spin text-emerald-400"></svg>
+                </div>
+              } @else {
+                <label
+                  for="mobileDriverPhotoInput"
+                  class="absolute inset-0 bg-slate-950/65 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center gap-0.5 transition-opacity cursor-pointer text-white backdrop-blur-xs"
+                  title="Alterar foto"
+                >
+                  <svg lucideCamera class="size-4"></svg>
+                  <span class="text-[8px] font-bold uppercase">Foto</span>
+                </label>
+              }
             </div>
+
+            <input
+              id="mobileDriverPhotoInput"
+              type="file"
+              accept="image/*"
+              capture="user"
+              (change)="onProfilePhotoSelected($event)"
+              class="hidden"
+            />
+
             <div class="min-w-0 flex-1">
               <div class="flex items-center gap-1.5">
                 <h4 class="text-sm font-bold text-white truncate">{{ currentUser()?.name }}</h4>
                 <span class="size-2 rounded-full bg-emerald-400 shrink-0"></span>
               </div>
               <p class="text-xs text-emerald-400 font-medium truncate">{{ currentUser()?.clientName || 'RM Frotas Matriz' }}</p>
-              <p class="text-[10px] text-slate-400 mt-0.5">Função: Motorista Autorizado</p>
+              
+              <div class="flex items-center gap-2 mt-1">
+                <label
+                  for="mobileDriverPhotoInput"
+                  class="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-400 hover:text-emerald-300 cursor-pointer"
+                >
+                  <svg lucideCamera class="size-3"></svg>
+                  <span>{{ driverPhoto() ? 'Alterar foto' : 'Adicionar foto' }}</span>
+                </label>
+
+                @if (driverPhoto()) {
+                  <button
+                    type="button"
+                    (click)="removeProfilePhoto()"
+                    class="inline-flex items-center gap-1 text-[11px] font-semibold text-rose-400 hover:text-rose-300 cursor-pointer"
+                  >
+                    <svg lucideTrash2 class="size-3"></svg>
+                    <span>Remover</span>
+                  </button>
+                }
+              </div>
             </div>
           </div>
 

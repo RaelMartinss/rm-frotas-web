@@ -39,7 +39,10 @@ import {
   LucideChevronDown,
   LucideCopy,
   LucideCheck,
+  LucideCamera,
+  LucideTrash2,
 } from '@lucide/angular';
+import { compressImage } from '../../../core/utils/image-compressor';
 import {
   PhoneMaskDirective,
   CnhMaskDirective,
@@ -77,6 +80,8 @@ import {
     LucideChevronDown,
     LucideCopy,
     LucideCheck,
+    LucideCamera,
+    LucideTrash2,
   ],
   templateUrl: './driver-edit.html',
 })
@@ -95,6 +100,7 @@ export class DriverEditComponent implements OnInit {
   saving = signal<boolean>(false);
   activeTrip = signal<Trip | null>(null);
   activeSuspension = signal<DriverSuspension | null>(null);
+  photoPreview = signal<string | null>(null);
 
   // Accordion state: which action is currently expanded
   expandedAction = signal<'reset-password' | 'status' | 'suspend' | 'lift' | null>(null);
@@ -211,6 +217,7 @@ export class DriverEditComponent implements OnInit {
       isActive: driver.status !== 'INACTIVE' && driver.status !== 'FOLGA',
       role: 'Motorista',
     });
+    this.photoPreview.set(driver.photoUrl || null);
   }
 
   formatPhone(value?: string | null): string {
@@ -365,6 +372,31 @@ export class DriverEditComponent implements OnInit {
     return s === 'ACTIVE' || s === 'DISPONIVEL';
   }
 
+  async onPhotoSelected(event: Event): Promise<void> {
+    if (this.impersonationService.isReadOnly()) return;
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+    const file = input.files[0];
+
+    try {
+      const compressed = await compressImage(file, 600, 600, 0.8);
+      this.photoPreview.set(compressed);
+      this.form.markAsDirty();
+      this.toastService.info('Foto selecionada. Clique em "Salvar alterações" para confirmar.');
+    } catch (err: any) {
+      this.toastService.error(err.message || 'Erro ao processar imagem.');
+    } finally {
+      input.value = '';
+    }
+  }
+
+  removePhoto(): void {
+    if (this.impersonationService.isReadOnly()) return;
+    this.photoPreview.set(null);
+    this.form.markAsDirty();
+    this.toastService.info('Foto removida. Clique em "Salvar alterações" para confirmar.');
+  }
+
   save(): void {
     if (this.impersonationService.isReadOnly()) return;
     if (this.form.invalid) {
@@ -380,6 +412,7 @@ export class DriverEditComponent implements OnInit {
       name: formVal.name.trim(),
       email: formVal.email ? formVal.email.trim().toLowerCase() : undefined,
       phone: formVal.phone ? formVal.phone.trim() : undefined,
+      photoUrl: this.photoPreview(),
       cnhNumber: formVal.cnhNumber.trim(),
       cnhCategory: formVal.cnhCategory,
       cnhExpirationDate: formVal.cnhExpirationDate,

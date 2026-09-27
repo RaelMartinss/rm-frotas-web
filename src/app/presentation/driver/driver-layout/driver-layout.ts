@@ -17,6 +17,8 @@ import { NetworkStatusService } from '../../../core/services/network-status.serv
 import { AppUpdateService } from '../../../core/services/app-update.service';
 import { DriverNotificationService } from '../../../core/services/driver-notification.service';
 import { LocationTrackingService } from '../../../core/services/location-tracking.service';
+import { ToastService } from '../../../core/services/toast.service';
+import { compressImage } from '../../../core/utils/image-compressor';
 import {
   LucideNavigation,
   LucideClock,
@@ -32,6 +34,8 @@ import {
   LucideInfo,
   LucideRefreshCw,
   LucideCheck,
+  LucideCamera,
+  LucideLoader2,
 } from '@lucide/angular';
 
 @Component({
@@ -56,6 +60,8 @@ import {
     LucideInfo,
     LucideRefreshCw,
     LucideCheck,
+    LucideCamera,
+    LucideLoader2,
   ],
   templateUrl: './driver-layout.html',
 })
@@ -67,12 +73,15 @@ export class DriverLayoutComponent implements OnInit {
   readonly updateService = inject(AppUpdateService);
   readonly notificationService = inject(DriverNotificationService);
   private readonly locationTracking = inject(LocationTrackingService);
+  private readonly toastService = inject(ToastService);
   private readonly router = inject(Router);
 
   readonly currentUser = computed(() => this.authState.currentUser());
   readonly isOnline = computed(() => this.networkService.isOnline());
   readonly pendingReceipts = signal<number>(0);
   readonly isProfileOpen = signal<boolean>(false);
+  readonly driverPhoto = signal<string | null>(null);
+  readonly isUploadingPhoto = signal<boolean>(false);
 
   @ViewChild('scrollContainer') private scrollContainerRef?: ElementRef<HTMLElement>;
 
@@ -237,8 +246,53 @@ export class DriverLayoutComponent implements OnInit {
     this.portalRepository.getCurrentTrip().subscribe({
       next: (summary) => {
         this.pendingReceipts.set(summary.pendingReceiptsCount ?? 0);
+        if (summary.driver?.photoUrl) {
+          this.driverPhoto.set(summary.driver.photoUrl);
+        }
       },
       error: () => {},
+    });
+  }
+
+  async onProfilePhotoSelected(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+    const file = input.files[0];
+
+    try {
+      this.isUploadingPhoto.set(true);
+      const compressed = await compressImage(file, 600, 600, 0.8);
+      this.portalRepository.updateProfilePhoto(compressed).subscribe({
+        next: (res) => {
+          this.isUploadingPhoto.set(false);
+          this.driverPhoto.set(res.photoUrl || compressed);
+          this.toastService.success('Foto de perfil atualizada com sucesso!');
+        },
+        error: () => {
+          this.isUploadingPhoto.set(false);
+          this.toastService.error('Erro ao salvar foto de perfil.');
+        },
+      });
+    } catch (err: any) {
+      this.isUploadingPhoto.set(false);
+      this.toastService.error(err.message || 'Erro ao processar imagem.');
+    } finally {
+      input.value = '';
+    }
+  }
+
+  removeProfilePhoto(): void {
+    this.isUploadingPhoto.set(true);
+    this.portalRepository.updateProfilePhoto(null).subscribe({
+      next: () => {
+        this.isUploadingPhoto.set(false);
+        this.driverPhoto.set(null);
+        this.toastService.success('Foto removida com sucesso!');
+      },
+      error: () => {
+        this.isUploadingPhoto.set(false);
+        this.toastService.error('Erro ao remover foto.');
+      },
     });
   }
 

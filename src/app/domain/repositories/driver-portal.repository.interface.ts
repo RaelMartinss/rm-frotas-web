@@ -37,4 +37,5 @@ export abstract class IDriverPortalRepository {
     gasStation?: string
   ): Observable<{ message: string; id: string; receiptUrl: string }>;
   abstract registerPushToken(token: string): Observable<{ success: boolean; message: string }>;
+  abstract updateProfilePhoto(photoUrl: string | null): Observable<{ success: boolean; photoUrl: string | null; message: string }>;
 }

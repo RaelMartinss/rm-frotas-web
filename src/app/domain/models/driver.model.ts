@@ -78,6 +78,7 @@ export interface Driver {
   email?: string;
   cpf: string;
   phone?: string;
+  photoUrl?: string | null;
   cnhNumber?: string;
   cnhCategory?: CnhCategory;
   cnhExpiration?: string;
@@ -93,6 +94,7 @@ export interface CreateDriverDTO {
   email: string;
   cpf: string;
   phone?: string;
+  photoUrl?: string | null;
   cnhNumber: string;
   cnhCategory: CnhCategory;
   cnhExpirationDate: string;

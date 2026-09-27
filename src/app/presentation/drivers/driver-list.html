@@ -172,8 +172,12 @@
               <tr class="hover:bg-slate-50/80 transition-colors">
                 <td class="py-3.5 px-4">
                   <div class="flex items-center gap-3">
-                    <div class="size-8 rounded-full bg-slate-900 text-white font-bold flex items-center justify-center text-xs shrink-0 shadow-2xs">
-                      {{ driver.name.charAt(0).toUpperCase() }}
+                    <div class="size-8 rounded-full bg-slate-900 text-white font-bold flex items-center justify-center text-xs shrink-0 shadow-2xs overflow-hidden">
+                      @if (driver.photoUrl) {
+                        <img [src]="driver.photoUrl" class="w-full h-full object-cover" [alt]="driver.name" />
+                      } @else {
+                        {{ driver.name.charAt(0).toUpperCase() }}
+                      }
                     </div>
                     <div>
                       <div class="font-semibold text-slate-900">{{ driver.name }}</div>

@@ -10,6 +10,7 @@ export interface DriverProfile {
   canStartTrip?: boolean;
   isCnhExpired: boolean;
   status: string;
+  photoUrl?: string | null;
 }
 
 export interface DriverVehicle {
