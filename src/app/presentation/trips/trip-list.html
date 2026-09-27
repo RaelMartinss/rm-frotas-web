@@ -339,8 +339,18 @@
                 <!-- MOTORISTA -->
                 <td class="py-3.5 px-4">
                   <div class="flex items-center gap-2.5">
-                    <div class="size-8 rounded-full bg-slate-100 border border-slate-200/80 text-slate-600 flex items-center justify-center shrink-0">
-                      <svg lucideUser class="size-4 text-slate-500"></svg>
+                    <div class="size-8 rounded-full bg-slate-100 border border-slate-200/80 text-slate-600 flex items-center justify-center shrink-0 overflow-hidden shadow-2xs">
+                      @if (getDriver(trip.driverId)?.photoUrl) {
+                        <img
+                          [src]="getDriver(trip.driverId)!.photoUrl"
+                          class="w-full h-full object-cover"
+                          loading="lazy"
+                          decoding="async"
+                          [alt]="getDriver(trip.driverId)?.name || 'Motorista'"
+                        />
+                      } @else {
+                        <svg lucideUser class="size-4 text-slate-500"></svg>
+                      }
                     </div>
                     <div class="min-w-0">
                       <div class="font-bold text-slate-900 text-xs truncate">
