@@ -16,6 +16,7 @@ import {
   UpdatePasswordDTO,
   UpdateProfileDTO,
   User,
+  UserRole,
 } from '../../domain/models/auth.model';
 
 @Injectable({
@@ -172,6 +173,12 @@ export class HttpAuthRepository implements IAuthRepository {
     });
   }
 
+  getUserById(id: string): Observable<User> {
+    return this.http
+      .get<any>(`${this.baseUrl}/users/${id}`, { withCredentials: true })
+      .pipe(map((res) => new User(res)));
+  }
+
   createUser(user: CreateUserDTO): Observable<CreateUserResponse> {
     return this.http
       .post<any>(`${this.baseUrl}/users`, user, {
@@ -198,6 +205,12 @@ export class HttpAuthRepository implements IAuthRepository {
           };
         })
       );
+  }
+
+  updateUser(id: string, data: { name?: string; role?: UserRole; status?: string; active?: boolean }): Observable<User> {
+    return this.http
+      .patch<any>(`${this.baseUrl}/users/${id}`, data, { withCredentials: true })
+      .pipe(map((res) => new User(res)));
   }
 
   resetUserPassword(id: string): Observable<ResetUserPasswordResponse> {

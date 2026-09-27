@@ -22,8 +22,10 @@ export interface UserProps {
   status?: string;
   isActive?: boolean;
   mustChangePassword?: boolean;
+  temporaryPasswordSetAt?: string | null;
   avatarUrl?: string;
   createdAt?: string;
+  updatedAt?: string;
 }
 
 export class User {
@@ -36,8 +38,10 @@ export class User {
   readonly status: string;
   readonly isActive: boolean;
   readonly mustChangePassword?: boolean;
+  readonly temporaryPasswordSetAt?: string | null;
   readonly avatarUrl?: string;
   readonly createdAt?: string;
+  readonly updatedAt?: string;
 
   constructor(props: UserProps) {
     this.id = props.id;
@@ -49,7 +53,9 @@ export class User {
     this.status = props.status ?? (props.isActive === false ? 'INACTIVE' : 'ACTIVE');
     this.isActive = props.isActive ?? (this.status === 'ACTIVE');
     this.mustChangePassword = props.mustChangePassword ?? false;
+    this.temporaryPasswordSetAt = props.temporaryPasswordSetAt ?? null;
     this.avatarUrl = props.avatarUrl;
     this.createdAt = props.createdAt;
+    this.updatedAt = props.updatedAt;
   }
 }

@@ -14,13 +14,13 @@
       <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Cadastre e gerencie as credenciais e permissões da equipe da sua empresa.</p>
     </div>
     @if (!impersonationService.isReadOnly()) {
-      <button
-        (click)="openModal()"
+      <a
+        routerLink="/usuarios/novo"
         class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs px-4 py-2.5 rounded-xl transition-all shadow-xs hover:shadow-sm cursor-pointer"
       >
         <svg lucideUserPlus class="size-4"></svg>
         <span>Novo Usuário</span>
-      </button>
+      </a>
     }
   </div>
 
@@ -94,8 +94,10 @@
         <table class="w-full text-left text-xs">
           <thead class="bg-slate-50/80 border-b border-slate-100 text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
             <tr>
-              <th class="py-3.5 px-4">Usuário / E-mail</th>
-              <th class="py-3.5 px-4">Perfil de Acesso</th>
+              <th class="py-3.5 px-4">Usuário & Credencial</th>
+              <th class="py-3.5 px-4">Cargo / Setor</th>
+              <th class="py-3.5 px-4">Perfil de Acesso (RBAC)</th>
+              <th class="py-3.5 px-4">Último Acesso</th>
               <th class="py-3.5 px-4">Status da Conta</th>
               <th class="py-3.5 px-4 text-right">Ações</th>
             </tr>
@@ -103,89 +105,91 @@
           <tbody class="divide-y divide-slate-100">
             @for (user of displayedUsers(); track user.id) {
               <tr class="hover:bg-slate-50/80 transition-colors">
+                <!-- USUÁRIO & CREDENCIAL -->
                 <td class="py-3.5 px-4">
                   <div class="flex items-center gap-3">
-                    <div class="size-8 rounded-full bg-slate-900 text-white font-bold flex items-center justify-center text-xs shrink-0 shadow-2xs">
-                      {{ user.name.substring(0, 2).toUpperCase() }}
+                    <div class="size-9 rounded-xl bg-slate-900 text-white font-bold flex items-center justify-center text-xs shrink-0 shadow-xs ring-1 ring-slate-200/80">
+                      {{ getUserInitials(user.name) }}
                     </div>
                     <div>
                       <div class="font-semibold text-slate-900 flex items-center gap-1.5">
-                        <span>{{ user.name }}</span>
+                        <span class="hover:text-emerald-600 transition-colors">{{ user.name }}</span>
                         @if (user.id === currentUser()?.id) {
-                          <span class="px-1.5 py-0.2 rounded text-[10px] font-bold bg-slate-100 text-slate-600">Você</span>
+                          <span class="px-1.5 py-0.2 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/80">Você</span>
                         }
                       </div>
-                      <div class="text-slate-500 text-[11px]">{{ user.email }}</div>
+                      <div class="text-slate-400 text-[11px] font-normal">{{ user.email }}</div>
                     </div>
                   </div>
                 </td>
+
+                <!-- CARGO / SETOR -->
+                <td class="py-3.5 px-4">
+                  <div class="font-semibold text-slate-800 text-xs">{{ getUserCargo(user) }}</div>
+                  <div class="text-slate-400 text-[11px] font-normal">Setor Operacional</div>
+                </td>
+
+                <!-- PERFIL DE ACESSO (RBAC) -->
                 <td class="py-3.5 px-4">
                   @if (user.role === 'SUPER_ADMIN') {
-                    <span class="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-purple-50 text-purple-700 border border-purple-200/60 inline-flex items-center gap-1">
-                      <span class="size-1.5 rounded-full bg-purple-500"></span>
-                      {{ formatUserRole(user.role) }}
+                    <span class="px-3 py-1 rounded-full text-[11px] font-semibold bg-purple-50 text-purple-700 border border-purple-200/80 inline-flex items-center gap-1.5 shadow-2xs">
+                      <svg lucideShieldAlert class="size-3.5"></svg>
+                      <span>Admin Master</span>
                     </span>
                   } @else if (user.role === 'FLEET_MANAGER') {
-                    <span class="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200/60 inline-flex items-center gap-1">
-                      <span class="size-1.5 rounded-full bg-emerald-500"></span>
-                      {{ formatUserRole(user.role) }}
+                    <span class="px-3 py-1 rounded-full text-[11px] font-semibold bg-blue-50 text-blue-700 border border-blue-200/80 inline-flex items-center gap-1.5 shadow-2xs">
+                      <svg lucideUsers class="size-3.5"></svg>
+                      <span>Gestor de Frota</span>
                     </span>
                   } @else if (user.role === 'ADMIN') {
-                    <span class="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-indigo-50 text-indigo-700 border border-indigo-200/60 inline-flex items-center gap-1">
-                      <span class="size-1.5 rounded-full bg-indigo-500"></span>
-                      {{ formatUserRole(user.role) }}
+                    <span class="px-3 py-1 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200/80 inline-flex items-center gap-1.5 shadow-2xs">
+                      <svg lucideSend class="size-3.5"></svg>
+                      <span>Operador de Tráfego</span>
                     </span>
                   } @else {
-                    <span class="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-blue-700 border border-blue-200/60 inline-flex items-center gap-1">
-                      <span class="size-1.5 rounded-full bg-blue-500"></span>
-                      {{ formatUserRole(user.role) }}
+                    <span class="px-3 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/80 inline-flex items-center gap-1.5 shadow-2xs">
+                      <svg lucideTruck class="size-3.5"></svg>
+                      <span>Motorista</span>
                     </span>
                   }
                 </td>
+
+                <!-- ÚLTIMO ACESSO -->
+                <td class="py-3.5 px-4">
+                  <div class="flex items-center gap-1.5 text-slate-500 text-xs">
+                    <svg lucideClock class="size-3.5 text-slate-400"></svg>
+                    <span>{{ getLastAccessText(user) }}</span>
+                  </div>
+                </td>
+
+                <!-- STATUS DA CONTA -->
                 <td class="py-3.5 px-4">
                   <span
-                    class="px-2.5 py-0.5 rounded-full text-[10px] font-bold border"
-                    [ngClass]="user.isActive ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'"
+                    class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold border inline-flex items-center gap-1.5 shadow-2xs"
+                    [ngClass]="user.isActive ? 'bg-emerald-50 text-emerald-700 border-emerald-200/80' : 'bg-rose-50 text-rose-700 border-rose-200/80'"
                   >
-                    {{ user.isActive ? 'Ativo' : 'Suspenso' }}
+                    <span class="size-1.5 rounded-full" [ngClass]="user.isActive ? 'bg-emerald-500' : 'bg-rose-500'"></span>
+                    <span>{{ user.isActive ? 'Ativo' : 'Suspenso' }}</span>
                   </span>
                 </td>
-                <td class="py-3.5 px-4 text-right">
-                  <div class="flex items-center justify-end gap-2">
-                    @if (!impersonationService.isReadOnly() && user.id !== currentUser()?.id) {
-                      <!-- Reset de Senha -->
-                      <button
-                        type="button"
-                        (click)="openResetPasswordModal(user)"
-                        class="px-2.5 py-1.5 rounded-lg text-xs font-semibold inline-flex items-center gap-1.5 transition-colors cursor-pointer border text-slate-700 hover:bg-slate-100 border-slate-200"
-                        title="Gerar nova senha temporária"
-                      >
-                        <svg lucideKeyRound class="size-3.5 text-amber-500"></svg>
-                        <span>Resetar Senha</span>
-                      </button>
 
-                      <!-- Suspender / Ativar -->
-                      <button
-                        (click)="toggleStatus(user)"
-                        [title]="user.isActive ? 'Suspender acesso' : 'Ativar acesso'"
-                        class="px-2.5 py-1.5 rounded-lg text-xs font-semibold inline-flex items-center gap-1.5 transition-colors cursor-pointer border"
-                        [class]="user.isActive ? 'text-rose-600 hover:bg-rose-50 border-rose-200/60' : 'text-emerald-600 hover:bg-emerald-50 border-emerald-200/60'"
-                      >
-                        @if (user.isActive) {
-                          <svg lucideXCircle class="size-3.5 text-rose-500"></svg>
-                          <span>Suspender</span>
-                        } @else {
-                          <svg lucideCheckCircle2 class="size-3.5 text-emerald-500"></svg>
-                          <span>Ativar</span>
-                        }
-                      </button>
-                    }
+                <!-- AÇÕES -->
+                <td class="py-3.5 px-4 text-right">
+                  <div class="flex items-center justify-end">
+                    <a
+                      [routerLink]="['/usuarios', user.id, 'editar']"
+                      class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-colors shadow-2xs cursor-pointer"
+                      title="Editar usuário e permissões"
+                    >
+                      <svg lucidePencil class="size-3.5 text-slate-500"></svg>
+                      <span>Editar</span>
+                    </a>
                   </div>
                 </td>
               </tr>
             } @empty {
               <tr>
-                <td colspan="4" class="py-12 text-center text-slate-400">
+                <td colspan="6" class="py-12 text-center text-slate-400">
                   <div class="size-10 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-2">
                     <svg lucideUsers class="size-5"></svg>
                   </div>

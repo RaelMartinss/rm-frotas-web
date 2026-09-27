@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs';
-import { User } from '../models/user.model';
+import { User, UserRole } from '../models/user.model';
 import {
   AuthResponse,
   ChangePasswordDTO,
@@ -25,7 +25,9 @@ export abstract class IAuthRepository {
   abstract updatePassword(data: UpdatePasswordDTO): Observable<void>;
   abstract changePassword(data: ChangePasswordDTO): Observable<void>;
   abstract getUsers(clientId?: string): Observable<User[]>;
+  abstract getUserById(id: string): Observable<User>;
   abstract createUser(user: CreateUserDTO): Observable<CreateUserResponse>;
+  abstract updateUser(id: string, data: { name?: string; role?: UserRole; status?: string; active?: boolean }): Observable<User>;
   abstract resetUserPassword(id: string): Observable<ResetUserPasswordResponse>;
   abstract toggleUserStatus(id: string, active: boolean): Observable<User>;
   abstract verifyPassword(password: string): Observable<{ valid: boolean }>;

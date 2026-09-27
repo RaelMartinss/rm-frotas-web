@@ -1,0 +1,464 @@
+<div class="space-y-6 animate-in fade-in duration-200">
+  <!-- LINK VOLTAR -->
+  <div>
+    <a
+      routerLink="/usuarios"
+      class="inline-flex items-center gap-2 text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors group cursor-pointer"
+    >
+      <svg lucideArrowLeft class="size-4 transition-transform group-hover:-translate-x-0.5"></svg>
+      <span>Voltar para a gestão de usuários</span>
+    </a>
+  </div>
+
+  @if (loading()) {
+    <div class="bg-white rounded-2xl border border-slate-200/80 p-12 text-center shadow-2xs">
+      <svg lucideLoader2 class="size-8 animate-spin text-emerald-600 mx-auto mb-3"></svg>
+      <p class="text-sm font-semibold text-slate-700">Carregando dados do usuário...</p>
+    </div>
+  } @else {
+    <!-- CABEÇALHO DO USUÁRIO -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs">
+      <div class="flex items-center gap-4">
+        <!-- AVATAR COM INICIAIS -->
+        <div class="relative size-16 rounded-2xl bg-slate-900 text-white font-bold flex items-center justify-center text-xl shrink-0 shadow-md ring-2 ring-slate-200/80 overflow-hidden">
+          <span>{{ initials }}</span>
+        </div>
+
+        <div>
+          <div class="flex items-center gap-2.5 flex-wrap">
+            <h1 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+              {{ isEditMode() ? (user()?.name || 'Editar Usuário') : 'Novo Usuário' }}
+            </h1>
+            @if (isEditMode() && user()) {
+              <span
+                class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold inline-flex items-center gap-1.5 border shadow-2xs"
+                [ngClass]="user()?.isActive ? 'bg-emerald-50 text-emerald-700 border-emerald-200/80' : 'bg-rose-50 text-rose-700 border-rose-200/80'"
+              >
+                <span class="size-1.5 rounded-full" [ngClass]="user()?.isActive ? 'bg-emerald-500' : 'bg-rose-500'"></span>
+                {{ user()?.isActive ? 'Ativo' : 'Suspenso' }}
+              </span>
+
+              @if (user()?.id === currentUser()?.id) {
+                <span class="bg-indigo-50 text-indigo-700 border border-indigo-200/80 px-2 py-0.5 rounded-full text-[10px] font-bold">
+                  Sua Conta
+                </span>
+              }
+            }
+          </div>
+          <p class="text-xs sm:text-sm text-slate-500 mt-0.5">
+            {{ isEditMode() ? (user()?.email || '') : 'Preencha as informações para conceder acesso à plataforma' }}
+            @if (userForm.get('cargo')?.value) {
+              <span class="text-slate-300 mx-1.5">•</span>
+              <span class="font-medium text-slate-600">{{ userForm.get('cargo')?.value }}</span>
+            }
+          </p>
+        </div>
+      </div>
+
+      <!-- BOTÕES DE AÇÃO DO TOPO -->
+      <div class="flex items-center gap-2.5 shrink-0 self-end md:self-center">
+        <a
+          routerLink="/usuarios"
+          class="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+        >
+          Cancelar
+        </a>
+
+        @if (!impersonationService.isReadOnly()) {
+          <button
+            type="button"
+            (click)="save()"
+            [disabled]="isSaving()"
+            class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs transition-all shadow-xs hover:shadow-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            @if (isSaving()) {
+              <svg lucideLoader2 class="size-4 animate-spin"></svg>
+              <span>Salvando...</span>
+            } @else {
+              <svg lucideSave class="size-4"></svg>
+              <span>{{ isEditMode() ? 'Salvar alterações' : 'Cadastrar Usuário' }}</span>
+            }
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- FORMULÁRIO PRINCIPAL COM GRID DE 12 COLUNAS -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <!-- COLUNA PRINCIPAL ESQUERDA (8 COLUNAS) -->
+      <div class="lg:col-span-8 space-y-6">
+        <form [formGroup]="userForm" class="space-y-6">
+          <!-- CARD 1: DADOS PESSOAIS & ACESSO -->
+          <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-2xs space-y-5">
+            <div class="flex items-center gap-2.5 border-b border-slate-100 pb-3.5">
+              <div class="size-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-200/60">
+                <svg lucideUser class="size-4"></svg>
+              </div>
+              <div>
+                <h3 class="text-sm font-bold text-slate-900">Dados Pessoais & Credencial</h3>
+                <p class="text-[11px] text-slate-500">Informações de identificação corporativa do usuário</p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <!-- NOME COMPLETO -->
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">
+                  Nome completo <span class="text-rose-500">*</span>
+                </label>
+                <div class="relative">
+                  <svg lucideUser class="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></svg>
+                  <input
+                    type="text"
+                    formControlName="name"
+                    placeholder="Ex: Carlos Eduardo Silva"
+                    class="w-full bg-slate-50 text-slate-800 text-xs rounded-xl pl-9 pr-3 py-2.5 border border-slate-200 focus:bg-white focus:outline-hidden focus:border-emerald-500 transition-all placeholder:text-slate-400"
+                    [class.border-rose-300]="userForm.get('name')?.invalid && userForm.get('name')?.touched"
+                  />
+                </div>
+                @if (userForm.get('name')?.invalid && userForm.get('name')?.touched) {
+                  <p class="text-[11px] text-rose-500 mt-1">Nome obrigatório (mínimo 3 caracteres).</p>
+                }
+              </div>
+
+              <!-- E-MAIL CORPORATIVO -->
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">
+                  E-mail corporativo <span class="text-rose-500">*</span>
+                </label>
+                <div class="relative">
+                  <svg lucideMail class="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></svg>
+                  <input
+                    type="email"
+                    formControlName="email"
+                    placeholder="exemplo@rmfrotas.com"
+                    [readonly]="isEditMode()"
+                    class="w-full bg-slate-50 text-slate-800 text-xs rounded-xl pl-9 pr-3 py-2.5 border border-slate-200 focus:bg-white focus:outline-hidden focus:border-emerald-500 transition-all placeholder:text-slate-400"
+                    [class.opacity-70]="isEditMode()"
+                    [class.border-rose-300]="userForm.get('email')?.invalid && userForm.get('email')?.touched"
+                  />
+                </div>
+                @if (isEditMode()) {
+                  <p class="text-[10px] text-slate-400 mt-1">O e-mail é a chave de login e não pode ser alterado.</p>
+                } @else if (userForm.get('email')?.invalid && userForm.get('email')?.touched) {
+                  <p class="text-[11px] text-rose-500 mt-1">E-mail corporativo válido é obrigatório.</p>
+                }
+              </div>
+
+              <!-- CARGO / FUNÇÃO -->
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">
+                  Cargo / Função
+                </label>
+                <div class="relative">
+                  <svg lucideBriefcase class="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></svg>
+                  <input
+                    type="text"
+                    formControlName="cargo"
+                    placeholder="Ex: Gerente Operacional de Frota"
+                    class="w-full bg-slate-50 text-slate-800 text-xs rounded-xl pl-9 pr-3 py-2.5 border border-slate-200 focus:bg-white focus:outline-hidden focus:border-emerald-500 transition-all placeholder:text-slate-400"
+                  />
+                </div>
+              </div>
+
+              <!-- SETOR / DEPARTAMENTO -->
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">
+                  Setor / Departamento
+                </label>
+                <div class="relative">
+                  <svg lucideBuilding2 class="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></svg>
+                  <input
+                    type="text"
+                    formControlName="setor"
+                    placeholder="Ex: Setor Operacional"
+                    class="w-full bg-slate-50 text-slate-800 text-xs rounded-xl pl-9 pr-3 py-2.5 border border-slate-200 focus:bg-white focus:outline-hidden focus:border-emerald-500 transition-all placeholder:text-slate-400"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- CARD 2: PERFIL DE ACESSO (RBAC) & ESCOPO DE MÓDULOS -->
+          <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-2xs space-y-5">
+            <div class="flex items-center gap-2.5 border-b border-slate-100 pb-3.5">
+              <div class="size-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-200/60">
+                <svg lucideShieldCheck class="size-4"></svg>
+              </div>
+              <div>
+                <h3 class="text-sm font-bold text-slate-900">Perfil de Acesso & Escopo (RBAC)</h3>
+                <p class="text-[11px] text-slate-500">Configure o nível de privilégio e módulos autorizados no sistema</p>
+              </div>
+            </div>
+
+            <!-- SELECT DO PERFIL RBAC -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1.5">
+                Perfil de Acesso <span class="text-rose-500">*</span>
+              </label>
+              <div class="relative">
+                <select
+                  formControlName="role"
+                  class="w-full bg-slate-50 text-slate-800 text-xs rounded-xl pl-3.5 pr-8 py-2.5 border border-slate-200 focus:bg-white focus:outline-hidden focus:border-emerald-500 transition-all cursor-pointer font-medium"
+                >
+                  @for (roleOpt of availableRoles(); track roleOpt.value) {
+                    <option [value]="roleOpt.value">
+                      {{ roleOpt.label }} ({{ roleOpt.value }}) - {{ roleOpt.desc }}
+                    </option>
+                  }
+                </select>
+                <svg lucideChevronDown class="size-4 absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></svg>
+              </div>
+            </div>
+
+            <!-- BOX: PERMISSÕES DE MÓDULOS (ESCOPO) -->
+            <div class="bg-slate-50/70 rounded-xl p-4 border border-slate-200/80 space-y-3">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h4 class="text-[11px] font-bold text-slate-900 tracking-wider uppercase">
+                    Permissões de Módulos (Escopo)
+                  </h4>
+                  <p class="text-[10px] text-slate-500">Personalize o escopo de atuação conforme necessário</p>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                <label class="flex items-center gap-2.5 text-xs text-slate-700 font-medium cursor-pointer p-2 rounded-lg hover:bg-white transition-colors">
+                  <input
+                    type="checkbox"
+                    formControlName="permVehicles"
+                    class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 size-4 cursor-pointer"
+                  />
+                  <span>Gestão de Veículos</span>
+                </label>
+
+                <label class="flex items-center gap-2.5 text-xs text-slate-700 font-medium cursor-pointer p-2 rounded-lg hover:bg-white transition-colors">
+                  <input
+                    type="checkbox"
+                    formControlName="permDrivers"
+                    class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 size-4 cursor-pointer"
+                  />
+                  <span>Gestão de Motoristas</span>
+                </label>
+
+                <label class="flex items-center gap-2.5 text-xs text-slate-700 font-medium cursor-pointer p-2 rounded-lg hover:bg-white transition-colors">
+                  <input
+                    type="checkbox"
+                    formControlName="permTrips"
+                    class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 size-4 cursor-pointer"
+                  />
+                  <span>Despacho de Viagens</span>
+                </label>
+
+                <label class="flex items-center gap-2.5 text-xs text-slate-700 font-medium cursor-pointer p-2 rounded-lg hover:bg-white transition-colors">
+                  <input
+                    type="checkbox"
+                    formControlName="permFuel"
+                    class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 size-4 cursor-pointer"
+                  />
+                  <span>Abastecimentos & Custos</span>
+                </label>
+
+                <label class="flex items-center gap-2.5 text-xs text-slate-700 font-medium cursor-pointer p-2 rounded-lg hover:bg-white transition-colors">
+                  <input
+                    type="checkbox"
+                    formControlName="permMaintenance"
+                    class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 size-4 cursor-pointer"
+                  />
+                  <span>Ordens de Manutenção</span>
+                </label>
+
+                <label class="flex items-center gap-2.5 text-xs text-slate-700 font-medium cursor-pointer p-2 rounded-lg hover:bg-white transition-colors">
+                  <input
+                    type="checkbox"
+                    formControlName="permUsers"
+                    class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 size-4 cursor-pointer"
+                  />
+                  <span [class.font-bold]="userForm.get('permUsers')?.value" [class.text-indigo-700]="userForm.get('permUsers')?.value">
+                    Controle de Usuários
+                  </span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- COLUNA LATERAL DIREITA: AÇÕES RÁPIDAS (4 COLUNAS) -->
+      <div class="lg:col-span-4 space-y-6">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs space-y-4">
+          <div>
+            <h3 class="text-sm font-bold text-slate-900">Ações Rápidas</h3>
+            <p class="text-[11px] text-slate-500">Operações diretas sobre o cadastro do usuário</p>
+          </div>
+
+          <!-- BLOCO 1: RESETAR SENHA -->
+          @if (isEditMode() && !impersonationService.isReadOnly()) {
+            <div class="rounded-xl border border-amber-200/80 bg-amber-50/40 p-4 space-y-3">
+              <div class="flex items-start gap-3">
+                <div class="size-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
+                  <svg lucideKeyRound class="size-4"></svg>
+                </div>
+                <div>
+                  <h4 class="text-xs font-bold text-slate-900">Resetar Senha</h4>
+                  <p class="text-[11px] text-slate-600 leading-snug mt-0.5">
+                    Gera uma senha temporária segura para o primeiro acesso ou redefinição.
+                  </p>
+                </div>
+              </div>
+
+              <!-- SENHA TEMPORÁRIA GERADA -->
+              @if (tempPasswordData()) {
+                <div class="bg-white rounded-lg p-3 border border-amber-300 space-y-2">
+                  <span class="text-[10px] font-bold text-amber-800 uppercase tracking-wider block">
+                    Senha Temporária Gerada:
+                  </span>
+                  <div class="flex items-center justify-between gap-2 bg-slate-900 text-white font-mono text-xs px-3 py-2 rounded-md">
+                    <span class="select-all tracking-wider">{{ tempPasswordData()?.temporaryPassword }}</span>
+                    <button
+                      type="button"
+                      (click)="copyTempPassword()"
+                      class="text-slate-300 hover:text-white p-1 transition-colors cursor-pointer"
+                      title="Copiar senha"
+                    >
+                      @if (copied()) {
+                        <svg lucideCheck class="size-4 text-emerald-400"></svg>
+                      } @else {
+                        <svg lucideCopy class="size-4"></svg>
+                      }
+                    </button>
+                  </div>
+                  <p class="text-[10px] text-slate-500">
+                    Copie e envie para o usuário. Ele será obrigado a trocar no próximo login.
+                  </p>
+                </div>
+              } @else {
+                <button
+                  type="button"
+                  (click)="triggerResetPassword()"
+                  [disabled]="isResetting()"
+                  class="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs transition-colors cursor-pointer disabled:opacity-50"
+                >
+                  @if (isResetting()) {
+                    <svg lucideLoader2 class="size-3.5 animate-spin"></svg>
+                    <span>Gerando Senha...</span>
+                  } @else {
+                    <svg lucideKeyRound class="size-3.5"></svg>
+                    <span>Gerar Nova Senha</span>
+                  }
+                </button>
+              }
+            </div>
+
+            <!-- BLOCO 2: SUSPENDER / REATIVAR ACESSO -->
+            <div
+              class="rounded-xl border p-4 space-y-3"
+              [ngClass]="user()?.isActive ? 'border-rose-200/80 bg-rose-50/30' : 'border-emerald-200/80 bg-emerald-50/30'"
+            >
+              <div class="flex items-start gap-3">
+                <div
+                  class="size-8 rounded-lg flex items-center justify-center shrink-0"
+                  [ngClass]="user()?.isActive ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700'"
+                >
+                  @if (user()?.isActive) {
+                    <svg lucideBan class="size-4"></svg>
+                  } @else {
+                    <svg lucideUserCheck class="size-4"></svg>
+                  }
+                </div>
+                <div>
+                  <h4 class="text-xs font-bold text-slate-900">
+                    {{ user()?.isActive ? 'Suspender Acesso' : 'Reativar Usuário' }}
+                  </h4>
+                  <p class="text-[11px] text-slate-600 leading-snug mt-0.5">
+                    {{ user()?.isActive
+                        ? 'O usuário perderá o acesso imediato ao sistema e todas as sessões ativas serão encerradas.'
+                        : 'O usuário terá seu acesso restabelecido normalmente com suas credenciais atuais.' }}
+                  </p>
+                </div>
+              </div>
+
+              @if (suspendConfirmOpen()) {
+                <div class="bg-white rounded-lg p-3 border border-slate-200 space-y-2">
+                  <p class="text-xs font-semibold text-slate-800">
+                    Confirmar {{ user()?.isActive ? 'suspensão' : 'reativação' }} de {{ user()?.name }}?
+                  </p>
+                  <div class="flex items-center gap-2">
+                    <button
+                      type="button"
+                      (click)="toggleUserStatus()"
+                      [disabled]="isChangingStatus()"
+                      class="flex-1 py-1.5 px-3 rounded-lg text-white font-semibold text-xs transition-colors cursor-pointer"
+                      [ngClass]="user()?.isActive ? 'bg-rose-600 hover:bg-rose-700' : 'bg-emerald-600 hover:bg-emerald-700'"
+                    >
+                      @if (isChangingStatus()) {
+                        <svg lucideLoader2 class="size-3 animate-spin mx-auto"></svg>
+                      } @else {
+                        <span>Sim, confirmar</span>
+                      }
+                    </button>
+                    <button
+                      type="button"
+                      (click)="suspendConfirmOpen.set(false)"
+                      class="py-1.5 px-3 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition-colors cursor-pointer"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                </div>
+              } @else {
+                <button
+                  type="button"
+                  (click)="suspendConfirmOpen.set(true)"
+                  [disabled]="user()?.id === currentUser()?.id"
+                  class="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg font-semibold text-xs transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  [ngClass]="user()?.isActive ? 'bg-rose-600 hover:bg-rose-700 text-white' : 'bg-emerald-600 hover:bg-emerald-700 text-white'"
+                >
+                  @if (user()?.isActive) {
+                    <svg lucideBan class="size-3.5"></svg>
+                    <span>Suspender Acesso</span>
+                  } @else {
+                    <svg lucideUserCheck class="size-3.5"></svg>
+                    <span>Reativar Acesso</span>
+                  }
+                </button>
+                @if (user()?.id === currentUser()?.id) {
+                  <p class="text-[10px] text-slate-400 text-center">Você não pode suspender a sua própria conta.</p>
+                }
+              }
+            </div>
+          }
+
+          <!-- CARD DE DETALHES DE AUDITORIA -->
+          <div class="rounded-xl border border-slate-200/80 bg-slate-50/50 p-4 space-y-2.5 text-xs">
+            <h4 class="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Metadados da Conta</h4>
+
+            <div class="flex items-center justify-between text-slate-500">
+              <span>Status</span>
+              <span class="font-semibold" [ngClass]="user()?.isActive ? 'text-emerald-600' : 'text-rose-600'">
+                {{ user()?.isActive ? 'Ativo' : 'Suspenso' }}
+              </span>
+            </div>
+
+            <div class="flex items-center justify-between text-slate-500">
+              <span>Perfil RBAC</span>
+              <span class="font-semibold text-slate-800">{{ formatUserRole(user()?.role || userForm.get('role')?.value) }}</span>
+            </div>
+
+            @if (user()?.createdAt) {
+              <div class="flex items-center justify-between text-slate-500">
+                <span>Criado em</span>
+                <span class="font-medium text-slate-700">{{ user()?.createdAt | date:'dd/MM/yyyy' }}</span>
+              </div>
+            }
+
+            <div class="flex items-center justify-between text-slate-500">
+              <span>Organização</span>
+              <span class="font-medium text-slate-700">{{ user()?.clientName || 'RM Frotas Matriz' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

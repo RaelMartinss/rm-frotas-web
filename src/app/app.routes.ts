@@ -144,6 +144,16 @@ export const routes: Routes = [
           import('./features/users/user-list/user-list').then((m) => m.UserListComponent)
       },
       {
+        path: 'usuarios/novo',
+        loadComponent: () =>
+          import('./features/users/user-edit/user-edit').then((m) => m.UserEditComponent)
+      },
+      {
+        path: 'usuarios/:id/editar',
+        loadComponent: () =>
+          import('./features/users/user-edit/user-edit').then((m) => m.UserEditComponent)
+      },
+      {
         path: 'users',
         redirectTo: 'usuarios',
         pathMatch: 'full'

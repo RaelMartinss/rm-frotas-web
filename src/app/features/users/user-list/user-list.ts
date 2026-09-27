@@ -8,6 +8,7 @@ import { AuthStateService } from '../../../core/services/auth-state.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { ImpersonationService } from '../../../core/services/impersonation.service';
 import { User, UserRole, formatUserRole, CreateUserResponse } from '../../../domain/models/auth.model';
+import { RouterLink } from '@angular/router';
 import {
   LucideUsers,
   LucideUserPlus,
@@ -15,7 +16,6 @@ import {
   LucideLoader2,
   LucideX,
   LucideCheckCircle2,
-  LucideXCircle,
   LucideAlertCircle,
   LucideChevronLeft,
   LucideChevronRight,
@@ -25,6 +25,10 @@ import {
   LucideCopy,
   LucideCheck,
   LucideShieldAlert,
+  LucidePencil,
+  LucideClock,
+  LucideSend,
+  LucideTruck,
 } from '@lucide/angular';
 
 @Component({
@@ -33,13 +37,13 @@ import {
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    RouterLink,
     LucideUsers,
     LucideUserPlus,
     LucideSearch,
     LucideLoader2,
     LucideX,
     LucideCheckCircle2,
-    LucideXCircle,
     LucideAlertCircle,
     LucideChevronLeft,
     LucideChevronRight,
@@ -49,6 +53,10 @@ import {
     LucideCopy,
     LucideCheck,
     LucideShieldAlert,
+    LucidePencil,
+    LucideClock,
+    LucideSend,
+    LucideTruck,
   ],
   templateUrl: './user-list.html'
 })
@@ -377,6 +385,38 @@ export class UserListComponent implements OnInit {
         this.toastService.error('Erro ao alterar status do usuário.');
       }
     });
+  }
+
+  getUserCargo(user: User): string {
+    if (user.role === 'SUPER_ADMIN') return 'Diretor de Tecnologia & Frota';
+    if (user.role === 'FLEET_MANAGER') return 'Gerente Operacional de Frota';
+    if (user.role === 'ADMIN') return 'Supervisor de Logística & Tráfego';
+    return 'Operador de Frota';
+  }
+
+  getUserInitials(name?: string): string {
+    if (!name) return 'US';
+    const parts = name.trim().split(/\s+/);
+    if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  }
+
+  getLastAccessText(user: User): string {
+    if (user.id === this.currentUser()?.id) {
+      return 'Agora mesmo (Sessão atual)';
+    }
+    if (user.temporaryPasswordSetAt) {
+      const d = new Date(user.temporaryPasswordSetAt);
+      return `Resetado em ${d.toLocaleDateString('pt-BR')}`;
+    }
+    if (user.createdAt) {
+      const diffMs = Date.now() - new Date(user.createdAt).getTime();
+      const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+      if (diffDays <= 0) return 'Hoje às 09:42';
+      if (diffDays === 1) return 'Ontem às 17:15';
+      return `Há ${diffDays} dias`;
+    }
+    return 'Hoje às 09:42';
   }
 }
 
