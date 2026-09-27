@@ -1,66 +1,79 @@
-<div class="h-screen h-dvh bg-slate-950 text-slate-100 flex flex-col font-sans antialiased overflow-hidden">
-  <!-- CABEÇALHO COMPACTO MOBILE COM SAFE AREA -->
-  <header class="shrink-0 bg-slate-900/95 backdrop-blur-md border-b border-slate-800/80 px-4 pt-safe-top pb-3 flex items-center justify-between shadow-xs z-30">
+<div class="min-h-screen min-h-dvh bg-[#070D18] text-slate-100 flex flex-col font-sans antialiased relative">
+  <!-- BANNER CINEMATOGRÁFICO PANORÂMICO DE FUNDO (CAMINHÃO NA RODOVIA) -->
+  <div class="absolute top-0 inset-x-0 h-[440px] pointer-events-none overflow-hidden z-0">
+    <div
+      class="w-full h-full bg-cover bg-no-repeat"
+      style="background-image: url('images/truck-hero-bg.png'); background-position: 70% 30%;"
+    ></div>
+    <!-- Gradientes de contraste para legibilidade perfeita de textos e cards -->
+    <div class="absolute inset-0 bg-gradient-to-t from-[#070D18] via-[#070D18]/50 to-transparent"></div>
+    <div class="absolute inset-0 bg-gradient-to-r from-[#070D18]/90 via-[#070D18]/45 to-transparent"></div>
+    <div class="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-[#070D18]/80 via-[#070D18]/30 to-transparent"></div>
+  </div>
+
+  <!-- CABEÇALHO DO PERFIL (TRANSPARENTE SOBRE A FOTO PANORÂMICA) -->
+  <header class="shrink-0 bg-transparent px-4 pt-safe-top pb-2 flex items-start justify-between z-30 relative">
     <button
       type="button"
       (click)="openProfile()"
       title="Toque para ver informações do motorista e versão"
-      class="flex items-center gap-2.5 min-w-0 text-left cursor-pointer hover:opacity-85 active:scale-95 transition-all p-1 -m-1 rounded-xl"
+      class="flex items-start gap-3 min-w-0 text-left cursor-pointer hover:opacity-85 active:scale-95 transition-all p-1 -m-1 rounded-2xl"
     >
-      <div class="size-8 rounded-xl bg-emerald-500 text-slate-950 flex items-center justify-center font-black text-xs shrink-0 shadow-xs ring-2 ring-emerald-500/20 overflow-hidden">
-        @if (driverPhoto()) {
-          <img [src]="driverPhoto()" class="w-full h-full object-cover" alt="Foto do perfil" />
-        } @else {
-          {{ currentUser()?.name?.substring(0, 2)?.toUpperCase() || 'MO' }}
-        }
+      <!-- Avatar do Motorista: círculo com iniciais em caixa alta (ex: MV) com fundo verde esmeralda translúcido -->
+      <div class="size-11 rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-base flex items-center justify-center shrink-0 border border-emerald-500/30 shadow-xs backdrop-blur-md">
+        {{ currentUser()?.name?.substring(0, 2)?.toUpperCase() || 'MV' }}
       </div>
       <div class="min-w-0">
-        <div class="flex items-center gap-1.5">
-          <span class="text-xs font-bold text-white truncate">{{ currentUser()?.name }}</span>
-        </div>
-        <div class="flex items-center gap-1 text-[10px] text-slate-400 truncate">
-          @if (currentUser()?.clientName) {
-            <span class="truncate font-medium text-emerald-400">{{ currentUser()?.clientName }}</span>
-            <span>•</span>
+        <!-- Linha 1: Nome em destaque com tipografia seminegrito branca -->
+        <span class="text-sm font-semibold text-white truncate block leading-snug">
+          {{ currentUser()?.name || 'Marcos Vinicius Pereira' }}
+        </span>
+
+        <!-- Linha 2: Subtítulo simplificado apenas como Motorista -->
+        <span class="text-xs text-emerald-400 font-medium block leading-snug">
+          Motorista
+        </span>
+
+        <!-- Linha 3 (Status Online): Mover a pílula de status logo abaixo do cargo -->
+        <div class="mt-1">
+          @if (isOnline()) {
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-[#0A1A17]/80 text-emerald-400 border border-emerald-500/30 backdrop-blur-md">
+              <span class="size-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              Online
+            </span>
+          } @else {
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-amber-950/80 text-amber-400 border border-amber-500/30 backdrop-blur-md">
+              <span class="size-1.5 rounded-full bg-amber-400"></span>
+              Offline
+            </span>
           }
-          <span>Motorista</span>
         </div>
       </div>
     </button>
 
-    <div class="flex items-center gap-1.5">
-      <!-- Indicador Online/Offline -->
-      @if (isOnline()) {
-        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-950/80 text-emerald-400 border border-emerald-800/50">
-          <span class="size-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-          Online
-        </span>
-      } @else {
-        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-950/80 text-amber-400 border border-amber-800/50 animate-bounce">
-          <span class="size-1.5 rounded-full bg-amber-400"></span>
-          Offline
-        </span>
-      }
-
-      <!-- Sino da Central de Notificações -->
+    <!-- Ações do Topo (Canto Direito) -->
+    <div class="flex items-center gap-2 pt-1">
+      <!-- Sino com badge vermelha numérica sobreposta -->
       <button
         (click)="notificationService.togglePanel()"
         title="Central de Notificações"
-        class="p-2 text-slate-300 hover:text-white hover:bg-slate-800 rounded-xl transition-colors relative cursor-pointer"
+        class="p-2 text-white/90 hover:text-white transition-colors relative cursor-pointer rounded-xl hover:bg-white/10"
       >
-        <svg lucideBell class="size-4"></svg>
+        <svg lucideBell class="size-5"></svg>
         @if (notificationService.unreadCount() > 0) {
-          <span class="absolute top-1 right-1 size-2 rounded-full bg-rose-500 ring-2 ring-slate-900 animate-pulse"></span>
+          <span class="absolute top-1 right-1 min-w-4 h-4 px-1 rounded-full bg-rose-500 text-white font-bold text-[10px] flex items-center justify-center leading-none ring-2 ring-[#070D18] shadow-xs">
+            {{ notificationService.unreadCount() }}
+          </span>
         }
       </button>
 
-      <!-- Botão Sair -->
+      <!-- Ícone de deslogar/sair alinhado à direita -->
       <button
         (click)="logout()"
         title="Sair"
-        class="p-2 text-slate-400 hover:text-rose-400 hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
+        class="p-2 text-white/90 hover:text-rose-400 transition-colors cursor-pointer rounded-xl hover:bg-white/10"
       >
-        <svg lucideLogOut class="size-4"></svg>
+        <svg lucideLogOut class="size-5"></svg>
       </button>
     </div>
   </header>
@@ -155,8 +168,7 @@
     (touchmove)="onTouchMove($event)"
     (touchend)="onTouchEnd()"
     (touchcancel)="onTouchEnd()"
-    class="flex-1 min-h-0 overflow-y-auto pb-28 px-4 pt-3 max-w-lg mx-auto w-full overscroll-y-contain"
-    style="touch-action: pan-y; -webkit-overflow-scrolling: touch;"
+    class="flex-1 pb-28 px-4 pt-1 max-w-lg mx-auto w-full relative z-10"
   >
     <router-outlet (activate)="onActivate($event)"></router-outlet>
   </main>

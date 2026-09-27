@@ -105,9 +105,9 @@ export class DriverLayoutComponent implements OnInit {
 
   onTouchStart(event: TouchEvent): void {
     if (this.isRefreshing()) return;
-    const el = this.scrollContainerRef?.nativeElement;
-    // Permite iniciar o puxar apenas se o scroll estiver no topo
-    if (el && el.scrollTop > 2) {
+    const scrollY = window.scrollY || document.documentElement.scrollTop || this.scrollContainerRef?.nativeElement?.scrollTop || 0;
+    // Permite iniciar o puxar apenas se o scroll estiver no topo absoluto
+    if (scrollY > 2) {
       this.touchStartY = null;
       this.touchStartX = null;
       return;
@@ -120,8 +120,8 @@ export class DriverLayoutComponent implements OnInit {
 
   onTouchMove(event: TouchEvent): void {
     if (this.isRefreshing() || this.touchStartY === null || this.touchStartX === null) return;
-    const el = this.scrollContainerRef?.nativeElement;
-    if (el && el.scrollTop > 2) {
+    const scrollY = window.scrollY || document.documentElement.scrollTop || this.scrollContainerRef?.nativeElement?.scrollTop || 0;
+    if (scrollY > 2) {
       if (this.pullDistance() > 0) {
         this.pullDistance.set(0);
         this.pullRotation.set(0);
@@ -135,6 +135,11 @@ export class DriverLayoutComponent implements OnInit {
     const deltaY = currentY - this.touchStartY;
     const deltaX = currentX - this.touchStartX;
 
+    // Se estiver rolando para baixo (conteúdo subindo, deltaY <= 0), permite scroll nativo livre
+    if (deltaY <= 0) {
+      return;
+    }
+
     // Ignora gestos predominantemente horizontais
     if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 10) {
       return;
@@ -142,12 +147,12 @@ export class DriverLayoutComponent implements OnInit {
 
     if (deltaY > 0) {
       this.isDragging.set(true);
-      // Damping elástico (máximo 80px)
-      const damped = Math.min(80, deltaY * 0.45);
+      // Damping elástico (máximo 70px)
+      const damped = Math.min(70, deltaY * 0.4);
       this.pullDistance.set(damped);
-      this.pullRotation.set(Math.min(360, (damped / 65) * 360));
+      this.pullRotation.set(Math.min(360, (damped / 55) * 360));
 
-      const ready = damped >= 65;
+      const ready = damped >= 55;
       if (ready && !this.isReadyToRefresh()) {
         this.isReadyToRefresh.set(true);
         this.triggerHapticFeedback();

@@ -27,7 +27,7 @@ interface AppInstallerPlugin {
 
 const AppInstaller = registerPlugin<AppInstallerPlugin>('AppInstaller');
 
-export const CURRENT_NATIVE_VERSION = '1.0.22';
+export const CURRENT_NATIVE_VERSION = '1.0.23';
 const GITHUB_REPO = 'RaelMartinss/rm-frotas-web';
 
 @Injectable({

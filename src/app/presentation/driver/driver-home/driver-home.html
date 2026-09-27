@@ -107,67 +107,53 @@
       </div>
     }
 
-    <!-- CARD 1: VIAGEM EM DESTAQUE (COCKPIT PRINCIPAL HERO) -->
+    <!-- CARD 1: VIAGEM EM DESTAQUE (CARD FLUTUANTE GLASSMORPHISM SOBRE A RODOVIA) -->
     @if (summary.trip; as trip) {
       <div
-        class="relative rounded-3xl overflow-hidden border shadow-2xl p-5 bg-slate-900"
-        style="background-image: url('images/truck-hero-bg.png'); background-size: cover; background-position: 70% 30%;"
-        [class.border-emerald-500/40]="trip.status === 'IN_PROGRESS' || trip.status === 'EM_ANDAMENTO'"
-        [class.border-slate-800]="trip.status !== 'IN_PROGRESS' && trip.status !== 'EM_ANDAMENTO'"
+        class="relative rounded-3xl overflow-hidden border border-white/10 bg-[#070E1B]/85 backdrop-blur-xl shadow-2xl p-5 space-y-4 mt-6 sm:mt-8"
+        [class.border-emerald-500/30]="trip.status === 'IN_PROGRESS' || trip.status === 'EM_ANDAMENTO'"
       >
-        <!-- Gradient overlay: escurece suavemente o lado esquerdo para destacar os textos, deixando o caminhão nítido à direita -->
-        <div class="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/75 to-transparent pointer-events-none"></div>
-
-        <!-- Conteúdo do Card Hero -->
-        <div class="relative z-10 space-y-4">
-          <!-- Topo do Card: Badge de Status + Placa -->
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2">
-              @if (trip.status === 'IN_PROGRESS' || trip.status === 'EM_ANDAMENTO') {
-                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#062822]/85 text-emerald-400 border border-emerald-500/30 backdrop-blur-md">
-                  <svg lucideTruck class="size-3.5"></svg>
-                  <span>Em rota</span>
-                </span>
-              } @else {
-                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#0A1A3A]/85 text-blue-400 border border-blue-500/30 backdrop-blur-md">
-                  <svg lucideTruck class="size-3.5"></svg>
-                  <span>Programada</span>
-                </span>
-              }
-
-              @if (locationTracking.isTracking()) {
-                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-950/80 text-emerald-400 border border-emerald-500/40 backdrop-blur-md">
-                  <span class="size-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                  GPS Ativo
-                </span>
-              }
-            </div>
-
-            <!-- Pill da Placa com Ícone de Caminhão -->
-            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold font-mono bg-slate-900/85 text-white border border-slate-700/60 backdrop-blur-md shadow-xs">
-              <svg lucideTruck class="size-3.5 text-slate-300"></svg>
-              <span>{{ trip.vehicle?.plate || 'BR-222' }}</span>
+        <!-- Topo do Card: Badge de Status [Em rota] / [Programada] + GPS Ativo -->
+        <div class="flex items-center gap-2">
+          @if (trip.status === 'IN_PROGRESS' || trip.status === 'EM_ANDAMENTO') {
+            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-[#062822]/90 text-emerald-400 border border-emerald-500/30 backdrop-blur-md">
+              <svg lucideTruck class="size-3.5"></svg>
+              <span>Em rota</span>
             </span>
-          </div>
+          } @else {
+            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-[#0A1A3A]/90 text-blue-400 border border-blue-500/30 backdrop-blur-md">
+              <svg lucideTruck class="size-3.5"></svg>
+              <span>Programada</span>
+            </span>
+          }
 
-          <!-- Rota em Destaque: Origem (UF) → Destino (UF) -->
-          <div>
-            <div class="flex items-center gap-2 text-base sm:text-lg font-bold text-white tracking-tight">
-              <span>{{ trip.originCity }} ({{ trip.originState }})</span>
-              <svg lucideArrowRight class="size-4 text-emerald-400 shrink-0"></svg>
-              <span>{{ trip.destinationCity }} ({{ trip.destinationState }})</span>
-            </div>
-          </div>
+          @if (locationTracking.isTracking()) {
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-950/80 text-emerald-400 border border-emerald-500/30 backdrop-blur-md">
+              <span class="size-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              GPS Ativo
+            </span>
+          }
+        </div>
 
-          <!-- Blocos de Horário: Saída e Chegada Prevista (sem caixas pretas pesadas, idêntico à imagem original) -->
-          <div class="grid grid-cols-2 gap-3 pt-1">
+        <!-- Rota em Destaque: Origem (UF) ➔ Destino (UF) -->
+        <div>
+          <div class="flex items-center gap-2 text-base sm:text-lg font-bold text-white tracking-tight">
+            <span>{{ trip.originCity }} ({{ trip.originState }})</span>
+            <span class="text-emerald-400 font-bold text-sm">➔</span>
+            <span>{{ trip.destinationCity }} ({{ trip.destinationState }})</span>
+          </div>
+        </div>
+
+        <!-- Horários (Saída e Chegada Prevista) + Pill da Rodovia/Placa alinhada à direita -->
+        <div class="flex items-center justify-between gap-2 pt-1">
+          <div class="flex items-center gap-4 sm:gap-6 min-w-0">
             <!-- Saída -->
             <div class="flex items-center gap-2.5">
-              <div class="size-8 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center shrink-0">
-                <svg lucideCalendar class="size-4"></svg>
+              <div class="size-7 rounded-lg bg-white/5 border border-white/10 text-slate-300 flex items-center justify-center shrink-0">
+                <svg lucideCalendar class="size-3.5"></svg>
               </div>
               <div class="min-w-0">
-                <span class="text-[11px] text-slate-400 block leading-tight">Saída</span>
+                <span class="text-[10px] text-slate-400 block leading-tight">Saída</span>
                 <span class="text-xs font-bold text-white font-mono block leading-tight mt-0.5">
                   {{ (trip.startedAt || trip.createdAt) | date:'dd/MM HH:mm' }}
                 </span>
@@ -176,11 +162,11 @@
 
             <!-- Chegada Prevista -->
             <div class="flex items-center gap-2.5">
-              <div class="size-8 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20 flex items-center justify-center shrink-0">
-                <svg lucideClock class="size-4"></svg>
+              <div class="size-7 rounded-lg bg-white/5 border border-white/10 text-slate-300 flex items-center justify-center shrink-0">
+                <svg lucideClock class="size-3.5"></svg>
               </div>
               <div class="min-w-0">
-                <span class="text-[11px] text-slate-400 block leading-tight">Chegada prevista</span>
+                <span class="text-[10px] text-slate-400 block leading-tight">Chegada prevista</span>
                 <span class="text-xs font-bold text-white font-mono block leading-tight mt-0.5">
                   {{ (trip.scheduledDate || trip.createdAt) | date:'dd/MM HH:mm' }}
                 </span>
@@ -188,66 +174,72 @@
             </div>
           </div>
 
-          <!-- Botões de Ação da Viagem -->
-          <div class="space-y-2.5 pt-2">
-            @if (trip.status === 'PLANNED' || trip.status === 'PROGRAMADA') {
-              @if (cnhStatus().canStartTrip) {
-                <button
-                  (click)="openStartTripModal()"
-                  class="w-full py-3.5 px-4 bg-emerald-500 hover:bg-emerald-400 active:scale-[0.98] text-slate-950 font-bold text-sm rounded-2xl shadow-lg shadow-emerald-500/20 flex items-center justify-between transition-all cursor-pointer"
-                >
-                  <div class="flex items-center gap-2.5">
-                    <div class="size-7 rounded-full bg-white text-emerald-600 flex items-center justify-center shrink-0 shadow-xs">
-                      <svg lucidePlay class="size-3.5 fill-current ml-0.5"></svg>
-                    </div>
-                    <span>Iniciar viagem</span>
-                  </div>
-                  <svg lucideArrowRight class="size-5"></svg>
-                </button>
-              } @else {
-                <div class="space-y-2">
-                  <button
-                    type="button"
-                    (click)="openStartTripModal()"
-                    class="w-full py-3.5 px-4 bg-rose-950/80 hover:bg-rose-950 border border-rose-600/50 text-rose-300 font-bold text-xs rounded-2xl flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-sm"
-                    title="Bloqueio de segurança da CNH"
-                  >
-                    <svg lucideShieldAlert class="size-5 text-rose-400"></svg>
-                    <span>INÍCIO BLOQUEADO ({{ cnhStatus().badgeText | uppercase }})</span>
-                  </button>
-                  <p class="text-[11px] text-rose-400/90 text-center font-medium leading-tight px-2">
-                    {{ cnhStatus().blockReason }}
-                  </p>
-                </div>
-              }
-            } @else if (trip.status === 'IN_PROGRESS' || trip.status === 'EM_ANDAMENTO') {
+          <!-- Pill da Placa / Rodovia (ex: BR-222) -->
+          <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold font-mono bg-white/5 text-slate-200 border border-white/10 shadow-xs shrink-0 self-center">
+            <svg lucideTruck class="size-3.5 text-slate-300"></svg>
+            <span>{{ trip.vehicle?.plate || 'BR-222' }}</span>
+          </span>
+        </div>
+
+        <!-- Botões de Ação da Viagem -->
+        <div class="space-y-2.5 pt-2">
+          @if (trip.status === 'PLANNED' || trip.status === 'PROGRAMADA') {
+            @if (cnhStatus().canStartTrip) {
               <button
-                (click)="openCompleteTripModal()"
-                class="w-full py-3.5 px-4 bg-rose-600 hover:bg-rose-500 active:scale-[0.98] text-white font-bold text-sm rounded-2xl shadow-lg shadow-rose-600/25 flex items-center justify-between transition-all cursor-pointer"
+                (click)="openStartTripModal()"
+                class="w-full py-3.5 px-4 bg-[#10b981] hover:bg-[#059669] active:scale-[0.98] text-white font-semibold text-sm sm:text-base rounded-2xl shadow-lg shadow-emerald-500/25 flex items-center justify-between transition-all cursor-pointer"
               >
                 <div class="flex items-center gap-2.5">
-                  <div class="size-7 rounded-full bg-white text-rose-600 flex items-center justify-center shrink-0 shadow-xs">
-                    <svg lucideCheckCircle2 class="size-4"></svg>
+                  <div class="size-7.5 rounded-full bg-white text-[#10b981] flex items-center justify-center shrink-0 shadow-sm">
+                    <svg lucidePlay class="size-3.5 fill-current ml-0.5"></svg>
                   </div>
-                  <span>Concluir viagem (Chegada)</span>
+                  <span class="font-bold text-white">Iniciar viagem</span>
                 </div>
-                <svg lucideArrowRight class="size-5"></svg>
+                <svg lucideArrowRight class="size-5 text-white"></svg>
               </button>
+            } @else {
+              <div class="space-y-2">
+                <button
+                  type="button"
+                  (click)="openStartTripModal()"
+                  class="w-full py-3.5 px-4 bg-rose-950/80 hover:bg-rose-950 border border-rose-600/50 text-rose-300 font-bold text-xs rounded-2xl flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-sm"
+                  title="Bloqueio de segurança da CNH"
+                >
+                  <svg lucideShieldAlert class="size-5 text-rose-400"></svg>
+                  <span>INÍCIO BLOQUEADO ({{ cnhStatus().badgeText | uppercase }})</span>
+                </button>
+                <p class="text-[11px] text-rose-400/90 text-center font-medium leading-tight px-2">
+                  {{ cnhStatus().blockReason }}
+                </p>
+              </div>
             }
-
-            <!-- Link Ver no Mapa (com chevron à direita igual à imagem original) -->
+          } @else if (trip.status === 'IN_PROGRESS' || trip.status === 'EM_ANDAMENTO') {
             <button
-              type="button"
-              (click)="openMap(trip)"
-              class="w-full py-3 px-4 bg-slate-900/60 hover:bg-slate-900/80 backdrop-blur-md border border-slate-700/50 rounded-2xl flex items-center justify-between text-left transition-colors cursor-pointer"
+              (click)="openCompleteTripModal()"
+              class="w-full py-3.5 px-4 bg-[#f43f5e] hover:bg-[#e11d48] active:scale-[0.98] text-white font-semibold text-sm sm:text-base rounded-2xl shadow-lg shadow-rose-600/25 flex items-center justify-between transition-all cursor-pointer"
             >
               <div class="flex items-center gap-2.5">
-                <svg lucideMapPin class="size-4 text-emerald-400"></svg>
-                <span class="text-xs font-semibold text-slate-200">Ver no mapa</span>
+                <div class="size-7.5 rounded-full bg-white text-[#f43f5e] flex items-center justify-center shrink-0 shadow-sm">
+                  <svg lucideCheckCircle2 class="size-4"></svg>
+                </div>
+                <span class="font-bold text-white">Concluir viagem (Chegada)</span>
               </div>
-              <svg lucideChevronRight class="size-4 text-slate-400"></svg>
+              <svg lucideArrowRight class="size-5 text-white"></svg>
             </button>
-          </div>
+          }
+
+          <!-- Link Ver no Mapa (com chevron à direita igual à imagem original) -->
+          <button
+            type="button"
+            (click)="openMap(trip)"
+            class="w-full py-3 px-4 bg-white/5 hover:bg-white/10 active:scale-[0.99] backdrop-blur-md border border-white/10 rounded-2xl flex items-center justify-between text-left transition-colors cursor-pointer"
+          >
+            <div class="flex items-center gap-2.5">
+              <svg lucideMapPin class="size-4 text-emerald-400"></svg>
+              <span class="text-xs font-semibold text-slate-200">Ver no mapa</span>
+            </div>
+            <svg lucideChevronRight class="size-4 text-slate-400"></svg>
+          </button>
         </div>
       </div>
     }
