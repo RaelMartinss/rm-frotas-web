@@ -11,25 +11,10 @@ import {
   CnhCategory,
   DriverStatus,
   DriverSuspension,
+  SuspensionReasonCategory,
+  formatSuspensionReason,
 } from '../../../domain/models/driver.model';
 import { Trip } from '../../../domain/models/trip.model';
-import {
-  DriverResetPasswordModalComponent
-} from '../components/driver-reset-password-modal/driver-reset-password-modal.component';
-import {
-  DriverTempPasswordModalComponent,
-  TempPasswordModalData
-} from '../components/driver-temp-password-modal/driver-temp-password-modal.component';
-import {
-  DriverStatusModalComponent
-} from '../components/driver-status-modal/driver-status-modal.component';
-import {
-  DriverSuspendModalComponent,
-  SuspendFormSubmitPayload
-} from '../components/driver-suspend-modal/driver-suspend-modal.component';
-import {
-  DriverLiftSuspensionModalComponent
-} from '../components/driver-lift-suspension-modal/driver-lift-suspension-modal.component';
 import {
   LucideArrowLeft,
   LucideSave,
@@ -51,6 +36,9 @@ import {
   LucideShieldAlert,
   LucideBriefcase,
   LucideMapPin,
+  LucideChevronDown,
+  LucideCopy,
+  LucideCheck,
 } from '@lucide/angular';
 
 @Component({
@@ -60,11 +48,6 @@ import {
     CommonModule,
     RouterLink,
     ReactiveFormsModule,
-    DriverResetPasswordModalComponent,
-    DriverTempPasswordModalComponent,
-    DriverStatusModalComponent,
-    DriverSuspendModalComponent,
-    DriverLiftSuspensionModalComponent,
     LucideArrowLeft,
     LucideSave,
     LucideUser,
@@ -85,6 +68,9 @@ import {
     LucideShieldAlert,
     LucideBriefcase,
     LucideMapPin,
+    LucideChevronDown,
+    LucideCopy,
+    LucideCheck,
   ],
   templateUrl: './driver-edit.html',
 })
@@ -104,24 +90,44 @@ export class DriverEditComponent implements OnInit {
   activeTrip = signal<Trip | null>(null);
   activeSuspension = signal<DriverSuspension | null>(null);
 
-  // Modals
-  resetModalOpen = signal(false);
-  isResetting = signal(false);
-  tempPasswordModalOpen = signal(false);
-  tempPasswordData = signal<TempPasswordModalData | null>(null);
+  // Accordion state: which action is currently expanded
+  expandedAction = signal<'reset-password' | 'status' | 'suspend' | 'lift' | null>(null);
 
-  statusModalOpen = signal(false);
-  statusAction = signal<'activate' | 'deactivate'>('activate');
+  // Inline Quick Action: Reset Password
+  isResetting = signal(false);
+  tempPassword = signal<string | null>(null);
+  passwordCopied = signal(false);
+  resetError = signal<string | null>(null);
+
+  // Inline Quick Action: Status (Ativar / Desativar)
   isStatusLoading = signal(false);
   actionError = signal<string | null>(null);
 
-  suspendModalOpen = signal(false);
+  // Inline Quick Action: Suspender Motorista
   isSuspending = signal(false);
   suspendError = signal<string | null>(null);
+  suspendReasons: { value: SuspensionReasonCategory; label: string }[] = [
+    { value: 'CNH_VENCIDA', label: 'CNH Vencida' },
+    { value: 'ACIDENTE', label: 'Envolvimento em Acidente' },
+    { value: 'PROCESSO_DISCIPLINAR', label: 'Processo Disciplinar' },
+    { value: 'EXAME_TOXICOLOGICO_PENDENTE', label: 'Exame Toxicológico Pendente' },
+    { value: 'DOCUMENTACAO_IRREGULAR', label: 'Documentação Irregular' },
+    { value: 'OUTRO', label: 'Outro Motivo' },
+  ];
 
-  liftModalOpen = signal(false);
+  suspendForm: FormGroup = this.fb.group({
+    reasonCategory: ['PROCESSO_DISCIPLINAR' as SuspensionReasonCategory, Validators.required],
+    reasonDetails: [''],
+    indefinite: [false],
+    expectedReturnDate: [''],
+  });
+
+  // Inline Quick Action: Encerrar Suspensão
   isLifting = signal(false);
   liftError = signal<string | null>(null);
+  liftForm: FormGroup = this.fb.group({
+    liftReason: [''],
+  });
 
   cnhCategories: CnhCategory[] = ['A', 'B', 'C', 'D', 'E', 'AB', 'AC', 'AD', 'AE'];
 
@@ -149,6 +155,16 @@ export class DriverEditComponent implements OnInit {
     }
     this.driverId.set(id);
     this.loadDriverData(id);
+
+    this.suspendForm.get('indefinite')?.valueChanges.subscribe((indefinite) => {
+      const returnControl = this.suspendForm.get('expectedReturnDate');
+      if (indefinite) {
+        returnControl?.clearValidators();
+      } else {
+        returnControl?.setValidators(Validators.required);
+      }
+      returnControl?.updateValueAndValidity();
+    });
   }
 
   loadDriverData(id: string): void {
@@ -161,9 +177,11 @@ export class DriverEditComponent implements OnInit {
         this.checkActiveTrip(id);
         if (driver.status === 'SUSPENDED' || driver.status === 'AFASTADO') {
           this.loadActiveSuspension(id);
+        } else {
+          this.activeSuspension.set(null);
         }
       },
-      error: (err) => {
+      error: () => {
         this.loading.set(false);
         this.toastService.error('Erro ao carregar dados do motorista.');
         this.router.navigate(['/motoristas']);
@@ -365,32 +383,33 @@ export class DriverEditComponent implements OnInit {
     });
   }
 
-  // Quick Action: Reset Password
-  openResetPasswordModal(): void {
+  // --- ACCORDION LOGIC ---
+  toggleAction(action: 'reset-password' | 'status' | 'suspend' | 'lift'): void {
     if (this.impersonationService.isReadOnly()) return;
-    this.resetModalOpen.set(true);
+    if (this.expandedAction() === action) {
+      this.expandedAction.set(null);
+    } else {
+      this.expandedAction.set(action);
+      this.actionError.set(null);
+      this.resetError.set(null);
+      this.suspendError.set(null);
+      this.liftError.set(null);
+    }
   }
 
-  closeResetModal(): void {
-    this.resetModalOpen.set(false);
-  }
-
-  confirmResetPassword(): void {
+  // --- INLINE: RESET PASSWORD ---
+  executeResetPassword(): void {
     const d = this.driver();
     if (!d) return;
 
     this.isResetting.set(true);
+    this.resetError.set(null);
+
     this.driverRepository.resetPassword(d.id).subscribe({
       next: (res) => {
         this.isResetting.set(false);
-        this.closeResetModal();
-        this.tempPasswordData.set({
-          userName: d.name,
-          temporaryPassword: res.temporaryPassword,
-          title: 'Senha do Motorista Resetada com Sucesso',
-        });
-        this.tempPasswordModalOpen.set(true);
-        this.toastService.success('Senha temporária gerada com sucesso.');
+        this.tempPassword.set(res.temporaryPassword);
+        this.toastService.success('Nova senha provisória gerada com sucesso.');
       },
       error: (err) => {
         this.isResetting.set(false);
@@ -398,32 +417,26 @@ export class DriverEditComponent implements OnInit {
         if (err.error?.message) {
           msg = Array.isArray(err.error.message) ? err.error.message.join(', ') : err.error.message;
         }
+        this.resetError.set(msg);
         this.toastService.error(msg);
       },
     });
   }
 
-  closeTempPasswordModal(): void {
-    this.tempPasswordModalOpen.set(false);
-    this.tempPasswordData.set(null);
+  copyPassword(): void {
+    const pwd = this.tempPassword();
+    if (pwd && navigator?.clipboard?.writeText) {
+      navigator.clipboard.writeText(pwd).then(() => {
+        this.passwordCopied.set(true);
+        this.toastService.success('Senha copiada para a área de transferência!');
+        setTimeout(() => this.passwordCopied.set(false), 2500);
+      });
+    }
   }
 
-  // Quick Action: Toggle Active / Inactive
-  openStatusModal(action: 'activate' | 'deactivate'): void {
-    if (this.impersonationService.isReadOnly()) return;
-    this.statusAction.set(action);
-    this.actionError.set(null);
-    this.statusModalOpen.set(true);
-  }
-
-  closeStatusModal(): void {
-    this.statusModalOpen.set(false);
-    this.actionError.set(null);
-  }
-
-  confirmStatusChange(): void {
+  // --- INLINE: STATUS CHANGE (ATIVAR / DESATIVAR) ---
+  executeStatusChange(action: 'activate' | 'deactivate'): void {
     const d = this.driver();
-    const action = this.statusAction();
     if (!d) return;
 
     this.isStatusLoading.set(true);
@@ -441,7 +454,7 @@ export class DriverEditComponent implements OnInit {
         this.form.patchValue({
           isActive: updated.status !== 'INACTIVE' && updated.status !== 'FOLGA',
         });
-        this.closeStatusModal();
+        this.expandedAction.set(null);
         this.toastService.success(
           action === 'activate' ? 'Motorista ativado com sucesso!' : 'Motorista desativado com sucesso.'
         );
@@ -458,29 +471,30 @@ export class DriverEditComponent implements OnInit {
     });
   }
 
-  // Quick Action: Suspend
-  openSuspendModal(): void {
-    if (this.impersonationService.isReadOnly()) return;
-    this.suspendError.set(null);
-    this.suspendModalOpen.set(true);
-  }
-
-  closeSuspendModal(): void {
-    this.suspendModalOpen.set(false);
-    this.suspendError.set(null);
-  }
-
-  confirmSuspend(payload: SuspendFormSubmitPayload): void {
+  // --- INLINE: SUSPEND ---
+  executeSuspend(): void {
     const d = this.driver();
     if (!d) return;
+
+    if (this.suspendForm.invalid) {
+      this.suspendForm.markAllAsTouched();
+      return;
+    }
 
     this.isSuspending.set(true);
     this.suspendError.set(null);
 
-    this.driverRepository.suspend(d.id, payload).subscribe({
+    const formVal = this.suspendForm.value;
+
+    this.driverRepository.suspend(d.id, {
+      reasonCategory: formVal.reasonCategory,
+      reasonDetails: formVal.reasonDetails || undefined,
+      indefinite: formVal.indefinite,
+      expectedReturnDate: formVal.indefinite ? undefined : formVal.expectedReturnDate,
+    }).subscribe({
       next: () => {
         this.isSuspending.set(false);
-        this.closeSuspendModal();
+        this.expandedAction.set(null);
         this.toastService.success(`Motorista ${d.name} suspenso com sucesso.`);
         this.loadDriverData(d.id);
       },
@@ -496,29 +510,20 @@ export class DriverEditComponent implements OnInit {
     });
   }
 
-  // Quick Action: Lift Suspension
-  openLiftModal(): void {
-    if (this.impersonationService.isReadOnly()) return;
-    this.liftError.set(null);
-    this.liftModalOpen.set(true);
-  }
-
-  closeLiftModal(): void {
-    this.liftModalOpen.set(false);
-    this.liftError.set(null);
-  }
-
-  confirmLift(liftReason?: string): void {
+  // --- INLINE: LIFT SUSPENSION ---
+  executeLift(): void {
     const d = this.driver();
     if (!d) return;
 
     this.isLifting.set(true);
     this.liftError.set(null);
 
+    const liftReason = this.liftForm.value.liftReason?.trim() || undefined;
+
     this.driverRepository.liftSuspension(d.id, { liftReason }).subscribe({
       next: () => {
         this.isLifting.set(false);
-        this.closeLiftModal();
+        this.expandedAction.set(null);
         this.toastService.success(`Suspensão encerrada e motorista ${d.name} reativado!`);
         this.loadDriverData(d.id);
       },
@@ -532,5 +537,9 @@ export class DriverEditComponent implements OnInit {
         this.toastService.error(msg);
       },
     });
+  }
+
+  formatReason(reason?: string | null): string {
+    return formatSuspensionReason(reason);
   }
 }

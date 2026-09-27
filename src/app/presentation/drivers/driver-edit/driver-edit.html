@@ -426,7 +426,7 @@
         </form>
       </div>
 
-      <!-- COLUNA LATERAL: AÇÕES RÁPIDAS (1/3) -->
+      <!-- COLUNA LATERAL: AÇÕES RÁPIDAS COM ACORDEÃO (1/3) -->
       <div class="space-y-6">
         <div class="bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-6 shadow-2xs space-y-4">
           <div class="pb-3 border-b border-slate-100">
@@ -434,12 +434,12 @@
             <p class="text-[11px] text-slate-500">Operações diretas sobre o cadastro do condutor</p>
           </div>
 
-          <div class="space-y-2.5">
-            <!-- 1. Ver Abastecimentos -->
+          <div class="space-y-3">
+            <!-- 1. VER ABASTECIMENTOS (LINK DIRETO) -->
             <a
               [routerLink]="['/abastecimentos']"
               [queryParams]="{ driverId: driver()?.id }"
-              class="flex items-start gap-3 p-3 rounded-xl border border-slate-200/70 hover:border-slate-300 hover:bg-slate-50 transition-colors group cursor-pointer text-left w-full"
+              class="flex items-start gap-3 p-3.5 rounded-2xl border border-slate-200/80 hover:border-slate-300 hover:bg-slate-50 transition-colors group cursor-pointer text-left w-full shadow-2xs"
             >
               <div class="size-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-200/60 mt-0.5">
                 <svg lucideFuel class="size-4"></svg>
@@ -454,102 +454,402 @@
               </div>
             </a>
 
-            <!-- 2. Resetar Senha do App -->
             @if (!impersonationService.isReadOnly()) {
-              <button
-                type="button"
-                (click)="openResetPasswordModal()"
-                class="flex items-start gap-3 p-3 rounded-xl border border-slate-200/70 hover:border-slate-300 hover:bg-slate-50 transition-colors group cursor-pointer text-left w-full"
+              <!-- 2. RESETAR SENHA DO APP (ACORDEÃO EXPANSÍVEL) -->
+              <div
+                class="rounded-2xl border transition-all overflow-hidden shadow-2xs"
+                [ngClass]="expandedAction() === 'reset-password' ? 'border-amber-300 ring-2 ring-amber-500/10 bg-amber-50/20 shadow-xs' : 'border-slate-200/80 bg-white hover:border-slate-300'"
               >
-                <div class="size-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 border border-amber-200/60 mt-0.5">
-                  <svg lucideKeyRound class="size-4"></svg>
-                </div>
-                <div class="flex-1">
-                  <div class="text-xs font-bold text-slate-900 group-hover:text-amber-700 transition-colors">
-                    Resetar Senha do App
+                <button
+                  type="button"
+                  (click)="toggleAction('reset-password')"
+                  class="flex items-center justify-between w-full p-3.5 text-left cursor-pointer transition-colors group"
+                >
+                  <div class="flex items-start gap-3">
+                    <div class="size-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 border border-amber-200/60 mt-0.5">
+                      <svg lucideKeyRound class="size-4"></svg>
+                    </div>
+                    <div>
+                      <div class="text-xs font-bold text-slate-900 group-hover:text-amber-700 transition-colors">
+                        Resetar Senha do App
+                      </div>
+                      <div class="text-[11px] text-slate-500 mt-0.5">
+                        Gerar nova senha temporária para acesso móvel
+                      </div>
+                    </div>
                   </div>
-                  <div class="text-[11px] text-slate-500 mt-0.5">
-                    Gerar nova senha temporária para acesso móvel
+                  <div
+                    class="size-7 rounded-lg flex items-center justify-center text-slate-400 group-hover:text-slate-600 transition-transform duration-200 shrink-0 ml-2"
+                    [class.rotate-180]="expandedAction() === 'reset-password'"
+                  >
+                    <svg lucideChevronDown class="size-4"></svg>
                   </div>
-                </div>
-              </button>
+                </button>
 
-              <!-- 3. Ativar / Desativar Motorista -->
-              @if (isActive()) {
-                <button
-                  type="button"
-                  (click)="openStatusModal('deactivate')"
-                  class="flex items-start gap-3 p-3 rounded-xl border border-slate-200/70 hover:border-slate-300 hover:bg-slate-50 transition-colors group cursor-pointer text-left w-full"
+                @if (expandedAction() === 'reset-password') {
+                  <div class="px-4 pb-4 pt-2 border-t border-amber-100 bg-white space-y-3 animate-in fade-in duration-150">
+                    @if (resetError()) {
+                      <div class="p-2.5 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl flex items-center gap-2">
+                        <svg lucideAlertTriangle class="size-3.5 shrink-0"></svg>
+                        <span>{{ resetError() }}</span>
+                      </div>
+                    }
+
+                    @if (!tempPassword()) {
+                      <p class="text-xs text-slate-600 leading-relaxed">
+                        Será gerada uma nova senha temporária para o motorista <strong class="text-slate-800">{{ driver()?.name }}</strong>. No próximo login no aplicativo, o condutor será obrigado a cadastrar uma nova senha pessoal.
+                      </p>
+
+                      <div class="flex items-center justify-end gap-2 pt-1">
+                        <button
+                          type="button"
+                          (click)="toggleAction('reset-password')"
+                          class="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+                        >
+                          Cancelar
+                        </button>
+                        <button
+                          type="button"
+                          (click)="executeResetPassword()"
+                          [disabled]="isResetting()"
+                          class="px-4 py-2 text-xs font-semibold text-white bg-amber-600 hover:bg-amber-700 rounded-xl transition-colors flex items-center gap-2 cursor-pointer shadow-xs disabled:opacity-50"
+                        >
+                          @if (isResetting()) {
+                            <svg lucideLoader2 class="size-3.5 animate-spin"></svg>
+                          }
+                          <span>Gerar Nova Senha</span>
+                        </button>
+                      </div>
+                    } @else {
+                      <div class="p-3.5 bg-slate-900 rounded-xl border border-slate-800 space-y-2">
+                        <div class="flex items-center justify-between text-[11px] text-slate-400 font-medium">
+                          <span>Senha Provisória</span>
+                          <span class="text-amber-400 flex items-center gap-1">
+                            <span class="size-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+                            Troca obrigatória no app
+                          </span>
+                        </div>
+                        <div class="flex items-center justify-between gap-2 bg-slate-950/80 px-3 py-2 rounded-lg border border-slate-800">
+                          <span class="font-mono text-sm font-bold text-emerald-400 tracking-wider select-all">
+                            {{ tempPassword() }}
+                          </span>
+                          <button
+                            type="button"
+                            (click)="copyPassword()"
+                            class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-emerald-600 hover:bg-emerald-500 text-white transition-all cursor-pointer shadow-xs shrink-0"
+                          >
+                            @if (passwordCopied()) {
+                              <svg lucideCheck class="size-3"></svg>
+                              <span>Copiado!</span>
+                            } @else {
+                              <svg lucideCopy class="size-3"></svg>
+                              <span>Copiar</span>
+                            }
+                          </button>
+                        </div>
+                      </div>
+                      <p class="text-[11px] text-slate-500">
+                        Copie e envie esta senha para o motorista. Por segurança, guarde-a antes de fechar este painel.
+                      </p>
+                      <div class="flex justify-end pt-1">
+                        <button
+                          type="button"
+                          (click)="tempPassword.set(null); toggleAction('reset-password')"
+                          class="px-3.5 py-1.5 text-xs font-semibold text-white bg-slate-800 hover:bg-slate-700 rounded-xl transition-colors cursor-pointer"
+                        >
+                          Concluir
+                        </button>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+
+              <!-- 3. DESATIVAR / ATIVAR MOTORISTA (ACORDEÃO EXPANSÍVEL) -->
+              @if (!isSuspended()) {
+                <div
+                  class="rounded-2xl border transition-all overflow-hidden shadow-2xs"
+                  [ngClass]="expandedAction() === 'status' ? 'border-slate-400 ring-2 ring-slate-500/10 bg-slate-50/50 shadow-xs' : 'border-slate-200/80 bg-white hover:border-slate-300'"
                 >
-                  <div class="size-8 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center shrink-0 border border-slate-200 mt-0.5">
-                    <svg lucideBan class="size-4"></svg>
-                  </div>
-                  <div class="flex-1">
-                    <div class="text-xs font-bold text-slate-900 group-hover:text-slate-800 transition-colors">
-                      Desativar Motorista
+                  <button
+                    type="button"
+                    (click)="toggleAction('status')"
+                    class="flex items-center justify-between w-full p-3.5 text-left cursor-pointer transition-colors group"
+                  >
+                    <div class="flex items-start gap-3">
+                      <div
+                        class="size-8 rounded-lg flex items-center justify-center shrink-0 border mt-0.5"
+                        [ngClass]="isActive() ? 'bg-slate-100 text-slate-600 border-slate-200' : 'bg-emerald-50 text-emerald-600 border-emerald-200/60'"
+                      >
+                        @if (isActive()) {
+                          <svg lucideBan class="size-4"></svg>
+                        } @else {
+                          <svg lucideUserCheck class="size-4"></svg>
+                        }
+                      </div>
+                      <div>
+                        <div class="text-xs font-bold text-slate-900 group-hover:text-slate-800 transition-colors">
+                          {{ isActive() ? 'Desativar Motorista' : 'Ativar Motorista' }}
+                        </div>
+                        <div class="text-[11px] text-slate-500 mt-0.5">
+                          {{ isActive() ? 'Pausar disponibilidade operacional do condutor' : 'Liberar cadastro para novas viagens' }}
+                        </div>
+                      </div>
                     </div>
-                    <div class="text-[11px] text-slate-500 mt-0.5">
-                      Pausar disponibilidade operacional do condutor
+                    <div
+                      class="size-7 rounded-lg flex items-center justify-center text-slate-400 group-hover:text-slate-600 transition-transform duration-200 shrink-0 ml-2"
+                      [class.rotate-180]="expandedAction() === 'status'"
+                    >
+                      <svg lucideChevronDown class="size-4"></svg>
                     </div>
-                  </div>
-                </button>
-              } @else if (!isSuspended()) {
-                <button
-                  type="button"
-                  (click)="openStatusModal('activate')"
-                  class="flex items-start gap-3 p-3 rounded-xl border border-slate-200/70 hover:border-emerald-300 hover:bg-emerald-50/40 transition-colors group cursor-pointer text-left w-full"
-                >
-                  <div class="size-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-200/60 mt-0.5">
-                    <svg lucideUserCheck class="size-4"></svg>
-                  </div>
-                  <div class="flex-1">
-                    <div class="text-xs font-bold text-emerald-800 group-hover:text-emerald-900 transition-colors">
-                      Ativar Motorista
+                  </button>
+
+                  @if (expandedAction() === 'status') {
+                    <div class="px-4 pb-4 pt-2 border-t border-slate-100 bg-white space-y-3 animate-in fade-in duration-150">
+                      @if (actionError()) {
+                        <div class="p-2.5 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl flex items-center gap-2">
+                          <svg lucideAlertTriangle class="size-3.5 shrink-0"></svg>
+                          <span>{{ actionError() }}</span>
+                        </div>
+                      }
+
+                      <p class="text-xs text-slate-600 leading-relaxed">
+                        @if (isActive()) {
+                          Tem certeza que deseja <strong>desativar</strong> o motorista <strong class="text-slate-800">{{ driver()?.name }}</strong>? Ele não poderá ser alocado em novas viagens até que seja reativado.
+                        } @else {
+                          Deseja <strong>reativar</strong> o motorista <strong class="text-slate-800">{{ driver()?.name }}</strong>? Ele voltará a ficar disponível para a frota.
+                        }
+                      </p>
+
+                      <div class="flex items-center justify-end gap-2 pt-1">
+                        <button
+                          type="button"
+                          (click)="toggleAction('status')"
+                          class="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+                        >
+                          Cancelar
+                        </button>
+                        <button
+                          type="button"
+                          (click)="executeStatusChange(isActive() ? 'deactivate' : 'activate')"
+                          [disabled]="isStatusLoading()"
+                          class="px-4 py-2 text-xs font-semibold text-white rounded-xl transition-colors flex items-center gap-2 cursor-pointer shadow-xs disabled:opacity-50"
+                          [ngClass]="isActive() ? 'bg-slate-900 hover:bg-slate-800' : 'bg-emerald-600 hover:bg-emerald-700'"
+                        >
+                          @if (isStatusLoading()) {
+                            <svg lucideLoader2 class="size-3.5 animate-spin"></svg>
+                          }
+                          <span>{{ isActive() ? 'Confirmar Desativação' : 'Confirmar Ativação' }}</span>
+                        </button>
+                      </div>
                     </div>
-                    <div class="text-[11px] text-emerald-700 mt-0.5">
-                      Liberar cadastro para novas viagens
-                    </div>
-                  </div>
-                </button>
+                  }
+                </div>
               }
 
-              <!-- 4. Suspender / Encerrar Suspensão -->
+              <!-- 4. SUSPENDER MOTORISTA OU ENCERRAR SUSPENSÃO (ACORDEÃO EXPANSÍVEL) -->
               @if (isSuspended()) {
-                <button
-                  type="button"
-                  (click)="openLiftModal()"
-                  class="flex items-start gap-3 p-3 rounded-xl border border-emerald-200 bg-emerald-50/50 hover:bg-emerald-50 transition-colors group cursor-pointer text-left w-full"
+                <!-- SE ESTIVER SUSPENSO: ENCERRAR SUSPENSÃO -->
+                <div
+                  class="rounded-2xl border transition-all overflow-hidden shadow-2xs"
+                  [ngClass]="expandedAction() === 'lift' ? 'border-emerald-300 ring-2 ring-emerald-500/10 bg-emerald-50/20 shadow-xs' : 'border-emerald-200 bg-emerald-50/40 hover:border-emerald-300'"
                 >
-                  <div class="size-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 border border-emerald-200 mt-0.5">
-                    <svg lucidePlay class="size-4"></svg>
-                  </div>
-                  <div class="flex-1">
-                    <div class="text-xs font-bold text-emerald-800 group-hover:text-emerald-900 transition-colors">
-                      Encerrar Suspensão
+                  <button
+                    type="button"
+                    (click)="toggleAction('lift')"
+                    class="flex items-center justify-between w-full p-3.5 text-left cursor-pointer transition-colors group"
+                  >
+                    <div class="flex items-start gap-3">
+                      <div class="size-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 border border-emerald-200 mt-0.5">
+                        <svg lucidePlay class="size-4"></svg>
+                      </div>
+                      <div>
+                        <div class="text-xs font-bold text-emerald-900 group-hover:text-emerald-800 transition-colors">
+                          Encerrar Suspensão
+                        </div>
+                        <div class="text-[11px] text-emerald-700 mt-0.5">
+                          Reativar condutor após suspensão
+                        </div>
+                      </div>
                     </div>
-                    <div class="text-[11px] text-emerald-700 mt-0.5">
-                      Reativar condutor após suspensão
+                    <div
+                      class="size-7 rounded-lg flex items-center justify-center text-slate-400 group-hover:text-slate-600 transition-transform duration-200 shrink-0 ml-2"
+                      [class.rotate-180]="expandedAction() === 'lift'"
+                    >
+                      <svg lucideChevronDown class="size-4"></svg>
                     </div>
-                  </div>
-                </button>
+                  </button>
+
+                  @if (expandedAction() === 'lift') {
+                    <form [formGroup]="liftForm" (ngSubmit)="executeLift()" class="px-4 pb-4 pt-2 border-t border-emerald-100 bg-white space-y-3 animate-in fade-in duration-150">
+                      @if (liftError()) {
+                        <div class="p-2.5 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl flex items-center gap-2">
+                          <svg lucideAlertTriangle class="size-3.5 shrink-0"></svg>
+                          <span>{{ liftError() }}</span>
+                        </div>
+                      }
+
+                      @if (activeSuspension()) {
+                        <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200/70 text-[11px] space-y-1">
+                          <div class="flex justify-between">
+                            <span class="text-slate-500">Motivo registrado:</span>
+                            <span class="font-semibold text-slate-800">{{ formatReason(activeSuspension()?.reasonCategory) }}</span>
+                          </div>
+                          @if (activeSuspension()?.reasonDetails) {
+                            <div class="text-slate-600 italic">"{{ activeSuspension()?.reasonDetails }}"</div>
+                          }
+                        </div>
+                      }
+
+                      <div>
+                        <label class="block text-[11px] font-semibold text-slate-700 mb-1">
+                          Motivo do Encerramento / Observação
+                        </label>
+                        <input
+                          type="text"
+                          formControlName="liftReason"
+                          placeholder="Ex: CNH renovada apresentada com sucesso"
+                          class="w-full bg-slate-50 text-slate-800 text-xs rounded-xl p-2.5 border border-slate-200 focus:outline-hidden focus:border-emerald-500"
+                        />
+                      </div>
+
+                      <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+                        <button
+                          type="button"
+                          (click)="toggleAction('lift')"
+                          class="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+                        >
+                          Cancelar
+                        </button>
+                        <button
+                          type="submit"
+                          [disabled]="isLifting()"
+                          class="px-4 py-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-colors flex items-center gap-2 cursor-pointer shadow-xs disabled:opacity-50"
+                        >
+                          @if (isLifting()) {
+                            <svg lucideLoader2 class="size-3.5 animate-spin"></svg>
+                          }
+                          <span>Reativar Motorista</span>
+                        </button>
+                      </div>
+                    </form>
+                  }
+                </div>
               } @else {
-                <button
-                  type="button"
-                  (click)="openSuspendModal()"
-                  class="flex items-start gap-3 p-3 rounded-xl border border-slate-200/70 hover:border-rose-200 hover:bg-rose-50/30 transition-colors group cursor-pointer text-left w-full"
+                <!-- SE NÃO ESTIVER SUSPENSO: SUSPENDER MOTORISTA -->
+                <div
+                  class="rounded-2xl border transition-all overflow-hidden shadow-2xs"
+                  [ngClass]="expandedAction() === 'suspend' ? 'border-rose-300 ring-2 ring-rose-500/10 bg-rose-50/20 shadow-xs' : 'border-slate-200/80 bg-white hover:border-slate-300'"
                 >
-                  <div class="size-8 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center shrink-0 border border-rose-200/60 mt-0.5">
-                    <svg lucidePauseCircle class="size-4"></svg>
-                  </div>
-                  <div class="flex-1">
-                    <div class="text-xs font-bold text-rose-900 group-hover:text-rose-800 transition-colors">
-                      Suspender Motorista
+                  <button
+                    type="button"
+                    (click)="toggleAction('suspend')"
+                    class="flex items-center justify-between w-full p-3.5 text-left cursor-pointer transition-colors group"
+                  >
+                    <div class="flex items-start gap-3">
+                      <div class="size-8 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center shrink-0 border border-rose-200/60 mt-0.5">
+                        <svg lucidePauseCircle class="size-4"></svg>
+                      </div>
+                      <div>
+                        <div class="text-xs font-bold text-rose-900 group-hover:text-rose-800 transition-colors">
+                          Suspender Motorista
+                        </div>
+                        <div class="text-[11px] text-rose-700 mt-0.5">
+                          Registrar evento disciplinar ou afastamento
+                        </div>
+                      </div>
                     </div>
-                    <div class="text-[11px] text-rose-700 mt-0.5">
-                      Registrar evento disciplinar ou afastamento
+                    <div
+                      class="size-7 rounded-lg flex items-center justify-center text-slate-400 group-hover:text-slate-600 transition-transform duration-200 shrink-0 ml-2"
+                      [class.rotate-180]="expandedAction() === 'suspend'"
+                    >
+                      <svg lucideChevronDown class="size-4"></svg>
                     </div>
-                  </div>
-                </button>
+                  </button>
+
+                  @if (expandedAction() === 'suspend') {
+                    <form [formGroup]="suspendForm" (ngSubmit)="executeSuspend()" class="px-4 pb-4 pt-2 border-t border-rose-100 bg-white space-y-3 animate-in fade-in duration-150">
+                      @if (suspendError()) {
+                        <div class="p-2.5 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl flex items-center gap-2">
+                          <svg lucideAlertTriangle class="size-3.5 shrink-0"></svg>
+                          <span>{{ suspendError() }}</span>
+                        </div>
+                      }
+
+                      <!-- Motivo da Suspensão -->
+                      <div>
+                        <label class="block text-[11px] font-semibold text-slate-700 mb-1">
+                          Motivo da Suspensão <span class="text-rose-500">*</span>
+                        </label>
+                        <select
+                          formControlName="reasonCategory"
+                          class="w-full bg-slate-50 text-slate-800 text-xs rounded-xl p-2.5 border border-slate-200 focus:outline-hidden focus:border-rose-500 cursor-pointer"
+                        >
+                          @for (reason of suspendReasons; track reason.value) {
+                            <option [value]="reason.value">{{ reason.label }}</option>
+                          }
+                        </select>
+                      </div>
+
+                      <!-- Detalhes / Justificativa -->
+                      <div>
+                        <label class="block text-[11px] font-semibold text-slate-700 mb-1">
+                          Observações / Justificativa
+                        </label>
+                        <input
+                          type="text"
+                          formControlName="reasonDetails"
+                          placeholder="Ex: Aguardando renovação de CNH..."
+                          class="w-full bg-slate-50 text-slate-800 text-xs rounded-xl p-2.5 border border-slate-200 focus:outline-hidden focus:border-rose-500"
+                        />
+                      </div>
+
+                      <!-- Indeterminado -->
+                      <div class="flex items-center justify-between p-2.5 bg-slate-50 rounded-xl border border-slate-200/70">
+                        <label class="text-[11px] font-semibold text-slate-700">Tempo indeterminado</label>
+                        <input
+                          type="checkbox"
+                          formControlName="indefinite"
+                          class="size-4 rounded text-rose-600 focus:ring-rose-500 cursor-pointer"
+                        />
+                      </div>
+
+                      <!-- Previsão de Retorno -->
+                      @if (!suspendForm.get('indefinite')?.value) {
+                        <div>
+                          <label class="block text-[11px] font-semibold text-slate-700 mb-1">
+                            Previsão de Retorno <span class="text-rose-500">*</span>
+                          </label>
+                          <input
+                            type="date"
+                            formControlName="expectedReturnDate"
+                            class="w-full bg-slate-50 text-slate-800 text-xs rounded-xl p-2.5 border border-slate-200 focus:outline-hidden focus:border-rose-500"
+                          />
+                        </div>
+                      }
+
+                      <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+                        <button
+                          type="button"
+                          (click)="toggleAction('suspend')"
+                          class="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+                        >
+                          Cancelar
+                        </button>
+                        <button
+                          type="submit"
+                          [disabled]="isSuspending()"
+                          class="px-4 py-2 text-xs font-semibold text-white bg-rose-600 hover:bg-rose-700 rounded-xl transition-colors flex items-center gap-2 cursor-pointer shadow-xs disabled:opacity-50"
+                        >
+                          @if (isSuspending()) {
+                            <svg lucideLoader2 class="size-3.5 animate-spin"></svg>
+                          }
+                          <span>Confirmar Suspensão</span>
+                        </button>
+                      </div>
+                    </form>
+                  }
+                </div>
               }
             }
           </div>
@@ -558,50 +858,3 @@
     </div>
   }
 </div>
-
-<!-- MODAL: RESETAR SENHA -->
-<app-driver-reset-password-modal
-  [isOpen]="resetModalOpen()"
-  [driver]="driver()"
-  [isLoading]="isResetting()"
-  (close)="closeResetModal()"
-  (confirm)="confirmResetPassword()"
-/>
-
-<!-- MODAL: EXIBIR SENHA TEMPORÁRIA -->
-<app-driver-temp-password-modal
-  [isOpen]="tempPasswordModalOpen()"
-  [data]="tempPasswordData()"
-  (close)="closeTempPasswordModal()"
-/>
-
-<!-- MODAL: STATUS (ATIVAR / DESATIVAR) -->
-<app-driver-status-modal
-  [isOpen]="statusModalOpen()"
-  [driver]="driver()"
-  [pendingAction]="statusAction()"
-  [isLoading]="isStatusLoading()"
-  [errorMessage]="actionError()"
-  (close)="closeStatusModal()"
-  (confirm)="confirmStatusChange()"
-/>
-
-<!-- MODAL: SUSPENDER MOTORISTA -->
-<app-driver-suspend-modal
-  [isOpen]="suspendModalOpen()"
-  [driver]="driver()"
-  [isLoading]="isSuspending()"
-  [errorMessage]="suspendError()"
-  (close)="closeSuspendModal()"
-  (confirm)="confirmSuspend($event)"
-/>
-
-<!-- MODAL: ENCERRAR SUSPENSÃO -->
-<app-driver-lift-suspension-modal
-  [isOpen]="liftModalOpen()"
-  [driver]="driver()"
-  [isLoading]="isLifting()"
-  [errorMessage]="liftError()"
-  (close)="closeLiftModal()"
-  (confirm)="confirmLift($event.liftReason)"
-/>
