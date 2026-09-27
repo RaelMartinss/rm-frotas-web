@@ -1,8 +1,9 @@
+@import "@fontsource-variable/inter";
 @import "tailwindcss";
 @import "leaflet/dist/leaflet.css";
 
 @theme {
-  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-sans: 'Inter Variable', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --color-brand-green: #2DA826;
   --color-brand-green-hover: #24881E;
   --color-brand-dark-bg: #050A14;
@@ -17,7 +18,13 @@
   body {
     background-color: #050A14;
     color: #111827;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: 'Inter Variable', 'Inter', system-ui, -apple-system, sans-serif;
+  }
+
+  /* Algarismos tabulares: alinha colunas numéricas verticalmente na fonte Inter */
+  table, .tabular-nums, .font-mono {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum' 1;
   }
 }
 
