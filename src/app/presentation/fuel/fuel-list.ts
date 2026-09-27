@@ -1,6 +1,6 @@
 import { Component, HostListener, inject, OnInit, signal, computed, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
   FormBuilder,
   FormControl,
@@ -49,6 +49,7 @@ import {
   LucideBarChart3,
   LucideCamera,
   LucideEllipsisVertical,
+  LucideRotateCcw,
 } from '@lucide/angular';
 
 @Component({
@@ -77,6 +78,7 @@ import {
     LucideBarChart3,
     LucideCamera,
     LucideEllipsisVertical,
+    LucideRotateCcw,
   ],
   templateUrl: './fuel-list.html',
   styleUrl: './fuel-list.css',
@@ -88,6 +90,7 @@ export class FuelListComponent implements OnInit {
   private readonly authState = inject(AuthStateService);
   private readonly toastService = inject(ToastService);
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
   protected readonly impersonationService = inject(ImpersonationService);
 
@@ -144,6 +147,7 @@ export class FuelListComponent implements OnInit {
     fuelType: ['ALL'],
     fullTank: ['ALL'],
   });
+  hasActiveFilters = signal<boolean>(false);
 
   // Tipos de Combustível disponíveis para filtros
   readonly fuelTypes: { value: FuelType; label: string }[] = [
@@ -171,6 +175,7 @@ export class FuelListComponent implements OnInit {
         { emitEvent: false }
       );
     }
+    this.checkActiveFilters();
 
     this.loadRecords();
     this.loadStats();
@@ -179,9 +184,37 @@ export class FuelListComponent implements OnInit {
     this.filterForm.valueChanges
       .pipe(debounceTime(300), distinctUntilChanged())
       .subscribe(() => {
+        this.checkActiveFilters();
         this.page.set(1);
         this.loadRecords();
       });
+  }
+
+  checkActiveFilters(): void {
+    const v = this.filterForm.value;
+    const hasActive =
+      !!v.search?.trim() ||
+      (!!v.vehicleId && v.vehicleId !== 'ALL') ||
+      (!!v.driverId && v.driverId !== 'ALL') ||
+      (!!v.fuelType && v.fuelType !== 'ALL') ||
+      (!!v.fullTank && v.fullTank !== 'ALL');
+    this.hasActiveFilters.set(!!hasActive);
+  }
+
+  clearFilters(): void {
+    this.filterForm.reset({
+      search: '',
+      vehicleId: 'ALL',
+      driverId: 'ALL',
+      fuelType: 'ALL',
+      fullTank: 'ALL',
+    });
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {},
+      replaceUrl: true,
+    });
+    this.hasActiveFilters.set(false);
   }
 
   loadVehicles(): void {

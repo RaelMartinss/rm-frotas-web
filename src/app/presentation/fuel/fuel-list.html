@@ -133,9 +133,9 @@
   @if (activeTab() === 'LIST') {
     <!-- BARRA DE FILTROS -->
     <div class="p-4 bg-white rounded-2xl border border-slate-200/80 shadow-xs" [formGroup]="filterForm">
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 text-xs">
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3 text-xs items-center">
         <!-- Campo de Busca -->
-        <div class="relative sm:col-span-2 lg:col-span-1">
+        <div class="relative" [class.xl:col-span-2]="isDriverUser()">
           <input
             type="text"
             formControlName="search"
@@ -196,6 +196,20 @@
             <option value="TRUE">Apenas Tanque Cheio (Sim)</option>
             <option value="FALSE">Abastecimento Parcial (Não)</option>
           </select>
+        </div>
+
+        <!-- Botão Limpar Filtros -->
+        <div>
+          <button
+            type="button"
+            (click)="clearFilters()"
+            class="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold border transition-all cursor-pointer shadow-2xs whitespace-nowrap"
+            [ngClass]="hasActiveFilters() ? 'text-rose-600 bg-rose-50 hover:bg-rose-100 border-rose-200/80 active:scale-95' : 'text-slate-500 bg-slate-50 hover:bg-slate-100 hover:text-slate-700 border-slate-200'"
+            title="Limpar todos os filtros"
+          >
+            <svg lucideRotateCcw class="size-3.5"></svg>
+            <span>Limpar filtros</span>
+          </button>
         </div>
       </div>
     </div>
