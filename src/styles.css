@@ -2,6 +2,7 @@
 @import "leaflet/dist/leaflet.css";
 
 @theme {
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --color-brand-green: #2DA826;
   --color-brand-green-hover: #24881E;
   --color-brand-dark-bg: #050A14;
