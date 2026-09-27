@@ -1,7 +1,21 @@
 <div class="min-h-screen min-h-dvh bg-[#070D18] text-slate-100 flex flex-col font-sans antialiased relative">
 
-  <!-- CABEÇALHO DO PERFIL -->
-  <header class="shrink-0 bg-[#070D18] px-4 pt-safe-top pb-2 flex items-start justify-between z-30 relative border-b border-slate-800/60">
+  <!-- BANNER PANORÂMICO: CAMINHÃO OCUPA HEADER + CARD DE VIAGEM (topo ~540px) -->
+  <div class="absolute top-0 inset-x-0 h-[540px] pointer-events-none overflow-hidden z-0">
+    <div
+      class="w-full h-full bg-cover bg-no-repeat"
+      style="background-image: url('images/truck-hero-bg.png'); background-position: 70% 25%;"
+    ></div>
+    <!-- Gradiente inferior: funde suavemente com o fundo escuro -->
+    <div class="absolute inset-0 bg-gradient-to-t from-[#070D18] via-[#070D18]/55 to-transparent"></div>
+    <!-- Gradiente lateral esquerdo: escurece onde ficam os textos -->
+    <div class="absolute inset-0 bg-gradient-to-r from-[#070D18]/75 via-[#070D18]/15 to-transparent"></div>
+    <!-- Gradiente topo: suaviza barra de status do Android -->
+    <div class="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-[#070D18]/55 to-transparent"></div>
+  </div>
+
+  <!-- CABEÇALHO DO PERFIL (TRANSPARENTE SOBRE O TRUCK BANNER) -->
+  <header class="shrink-0 bg-transparent px-4 pt-safe-top pb-2 flex items-start justify-between z-30 relative">
     <button
       type="button"
       (click)="openProfile()"

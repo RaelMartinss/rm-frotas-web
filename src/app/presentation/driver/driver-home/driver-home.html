@@ -107,20 +107,14 @@
       </div>
     }
 
-    <!-- CARD 1: VIAGEM EM DESTAQUE (COCKPIT HERO — CAMINHÃO VISÍVEL À DIREITA) -->
+    <!-- CARD 1: VIAGEM EM DESTAQUE (TRANSPARENTE — TRUCK BANNER DO LAYOUT É O FUNDO) -->
     @if (summary.trip; as trip) {
       <div
-        class="relative rounded-3xl overflow-hidden border shadow-2xl p-5 mt-4"
-        style="background-image: url('images/truck-hero-bg.png'); background-size: cover; background-position: 72% 30%;"
-        [class.border-emerald-500/40]="trip.status === 'IN_PROGRESS' || trip.status === 'EM_ANDAMENTO'"
-        [class.border-slate-800]="trip.status !== 'IN_PROGRESS' && trip.status !== 'EM_ANDAMENTO'"
+        class="relative rounded-3xl overflow-hidden border p-5 mt-2 bg-slate-950/20 backdrop-blur-[2px]"
+        [class.border-emerald-500/30]="trip.status === 'IN_PROGRESS' || trip.status === 'EM_ANDAMENTO'"
+        [class.border-white/10]="trip.status !== 'IN_PROGRESS' && trip.status !== 'EM_ANDAMENTO'"
       >
-        <!-- Gradiente: escurece o lado esquerdo (textos legíveis), caminhão visível à direita -->
-        <div class="absolute inset-0 bg-gradient-to-r from-slate-950/97 via-slate-950/80 to-slate-950/20 pointer-events-none"></div>
-        <!-- Gradiente inferior suave para integrar com o fundo da tela -->
-        <div class="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-slate-950/30 to-transparent pointer-events-none"></div>
-
-        <!-- Conteúdo do Card (sobre os gradientes) -->
+        <!-- Conteúdo do Card (z-10 para ficar acima do banner do layout) -->
         <div class="relative z-10 space-y-4">
 
           <!-- Topo do Card: Badge de Status [Em rota] / [Programada] + GPS Ativo -->
@@ -242,7 +236,7 @@
             <button
               type="button"
               (click)="openMap(trip)"
-              class="w-full py-3 px-4 bg-slate-950/50 hover:bg-slate-950/70 backdrop-blur-sm border border-slate-700/50 rounded-2xl flex items-center justify-between text-left transition-colors cursor-pointer"
+              class="w-full py-3 px-4 bg-[#070D18]/70 hover:bg-[#070D18]/90 backdrop-blur-sm border border-white/10 rounded-2xl flex items-center justify-between text-left transition-colors cursor-pointer"
             >
               <div class="flex items-center gap-2.5">
                 <svg lucideMapPin class="size-4 text-emerald-400"></svg>
