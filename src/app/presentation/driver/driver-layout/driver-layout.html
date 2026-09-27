@@ -422,22 +422,33 @@
                   <svg lucideLoader2 class="size-5 animate-spin text-emerald-400"></svg>
                 </div>
               } @else {
-                <label
-                  for="mobileDriverPhotoInput"
+                <button
+                  type="button"
+                  (click)="mobileGalleryInput.click()"
                   class="absolute inset-0 bg-slate-950/65 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center gap-0.5 transition-opacity cursor-pointer text-white backdrop-blur-xs"
-                  title="Alterar foto"
+                  title="Alterar foto (Galeria ou Câmera)"
                 >
-                  <svg lucideCamera class="size-4"></svg>
+                  <svg lucideImage class="size-4"></svg>
                   <span class="text-[8px] font-bold uppercase">Foto</span>
-                </label>
+                </button>
               }
             </div>
 
+            <!-- Input Câmera: tira foto na hora -->
             <input
-              id="mobileDriverPhotoInput"
+              #mobileCameraInput
               type="file"
               accept="image/*"
               capture="user"
+              (change)="onProfilePhotoSelected($event)"
+              class="hidden"
+            />
+
+            <!-- Input Galeria: escolhe da galeria sem capture forçado -->
+            <input
+              #mobileGalleryInput
+              type="file"
+              accept="image/*"
               (change)="onProfilePhotoSelected($event)"
               class="hidden"
             />
@@ -449,20 +460,34 @@
               </div>
               <p class="text-xs text-emerald-400 font-medium truncate">{{ currentUser()?.clientName || 'RM Frotas Matriz' }}</p>
               
-              <div class="flex items-center gap-2 mt-1">
-                <label
-                  for="mobileDriverPhotoInput"
-                  class="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-400 hover:text-emerald-300 cursor-pointer"
+              <!-- Ações de Foto: Câmera vs Galeria vs Remover -->
+              <div class="flex items-center gap-2 mt-2 flex-wrap">
+                <button
+                  type="button"
+                  (click)="mobileCameraInput.click()"
+                  class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-950/70 hover:bg-emerald-900/80 text-emerald-300 border border-emerald-700/50 text-[11px] font-semibold transition-colors cursor-pointer"
+                  title="Tirar foto com a câmera"
                 >
-                  <svg lucideCamera class="size-3"></svg>
-                  <span>{{ driverPhoto() ? 'Alterar foto' : 'Adicionar foto' }}</span>
-                </label>
+                  <svg lucideCamera class="size-3 text-emerald-400"></svg>
+                  <span>Câmera</span>
+                </button>
+
+                <button
+                  type="button"
+                  (click)="mobileGalleryInput.click()"
+                  class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-[11px] font-semibold transition-colors cursor-pointer"
+                  title="Escolher foto salva na galeria"
+                >
+                  <svg lucideImage class="size-3 text-slate-300"></svg>
+                  <span>Galeria</span>
+                </button>
 
                 @if (driverPhoto()) {
                   <button
                     type="button"
                     (click)="removeProfilePhoto()"
-                    class="inline-flex items-center gap-1 text-[11px] font-semibold text-rose-400 hover:text-rose-300 cursor-pointer"
+                    class="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-rose-400 hover:text-rose-300 hover:bg-rose-950/40 text-[11px] font-semibold transition-colors cursor-pointer"
+                    title="Remover foto atual"
                   >
                     <svg lucideTrash2 class="size-3"></svg>
                     <span>Remover</span>

@@ -36,6 +36,7 @@ import {
   LucideCheck,
   LucideCamera,
   LucideLoader2,
+  LucideImage,
 } from '@lucide/angular';
 
 @Component({
@@ -62,6 +63,7 @@ import {
     LucideCheck,
     LucideCamera,
     LucideLoader2,
+    LucideImage,
   ],
   templateUrl: './driver-layout.html',
 })
