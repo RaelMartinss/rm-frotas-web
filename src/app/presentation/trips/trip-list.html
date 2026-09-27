@@ -297,33 +297,75 @@
         <table class="w-full text-left text-xs">
           <thead class="bg-slate-50/80 border-b border-slate-100 text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
             <tr>
-              <th class="py-3.5 px-4">Veículo / Condutor</th>
-              <th class="py-3.5 px-4">Trajeto e Rota</th>
-              <th class="py-3.5 px-4">Data / Horário</th>
+              <th class="py-3.5 px-4">Data / Hora</th>
+              <th class="py-3.5 px-4">Veículo</th>
+              <th class="py-3.5 px-4">Motorista</th>
+              <th class="py-3.5 px-4">Origem → Destino</th>
+              <th class="py-3.5 px-4">Distância</th>
+              <th class="py-3.5 px-4">Previsão Chegada</th>
               <th class="py-3.5 px-4">Status</th>
-              <th class="py-3.5 px-4 text-right">Ações Operacionais</th>
+              <th class="py-3.5 px-4">Observações</th>
+              <th class="py-3.5 px-4 text-right">Ações</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100">
             @for (trip of trips(); track trip.id) {
               <tr class="hover:bg-slate-50/80 transition-colors">
+                <!-- DATA / HORA -->
+                <td class="py-3.5 px-4 text-slate-800 font-medium text-xs tabular-nums whitespace-nowrap">
+                  {{ (trip.scheduledDate || trip.startedAt || trip.createdAt) | date:'dd/MM/yyyy HH:mm' }}
+                </td>
+
+                <!-- VEÍCULO -->
                 <td class="py-3.5 px-4">
-                  <div class="font-bold text-slate-800 flex items-center gap-1.5 font-mono">
-                    <span class="bg-slate-900 text-white px-2 py-0.5 rounded-md text-xs shadow-2xs font-semibold">
-                      {{ trip.vehiclePlate || getVehiclePlate(trip.vehicleId) }}
-                    </span>
-                  </div>
-                  <div class="text-slate-600 text-[11px] flex items-center gap-1.5 mt-1 font-medium">
-                    <svg lucideUser class="size-3 text-slate-400"></svg>
-                    {{ trip.driverName || getDriverName(trip.driverId) }}
+                  <div class="flex items-center gap-3">
+                    <div class="size-9 rounded-xl bg-slate-50 border border-slate-200/80 p-1.5 flex items-center justify-center shrink-0">
+                      @if (getVehicleLogo(trip.vehicleId); as logo) {
+                        <img [src]="logo" [alt]="getVehicle(trip.vehicleId)?.brand || 'Veículo'" class="size-6 object-contain" />
+                      } @else {
+                        <svg lucideTruck class="size-4 text-slate-500"></svg>
+                      }
+                    </div>
+                    <div class="min-w-0">
+                      <div class="font-bold text-slate-900 text-xs font-mono tracking-tight">
+                        {{ getVehicle(trip.vehicleId)?.plate || trip.vehiclePlate || '—' }}
+                      </div>
+                      <div class="text-[11px] text-slate-500 truncate">
+                        {{ getVehicle(trip.vehicleId)?.model || '—' }}
+                      </div>
+                    </div>
                   </div>
                 </td>
-                <td class="py-3.5 px-4 text-slate-600">
-                  <div class="flex items-center gap-1.5 font-semibold text-slate-800">
+
+                <!-- MOTORISTA -->
+                <td class="py-3.5 px-4">
+                  <div class="flex items-center gap-2.5">
+                    <div class="size-8 rounded-full bg-slate-100 border border-slate-200/80 text-slate-600 flex items-center justify-center shrink-0">
+                      <svg lucideUser class="size-4 text-slate-500"></svg>
+                    </div>
+                    <div class="min-w-0">
+                      <div class="font-bold text-slate-900 text-xs truncate">
+                        {{ getDriver(trip.driverId)?.name || trip.driverName || '—' }}
+                      </div>
+                      <div class="text-[11px] text-slate-500 font-mono tabular-nums truncate">
+                        {{ getDriver(trip.driverId)?.cpf || getDriver(trip.driverId)?.cnhNumber || '—' }}
+                      </div>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- ORIGEM → DESTINO -->
+                <td class="py-3.5 px-4 text-slate-700">
+                  <div class="flex items-center gap-1.5 font-medium text-xs">
+                    <svg lucideMapPin class="size-3.5 text-slate-700 shrink-0"></svg>
+                    <span class="truncate max-w-[130px]" [title]="trip.originCity || trip.originAddress || trip.origin">
+                      {{ trip.originCity ? (trip.originCity + (trip.originState ? ' - ' + trip.originState : '')) : trip.origin }}
+                    </span>
+                    <span class="text-slate-300 font-normal px-0.5">→</span>
                     <svg lucideMapPin class="size-3.5 text-emerald-600 shrink-0"></svg>
-                    <span class="truncate max-w-[180px]" [title]="trip.origin">{{ trip.origin }}</span>
-                    <span class="text-slate-300 font-normal">→</span>
-                    <span class="truncate max-w-[180px]" [title]="trip.destination">{{ trip.destination }}</span>
+                    <span class="truncate max-w-[130px]" [title]="trip.destinationCity || trip.destinationAddress || trip.destination">
+                      {{ trip.destinationCity ? (trip.destinationCity + (trip.destinationState ? ' - ' + trip.destinationState : '')) : trip.destination }}
+                    </span>
                   </div>
                   @if (getSosIncidentForTrip(trip.id); as sos) {
                     <div class="mt-1.5 p-1.5 bg-rose-50 border border-rose-200 rounded-lg text-rose-700 text-[10px] flex items-start gap-1.5 max-w-xs shadow-2xs">
@@ -343,177 +385,139 @@
                     </div>
                   }
                 </td>
-                <td class="py-3.5 px-4 text-slate-600 font-medium tabular-nums">
-                  @if (trip.scheduledDate) {
-                    <div class="flex items-center gap-1.5 text-slate-800 font-semibold">
-                      <svg lucideCalendar class="size-3.5 text-emerald-600 shrink-0"></svg>
-                      <span>{{ trip.scheduledDate | date:'dd/MM/yyyy HH:mm' }}</span>
-                    </div>
-                    <div class="text-[10px] text-slate-400 mt-0.5">Prevista</div>
-                  } @else {
-                    <span>{{ (trip.createdAt | date:'dd/MM/yyyy HH:mm') || (trip.departureDate | date:'dd/MM/yyyy') || '-' }}</span>
-                  }
+
+                <!-- DISTÂNCIA -->
+                <td class="py-3.5 px-4 text-slate-700 text-xs font-medium tabular-nums whitespace-nowrap">
+                  {{ getTripDistance(trip) }}
                 </td>
-                <td class="py-3.5 px-4">
+
+                <!-- PREVISÃO CHEGADA -->
+                <td class="py-3.5 px-4 text-slate-700 text-xs font-medium tabular-nums whitespace-nowrap">
+                  {{ (trip.estimatedArrivalDate || trip.completedAt) ? ((trip.estimatedArrivalDate || trip.completedAt) | date:'dd/MM/yyyy HH:mm') : '—' }}
+                </td>
+
+                <!-- STATUS -->
+                <td class="py-3.5 px-4 whitespace-nowrap">
                   <span
-                    class="px-2.5 py-1 rounded-full text-[11px] font-semibold inline-flex items-center gap-1.5 border shadow-2xs whitespace-nowrap"
+                    class="px-2.5 py-1 rounded-full text-[11px] font-semibold inline-flex items-center gap-1.5 border shadow-2xs"
                     [ngClass]="getStatusClass(trip.status)"
                   >
                     <span class="size-1.5 rounded-full" [ngClass]="getStatusDotClass(trip.status)"></span>
                     {{ getStatusLabel(trip.status) }}
                   </span>
                 </td>
+
+                <!-- OBSERVAÇÕES -->
+                <td class="py-3.5 px-4 text-slate-500 text-xs max-w-[150px] truncate" [title]="trip.notes || 'Sem intercorrências'">
+                  {{ trip.notes || 'Sem intercorrências' }}
+                </td>
+
+                <!-- AÇÕES -->
                 <td class="py-3.5 px-4 text-right whitespace-nowrap">
                   <div class="inline-flex items-center justify-end gap-1.5">
-                    @if (trip.status === 'PLANNED' || trip.status === 'PROGRAMADA') {
-                      @if (!impersonationService.isReadOnly()) {
-                        <!-- Ação Primária: Iniciar -->
-                        <button
-                          type="button"
-                          (click)="startTrip(trip)"
-                          [disabled]="actionLoadingId() === trip.id"
-                          class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold rounded-xl text-xs transition-colors border border-emerald-200/70 cursor-pointer disabled:opacity-50 shadow-2xs"
-                          title="Iniciar Viagem"
+                    <!-- Botão Primário: Ver rota -->
+                    <button
+                      type="button"
+                      (click)="openRouteMap(trip)"
+                      class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-700 font-semibold rounded-xl text-xs transition-colors border border-slate-200/80 cursor-pointer shadow-2xs"
+                      title="Visualizar rota no mapa"
+                    >
+                      <svg lucideEye class="size-3.5 text-slate-500"></svg>
+                      <span>Ver rota</span>
+                    </button>
+
+                    <!-- Menu de 3 Pontinhos (⋮) -->
+                    <div class="relative inline-block text-left">
+                      <button
+                        type="button"
+                        (click)="$event.stopPropagation(); toggleDropdown(trip.id)"
+                        class="size-8 rounded-xl border transition-all cursor-pointer shadow-2xs flex items-center justify-center"
+                        [ngClass]="activeDropdownTripId() === trip.id ? 'border-slate-900 bg-white ring-2 ring-slate-900/10 text-slate-900 shadow-xs' : 'border-slate-200/90 bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-50 hover:border-slate-300'"
+                        title="Mais opções"
+                        aria-label="Mais opções"
+                      >
+                        <svg lucideEllipsisVertical class="size-4"></svg>
+                      </button>
+
+                      @if (activeDropdownTripId() === trip.id) {
+                        <div
+                          (click)="$event.stopPropagation()"
+                          class="absolute right-0 w-48 rounded-2xl bg-white p-1.5 shadow-xl border border-slate-100 ring-1 ring-slate-900/5 z-50 animate-in fade-in zoom-in-95 duration-100 text-left"
+                          [ngClass]="$index >= trips().length - 2 && trips().length > 2 ? 'bottom-full mb-1.5 origin-bottom-right' : 'top-full mt-1.5 origin-top-right'"
                         >
-                          @if (actionLoadingId() === trip.id) {
-                            <svg lucideLoader2 class="size-3.5 animate-spin"></svg>
-                          } @else {
-                            <svg lucidePlay class="size-3 fill-emerald-600 text-emerald-600"></svg>
-                          }
-                          <span>Iniciar</span>
-                        </button>
-
-                        <!-- Menu de 3 Pontinhos (⋮) -->
-                        <div class="relative inline-block text-left">
+                          <!-- Ver rota -->
                           <button
                             type="button"
-                            (click)="$event.stopPropagation(); toggleDropdown(trip.id)"
-                            class="size-8 rounded-xl border transition-all cursor-pointer shadow-2xs flex items-center justify-center"
-                            [ngClass]="activeDropdownTripId() === trip.id ? 'border-slate-900 bg-white ring-2 ring-slate-900/10 text-slate-900 shadow-xs' : 'border-slate-200/90 bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-50 hover:border-slate-300'"
-                            title="Mais opções"
-                            aria-label="Mais opções"
+                            (click)="closeDropdown(); openRouteMap(trip)"
+                            class="flex items-center gap-2.5 w-full px-3 py-2 text-xs font-semibold text-slate-700 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer text-left"
                           >
-                            <svg lucideEllipsisVertical class="size-4"></svg>
+                            <svg lucideMap class="size-4 text-slate-500 shrink-0"></svg>
+                            <span>Ver rota</span>
                           </button>
 
-                          @if (activeDropdownTripId() === trip.id) {
-                            <div
-                              (click)="$event.stopPropagation()"
-                              class="absolute right-0 w-44 rounded-2xl bg-white p-1.5 shadow-xl border border-slate-100 ring-1 ring-slate-900/5 z-50 animate-in fade-in zoom-in-95 duration-100 text-left"
-                              [ngClass]="$index >= trips().length - 2 && trips().length > 2 ? 'bottom-full mb-1.5 origin-bottom-right' : 'top-full mt-1.5 origin-top-right'"
+                          @if (!impersonationService.isReadOnly()) {
+                            <!-- Atualizar status -->
+                            <button
+                              type="button"
+                              (click)="onUpdateStatus(trip)"
+                              class="flex items-center gap-2.5 w-full px-3 py-2 text-xs font-semibold text-slate-700 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer text-left"
                             >
-                              <button
-                                type="button"
-                                (click)="openSupplyModal(trip)"
-                                class="flex items-center gap-2.5 w-full px-3 py-2 text-xs font-semibold text-slate-700 rounded-xl hover:bg-amber-50 hover:text-amber-700 transition-colors cursor-pointer text-left"
-                              >
-                                <svg lucideFuel class="size-4 text-amber-500 shrink-0"></svg>
-                                <span>Abastecer</span>
-                              </button>
+                              <svg lucideRefreshCw class="size-4 text-emerald-600 shrink-0"></svg>
+                              <span>Atualizar status</span>
+                            </button>
 
-                              <button
-                                type="button"
-                                (click)="openCancelModal(trip)"
-                                class="flex items-center gap-2.5 w-full px-3 py-2 text-xs font-semibold text-rose-600 rounded-xl hover:bg-rose-50 hover:text-rose-700 transition-colors cursor-pointer text-left"
-                              >
-                                <svg lucideBan class="size-4 text-rose-500 shrink-0"></svg>
-                                <span>Cancelar Viagem</span>
-                              </button>
-                            </div>
+                            <!-- Registrar abastecimento -->
+                            <button
+                              type="button"
+                              (click)="openSupplyModal(trip)"
+                              class="flex items-center gap-2.5 w-full px-3 py-2 text-xs font-semibold text-slate-700 rounded-xl hover:bg-amber-50 hover:text-amber-700 transition-colors cursor-pointer text-left"
+                            >
+                              <svg lucideFuel class="size-4 text-amber-500 shrink-0"></svg>
+                              <span>Registrar abastecimento</span>
+                            </button>
+
+                            <!-- Registrar manutenção -->
+                            <button
+                              type="button"
+                              (click)="onRegisterMaintenance(trip)"
+                              class="flex items-center gap-2.5 w-full px-3 py-2 text-xs font-semibold text-slate-700 rounded-xl hover:bg-orange-50 hover:text-orange-700 transition-colors cursor-pointer text-left"
+                            >
+                              <svg lucideWrench class="size-4 text-orange-500 shrink-0"></svg>
+                              <span>Registrar manutenção</span>
+                            </button>
+                          }
+
+                          <!-- Ver detalhes -->
+                          <button
+                            type="button"
+                            (click)="onViewDetails(trip)"
+                            class="flex items-center gap-2.5 w-full px-3 py-2 text-xs font-semibold text-slate-700 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer text-left"
+                          >
+                            <svg lucideEye class="size-4 text-blue-500 shrink-0"></svg>
+                            <span>Ver detalhes</span>
+                          </button>
+
+                          @if (!impersonationService.isReadOnly() && trip.status !== 'CANCELLED' && trip.status !== 'CANCELADA' && trip.status !== 'COMPLETED' && trip.status !== 'CONCLUIDA') {
+                            <div class="h-px bg-slate-100 my-1"></div>
+                            <!-- Cancelar viagem -->
+                            <button
+                              type="button"
+                              (click)="openCancelModal(trip)"
+                              class="flex items-center gap-2.5 w-full px-3 py-2 text-xs font-semibold text-rose-600 rounded-xl hover:bg-rose-50 hover:text-rose-700 transition-colors cursor-pointer text-left"
+                            >
+                              <svg lucideBan class="size-4 text-rose-500 shrink-0"></svg>
+                              <span>Cancelar viagem</span>
+                            </button>
                           }
                         </div>
                       }
-                    }
-                    @else if (trip.status === 'IN_PROGRESS' || trip.status === 'EM_ANDAMENTO') {
-                      <!-- Ação Primária: Ver Rota -->
-                      <button
-                        type="button"
-                        (click)="openRouteMap(trip)"
-                        class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold rounded-xl text-xs transition-colors border border-emerald-200/70 cursor-pointer shadow-2xs"
-                        title="Ver Rota no Mapa em Tempo Real"
-                      >
-                        <svg lucideMap class="size-3.5 text-emerald-600"></svg>
-                        <span>Ver Rota</span>
-                      </button>
-
-                      @if (!impersonationService.isReadOnly()) {
-                        <!-- Menu de 3 Pontinhos (⋮) -->
-                        <div class="relative inline-block text-left">
-                          <button
-                            type="button"
-                            (click)="$event.stopPropagation(); toggleDropdown(trip.id)"
-                            class="size-8 rounded-xl border transition-all cursor-pointer shadow-2xs flex items-center justify-center"
-                            [ngClass]="activeDropdownTripId() === trip.id ? 'border-slate-900 bg-white ring-2 ring-slate-900/10 text-slate-900 shadow-xs' : 'border-slate-200/90 bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-50 hover:border-slate-300'"
-                            title="Mais opções"
-                            aria-label="Mais opções"
-                          >
-                            <svg lucideEllipsisVertical class="size-4"></svg>
-                          </button>
-
-                          @if (activeDropdownTripId() === trip.id) {
-                            <div
-                              (click)="$event.stopPropagation()"
-                              class="absolute right-0 w-44 rounded-2xl bg-white p-1.5 shadow-xl border border-slate-100 ring-1 ring-slate-900/5 z-50 animate-in fade-in zoom-in-95 duration-100 text-left"
-                              [ngClass]="$index >= trips().length - 2 && trips().length > 2 ? 'bottom-full mb-1.5 origin-bottom-right' : 'top-full mt-1.5 origin-top-right'"
-                            >
-                              <button
-                                type="button"
-                                (click)="openCompleteModal(trip)"
-                                class="flex items-center gap-2.5 w-full px-3 py-2 text-xs font-semibold text-blue-700 rounded-xl hover:bg-blue-50 transition-colors cursor-pointer text-left"
-                              >
-                                <svg lucideCheckCircle2 class="size-4 text-blue-600 shrink-0"></svg>
-                                <span>Concluir Viagem</span>
-                              </button>
-
-                              <button
-                                type="button"
-                                (click)="openSupplyModal(trip)"
-                                class="flex items-center gap-2.5 w-full px-3 py-2 text-xs font-semibold text-slate-700 rounded-xl hover:bg-amber-50 hover:text-amber-700 transition-colors cursor-pointer text-left"
-                              >
-                                <svg lucideFuel class="size-4 text-amber-500 shrink-0"></svg>
-                                <span>Abastecer</span>
-                              </button>
-
-                              <button
-                                type="button"
-                                (click)="openCancelModal(trip)"
-                                class="flex items-center gap-2.5 w-full px-3 py-2 text-xs font-semibold text-rose-600 rounded-xl hover:bg-rose-50 hover:text-rose-700 transition-colors cursor-pointer text-left"
-                              >
-                                <svg lucideBan class="size-4 text-rose-500 shrink-0"></svg>
-                                <span>Cancelar Viagem</span>
-                              </button>
-                            </div>
-                          }
-                        </div>
-                      }
-                    }
-                    @else if (trip.status === 'COMPLETED' || trip.status === 'CONCLUIDA') {
-                      <button
-                        type="button"
-                        (click)="openRouteMap(trip)"
-                        class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-700 font-semibold rounded-xl text-xs transition-colors border border-slate-200/70 cursor-pointer shadow-2xs"
-                        title="Ver Histórico da Rota Percorrida"
-                      >
-                        <svg lucideMap class="size-3.5 text-slate-600"></svg>
-                        <span>Ver Rota</span>
-                      </button>
-                      <span class="inline-flex items-center gap-1 px-2.5 py-1 text-slate-400 font-medium text-[11px] bg-slate-50 rounded-lg border border-slate-200/60">
-                        <svg lucideCheck class="size-3 text-emerald-500"></svg>
-                        Finalizada
-                      </span>
-                    }
-                    @else if (trip.status === 'CANCELLED' || trip.status === 'CANCELADA') {
-                      <span class="inline-flex items-center gap-1 px-2.5 py-1 text-slate-400 font-medium text-[11px] bg-slate-50 rounded-lg border border-slate-200/60">
-                        <svg lucideBan class="size-3 text-rose-400"></svg>
-                        Cancelada
-                      </span>
-                    }
+                    </div>
                   </div>
                 </td>
               </tr>
             } @empty {
               <tr>
-                <td colspan="5" class="py-12 text-center text-slate-400">
+                <td colspan="9" class="py-12 text-center text-slate-400">
                   <div class="size-10 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-2">
                     <svg lucideNavigation class="size-5"></svg>
                   </div>

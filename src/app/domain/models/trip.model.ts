@@ -50,6 +50,8 @@ export interface Trip {
   destinationState?: string;
   departureDate?: string;
   scheduledDate?: string;
+  estimatedArrivalDate?: string;
+  notes?: string;
   returnDate?: string;
   startedAt?: string;
   completedAt?: string;
@@ -67,6 +69,8 @@ export interface CreateTripDTO {
   origin: LocationDTO;
   destination: LocationDTO;
   scheduledDate?: string;
+  estimatedArrivalDate?: string;
+  notes?: string;
 }
 
 export interface CreateFuelSupplyDTO {

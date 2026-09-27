@@ -122,22 +122,37 @@ import { CreateTripDTO } from '../../../../domain/models/trip.model';
               </div>
             </div>
 
-            <!-- Data e Hora Prevista de Saída -->
-            <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80">
-              <label class="block text-xs font-semibold text-slate-700 mb-1 flex items-center gap-1.5">
-                <svg lucideCalendar class="size-3.5 text-emerald-600"></svg>
-                <span>Data e Hora Prevista de Saída <span class="text-rose-500">*</span></span>
-              </label>
-              <input
-                type="datetime-local"
-                formControlName="scheduledDate"
-                class="w-full bg-white border rounded-lg px-3 py-1.5 text-xs text-slate-800 focus:outline-hidden focus:border-emerald-500 transition-colors"
-                [class.border-rose-400]="tripForm.get('scheduledDate')?.invalid && tripForm.get('scheduledDate')?.touched"
-                [class.border-slate-200]="!(tripForm.get('scheduledDate')?.invalid && tripForm.get('scheduledDate')?.touched)"
-              />
-              @if (tripForm.get('scheduledDate')?.touched && tripForm.get('scheduledDate')?.errors?.['required']) {
-                <p class="text-[10px] text-rose-500 mt-1 font-medium">Informe a data e horário previstos para a viagem.</p>
-              }
+            <!-- Datas: Saída Prevista e Previsão de Chegada -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80">
+                <label class="block text-xs font-semibold text-slate-700 mb-1 flex items-center gap-1.5">
+                  <svg lucideCalendar class="size-3.5 text-emerald-600"></svg>
+                  <span>Data/Hora Saída Prevista <span class="text-rose-500">*</span></span>
+                </label>
+                <input
+                  type="datetime-local"
+                  formControlName="scheduledDate"
+                  class="w-full bg-white border rounded-lg px-3 py-1.5 text-xs text-slate-800 focus:outline-hidden focus:border-emerald-500 transition-colors"
+                  [class.border-rose-400]="tripForm.get('scheduledDate')?.invalid && tripForm.get('scheduledDate')?.touched"
+                  [class.border-slate-200]="!(tripForm.get('scheduledDate')?.invalid && tripForm.get('scheduledDate')?.touched)"
+                />
+                @if (tripForm.get('scheduledDate')?.touched && tripForm.get('scheduledDate')?.errors?.['required']) {
+                  <p class="text-[10px] text-rose-500 mt-1 font-medium">Informe a data e horário previstos para a saída.</p>
+                }
+              </div>
+
+              <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80">
+                <label class="block text-xs font-semibold text-slate-700 mb-1 flex items-center gap-1.5">
+                  <svg lucideCalendar class="size-3.5 text-blue-600"></svg>
+                  <span>Previsão de Chegada</span>
+                </label>
+                <input
+                  type="datetime-local"
+                  formControlName="estimatedArrivalDate"
+                  class="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-800 focus:outline-hidden focus:border-emerald-500 transition-colors"
+                />
+                <p class="text-[10px] text-slate-400 mt-1 font-normal">Data e hora estimada para conclusão.</p>
+              </div>
             </div>
 
             <!-- Origem -->
@@ -226,6 +241,17 @@ import { CreateTripDTO } from '../../../../domain/models/trip.model';
               </div>
             </div>
 
+            <!-- Observações -->
+            <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80">
+              <label class="block text-xs font-semibold text-slate-700 mb-1">Observações da Viagem</label>
+              <input
+                type="text"
+                formControlName="notes"
+                placeholder="Ex: Entrega de materiais, Sem intercorrências, Viagem urgente..."
+                class="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-800 focus:outline-hidden focus:border-emerald-500 transition-colors placeholder:text-slate-400"
+              />
+            </div>
+
             <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
               <button
                 type="button"
@@ -269,6 +295,8 @@ export class TripFormModalComponent {
     vehicleId: ['', [Validators.required]],
     driverId: ['', [Validators.required]],
     scheduledDate: [this.getDefaultScheduledDate(), [Validators.required]],
+    estimatedArrivalDate: [this.getDefaultArrivalDate()],
+    notes: [''],
     originAddress: ['', [Validators.required, Validators.minLength(3)]],
     originCity: ['', [Validators.required]],
     originState: ['PA', [Validators.required, Validators.maxLength(2)]],
@@ -286,6 +314,8 @@ export class TripFormModalComponent {
           vehicleId: '',
           driverId: '',
           scheduledDate: this.getDefaultScheduledDate(),
+          estimatedArrivalDate: this.getDefaultArrivalDate(),
+          notes: '',
           originAddress: '',
           originCity: '',
           destinationAddress: '',
@@ -303,6 +333,14 @@ export class TripFormModalComponent {
       .slice(0, 16);
   }
 
+  private getDefaultArrivalDate(): string {
+    const now = new Date();
+    now.setHours(now.getHours() + 4);
+    return new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+      .toISOString()
+      .slice(0, 16);
+  }
+
   onSubmit(): void {
     if (this.tripForm.invalid) {
       this.tripForm.markAllAsTouched();
@@ -314,10 +352,16 @@ export class TripFormModalComponent {
       ? new Date(val.scheduledDate).toISOString()
       : undefined;
 
+    const estimatedArrivalDateIso = val.estimatedArrivalDate
+      ? new Date(val.estimatedArrivalDate).toISOString()
+      : undefined;
+
     const payload: CreateTripDTO = {
       driverId: val.driverId,
       vehicleId: val.vehicleId,
       scheduledDate: scheduledDateIso,
+      estimatedArrivalDate: estimatedArrivalDateIso,
+      notes: val.notes?.trim() || undefined,
       origin: {
         address: val.originAddress?.trim(),
         city: val.originCity?.trim(),
