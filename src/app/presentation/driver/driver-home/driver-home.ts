@@ -29,6 +29,12 @@ import {
   LucideCheckSquare,
   LucideRadio,
   LucidePhoneCall,
+  LucidePlay,
+  LucideArrowRight,
+  LucideCalendar,
+  LucideClock,
+  LucideChevronRight,
+  LucideSend,
 } from '@lucide/angular';
 
 @Component({
@@ -53,6 +59,12 @@ import {
     LucideCheckSquare,
     LucideRadio,
     LucidePhoneCall,
+    LucidePlay,
+    LucideArrowRight,
+    LucideCalendar,
+    LucideClock,
+    LucideChevronRight,
+    LucideSend,
   ],
   templateUrl: './driver-home.html',
 })
@@ -483,6 +495,14 @@ export class DriverHomeComponent implements OnInit, OnDestroy {
       this.checklistModalOpen.set(false);
       this.showToast('Checklist veicular verificado!');
     }
+  }
+
+  openMap(trip?: DriverCurrentTrip | null): void {
+    if (!trip) return;
+    const origin = `${trip.originCity}, ${trip.originState}`;
+    const destination = `${trip.destinationCity}, ${trip.destinationState}`;
+    const url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}`;
+    window.open(url, '_blank');
   }
 
   private showToast(msg: string): void {

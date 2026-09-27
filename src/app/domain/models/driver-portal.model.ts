@@ -46,6 +46,7 @@ export interface DriverPortalSummary {
   trip: DriverCurrentTrip | null;
   recentTripsCount: number;
   pendingReceiptsCount?: number;
+  monthFuelingsCount?: number;
 }
 
 export interface StartTripDTO {
