@@ -256,11 +256,11 @@
                 <!-- Datas -->
                 <td class="px-4 py-3.5 text-[11px] text-slate-600">
                   @if (m.status === 'AGENDADA' && m.scheduledDate) {
-                    <div><span class="text-slate-400">Prevista:</span> {{ m.scheduledDate | date:'dd/MM/yyyy' }}</div>
+                    <div><span class="text-slate-400">Prevista:</span> {{ m.scheduledDate | date:'dd/MM/yyyy HH:mm' }}</div>
                   } @else if (m.startedAt) {
-                    <div><span class="text-slate-400">Início:</span> {{ m.startedAt | date:'dd/MM/yyyy' }}</div>
+                    <div><span class="text-slate-400">Início:</span> {{ m.startedAt | date:'dd/MM/yyyy HH:mm' }}</div>
                     @if (m.finishedAt) {
-                      <div><span class="text-slate-400">Fim:</span> {{ m.finishedAt | date:'dd/MM/yyyy' }}</div>
+                      <div><span class="text-slate-400">Fim:</span> {{ m.finishedAt | date:'dd/MM/yyyy HH:mm' }}</div>
                     }
                   } @else {
                     <div>{{ m.createdAt | date:'dd/MM/yyyy' }}</div>
@@ -381,6 +381,7 @@
 <app-maintenance-form-modal
   [isOpen]="isCreateModalOpen()"
   [vehicles]="vehicles()"
+  [activeTrips]="activeTrips()"
   [isLoading]="isActionLoading()"
   [errorMessage]="actionError()"
   (close)="closeCreateModal()"

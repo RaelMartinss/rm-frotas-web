@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MaintenanceType } from '../../../../domain/models/maintenance.model';
 import { Vehicle } from '../../../../domain/models/vehicle.model';
+import { Trip } from '../../../../domain/models/trip.model';
 import {
   LucideAlertCircle,
   LucideAlertTriangle,
@@ -63,13 +64,35 @@ export interface MaintenanceFormSubmitPayload {
               >
                 <option value="" disabled>Selecione um veículo da frota</option>
                 @for (v of vehicles; track v.id) {
-                  <option [value]="v.id">{{ v.plate }} - {{ v.brand }} {{ v.model }} ({{ v.currentKm }} km)</option>
+                  <option [value]="v.id">
+                    {{ v.plate }} - {{ v.brand }} {{ v.model }} ({{ v.currentKm }} km)
+                    @if (isVehicleInUse(v.id)) { [Em Viagem] }
+                  </option>
                 }
               </select>
               @if (form.get('vehicleId')?.touched && form.get('vehicleId')?.invalid) {
                 <p class="text-[11px] text-rose-600 mt-1">Selecione o veículo.</p>
               }
             </div>
+
+            <!-- Alerta contextual se o veículo selecionado estiver em viagem -->
+            @if (getActiveTripForVehicle(form.get('vehicleId')?.value); as activeTrip) {
+              <div class="p-3 bg-amber-50/90 border border-amber-200/90 rounded-xl flex items-start gap-2.5 text-amber-900 text-xs animate-in fade-in duration-150">
+                <svg lucideAlertTriangle class="size-4 text-amber-600 shrink-0 mt-0.5"></svg>
+                <div class="space-y-0.5">
+                  <div class="font-bold text-amber-900 flex items-center gap-1.5">
+                    <span>Veículo em viagem no momento</span>
+                  </div>
+                  <div class="text-[11px] text-amber-800 leading-relaxed">
+                    Previsão de chegada:
+                    <strong class="font-bold text-amber-950">
+                      {{ (activeTrip.estimatedArrivalDate || activeTrip.scheduledDate) | date:'dd/MM/yyyy HH:mm' }}
+                    </strong>.
+                    O agendamento só é permitido para data e horário posteriores à previsão de chegada.
+                  </div>
+                </div>
+              </div>
+            }
 
             <div class="grid grid-cols-2 gap-3">
               <!-- Tipo -->
@@ -86,10 +109,16 @@ export interface MaintenanceFormSubmitPayload {
 
               <!-- Data Prevista -->
               <div>
-                <label class="block text-xs font-semibold text-slate-700 mb-1">Data Prevista</label>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">
+                  Data e Hora Prevista
+                  @if (getActiveTripForVehicle(form.get('vehicleId')?.value)) {
+                    <span class="text-rose-600 font-bold">*</span>
+                  }
+                </label>
                 <input
-                  type="date"
+                  type="datetime-local"
                   formControlName="scheduledDate"
+                  [min]="getMinScheduledDateTime()"
                   class="w-full text-xs bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
                 />
               </div>
@@ -141,15 +170,15 @@ export interface MaintenanceFormSubmitPayload {
               @if (isVehicleInUse(form.get('vehicleId')?.value)) {
                 <p class="text-[11px] text-amber-700 flex items-center gap-1.5 pl-7 font-medium">
                   <svg lucideAlertTriangle class="size-3.5 shrink-0"></svg>
-                  <span>Veículo selecionado está em viagem: só é permitido agendar a manutenção para data futura.</span>
+                  <span>Veículo selecionado está em viagem: só é permitido agendar a manutenção para após a previsão de chegada.</span>
                 </p>
               }
             </div>
 
-            @if (errorMessage) {
+            @if (formValidationMessage || errorMessage) {
               <div class="p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-center gap-2 text-rose-800 text-xs">
                 <svg lucideAlertCircle class="size-4 text-rose-600 shrink-0"></svg>
-                <span>{{ errorMessage }}</span>
+                <span>{{ formValidationMessage || errorMessage }}</span>
               </div>
             }
 
@@ -184,11 +213,14 @@ export class MaintenanceFormModalComponent implements OnChanges {
 
   @Input() isOpen = false;
   @Input() vehicles: Vehicle[] = [];
+  @Input() activeTrips: Trip[] = [];
   @Input() isLoading = false;
   @Input() errorMessage: string | null = null;
 
   @Output() close = new EventEmitter<void>();
   @Output() save = new EventEmitter<MaintenanceFormSubmitPayload>();
+
+  formValidationMessage: string | null = null;
 
   form = this.fb.group({
     vehicleId: new FormControl('', [Validators.required]),
@@ -199,8 +231,15 @@ export class MaintenanceFormModalComponent implements OnChanges {
     startImmediately: new FormControl(false),
   });
 
+  constructor() {
+    this.form.get('vehicleId')?.valueChanges.subscribe(() => {
+      this.formValidationMessage = null;
+    });
+  }
+
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['isOpen'] && this.isOpen) {
+      this.formValidationMessage = null;
       this.form.reset({
         vehicleId: '',
         type: 'PREVENTIVA',
@@ -212,8 +251,31 @@ export class MaintenanceFormModalComponent implements OnChanges {
     }
   }
 
+  getActiveTripForVehicle(vehicleId?: string | null): Trip | undefined {
+    if (!vehicleId) return undefined;
+    return this.activeTrips.find(
+      (t) => t.vehicleId === vehicleId && (t.status === 'IN_PROGRESS' || t.status === 'EM_ANDAMENTO')
+    );
+  }
+
+  getTripArrivalDate(trip: Trip): Date | null {
+    const raw = trip.estimatedArrivalDate || trip.scheduledDate;
+    return raw ? new Date(raw) : null;
+  }
+
+  getMinScheduledDateTime(): string | null {
+    const vehicleId = this.form.get('vehicleId')?.value;
+    const trip = this.getActiveTripForVehicle(vehicleId);
+    if (!trip) return null;
+    const arrival = this.getTripArrivalDate(trip);
+    if (!arrival) return null;
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${arrival.getFullYear()}-${pad(arrival.getMonth() + 1)}-${pad(arrival.getDate())}T${pad(arrival.getHours())}:${pad(arrival.getMinutes())}`;
+  }
+
   isVehicleInUse(vehicleId?: string | null): boolean {
     if (!vehicleId) return false;
+    if (this.getActiveTripForVehicle(vehicleId)) return true;
     const v = this.vehicles.find((veh) => veh.id === vehicleId);
     return v?.status === 'IN_USE' || v?.status === 'EM_VIAGEM';
   }
@@ -223,12 +285,33 @@ export class MaintenanceFormModalComponent implements OnChanges {
   }
 
   onSubmit(): void {
+    this.formValidationMessage = null;
+
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
 
     const val = this.form.value;
+
+    const activeTrip = this.getActiveTripForVehicle(val.vehicleId);
+    if (activeTrip) {
+      const arrival = this.getTripArrivalDate(activeTrip);
+      if (!val.scheduledDate) {
+        this.formValidationMessage = 'O veículo está atualmente em viagem. Informe a data e hora prevista para após a previsão de chegada.';
+        return;
+      }
+
+      if (arrival && new Date(val.scheduledDate).getTime() <= arrival.getTime()) {
+        const arrivalFormatted = new Intl.DateTimeFormat('pt-BR', {
+          dateStyle: 'short',
+          timeStyle: 'short',
+        }).format(arrival);
+        this.formValidationMessage = `A data/hora do agendamento deve ser posterior à previsão de chegada (${arrivalFormatted}).`;
+        return;
+      }
+    }
+
     this.save.emit({
       vehicleId: val.vehicleId!,
       type: val.type!,
@@ -239,3 +322,4 @@ export class MaintenanceFormModalComponent implements OnChanges {
     });
   }
 }
+

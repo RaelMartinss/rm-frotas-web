@@ -6,6 +6,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { IMaintenanceRepository } from '../../domain/repositories/maintenance.repository.interface';
 import { IVehicleRepository } from '../../domain/repositories/vehicle.repository.interface';
+import { ITripRepository } from '../../domain/repositories/trip.repository.interface';
 import { ToastService } from '../../core/services/toast.service';
 import { ImpersonationService } from '../../core/services/impersonation.service';
 import {
@@ -15,6 +16,7 @@ import {
   MaintenanceType,
 } from '../../domain/models/maintenance.model';
 import { Vehicle } from '../../domain/models/vehicle.model';
+import { Trip } from '../../domain/models/trip.model';
 import { getVehicleBrandLogo } from '../../core/utils/vehicle-brand.util';
 import { PaginationComponent } from '../shared/components/pagination/pagination.component';
 import {
@@ -71,6 +73,7 @@ import {
 export class MaintenanceListComponent implements OnInit {
   private readonly maintenanceRepo = inject(IMaintenanceRepository);
   private readonly vehicleRepo = inject(IVehicleRepository);
+  private readonly tripRepo = inject(ITripRepository);
   private readonly toastService = inject(ToastService);
   private readonly fb = inject(FormBuilder);
   private readonly route = inject(ActivatedRoute);
@@ -81,6 +84,7 @@ export class MaintenanceListComponent implements OnInit {
   // --- SIGNALS DE ESTADO ---
   maintenances = signal<Maintenance[]>([]);
   vehicles = signal<Vehicle[]>([]);
+  activeTrips = signal<Trip[]>([]);
   stats = signal<MaintenanceStats | null>(null);
 
   isLoading = signal(false);
@@ -140,6 +144,7 @@ export class MaintenanceListComponent implements OnInit {
 
     this.checkActiveFilters();
     this.loadVehicles();
+    this.loadActiveTrips();
     this.loadStats();
     this.loadMaintenances();
 
@@ -203,6 +208,15 @@ export class MaintenanceListComponent implements OnInit {
     });
   }
 
+  loadActiveTrips(): void {
+    this.tripRepo.getAll({ limit: 100, status: 'IN_PROGRESS' as any }).subscribe({
+      next: (res) => {
+        this.activeTrips.set(res.data || []);
+      },
+      error: () => {},
+    });
+  }
+
   loadStats(): void {
     this.isStatsLoading.set(true);
     this.maintenanceRepo.getStats().subscribe({
@@ -259,6 +273,7 @@ export class MaintenanceListComponent implements OnInit {
   openCreateModal(): void {
     if (this.impersonationService.isReadOnly()) return;
     this.actionError.set(null);
+    this.loadActiveTrips();
     this.isCreateModalOpen.set(true);
   }
 
@@ -269,6 +284,10 @@ export class MaintenanceListComponent implements OnInit {
 
   isVehicleInUse(vehicleId?: string | null): boolean {
     if (!vehicleId) return false;
+    const hasTrip = this.activeTrips().some(
+      (t) => t.vehicleId === vehicleId && (t.status === 'IN_PROGRESS' || t.status === 'EM_ANDAMENTO')
+    );
+    if (hasTrip) return true;
     const v = this.vehicles().find((veh) => veh.id === vehicleId);
     return v?.status === 'IN_USE' || v?.status === 'EM_VIAGEM';
   }
