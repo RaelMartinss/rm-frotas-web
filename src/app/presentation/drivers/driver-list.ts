@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, HostListener, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -52,6 +52,7 @@ import {
   LucideKeyRound,
   LucideMail,
   LucideSmartphone,
+  LucideEllipsisVertical,
 } from '@lucide/angular';
 
 @Component({
@@ -86,6 +87,7 @@ import {
     LucideFuel,
     LucideKeyRound,
     LucideMail,
+    LucideEllipsisVertical,
   ],
   templateUrl: './driver-list.html',
   styleUrl: './driver-list.css'
@@ -137,6 +139,22 @@ export class DriverListComponent implements OnInit {
 
   isActionLoading = signal<boolean>(false);
   actionError = signal<string | null>(null);
+
+  // Dropdown de Ações por Linha
+  activeDropdownDriverId = signal<string | null>(null);
+
+  toggleDropdown(id: string): void {
+    this.activeDropdownDriverId.update((curr) => (curr === id ? null : id));
+  }
+
+  closeDropdown(): void {
+    this.activeDropdownDriverId.set(null);
+  }
+
+  @HostListener('document:click')
+  onDocumentClick(): void {
+    this.closeDropdown();
+  }
 
   cnhCategories: CnhCategory[] = ['A', 'B', 'C', 'D', 'E', 'AB', 'AC', 'AD', 'AE'];
 
