@@ -372,10 +372,14 @@
                 <tr class="hover:bg-slate-50/80 transition-colors">
                   <td class="py-3 px-3 font-semibold text-slate-900">
                     <div class="flex items-center gap-2.5">
-                      <div class="size-7 rounded-full bg-slate-900 text-white font-bold flex items-center justify-center text-[10px] shrink-0">
-                        {{ trip.driverInitials }}
+                      <div class="size-8 rounded-full bg-slate-900 text-white font-bold flex items-center justify-center text-[10px] shrink-0 overflow-hidden ring-1 ring-slate-200">
+                        @if (trip.driverPhotoUrl) {
+                          <img [src]="trip.driverPhotoUrl" class="w-full h-full object-cover" [alt]="trip.driverName" />
+                        } @else {
+                          {{ trip.driverInitials }}
+                        }
                       </div>
-                      <span class="truncate max-w-[120px]">{{ trip.driverName }}</span>
+                      <span class="truncate max-w-[130px] font-semibold text-slate-900">{{ trip.driverName }}</span>
                     </div>
                   </td>
                   <td class="py-3 px-3 text-slate-700">
