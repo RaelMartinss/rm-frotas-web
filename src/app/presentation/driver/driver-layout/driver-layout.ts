@@ -36,7 +36,7 @@ import {
   LucideLoader2,
   LucideImage,
   LucideHome,
-  LucideFileText,
+  LucideClock,
   LucideUser,
 } from '@lucide/angular';
 
@@ -63,7 +63,7 @@ import {
     LucideLoader2,
     LucideImage,
     LucideHome,
-    LucideFileText,
+    LucideClock,
     LucideUser,
   ],
   templateUrl: './driver-layout.html',
@@ -79,16 +79,13 @@ export class DriverLayoutComponent implements OnInit {
   private readonly toastService = inject(ToastService);
   readonly router = inject(Router);
 
-  isCurrentTab(tab: 'home' | 'trips' | 'fuel' | 'profile'): boolean {
+  isCurrentTab(tab: 'home' | 'history' | 'profile'): boolean {
     const url = this.router.url;
     if (tab === 'home') {
       return (url === '/motorista' || url === '/motorista/') && !this.isProfileOpen();
     }
-    if (tab === 'trips') {
-      return url.startsWith('/motorista/historico') && !url.includes('tab=fuel') && !this.isProfileOpen();
-    }
-    if (tab === 'fuel') {
-      return url.startsWith('/motorista/historico') && url.includes('tab=fuel') && !this.isProfileOpen();
+    if (tab === 'history') {
+      return url.startsWith('/motorista/historico') && !this.isProfileOpen();
     }
     if (tab === 'profile') {
       return this.isProfileOpen();
