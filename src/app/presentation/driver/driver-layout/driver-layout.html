@@ -1,6 +1,6 @@
 <div class="min-h-screen min-h-dvh bg-[#070D18] text-slate-100 flex flex-col font-sans antialiased relative">
 
-  @if (!isCurrentTab('profile')) {
+  @if (shouldShowHeader()) {
     <!-- BANNER PANORÂMICO: CAMINHÃO OCUPA HEADER + CARD DE VIAGEM (topo ~540px) -->
     <div class="absolute top-0 inset-x-0 h-[125px] pointer-events-none overflow-hidden z-0">
       <div

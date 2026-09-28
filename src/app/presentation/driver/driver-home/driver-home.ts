@@ -97,23 +97,12 @@ export class DriverHomeComponent implements OnInit, OnDestroy {
   // Modais de Ação Rápida
   readonly startTripModalOpen = signal<boolean>(false);
   readonly completeTripModalOpen = signal<boolean>(false);
-  readonly fuelModalOpen = signal<boolean>(false);
   readonly incidentModalOpen = signal<boolean>(false);
   readonly docsModalOpen = signal<boolean>(false);
   readonly checklistModalOpen = signal<boolean>(false);
 
   // Modelos de Formulário
   completeKm = signal<number | null>(null);
-
-  // Formulário de Abastecimento
-  fuelLiters = signal<number | null>(null);
-  fuelPricePerLiter = signal<number | null>(null);
-  fuelType = signal<string>('DIESEL');
-  fuelKm = signal<number | null>(null);
-  fuelGasStation = signal<string>('');
-  fuelFullTank = signal<boolean>(true);
-  fuelNotes = signal<string>('');
-  fuelReceiptPhoto = signal<string | null>(null);
 
   // Central de Atendimento / SOS
   readonly centralPhone = '0800 763 7682';
@@ -186,7 +175,6 @@ export class DriverHomeComponent implements OnInit, OnDestroy {
         // Preenche sugestão de KM atual
         if (summary.trip?.vehicle?.currentKm) {
           this.completeKm.set(summary.trip.vehicle.currentKm);
-          this.fuelKm.set(summary.trip.vehicle.currentKm);
         }
 
         // Inicia ou para o rastreamento conforme o status da viagem
@@ -283,79 +271,7 @@ export class DriverHomeComponent implements OnInit, OnDestroy {
       });
   }
 
-  // --- 3. Abastecimento Rápido com Câmera ---
-  openFuelModal(): void {
-    const trip = this.data()?.trip;
-    if (trip?.vehicle?.currentKm) {
-      this.fuelKm.set(trip.vehicle.currentKm);
-    }
-    this.fuelLiters.set(null);
-    this.fuelPricePerLiter.set(null);
-    this.fuelGasStation.set('');
-    this.fuelFullTank.set(true);
-    this.fuelNotes.set('');
-    this.fuelReceiptPhoto.set(null);
-    this.fuelModalOpen.set(true);
-  }
 
-  async onCameraPhotoSelected(event: Event): Promise<void> {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files[0]) {
-      const file = input.files[0];
-      try {
-        const compressedBase64 = await compressImage(file, 1280, 1280, 0.75);
-        this.fuelReceiptPhoto.set(compressedBase64);
-      } catch (err) {
-        console.error('Erro ao comprimir foto:', err);
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          this.fuelReceiptPhoto.set(e.target?.result as string);
-        };
-        reader.readAsDataURL(file);
-      }
-    }
-  }
-
-  submitFuelRecord(): void {
-    const trip = this.data()?.trip;
-    const vehicleId = trip?.vehicle?.id;
-
-    if (!vehicleId) {
-      this.errorMessage.set('Nenhum veículo vinculado à sua viagem.');
-      return;
-    }
-
-    if (!this.fuelLiters() || !this.fuelPricePerLiter() || !this.fuelKm()) {
-      this.errorMessage.set('Preencha os litros, valor por litro e KM do odômetro.');
-      return;
-    }
-
-    this.actionLoading.set(true);
-    this.portalRepository
-      .registerFuel({
-        vehicleId,
-        currentKm: this.fuelKm()!,
-        liters: this.fuelLiters()!,
-        pricePerLiter: this.fuelPricePerLiter()!,
-        fuelType: this.fuelType(),
-        gasStation: this.fuelGasStation().trim() || undefined,
-        fullTank: this.fuelFullTank(),
-        notes: this.fuelNotes().trim() || undefined,
-        receiptUrl: this.fuelReceiptPhoto() || undefined,
-      })
-      .subscribe({
-        next: (res) => {
-          this.actionLoading.set(false);
-          this.fuelModalOpen.set(false);
-          this.showToast(`Abastecimento de R$ ${res.totalCost.toFixed(2)} registrado!`);
-          this.loadData(true);
-        },
-        error: (err) => {
-          this.actionLoading.set(false);
-          this.errorMessage.set(err.error?.message || 'Erro ao registrar abastecimento.');
-        },
-      });
-  }
 
   // --- 4. Reportar Incidente / SOS ---
   openIncidentModal(): void {

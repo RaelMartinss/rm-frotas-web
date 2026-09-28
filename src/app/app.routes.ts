@@ -81,6 +81,13 @@ export const routes: Routes = [
             (m) => m.DriverSettingsComponent
           ),
       },
+      {
+        path: 'abastecimento',
+        loadComponent: () =>
+          import('./presentation/driver/driver-fuel/driver-fuel').then(
+            (m) => m.DriverFuelComponent
+          ),
+      },
     ],
   },
   {

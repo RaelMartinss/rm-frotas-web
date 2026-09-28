@@ -82,7 +82,7 @@ export class DriverLayoutComponent implements OnInit {
   isCurrentTab(tab: 'home' | 'history' | 'profile'): boolean {
     const url = this.router.url;
     if (tab === 'home') {
-      return url === '/motorista' || url === '/motorista/';
+      return url === '/motorista' || url === '/motorista/' || url.startsWith('/motorista/abastecimento');
     }
     if (tab === 'history') {
       return url.startsWith('/motorista/historico');
@@ -91,6 +91,15 @@ export class DriverLayoutComponent implements OnInit {
       return url.startsWith('/motorista/perfil') || url.startsWith('/motorista/configuracoes');
     }
     return false;
+  }
+
+  shouldShowHeader(): boolean {
+    const url = this.router.url;
+    return !(
+      url.startsWith('/motorista/perfil') ||
+      url.startsWith('/motorista/configuracoes') ||
+      url.startsWith('/motorista/abastecimento')
+    );
   }
 
   readonly currentUser = computed(() => this.authState.currentUser());

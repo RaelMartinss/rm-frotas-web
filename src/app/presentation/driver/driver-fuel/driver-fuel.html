@@ -1,0 +1,368 @@
+<div class="space-y-4 pb-8 max-w-lg mx-auto">
+
+  <!-- TOPO: BOTÃO VOLTAR + TÍTULO DA PÁGINA -->
+  <div class="flex items-center justify-between pt-1">
+    <div class="flex items-center gap-3">
+      <button
+        type="button"
+        (click)="goBack()"
+        class="size-9 rounded-xl bg-slate-900/80 border border-slate-800 text-slate-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer shadow-xs active:scale-95"
+        title="Voltar ao Início"
+      >
+        <svg lucideArrowLeft class="size-5"></svg>
+      </button>
+      <div>
+        <h1 class="text-base sm:text-lg font-bold text-white tracking-tight leading-tight">Registrar Abastecimento</h1>
+        <p class="text-xs text-slate-400 leading-tight">Lançamento de cupom e controle de consumo</p>
+      </div>
+    </div>
+
+    <div class="size-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center shrink-0">
+      <svg lucideFuel class="size-5"></svg>
+    </div>
+  </div>
+
+  <!-- CARD DO VEÍCULO DA VIAGEM ATIVA -->
+  @if (loadingSummary()) {
+    <div class="bg-[#0A1020]/90 border border-slate-800/80 rounded-2xl p-4 flex items-center gap-3 animate-pulse">
+      <div class="size-11 rounded-xl bg-slate-800"></div>
+      <div class="space-y-2 flex-1">
+        <div class="h-3.5 bg-slate-800 rounded w-1/3"></div>
+        <div class="h-3 bg-slate-800/60 rounded w-1/2"></div>
+      </div>
+    </div>
+  } @else if (vehicle()) {
+    <div class="bg-gradient-to-r from-[#0A1020] to-[#0E172E] border border-slate-800/90 rounded-2xl p-4 shadow-sm flex items-center justify-between">
+      <div class="flex items-center gap-3.5 min-w-0">
+        <div class="size-11 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center shrink-0">
+          <svg lucideTruck class="size-5"></svg>
+        </div>
+        <div class="min-w-0">
+          <div class="flex items-center gap-2">
+            <span class="text-xs uppercase font-black tracking-wider text-emerald-400 px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/20">
+              {{ vehicle()?.plate || 'S/ PLACA' }}
+            </span>
+            <span class="text-xs text-slate-400 truncate">{{ vehicle()?.brand }} {{ vehicle()?.model }}</span>
+          </div>
+          <div class="flex items-center gap-1.5 mt-1 text-[11px] text-slate-400">
+            <svg lucideGauge class="size-3.5 text-slate-500"></svg>
+            <span>Odômetro cadastrado: <b class="text-white font-mono">{{ vehicle()?.currentKm?.toLocaleString('pt-BR') || 0 }} km</b></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  } @else {
+    <div class="bg-amber-950/40 border border-amber-500/40 rounded-2xl p-3.5 flex items-start gap-3 text-amber-300 text-xs">
+      <svg lucideAlertCircle class="size-5 shrink-0 text-amber-400 mt-0.5"></svg>
+      <div>
+        <p class="font-bold">Nenhum veículo em viagem ativa</p>
+        <p class="text-[11px] text-amber-200/80 mt-0.5">
+          Para lançar o abastecimento com precisão de média, inicie sua viagem ou aguarde a atribuição do veículo pela central.
+        </p>
+      </div>
+    </div>
+  }
+
+  <!-- FORMULÁRIO PRINCIPAL -->
+  <div class="space-y-4">
+
+    <!-- SEÇÃO 1: ODÔMETRO -->
+    <div class="bg-[#0A1020]/90 border border-slate-800/80 rounded-2xl p-4 space-y-2 shadow-xs">
+      <label class="flex items-center justify-between text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+        <span class="flex items-center gap-1.5">
+          <svg lucideGauge class="size-3.5 text-emerald-400"></svg>
+          KM do Odômetro
+        </span>
+        <span class="text-[10px] text-slate-500 font-normal normal-case">Foto no painel</span>
+      </label>
+      <div class="relative">
+        <input
+          type="number"
+          [ngModel]="fuelKm()"
+          (ngModelChange)="fuelKm.set($event)"
+          class="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20 rounded-xl px-4 py-3 text-base font-mono font-bold text-white placeholder-slate-600 focus:outline-hidden transition-all"
+          placeholder="ex: 148580"
+        />
+        <span class="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-500 font-mono">KM</span>
+      </div>
+
+      @if (isKmLowerThanVehicle()) {
+        <p class="text-[11px] text-amber-400 flex items-center gap-1 font-medium">
+          <svg lucideAlertCircle class="size-3.5 shrink-0"></svg>
+          KM informado é menor que o odômetro anterior ({{ vehicle()?.currentKm?.toLocaleString('pt-BR') }} km).
+        </p>
+      }
+    </div>
+
+    <!-- SEÇÃO 2: TIPO DE COMBUSTÍVEL -->
+    <div class="bg-[#0A1020]/90 border border-slate-800/80 rounded-2xl p-4 space-y-2 shadow-xs">
+      <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+        Tipo de Combustível
+      </label>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        <button
+          type="button"
+          (click)="setFuelType('DIESEL')"
+          class="py-2.5 px-3 rounded-xl border text-xs font-bold transition-all cursor-pointer text-center"
+          [ngClass]="fuelType() === 'DIESEL' ? 'bg-emerald-500/20 border-emerald-500 text-emerald-300 ring-1 ring-emerald-500/40' : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white hover:bg-slate-900'"
+        >
+          Diesel S10 / Comum
+        </button>
+        <button
+          type="button"
+          (click)="setFuelType('GASOLINA')"
+          class="py-2.5 px-3 rounded-xl border text-xs font-bold transition-all cursor-pointer text-center"
+          [ngClass]="fuelType() === 'GASOLINA' ? 'bg-emerald-500/20 border-emerald-500 text-emerald-300 ring-1 ring-emerald-500/40' : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white hover:bg-slate-900'"
+        >
+          Gasolina
+        </button>
+        <button
+          type="button"
+          (click)="setFuelType('ETANOL')"
+          class="py-2.5 px-3 rounded-xl border text-xs font-bold transition-all cursor-pointer text-center"
+          [ngClass]="fuelType() === 'ETANOL' ? 'bg-emerald-500/20 border-emerald-500 text-emerald-300 ring-1 ring-emerald-500/40' : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white hover:bg-slate-900'"
+        >
+          Etanol
+        </button>
+        <button
+          type="button"
+          (click)="setFuelType('ARLA_32')"
+          class="py-2.5 px-3 rounded-xl border text-xs font-bold transition-all cursor-pointer text-center"
+          [ngClass]="fuelType() === 'ARLA_32' ? 'bg-emerald-500/20 border-emerald-500 text-emerald-300 ring-1 ring-emerald-500/40' : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white hover:bg-slate-900'"
+        >
+          Arla 32
+        </button>
+      </div>
+    </div>
+
+    <!-- SEÇÃO 3: QUANTIDADE (LITROS) E PREÇO POR LITRO -->
+    <div class="bg-[#0A1020]/90 border border-slate-800/80 rounded-2xl p-4 space-y-3 shadow-xs">
+      <div class="grid grid-cols-2 gap-3">
+        <!-- Litros -->
+        <div class="space-y-1.5">
+          <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">Litros Abastecidos</label>
+          <div class="relative">
+            <input
+              type="number"
+              step="0.01"
+              [ngModel]="fuelLiters()"
+              (ngModelChange)="fuelLiters.set($event)"
+              class="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20 rounded-xl px-3.5 py-3 text-sm font-mono font-bold text-white placeholder-slate-600 focus:outline-hidden"
+              placeholder="ex: 150.0"
+            />
+            <span class="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-500 font-mono">L</span>
+          </div>
+        </div>
+
+        <!-- R$ / Litro -->
+        <div class="space-y-1.5">
+          <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">Preço / Litro</label>
+          <div class="relative">
+            <input
+              type="number"
+              step="0.01"
+              [ngModel]="fuelPricePerLiter()"
+              (ngModelChange)="fuelPricePerLiter.set($event)"
+              class="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20 rounded-xl pl-9 pr-3.5 py-3 text-sm font-mono font-bold text-white placeholder-slate-600 focus:outline-hidden"
+              placeholder="5.89"
+            />
+            <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-500 font-mono">R$</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Total Calculado em Tempo Real -->
+      @if (estimatedTotal() > 0) {
+        <div class="bg-emerald-950/30 border border-emerald-500/30 rounded-xl p-3 flex items-center justify-between animate-in fade-in">
+          <div class="flex items-center gap-2">
+            <svg lucideDollarSign class="size-4 text-emerald-400"></svg>
+            <span class="text-xs font-bold text-slate-300">Valor Total do Abastecimento:</span>
+          </div>
+          <span class="text-base font-black text-emerald-400 font-mono">
+            R$ {{ estimatedTotal().toFixed(2) }}
+          </span>
+        </div>
+      }
+    </div>
+
+    <!-- SEÇÃO 4: TANQUE CHEIO TOGGLE -->
+    <div
+      (click)="fuelFullTank.set(!fuelFullTank())"
+      class="bg-[#0A1020]/90 border border-slate-800/80 rounded-2xl p-4 flex items-start gap-3.5 cursor-pointer hover:bg-slate-900/60 transition-colors select-none shadow-xs"
+    >
+      <div
+        class="size-5 rounded-md mt-0.5 border flex items-center justify-center transition-colors shrink-0"
+        [ngClass]="fuelFullTank() ? 'bg-emerald-500 border-emerald-500 text-slate-950' : 'bg-slate-950 border-slate-700 text-transparent'"
+      >
+        <svg lucideCheck class="size-3.5 stroke-[3]"></svg>
+      </div>
+      <div>
+        <span class="text-xs font-bold text-white block leading-snug">Tanque Cheio (Completou o tanque)</span>
+        <span class="text-[11px] text-slate-400 block mt-0.5 leading-snug">
+          Marque esta opção se completou até a trava automática. Essencial para o cálculo preciso da média de Km/L.
+        </span>
+      </div>
+    </div>
+
+    <!-- SEÇÃO 5: POSTO DE COMBUSTÍVEL E OBSERVAÇÕES -->
+    <div class="bg-[#0A1020]/90 border border-slate-800/80 rounded-2xl p-4 space-y-3 shadow-xs">
+      <div>
+        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+          Posto de Combustível (Opcional)
+        </label>
+        <div class="relative">
+          <input
+            type="text"
+            [ngModel]="fuelGasStation()"
+            (ngModelChange)="fuelGasStation.set($event)"
+            class="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl pl-9 pr-3.5 py-2.5 text-xs text-white placeholder-slate-600 focus:outline-hidden"
+            placeholder="ex: Posto Ipiranga BR-316, Shell Centro..."
+          />
+          <svg lucideMapPin class="size-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2"></svg>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+          Observações (Opcional)
+        </label>
+        <div class="relative">
+          <input
+            type="text"
+            [ngModel]="fuelNotes()"
+            (ngModelChange)="fuelNotes.set($event)"
+            class="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl pl-9 pr-3.5 py-2.5 text-xs text-white placeholder-slate-600 focus:outline-hidden"
+            placeholder="ex: Desconto via convênio, bomba 03..."
+          />
+          <svg lucideFileText class="size-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2"></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- SEÇÃO 6: FOTO DO CUPOM / BOMBA COM CÂMERA -->
+    <div class="bg-[#0A1020]/90 border border-slate-800/80 rounded-2xl p-4 space-y-3 shadow-xs">
+      <div class="flex items-center justify-between">
+        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+          Comprovante Fiscal / Foto da Bomba
+        </label>
+        @if (receiptPhoto()) {
+          <span class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+            <svg lucideCheck class="size-3"></svg> Foto anexada
+          </span>
+        }
+      </div>
+
+      <!-- Preview de Foto Capturada -->
+      @if (receiptPhoto()) {
+        <div class="relative rounded-2xl overflow-hidden border border-emerald-500/40 bg-slate-950 p-2">
+          <img
+            [src]="receiptPhoto()"
+            alt="Comprovante de abastecimento"
+            class="w-full max-h-56 object-contain rounded-xl bg-slate-900"
+          />
+
+          <div class="flex items-center gap-2 mt-2 pt-2 border-t border-slate-800/80">
+            <button
+              type="button"
+              (click)="triggerCamera()"
+              class="flex-1 py-2 px-3 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+            >
+              <svg lucideCamera class="size-3.5 text-emerald-400"></svg>
+              <span>Tirar outra foto</span>
+            </button>
+            <button
+              type="button"
+              (click)="removePhoto()"
+              class="py-2 px-3 bg-rose-950/40 hover:bg-rose-900/60 border border-rose-600/30 text-rose-300 text-xs font-semibold rounded-xl flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+            >
+              <svg lucideTrash2 class="size-3.5"></svg>
+              <span>Remover</span>
+            </button>
+          </div>
+        </div>
+      } @else {
+        <!-- Caixa de Upload Tracejada -->
+        <div class="grid grid-cols-2 gap-2.5">
+          <button
+            type="button"
+            (click)="triggerCamera()"
+            [disabled]="isProcessingPhoto()"
+            class="p-4 border-2 border-dashed border-slate-800 hover:border-emerald-500/60 active:bg-emerald-500/5 rounded-2xl bg-slate-950 flex flex-col items-center justify-center gap-2 transition-all cursor-pointer group"
+          >
+            <div class="size-11 rounded-xl bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+              @if (isProcessingPhoto()) {
+                <svg lucideLoader2 class="size-5 animate-spin"></svg>
+              } @else {
+                <svg lucideCamera class="size-5"></svg>
+              }
+            </div>
+            <div class="text-center">
+              <span class="text-xs font-bold text-white block">Tirar Foto</span>
+              <span class="text-[10px] text-slate-400 block">Abrir câmera</span>
+            </div>
+          </button>
+
+          <button
+            type="button"
+            (click)="triggerGallery()"
+            [disabled]="isProcessingPhoto()"
+            class="p-4 border-2 border-dashed border-slate-800 hover:border-blue-500/60 active:bg-blue-500/5 rounded-2xl bg-slate-950 flex flex-col items-center justify-center gap-2 transition-all cursor-pointer group"
+          >
+            <div class="size-11 rounded-xl bg-blue-500/15 text-blue-400 border border-blue-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <svg lucideImage class="size-5"></svg>
+            </div>
+            <div class="text-center">
+              <span class="text-xs font-bold text-white block">Galeria</span>
+              <span class="text-[10px] text-slate-400 block">Escolher arquivo</span>
+            </div>
+          </button>
+        </div>
+      }
+    </div>
+
+    <!-- BOTÕES DE AÇÃO: NUNCA CORTADOS (ÁREA ESPAÇOSA E VISÍVEL) -->
+    <div class="space-y-2.5 pt-2">
+      <button
+        type="button"
+        (click)="saveFuelRecord()"
+        [disabled]="saving() || isProcessingPhoto() || !vehicle()"
+        class="w-full py-4 px-4 bg-emerald-500 hover:bg-emerald-400 active:scale-[0.99] text-slate-950 font-black text-sm rounded-2xl shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        @if (saving()) {
+          <svg lucideLoader2 class="size-5 animate-spin"></svg>
+          <span>Salvando Abastecimento...</span>
+        } @else {
+          <svg lucideCheck class="size-5 stroke-[2.5]"></svg>
+          <span>Confirmar e Salvar Abastecimento</span>
+        }
+      </button>
+
+      <button
+        type="button"
+        (click)="goBack()"
+        class="w-full py-3 bg-slate-900 hover:bg-slate-800 active:scale-[0.99] border border-slate-800 text-slate-300 font-bold text-xs rounded-xl transition-colors cursor-pointer text-center"
+      >
+        Cancelar e Voltar
+      </button>
+    </div>
+
+  </div>
+
+  <!-- Inputs Ocultos para Upload -->
+  <input
+    #cameraInput
+    type="file"
+    accept="image/*"
+    capture="environment"
+    (change)="onPhotoSelected($event)"
+    class="hidden"
+  />
+  <input
+    #galleryInput
+    type="file"
+    accept="image/*"
+    (change)="onPhotoSelected($event)"
+    class="hidden"
+  />
+
+</div>
