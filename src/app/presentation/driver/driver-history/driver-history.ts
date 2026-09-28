@@ -91,11 +91,14 @@ export class DriverHistoryComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    // Lê query param ?tab=fuel se existir
-    const tabParam = this.route.snapshot.queryParams['tab'];
-    if (tabParam === 'fuel') {
-      this.activeTab.set('fuel');
-    }
+    // Subscreve a query param ?tab=fuel / ?tab=trips reativamente
+    this.route.queryParams.subscribe((params) => {
+      if (params['tab'] === 'fuel') {
+        this.activeTab.set('fuel');
+      } else if (params['tab'] === 'trips' || !params['tab']) {
+        this.activeTab.set('trips');
+      }
+    });
 
     this.loadAllData();
   }

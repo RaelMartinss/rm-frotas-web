@@ -8,7 +8,7 @@ import {
   ElementRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
+import { RouterOutlet, RouterLink, Router } from '@angular/router';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { IAuthRepository } from '../../../domain/repositories/auth.repository.interface';
 import { IDriverPortalRepository } from '../../../domain/repositories/driver-portal.repository.interface';
@@ -20,8 +20,6 @@ import { LocationTrackingService } from '../../../core/services/location-trackin
 import { ToastService } from '../../../core/services/toast.service';
 import { compressImage } from '../../../core/utils/image-compressor';
 import {
-  LucideNavigation,
-  LucideClock,
   LucideLogOut,
   LucideDownload,
   LucideSparkles,
@@ -37,6 +35,9 @@ import {
   LucideCamera,
   LucideLoader2,
   LucideImage,
+  LucideHome,
+  LucideFileText,
+  LucideUser,
 } from '@lucide/angular';
 
 @Component({
@@ -46,9 +47,6 @@ import {
     CommonModule,
     RouterOutlet,
     RouterLink,
-    RouterLinkActive,
-    LucideNavigation,
-    LucideClock,
     LucideLogOut,
     LucideDownload,
     LucideSparkles,
@@ -64,6 +62,9 @@ import {
     LucideCamera,
     LucideLoader2,
     LucideImage,
+    LucideHome,
+    LucideFileText,
+    LucideUser,
   ],
   templateUrl: './driver-layout.html',
 })
@@ -76,7 +77,24 @@ export class DriverLayoutComponent implements OnInit {
   readonly notificationService = inject(DriverNotificationService);
   private readonly locationTracking = inject(LocationTrackingService);
   private readonly toastService = inject(ToastService);
-  private readonly router = inject(Router);
+  readonly router = inject(Router);
+
+  isCurrentTab(tab: 'home' | 'trips' | 'fuel' | 'profile'): boolean {
+    const url = this.router.url;
+    if (tab === 'home') {
+      return (url === '/motorista' || url === '/motorista/') && !this.isProfileOpen();
+    }
+    if (tab === 'trips') {
+      return url.startsWith('/motorista/historico') && !url.includes('tab=fuel') && !this.isProfileOpen();
+    }
+    if (tab === 'fuel') {
+      return url.startsWith('/motorista/historico') && url.includes('tab=fuel') && !this.isProfileOpen();
+    }
+    if (tab === 'profile') {
+      return this.isProfileOpen();
+    }
+    return false;
+  }
 
   readonly currentUser = computed(() => this.authState.currentUser());
   readonly isOnline = computed(() => this.networkService.isOnline());

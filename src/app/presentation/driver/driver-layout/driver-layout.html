@@ -22,9 +22,13 @@
       title="Toque para ver informações do motorista e versão"
       class="flex items-start gap-3 min-w-0 text-left cursor-pointer hover:opacity-85 active:scale-95 transition-all p-1 -m-1 rounded-2xl"
     >
-      <!-- Avatar do Motorista: círculo com iniciais em caixa alta (ex: MV) com fundo verde esmeralda translúcido -->
-      <div class="size-11 rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-base flex items-center justify-center shrink-0 border border-emerald-500/30 shadow-xs backdrop-blur-md">
-        {{ currentUser()?.name?.substring(0, 2)?.toUpperCase() || 'MV' }}
+      <!-- Avatar do Motorista: foto se houver, ou círculo com iniciais MV com fundo verde translúcido -->
+      <div class="size-11 rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-base flex items-center justify-center shrink-0 border border-emerald-500/30 shadow-xs backdrop-blur-md overflow-hidden">
+        @if (driverPhoto()) {
+          <img [src]="driverPhoto()" class="w-full h-full object-cover" alt="Foto do motorista" />
+        } @else {
+          {{ currentUser()?.name?.substring(0, 2)?.toUpperCase() || 'MV' }}
+        }
       </div>
       <div class="min-w-0">
         <!-- Linha 1: Nome em destaque com tipografia seminegrito branca -->
@@ -176,36 +180,65 @@
     <router-outlet (activate)="onActivate($event)"></router-outlet>
   </main>
 
-  <!-- BARRA DE NAVEGAÇÃO INFERIOR MOBILE (THUMB ZONE) -->
-  <nav class="fixed bottom-0 inset-x-0 bg-slate-900/95 backdrop-blur-md border-t border-slate-800/80 z-40 max-w-lg mx-auto pb-safe-bottom">
-    <div class="grid grid-cols-2 h-16 px-6">
-      <!-- Aba: Cockpit / Início -->
+  <!-- BARRA DE NAVEGAÇÃO INFERIOR MOBILE (THUMB ZONE - 4 ITENS) -->
+  <nav class="fixed bottom-0 inset-x-0 bg-[#070D18]/95 backdrop-blur-md border-t border-slate-800/80 z-40 max-w-lg mx-auto pb-safe-bottom">
+    <div class="grid grid-cols-4 h-16 px-1">
+      <!-- 1. Início -->
       <a
         routerLink="/motorista"
-        [routerLinkActiveOptions]="{ exact: true }"
-        routerLinkActive="text-emerald-400 font-bold"
-        class="flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-white transition-colors cursor-pointer"
+        (click)="closeProfile()"
+        class="flex flex-col items-center justify-center gap-0.5 transition-colors cursor-pointer pt-1.5"
+        [ngClass]="isCurrentTab('home') ? 'text-emerald-400 font-bold' : 'text-slate-400 hover:text-white'"
       >
-        <svg lucideNavigation class="size-5"></svg>
-        <span class="text-[11px] leading-none">Cockpit</span>
+        <svg lucideHome class="size-5"></svg>
+        <span class="text-[10px] leading-tight">Início</span>
+        <span class="h-0.5 w-7 rounded-full mt-0.5 transition-all" [ngClass]="isCurrentTab('home') ? 'bg-emerald-400' : 'bg-transparent'"></span>
       </a>
 
-      <!-- Aba: Histórico -->
+      <!-- 2. Viagens -->
       <a
         routerLink="/motorista/historico"
-        routerLinkActive="text-emerald-400 font-bold"
-        class="flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-white transition-colors cursor-pointer relative"
+        [queryParams]="{ tab: 'trips' }"
+        (click)="closeProfile()"
+        class="flex flex-col items-center justify-center gap-0.5 transition-colors cursor-pointer pt-1.5"
+        [ngClass]="isCurrentTab('trips') ? 'text-emerald-400 font-bold' : 'text-slate-400 hover:text-white'"
+      >
+        <svg lucideFileText class="size-5"></svg>
+        <span class="text-[10px] leading-tight">Viagens</span>
+        <span class="h-0.5 w-7 rounded-full mt-0.5 transition-all" [ngClass]="isCurrentTab('trips') ? 'bg-emerald-400' : 'bg-transparent'"></span>
+      </a>
+
+      <!-- 3. Abastecimentos (substituindo Manutenção) -->
+      <a
+        routerLink="/motorista/historico"
+        [queryParams]="{ tab: 'fuel' }"
+        (click)="closeProfile()"
+        class="flex flex-col items-center justify-center gap-0.5 transition-colors cursor-pointer pt-1.5 relative"
+        [ngClass]="isCurrentTab('fuel') ? 'text-emerald-400 font-bold' : 'text-slate-400 hover:text-white'"
       >
         <div class="relative">
-          <svg lucideClock class="size-5"></svg>
+          <svg lucideFuel class="size-5"></svg>
           @if (pendingReceipts() > 0) {
             <span class="absolute -top-1.5 -right-2 px-1.5 py-0.2 bg-amber-500 text-slate-950 font-black text-[9px] rounded-full border border-slate-900 animate-pulse">
               {{ pendingReceipts() }}
             </span>
           }
         </div>
-        <span class="text-[11px] leading-none">Histórico</span>
+        <span class="text-[10px] leading-tight">Abastecimentos</span>
+        <span class="h-0.5 w-7 rounded-full mt-0.5 transition-all" [ngClass]="isCurrentTab('fuel') ? 'bg-emerald-400' : 'bg-transparent'"></span>
       </a>
+
+      <!-- 4. Perfil -->
+      <button
+        type="button"
+        (click)="openProfile()"
+        class="flex flex-col items-center justify-center gap-0.5 transition-colors cursor-pointer pt-1.5"
+        [ngClass]="isCurrentTab('profile') ? 'text-emerald-400 font-bold' : 'text-slate-400 hover:text-white'"
+      >
+        <svg lucideUser class="size-5"></svg>
+        <span class="text-[10px] leading-tight">Perfil</span>
+        <span class="h-0.5 w-7 rounded-full mt-0.5 transition-all" [ngClass]="isCurrentTab('profile') ? 'bg-emerald-400' : 'bg-transparent'"></span>
+      </button>
     </div>
   </nav>
 
