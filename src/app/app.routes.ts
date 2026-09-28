@@ -67,6 +67,13 @@ export const routes: Routes = [
             (m) => m.DriverHistoryComponent
           ),
       },
+      {
+        path: 'perfil',
+        loadComponent: () =>
+          import('./presentation/driver/driver-profile/driver-profile').then(
+            (m) => m.DriverProfileComponent
+          ),
+      },
     ],
   },
   {

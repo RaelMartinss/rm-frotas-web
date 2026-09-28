@@ -82,13 +82,13 @@ export class DriverLayoutComponent implements OnInit {
   isCurrentTab(tab: 'home' | 'history' | 'profile'): boolean {
     const url = this.router.url;
     if (tab === 'home') {
-      return (url === '/motorista' || url === '/motorista/') && !this.isProfileOpen();
+      return url === '/motorista' || url === '/motorista/';
     }
     if (tab === 'history') {
-      return url.startsWith('/motorista/historico') && !this.isProfileOpen();
+      return url.startsWith('/motorista/historico');
     }
     if (tab === 'profile') {
-      return this.isProfileOpen();
+      return url.startsWith('/motorista/perfil');
     }
     return false;
   }
