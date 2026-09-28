@@ -20,10 +20,8 @@ import {
   LucideTrendingUp,
   LucideFuel,
   LucideArrowRight,
-  LucideLogOut,
   LucideX,
   LucideLoader2,
-  LucideDownload,
 } from '@lucide/angular';
 
 @Component({
@@ -43,10 +41,8 @@ import {
     LucideTrendingUp,
     LucideFuel,
     LucideArrowRight,
-    LucideLogOut,
     LucideX,
     LucideLoader2,
-    LucideDownload,
   ],
   templateUrl: './driver-profile.html',
 })

@@ -1,0 +1,820 @@
+<div class="space-y-5 pb-6">
+
+  <!-- TOPO: BOTÃO VOLTAR + TÍTULO CONFIGURAÇÕES -->
+  <div class="flex items-center gap-3 pt-1">
+    <a
+      routerLink="/motorista/perfil"
+      class="size-9 rounded-xl bg-slate-900/80 border border-slate-800 text-slate-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer shadow-xs active:scale-95"
+      title="Voltar ao Perfil"
+    >
+      <svg lucideArrowLeft class="size-5"></svg>
+    </a>
+    <h1 class="text-base sm:text-lg font-bold text-white tracking-tight">Configurações</h1>
+  </div>
+
+  <!-- SEÇÃO 1: CONTA (EM PRIMEIRO LUGAR CONFORME SOLICITADO) -->
+  <div class="space-y-2">
+    <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-1 block">
+      Conta
+    </span>
+
+    <div class="bg-[#0A1020]/90 border border-slate-800/80 rounded-2xl overflow-hidden divide-y divide-slate-800/60 shadow-xs">
+      <!-- 1. Dados Pessoais -->
+      <button
+        type="button"
+        (click)="openPersonalDataModal()"
+        class="w-full p-4 flex items-center justify-between text-left hover:bg-slate-800/40 active:bg-slate-800/60 transition-colors cursor-pointer group"
+      >
+        <div class="flex items-center gap-3.5 min-w-0">
+          <div class="size-10 rounded-xl bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 flex items-center justify-center shrink-0">
+            <svg lucideUser class="size-5"></svg>
+          </div>
+          <div class="min-w-0">
+            <p class="text-sm font-bold text-white group-hover:text-emerald-400 transition-colors leading-tight">Dados pessoais</p>
+            <p class="text-xs text-slate-400 leading-tight mt-0.5">Nome, CPF, telefone e e-mail</p>
+          </div>
+        </div>
+        <svg lucideChevronRight class="size-4 text-slate-500 group-hover:text-white shrink-0 transition-colors"></svg>
+      </button>
+
+      <!-- 2. Alterar Senha -->
+      <button
+        type="button"
+        (click)="openChangePasswordModal()"
+        class="w-full p-4 flex items-center justify-between text-left hover:bg-slate-800/40 active:bg-slate-800/60 transition-colors cursor-pointer group"
+      >
+        <div class="flex items-center gap-3.5 min-w-0">
+          <div class="size-10 rounded-xl bg-blue-500/15 text-blue-400 border border-blue-500/25 flex items-center justify-center shrink-0">
+            <svg lucideLock class="size-5"></svg>
+          </div>
+          <div class="min-w-0">
+            <p class="text-sm font-bold text-white group-hover:text-blue-400 transition-colors leading-tight">Alterar senha</p>
+            <p class="text-xs text-slate-400 leading-tight mt-0.5">Mantenha sua conta segura</p>
+          </div>
+        </div>
+        <svg lucideChevronRight class="size-4 text-slate-500 group-hover:text-white shrink-0 transition-colors"></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- SEÇÃO 2: APP E DISPOSITIVO -->
+  <div class="space-y-2">
+    <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-1 block">
+      App e Dispositivo
+    </span>
+
+    <div class="bg-[#0A1020]/90 border border-slate-800/80 rounded-2xl overflow-hidden divide-y divide-slate-800/60 shadow-xs">
+      <!-- 1. Notificações -->
+      <button
+        type="button"
+        (click)="notificationsModalOpen.set(true)"
+        class="w-full p-4 flex items-center justify-between text-left hover:bg-slate-800/40 active:bg-slate-800/60 transition-colors cursor-pointer group"
+      >
+        <div class="flex items-center gap-3.5 min-w-0">
+          <div class="size-10 rounded-xl bg-indigo-500/15 text-indigo-400 border border-indigo-500/25 flex items-center justify-center shrink-0">
+            <svg lucideBell class="size-5"></svg>
+          </div>
+          <div class="min-w-0">
+            <p class="text-sm font-bold text-white group-hover:text-indigo-400 transition-colors leading-tight">Notificações</p>
+            <p class="text-xs text-slate-400 leading-tight mt-0.5">Viagens, abastecimentos e alertas</p>
+          </div>
+        </div>
+        <svg lucideChevronRight class="size-4 text-slate-500 group-hover:text-white shrink-0 transition-colors"></svg>
+      </button>
+
+      <!-- 2. Localização (Permissões de GPS funcionais) -->
+      <button
+        type="button"
+        (click)="locationModalOpen.set(true)"
+        class="w-full p-4 flex items-center justify-between text-left hover:bg-slate-800/40 active:bg-slate-800/60 transition-colors cursor-pointer group"
+      >
+        <div class="flex items-center gap-3.5 min-w-0">
+          <div class="size-10 rounded-xl bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 flex items-center justify-center shrink-0">
+            <svg lucideMapPin class="size-5"></svg>
+          </div>
+          <div class="min-w-0">
+            <p class="text-sm font-bold text-white group-hover:text-emerald-400 transition-colors leading-tight">Localização</p>
+            <p class="text-xs text-slate-400 leading-tight mt-0.5">Permissões de localização do app</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          @if (gpsStatus() === 'granted') {
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+              Ativo
+            </span>
+          }
+          <svg lucideChevronRight class="size-4 text-slate-500 group-hover:text-white shrink-0 transition-colors"></svg>
+        </div>
+      </button>
+    </div>
+  </div>
+
+  <!-- SEÇÃO 3: INFORMAÇÕES -->
+  <div class="space-y-2">
+    <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-1 block">
+      Informações
+    </span>
+
+    <div class="bg-[#0A1020]/90 border border-slate-800/80 rounded-2xl overflow-hidden divide-y divide-slate-800/60 shadow-xs">
+      <!-- 1. Sobre o app (Verificação de nova versão) -->
+      <button
+        type="button"
+        (click)="aboutModalOpen.set(true); updateService.checkForUpdates()"
+        class="w-full p-4 flex items-center justify-between text-left hover:bg-slate-800/40 active:bg-slate-800/60 transition-colors cursor-pointer group"
+      >
+        <div class="flex items-center gap-3.5 min-w-0">
+          <div class="size-10 rounded-xl bg-blue-500/15 text-blue-400 border border-blue-500/25 flex items-center justify-center shrink-0">
+            <svg lucideInfo class="size-5"></svg>
+          </div>
+          <div class="min-w-0">
+            <p class="text-sm font-bold text-white group-hover:text-blue-400 transition-colors leading-tight">Sobre o app</p>
+            <p class="text-xs text-slate-400 leading-tight mt-0.5">Versão {{ updateService.currentVersion() }}</p>
+          </div>
+        </div>
+        <svg lucideChevronRight class="size-4 text-slate-500 group-hover:text-white shrink-0 transition-colors"></svg>
+      </button>
+
+      <!-- 2. Termos de uso -->
+      <button
+        type="button"
+        (click)="termsModalOpen.set(true)"
+        class="w-full p-4 flex items-center justify-between text-left hover:bg-slate-800/40 active:bg-slate-800/60 transition-colors cursor-pointer group"
+      >
+        <div class="flex items-center gap-3.5 min-w-0">
+          <div class="size-10 rounded-xl bg-purple-500/15 text-purple-400 border border-purple-500/25 flex items-center justify-center shrink-0">
+            <svg lucideFileText class="size-5"></svg>
+          </div>
+          <div class="min-w-0">
+            <p class="text-sm font-bold text-white group-hover:text-purple-400 transition-colors leading-tight">Termos de uso</p>
+            <p class="text-xs text-slate-400 leading-tight mt-0.5">Veja os termos e condições</p>
+          </div>
+        </div>
+        <svg lucideChevronRight class="size-4 text-slate-500 group-hover:text-white shrink-0 transition-colors"></svg>
+      </button>
+
+      <!-- 3. Política de privacidade -->
+      <button
+        type="button"
+        (click)="privacyModalOpen.set(true)"
+        class="w-full p-4 flex items-center justify-between text-left hover:bg-slate-800/40 active:bg-slate-800/60 transition-colors cursor-pointer group"
+      >
+        <div class="flex items-center gap-3.5 min-w-0">
+          <div class="size-10 rounded-xl bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 flex items-center justify-center shrink-0">
+            <svg lucideShield class="size-5"></svg>
+          </div>
+          <div class="min-w-0">
+            <p class="text-sm font-bold text-white group-hover:text-emerald-400 transition-colors leading-tight">Política de privacidade</p>
+            <p class="text-xs text-slate-400 leading-tight mt-0.5">Como seus dados são usados</p>
+          </div>
+        </div>
+        <svg lucideChevronRight class="size-4 text-slate-500 group-hover:text-white shrink-0 transition-colors"></svg>
+      </button>
+
+      <!-- 4. Ajuda e suporte -->
+      <button
+        type="button"
+        (click)="supportModalOpen.set(true)"
+        class="w-full p-4 flex items-center justify-between text-left hover:bg-slate-800/40 active:bg-slate-800/60 transition-colors cursor-pointer group"
+      >
+        <div class="flex items-center gap-3.5 min-w-0">
+          <div class="size-10 rounded-xl bg-amber-500/15 text-amber-400 border border-amber-500/25 flex items-center justify-center shrink-0">
+            <svg lucideHeadphones class="size-5"></svg>
+          </div>
+          <div class="min-w-0">
+            <p class="text-sm font-bold text-white group-hover:text-amber-400 transition-colors leading-tight">Ajuda e suporte</p>
+            <p class="text-xs text-slate-400 leading-tight mt-0.5">Tire suas dúvidas ou entre em contato</p>
+          </div>
+        </div>
+        <svg lucideChevronRight class="size-4 text-slate-500 group-hover:text-white shrink-0 transition-colors"></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- BOTÃO: SAIR DA CONTA (RODAPÉ) -->
+  <button
+    type="button"
+    (click)="logoutModalOpen.set(true)"
+    class="w-full bg-rose-950/20 hover:bg-rose-950/40 active:scale-[0.99] border border-rose-600/30 p-4 rounded-2xl flex items-center justify-between text-left transition-all cursor-pointer shadow-xs group"
+  >
+    <div class="flex items-center gap-3.5">
+      <div class="size-10 rounded-xl bg-rose-500/15 text-rose-400 border border-rose-500/25 flex items-center justify-center shrink-0">
+        <svg lucideLogOut class="size-5"></svg>
+      </div>
+      <span class="text-sm font-bold text-rose-400 group-hover:text-rose-300 transition-colors">
+        Sair da conta
+      </span>
+    </div>
+    <svg lucideChevronRight class="size-4 text-rose-400 group-hover:text-rose-300 transition-colors"></svg>
+  </button>
+</div>
+
+<!-- ======================================================= -->
+<!-- MODAL: DADOS PESSOAIS                                  -->
+<!-- ======================================================= -->
+@if (personalDataModalOpen()) {
+  <div class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in">
+    <div class="bg-slate-900 border border-slate-800 rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 w-full max-w-md max-h-[90vh] overflow-y-auto space-y-4 shadow-2xl animate-in slide-in-from-bottom-4">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+          <svg lucideUser class="size-4.5 text-emerald-400"></svg>
+          Dados Pessoais
+        </h3>
+        <button (click)="personalDataModalOpen.set(false)" class="text-slate-400 hover:text-white p-1">
+          <svg lucideX class="size-4"></svg>
+        </button>
+      </div>
+
+      <div class="space-y-3.5 text-xs">
+        <!-- Nome (Editável) -->
+        <div>
+          <label class="font-semibold text-slate-300 block mb-1">Nome completo</label>
+          <input
+            type="text"
+            [(ngModel)]="editName"
+            class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700/80 rounded-xl text-white font-medium focus:border-emerald-500 focus:outline-hidden"
+            placeholder="Seu nome completo"
+          />
+        </div>
+
+        <!-- E-mail (Editável) -->
+        <div>
+          <label class="font-semibold text-slate-300 block mb-1">E-mail</label>
+          <input
+            type="email"
+            [(ngModel)]="editEmail"
+            class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700/80 rounded-xl text-white font-medium focus:border-emerald-500 focus:outline-hidden"
+            placeholder="seu.email@exemplo.com"
+          />
+        </div>
+
+        <!-- Telefone (Editável) -->
+        <div>
+          <label class="font-semibold text-slate-300 block mb-1">Telefone / WhatsApp</label>
+          <input
+            type="tel"
+            [(ngModel)]="editPhone"
+            class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700/80 rounded-xl text-white font-medium focus:border-emerald-500 focus:outline-hidden"
+            placeholder="(99) 99999-9999"
+          />
+        </div>
+
+        <!-- CPF (Bloqueado/Protegido) -->
+        <div>
+          <label class="font-semibold text-slate-400 flex items-center justify-between mb-1">
+            <span>CPF</span>
+            <span class="text-[10px] text-amber-400 font-normal">Protegido por segurança</span>
+          </label>
+          <input
+            type="text"
+            [value]="formatCpf(summary()?.driver?.cpf)"
+            disabled
+            class="w-full px-3.5 py-2.5 bg-slate-950/60 border border-slate-800 text-slate-400 font-mono rounded-xl cursor-not-allowed"
+          />
+          <p class="text-[10px] text-slate-500 mt-1">O CPF não pode ser alterado diretamente pelo condutor.</p>
+        </div>
+
+        <!-- Data de Nascimento (Bloqueado se existir, editável se não tiver) -->
+        <div>
+          <label class="font-semibold text-slate-300 flex items-center justify-between mb-1">
+            <span>Data de nascimento</span>
+            @if (hasExistingBirthDate) {
+              <span class="text-[10px] text-slate-400">Cadastrada</span>
+            } @else {
+              <span class="text-[10px] text-emerald-400">Pendente de inclusão</span>
+            }
+          </label>
+          @if (hasExistingBirthDate) {
+            <input
+              type="text"
+              [value]="editBirthDate"
+              disabled
+              class="w-full px-3.5 py-2.5 bg-slate-950/60 border border-slate-800 text-slate-400 font-mono rounded-xl cursor-not-allowed"
+            />
+          } @else {
+            <input
+              type="date"
+              [(ngModel)]="editBirthDate"
+              class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700/80 rounded-xl text-white font-medium focus:border-emerald-500 focus:outline-hidden"
+            />
+            <p class="text-[10px] text-emerald-400/90 mt-1">Adicione sua data de nascimento para completar o cadastro.</p>
+          }
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800">
+        <button
+          type="button"
+          (click)="personalDataModalOpen.set(false)"
+          class="py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs rounded-xl transition-colors cursor-pointer"
+        >
+          Cancelar
+        </button>
+        <button
+          type="button"
+          (click)="savePersonalData()"
+          [disabled]="savingPersonalData()"
+          class="py-3 bg-emerald-500 hover:bg-emerald-400 active:scale-[0.98] text-slate-950 font-black text-xs rounded-xl shadow-md transition-all cursor-pointer flex items-center justify-center gap-1.5"
+        >
+          @if (savingPersonalData()) {
+            <svg lucideLoader2 class="size-4 animate-spin"></svg>
+            <span>Salvando...</span>
+          } @else {
+            <span>Salvar Alterações</span>
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ======================================================= -->
+<!-- MODAL: ALTERAR SENHA                                    -->
+<!-- ======================================================= -->
+@if (changePasswordModalOpen()) {
+  <div class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in">
+    <div class="bg-slate-900 border border-slate-800 rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 w-full max-w-md space-y-4 shadow-2xl animate-in slide-in-from-bottom-4">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+          <svg lucideLock class="size-4.5 text-blue-400"></svg>
+          Alterar Senha de Acesso
+        </h3>
+        <button (click)="changePasswordModalOpen.set(false)" class="text-slate-400 hover:text-white p-1">
+          <svg lucideX class="size-4"></svg>
+        </button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="font-semibold text-slate-300 block mb-1">Senha atual</label>
+          <div class="relative">
+            <input
+              [type]="showCurrentPassword ? 'text' : 'password'"
+              [(ngModel)]="currentPassword"
+              class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700/80 rounded-xl text-white font-medium focus:border-blue-500 focus:outline-hidden pr-10"
+              placeholder="Digite sua senha atual"
+            />
+            <button
+              type="button"
+              (click)="showCurrentPassword = !showCurrentPassword"
+              class="absolute right-3 top-2.5 text-slate-400 hover:text-white"
+            >
+              @if (showCurrentPassword) {
+                <svg lucideEyeOff class="size-4"></svg>
+              } @else {
+                <svg lucideEye class="size-4"></svg>
+              }
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <label class="font-semibold text-slate-300 block mb-1">Nova senha</label>
+          <div class="relative">
+            <input
+              [type]="showNewPassword ? 'text' : 'password'"
+              [(ngModel)]="newPassword"
+              class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700/80 rounded-xl text-white font-medium focus:border-blue-500 focus:outline-hidden pr-10"
+              placeholder="Mínimo de 6 caracteres"
+            />
+            <button
+              type="button"
+              (click)="showNewPassword = !showNewPassword"
+              class="absolute right-3 top-2.5 text-slate-400 hover:text-white"
+            >
+              @if (showNewPassword) {
+                <svg lucideEyeOff class="size-4"></svg>
+              } @else {
+                <svg lucideEye class="size-4"></svg>
+              }
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <label class="font-semibold text-slate-300 block mb-1">Confirmar nova senha</label>
+          <input
+            type="password"
+            [(ngModel)]="confirmPassword"
+            class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700/80 rounded-xl text-white font-medium focus:border-blue-500 focus:outline-hidden"
+            placeholder="Repita a nova senha"
+          />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800">
+        <button
+          type="button"
+          (click)="changePasswordModalOpen.set(false)"
+          class="py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs rounded-xl transition-colors cursor-pointer"
+        >
+          Cancelar
+        </button>
+        <button
+          type="button"
+          (click)="submitChangePassword()"
+          [disabled]="changingPassword()"
+          class="py-3 bg-blue-500 hover:bg-blue-400 active:scale-[0.98] text-white font-black text-xs rounded-xl shadow-md transition-all cursor-pointer flex items-center justify-center gap-1.5"
+        >
+          @if (changingPassword()) {
+            <svg lucideLoader2 class="size-4 animate-spin"></svg>
+            <span>Alterando...</span>
+          } @else {
+            <span>Atualizar Senha</span>
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ======================================================= -->
+<!-- MODAL: NOTIFICAÇÕES                                    -->
+<!-- ======================================================= -->
+@if (notificationsModalOpen()) {
+  <div class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in">
+    <div class="bg-slate-900 border border-slate-800 rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 w-full max-w-md space-y-4 shadow-2xl animate-in slide-in-from-bottom-4">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+          <svg lucideBell class="size-4.5 text-indigo-400"></svg>
+          Preferências de Notificação
+        </h3>
+        <button (click)="notificationsModalOpen.set(false)" class="text-slate-400 hover:text-white p-1">
+          <svg lucideX class="size-4"></svg>
+        </button>
+      </div>
+
+      <div class="space-y-3 divide-y divide-slate-800/80 text-xs">
+        <div class="flex items-center justify-between pt-2">
+          <div>
+            <p class="font-bold text-white">Viagens e Despachos</p>
+            <p class="text-slate-400 text-[11px]">Avisos quando nova viagem for atribuída a você</p>
+          </div>
+          <input
+            type="checkbox"
+            [checked]="notifyTrips"
+            (change)="toggleNotification('trips')"
+            class="size-5 rounded-md accent-emerald-500 cursor-pointer"
+          />
+        </div>
+
+        <div class="flex items-center justify-between pt-3">
+          <div>
+            <p class="font-bold text-white">Comprovantes de Abastecimento</p>
+            <p class="text-slate-400 text-[11px]">Lembretes de envio de cupom fiscal pendente</p>
+          </div>
+          <input
+            type="checkbox"
+            [checked]="notifyFuel"
+            (change)="toggleNotification('fuel')"
+            class="size-5 rounded-md accent-emerald-500 cursor-pointer"
+          />
+        </div>
+
+        <div class="flex items-center justify-between pt-3">
+          <div>
+            <p class="font-bold text-white">Alertas Operacionais & CNH</p>
+            <p class="text-slate-400 text-[11px]">Avisos de vencimento de documento e SOS</p>
+          </div>
+          <input
+            type="checkbox"
+            [checked]="notifyAlerts"
+            (change)="toggleNotification('alerts')"
+            class="size-5 rounded-md accent-emerald-500 cursor-pointer"
+          />
+        </div>
+      </div>
+
+      <div class="pt-2">
+        <button
+          type="button"
+          (click)="notificationsModalOpen.set(false)"
+          class="w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs rounded-xl shadow-md transition-colors cursor-pointer"
+        >
+          Concluir
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ======================================================= -->
+<!-- MODAL: LOCALIZAÇÃO & PERMISSÕES (TOTALMENTE FUNCIONAL)   -->
+<!-- ======================================================= -->
+@if (locationModalOpen()) {
+  <div class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in">
+    <div class="bg-slate-900 border border-slate-800 rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 w-full max-w-md space-y-4 shadow-2xl animate-in slide-in-from-bottom-4">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+          <svg lucideMapPin class="size-4.5 text-emerald-400"></svg>
+          Permissões de Localização (GPS)
+        </h3>
+        <button (click)="locationModalOpen.set(false)" class="text-slate-400 hover:text-white p-1">
+          <svg lucideX class="size-4"></svg>
+        </button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <p class="text-slate-300 leading-relaxed">
+          O aplicativo do motorista utiliza geolocalização nativa para registrar início, paradas e trajeto das viagens com segurança e auditoria para a central.
+        </p>
+
+        <!-- Status Atual da Permissão -->
+        <div class="bg-slate-950/70 border border-slate-800 p-3.5 rounded-2xl flex items-center justify-between">
+          <div>
+            <span class="text-[10px] text-slate-400 uppercase font-semibold block">Status no Dispositivo</span>
+            <span class="text-sm font-bold mt-0.5 block" [ngClass]="gpsStatus() === 'granted' ? 'text-emerald-400' : (gpsStatus() === 'denied' ? 'text-rose-400' : 'text-amber-400')">
+              @if (gpsStatus() === 'granted') {
+                Permissão Concedida (Alta Precisão)
+              } @else if (gpsStatus() === 'denied') {
+                Permissão Negada / Bloqueada
+              } @else {
+                Aguardando Teste / Solicitação
+              }
+            </span>
+          </div>
+
+          <div class="size-8 rounded-xl flex items-center justify-center" [ngClass]="gpsStatus() === 'granted' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-800 text-slate-400'">
+            <svg lucideNavigation class="size-4.5"></svg>
+          </div>
+        </div>
+
+        @if (gpsCoords(); as coords) {
+          <div class="bg-emerald-950/30 border border-emerald-500/30 p-3 rounded-xl font-mono text-[11px] text-emerald-300 space-y-1">
+            <p><strong>Latitude:</strong> {{ coords.lat }}</p>
+            <p><strong>Longitude:</strong> {{ coords.lng }}</p>
+            @if (coords.accuracy) {
+              <p><strong>Precisão do sinal:</strong> ±{{ coords.accuracy | number:'1.0-1' }} metros</p>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="space-y-2 pt-2">
+        <button
+          type="button"
+          (click)="testGpsLocation()"
+          [disabled]="isTestingGps()"
+          class="w-full py-3 bg-emerald-500 hover:bg-emerald-400 active:scale-[0.98] text-slate-950 font-black text-xs rounded-xl shadow-md transition-all cursor-pointer flex items-center justify-center gap-2"
+        >
+          @if (isTestingGps()) {
+            <svg lucideLoader2 class="size-4 animate-spin"></svg>
+            <span>Obtendo coordenadas do GPS...</span>
+          } @else {
+            <svg lucideNavigation class="size-4"></svg>
+            <span>Testar / Solicitar Permissão de GPS</span>
+          }
+        </button>
+
+        <button
+          type="button"
+          (click)="locationModalOpen.set(false)"
+          class="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs rounded-xl transition-colors cursor-pointer"
+        >
+          Fechar
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ======================================================= -->
+<!-- MODAL: SOBRE O APP (ATUALIZAÇÕES FUNCIONAIS)             -->
+<!-- ======================================================= -->
+@if (aboutModalOpen()) {
+  <div class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in">
+    <div class="bg-slate-900 border border-slate-800 rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 w-full max-w-md space-y-4 shadow-2xl animate-in slide-in-from-bottom-4">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+          <svg lucideInfo class="size-4.5 text-blue-400"></svg>
+          Sobre o Aplicativo
+        </h3>
+        <button (click)="aboutModalOpen.set(false)" class="text-slate-400 hover:text-white p-1">
+          <svg lucideX class="size-4"></svg>
+        </button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div class="bg-slate-950/70 border border-slate-800 p-4 rounded-2xl space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="text-slate-400 font-medium">Nome do Aplicativo</span>
+            <span class="font-bold text-white">RM Frotas Condutor</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-slate-400 font-medium">Versão Instalada</span>
+            <span class="font-mono font-bold text-emerald-400">v{{ updateService.currentVersion() }}</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-slate-400 font-medium">Empresa</span>
+            <span class="font-medium text-white truncate max-w-[180px]">{{ currentUser()?.clientName || 'RM Frotas Matriz' }}</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-slate-400 font-medium">Plataforma</span>
+            <span class="font-semibold text-slate-300">Android Capacitor</span>
+          </div>
+        </div>
+
+        @if (updateService.hasUpdate()) {
+          <div class="bg-emerald-950/40 border border-emerald-500/40 p-3 rounded-xl text-emerald-300 space-y-2">
+            <p class="font-bold">🎉 Nova versão disponível: v{{ updateService.latestVersion() }}</p>
+            <button
+              (click)="updateService.downloadAndInstall(); aboutModalOpen.set(false)"
+              class="w-full py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-lg text-xs transition-colors cursor-pointer"
+            >
+              Baixar e Atualizar Agora
+            </button>
+          </div>
+        } @else {
+          <p class="text-[11px] text-slate-400 text-center">
+            Seu aplicativo está atualizado com a versão mais recente dos servidores.
+          </p>
+        }
+      </div>
+
+      <div class="space-y-2 pt-2">
+        <button
+          type="button"
+          (click)="updateService.checkForUpdates()"
+          class="w-full py-3 bg-blue-500 hover:bg-blue-400 text-white font-bold text-xs rounded-xl shadow-md transition-colors cursor-pointer flex items-center justify-center gap-2"
+        >
+          <svg lucideDownload class="size-4"></svg>
+          <span>Verificar Novas Versões Disponíveis</span>
+        </button>
+
+        <button
+          type="button"
+          (click)="aboutModalOpen.set(false)"
+          class="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs rounded-xl transition-colors cursor-pointer"
+        >
+          Fechar
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ======================================================= -->
+<!-- MODAL: TERMOS DE USO                                    -->
+<!-- ======================================================= -->
+@if (termsModalOpen()) {
+  <div class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in">
+    <div class="bg-slate-900 border border-slate-800 rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 w-full max-w-md max-h-[85vh] overflow-y-auto space-y-4 shadow-2xl animate-in slide-in-from-bottom-4">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+          <svg lucideFileText class="size-4.5 text-purple-400"></svg>
+          Termos de Uso
+        </h3>
+        <button (click)="termsModalOpen.set(false)" class="text-slate-400 hover:text-white p-1">
+          <svg lucideX class="size-4"></svg>
+        </button>
+      </div>
+
+      <div class="text-xs text-slate-300 space-y-3 leading-relaxed">
+        <p><strong>1. Uso do Aplicativo:</strong> O acesso ao sistema é restrito aos condutores e motoristas autorizados pelas empresas contratantes da plataforma RM Frotas.</p>
+        <p><strong>2. Rastreamento e Jornada:</strong> Ao iniciar uma viagem, o aplicativo registra a posição geográfica e o odômetro do veículo para fins de monitoramento operacional e segurança rodoviária.</p>
+        <p><strong>3. Responsabilidade pelos Dados:</strong> O condutor compromete-se a fornecer informações verídicas de abastecimento, quilometragem e comprovantes fiscais.</p>
+      </div>
+
+      <div class="pt-2">
+        <button
+          type="button"
+          (click)="termsModalOpen.set(false)"
+          class="w-full py-3 bg-purple-500 hover:bg-purple-400 text-white font-bold text-xs rounded-xl shadow-md transition-colors cursor-pointer"
+        >
+          Entendido
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ======================================================= -->
+<!-- MODAL: POLÍTICA DE PRIVACIDADE                          -->
+<!-- ======================================================= -->
+@if (privacyModalOpen()) {
+  <div class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in">
+    <div class="bg-slate-900 border border-slate-800 rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 w-full max-w-md max-h-[85vh] overflow-y-auto space-y-4 shadow-2xl animate-in slide-in-from-bottom-4">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+          <svg lucideShield class="size-4.5 text-emerald-400"></svg>
+          Política de Privacidade (LGPD)
+        </h3>
+        <button (click)="privacyModalOpen.set(false)" class="text-slate-400 hover:text-white p-1">
+          <svg lucideX class="size-4"></svg>
+        </button>
+      </div>
+
+      <div class="text-xs text-slate-300 space-y-3 leading-relaxed">
+        <p><strong>Coleta de Dados Pessoais:</strong> Coletamos nome, CPF, CNH e telefone para identificação e conformidade legal com a legislação de trânsito e transporte de cargas.</p>
+        <p><strong>Privacidade de Localização:</strong> O aplicativo coleta dados de localização exclusivamente durante as viagens ativas para garantir a segurança da carga e do motorista.</p>
+        <p><strong>Armazenamento Seguro:</strong> Todas as comunicações são criptografadas via HTTPS e armazenadas com padrões rígidos de segurança da informação.</p>
+      </div>
+
+      <div class="pt-2">
+        <button
+          type="button"
+          (click)="privacyModalOpen.set(false)"
+          class="w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs rounded-xl shadow-md transition-colors cursor-pointer"
+        >
+          Entendido
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ======================================================= -->
+<!-- MODAL: AJUDA E SUPORTE                                  -->
+<!-- ======================================================= -->
+@if (supportModalOpen()) {
+  <div class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in">
+    <div class="bg-slate-900 border border-slate-800 rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 w-full max-w-md space-y-4 shadow-2xl animate-in slide-in-from-bottom-4">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+          <svg lucideHeadphones class="size-4.5 text-amber-400"></svg>
+          Central de Ajuda e Suporte
+        </h3>
+        <button (click)="supportModalOpen.set(false)" class="text-slate-400 hover:text-white p-1">
+          <svg lucideX class="size-4"></svg>
+        </button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <p class="text-slate-300 leading-relaxed">
+          Precisa de auxílio com uma viagem, problemas mecânicos no caminhão ou suporte operacional? Fale diretamente com o gestor da frota:
+        </p>
+
+        <div class="bg-slate-950/70 border border-slate-800 p-3.5 rounded-2xl space-y-2">
+          <div class="flex items-center gap-3">
+            <div class="size-8 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center">
+              <svg lucidePhone class="size-4"></svg>
+            </div>
+            <div>
+              <p class="font-bold text-white">(91) 98000-0000</p>
+              <p class="text-[10px] text-slate-400">Plantão 24 horas da central</p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3 pt-1 border-t border-slate-800/80">
+            <div class="size-8 rounded-lg bg-blue-500/15 text-blue-400 flex items-center justify-center">
+              <svg lucideMail class="size-4"></svg>
+            </div>
+            <div>
+              <p class="font-bold text-white">suporte&#64;rmfrotas.com.br</p>
+              <p class="text-[10px] text-slate-400">Atendimento operacional</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-2">
+        <button
+          type="button"
+          (click)="supportModalOpen.set(false)"
+          class="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs rounded-xl shadow-md transition-colors cursor-pointer"
+        >
+          Fechar
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ======================================================= -->
+<!-- MODAL: CONFIRMAR LOGOUT                                -->
+<!-- ======================================================= -->
+@if (logoutModalOpen()) {
+  <div class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-4 animate-in fade-in">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 w-full max-w-sm space-y-4 shadow-2xl animate-in slide-in-from-bottom-4">
+      <div class="flex items-center justify-between">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+          <svg lucideLogOut class="size-4.5 text-rose-400"></svg>
+          Desconectar da Conta
+        </h3>
+        <button (click)="logoutModalOpen.set(false)" class="text-slate-400 hover:text-white p-1">
+          <svg lucideX class="size-4"></svg>
+        </button>
+      </div>
+
+      <p class="text-xs text-slate-300 leading-relaxed">
+        Tem certeza que deseja sair do aplicativo? Para retornar, você precisará informar suas credenciais de condutor novamente.
+      </p>
+
+      <div class="grid grid-cols-2 gap-2 pt-2">
+        <button
+          type="button"
+          (click)="logoutModalOpen.set(false)"
+          class="py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs rounded-xl transition-colors cursor-pointer"
+        >
+          Cancelar
+        </button>
+        <button
+          type="button"
+          (click)="logout()"
+          class="py-3 bg-rose-600 hover:bg-rose-500 text-white font-black text-xs rounded-xl shadow-md transition-colors cursor-pointer"
+        >
+          Sair da Conta
+        </button>
+      </div>
+    </div>
+  </div>
+}

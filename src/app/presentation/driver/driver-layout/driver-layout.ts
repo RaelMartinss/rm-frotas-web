@@ -88,7 +88,7 @@ export class DriverLayoutComponent implements OnInit {
       return url.startsWith('/motorista/historico');
     }
     if (tab === 'profile') {
-      return url.startsWith('/motorista/perfil');
+      return url.startsWith('/motorista/perfil') || url.startsWith('/motorista/configuracoes');
     }
     return false;
   }

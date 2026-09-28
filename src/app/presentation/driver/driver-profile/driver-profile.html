@@ -4,14 +4,13 @@
   <div class="flex items-center justify-between pt-1">
     <h1 class="text-base font-bold text-white tracking-tight">Perfil do Motorista</h1>
 
-    <button
-      type="button"
-      (click)="settingsModalOpen.set(true)"
+    <a
+      routerLink="/motorista/configuracoes"
       class="size-9 rounded-xl bg-slate-900/80 border border-slate-800 text-slate-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer shadow-xs active:scale-95"
-      title="Configurações e Logout"
+      title="Configurações da Conta"
     >
       <svg lucideSettings class="size-4.5"></svg>
-    </button>
+    </a>
   </div>
 
   <!-- BANNER HERO COM CAMINHÃO PANORÂMICO AO FUNDO -->
@@ -287,53 +286,4 @@
 <input #cameraInput type="file" accept="image/*" capture="user" (change)="onPhotoSelected($event)" class="hidden" />
 <input #galleryInput type="file" accept="image/*" (change)="onPhotoSelected($event)" class="hidden" />
 
-<!-- ========================================== -->
-<!-- MODAL: CONFIGURAÇÕES E LOGOUT              -->
-<!-- ========================================== -->
-@if (settingsModalOpen()) {
-  <div class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-4 animate-in fade-in">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 w-full max-w-sm space-y-4 shadow-2xl animate-in slide-in-from-bottom-4">
-      <div class="flex items-center justify-between">
-        <h3 class="text-sm font-bold text-white flex items-center gap-2">
-          <svg lucideSettings class="size-4.5 text-emerald-400"></svg>
-          Configurações da Conta
-        </h3>
-        <button (click)="settingsModalOpen.set(false)" class="text-slate-400 hover:text-white p-1">
-          <svg lucideX class="size-4"></svg>
-        </button>
-      </div>
 
-      <!-- Informações do App e Versão -->
-      <div class="bg-slate-950/60 border border-slate-800/80 p-3 rounded-2xl space-y-2">
-        <div class="flex items-center justify-between text-xs">
-          <span class="text-slate-400">Versão instalada</span>
-          <span class="font-mono font-bold text-emerald-400">v{{ updateService.currentVersion() }}</span>
-        </div>
-        <div class="flex items-center justify-between text-xs">
-          <span class="text-slate-400">Empresa</span>
-          <span class="font-medium text-white truncate max-w-[150px]">{{ currentUser()?.clientName || 'RM Frotas Matriz' }}</span>
-        </div>
-      </div>
-
-      <!-- Botão de Atualização Manual -->
-      <button
-        type="button"
-        (click)="updateService.checkForUpdates()"
-        class="w-full py-2.5 px-3 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl flex items-center justify-center gap-2 transition-colors cursor-pointer"
-      >
-        <svg lucideDownload class="size-3.5"></svg>
-        <span>Verificar atualizações do App</span>
-      </button>
-
-      <!-- Botão de Deslogar -->
-      <button
-        type="button"
-        (click)="logout()"
-        class="w-full py-3 px-4 bg-rose-950/80 hover:bg-rose-900 border border-rose-600/50 text-rose-300 font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-md"
-      >
-        <svg lucideLogOut class="size-4"></svg>
-        <span>Desconectar da Conta</span>
-      </button>
-    </div>
-  </div>
-}
