@@ -36,5 +36,6 @@ export interface EnqueueInput<T = unknown> {
   payload: T;
   blobs?: Blob[];
   orderingKey?: string | null;
-  occurredAt?: Date;
+  occurredAt?: Date | string;
 }
+

@@ -14,7 +14,7 @@ export abstract class IDriverPortalRepository {
   abstract getCurrentTrip(): Observable<DriverPortalSummary>;
   abstract startTrip(dto: StartTripDTO): Observable<{ message: string; tripId: string; status: string }>;
   abstract completeTrip(dto: CompleteTripDTO): Observable<{ message: string; tripId: string; status: string }>;
-  abstract registerFuel(dto: DriverFuelDTO): Observable<{ message: string; id: string; totalCost: number }>;
+  abstract registerFuel(dto: DriverFuelDTO, idempotencyKey?: string): Observable<{ message: string; id: string; totalCost: number }>;
   abstract reportIncident(dto: DriverIncidentDTO): Observable<DriverIncidentResponse>;
   abstract saveChecklist(tripId: string, checklist: any): Observable<{ message: string; tripId: string; checklist: any }>;
   abstract sendLocationPings(

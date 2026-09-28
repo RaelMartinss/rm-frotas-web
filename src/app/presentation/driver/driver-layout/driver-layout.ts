@@ -19,6 +19,8 @@ import { DriverNotificationService } from '../../../core/services/driver-notific
 import { LocationTrackingService } from '../../../core/services/location-tracking.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { compressImage } from '../../../core/utils/image-compressor';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { OfflineQueueService } from '../../../core/offline/offline-queue.service';
 import {
   LucideLogOut,
   LucideDownload,
@@ -73,6 +75,7 @@ export class DriverLayoutComponent implements OnInit {
   private readonly portalRepository = inject(IDriverPortalRepository);
   private readonly authState = inject(AuthStateService);
   private readonly networkService = inject(NetworkStatusService);
+  private readonly offlineQueue = inject(OfflineQueueService);
   readonly updateService = inject(AppUpdateService);
   readonly notificationService = inject(DriverNotificationService);
   private readonly locationTracking = inject(LocationTrackingService);
@@ -104,7 +107,9 @@ export class DriverLayoutComponent implements OnInit {
 
   readonly currentUser = computed(() => this.authState.currentUser());
   readonly isOnline = computed(() => this.networkService.isOnline());
+  readonly pendingQueueCount = toSignal(this.offlineQueue.pendingCount$, { initialValue: 0 });
   readonly pendingReceipts = signal<number>(0);
+
   readonly isProfileOpen = signal<boolean>(false);
   readonly driverPhoto = signal<string | null>(null);
   readonly isUploadingPhoto = signal<boolean>(false);

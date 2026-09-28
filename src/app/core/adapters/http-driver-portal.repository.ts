@@ -61,13 +61,20 @@ export class HttpDriverPortalRepository implements IDriverPortalRepository {
     );
   }
 
-  registerFuel(dto: DriverFuelDTO): Observable<{ message: string; id: string; totalCost: number }> {
+  registerFuel(
+    dto: DriverFuelDTO,
+    idempotencyKey?: string
+  ): Observable<{ message: string; id: string; totalCost: number }> {
     return this.http.post<{ message: string; id: string; totalCost: number }>(
       `${this.baseUrl}/fuel-record`,
       dto,
-      { withCredentials: true }
+      {
+        withCredentials: true,
+        headers: idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : undefined,
+      }
     );
   }
+
 
   reportIncident(dto: DriverIncidentDTO): Observable<DriverIncidentResponse> {
     return this.http.post<DriverIncidentResponse>(

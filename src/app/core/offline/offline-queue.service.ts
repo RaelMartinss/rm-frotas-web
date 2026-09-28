@@ -163,7 +163,11 @@ export class OfflineQueueService implements OnDestroy {
       payload: input.payload,
       blobIds,
       orderingKey: input.orderingKey ?? null,
-      occurredAt: (input.occurredAt ?? new Date()).toISOString(),
+      occurredAt: input.occurredAt
+        ? input.occurredAt instanceof Date
+          ? input.occurredAt.toISOString()
+          : new Date(input.occurredAt).toISOString()
+        : new Date().toISOString(),
       createdAt: new Date().toISOString(),
       status: 'PENDING',
       attempts: 0,
@@ -403,7 +407,13 @@ export class OfflineQueueService implements OnDestroy {
     return false;
   }
 
+  public async retry(id: string): Promise<void> {
+    return this.retryDead(id);
+  }
+
+
   public async retryDead(id: string): Promise<void> {
+
     const action = await this.store.getAction(id);
     if (!action || action.status !== 'DEAD') {
       return;

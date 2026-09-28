@@ -33,7 +33,11 @@ import { HttpDriverPortalRepository } from './core/adapters/http-driver-portal.r
 import { IIncidentRepository } from './domain/repositories/incident.repository.interface';
 import { HttpIncidentRepository } from './core/adapters/http-incident.repository';
 
+import { OfflineQueueService } from './core/offline/offline-queue.service';
+import { FuelRecordActionHandler } from './core/offline/handlers/fuel-record.action-handler';
+
 registerLocaleData(localePt, 'pt-BR');
+
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -61,6 +65,10 @@ export const appConfig: ApplicationConfig = {
       const authRepository = inject(IAuthRepository);
       const authState = inject(AuthStateService);
       const biometricAuth = inject(BiometricAuthService);
+      const offlineQueue = inject(OfflineQueueService);
+      const fuelHandler = inject(FuelRecordActionHandler);
+
+      offlineQueue.registerHandler(fuelHandler);
 
       if (Capacitor.isNativePlatform()) {
         try {

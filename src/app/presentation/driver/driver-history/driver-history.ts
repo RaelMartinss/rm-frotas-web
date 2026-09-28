@@ -2,12 +2,16 @@ import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { IDriverPortalRepository } from '../../../domain/repositories/driver-portal.repository.interface';
 import {
   DriverHistoryItem,
   DriverFuelHistoryItem,
+  DriverFuelDTO,
 } from '../../../domain/models/driver-portal.model';
 import { compressImage } from '../../../core/utils/image-compressor';
+import { OfflineQueueService } from '../../../core/offline/offline-queue.service';
+import { QueuedAction } from '../../../core/offline/offline-queue.types';
 import {
   LucideClock,
   LucideTruck,
@@ -23,6 +27,7 @@ import {
   LucideExternalLink,
   LucideEye,
   LucideGauge,
+  LucideTrash2,
 } from '@lucide/angular';
 
 @Component({
@@ -46,19 +51,29 @@ import {
     LucideExternalLink,
     LucideEye,
     LucideGauge,
+    LucideTrash2,
   ],
   templateUrl: './driver-history.html',
 })
 export class DriverHistoryComponent implements OnInit {
   private readonly portalRepository = inject(IDriverPortalRepository);
+  private readonly offlineQueue = inject(OfflineQueueService);
   private readonly route = inject(ActivatedRoute);
 
   // Aba ativa: 'trips' ou 'fuel'
   readonly activeTab = signal<'trips' | 'fuel'>('trips');
 
-  // Listas
+  // Listas do servidor
   readonly history = signal<DriverHistoryItem[]>([]);
   readonly fuelHistory = signal<DriverFuelHistoryItem[]>([]);
+
+  // Itens da fila offline
+  readonly pendingActions = toSignal(this.offlineQueue.pending$, {
+    initialValue: [] as QueuedAction[],
+  });
+  readonly deadActions = toSignal(this.offlineQueue.dead$, {
+    initialValue: [] as QueuedAction[],
+  });
 
   // Filtro de pendência na aba de abastecimentos
   readonly filterPendingOnly = signal<boolean>(false);
@@ -76,19 +91,64 @@ export class DriverHistoryComponent implements OnInit {
   readonly receiptPhoto = signal<string | null>(null);
   readonly receiptNotes = signal<string>('');
 
-  // Contagem de pendências
-  readonly pendingCount = computed(() => {
-    return this.fuelHistory().filter((f) => f.isPendingReceipt).length;
+  // Itens de abastecimento pendentes na fila offline
+  readonly offlineFuelItems = computed(() => {
+    const pending = this.pendingActions().filter((a) => a.type === 'fuel-record');
+    const dead = this.deadActions().filter((a) => a.type === 'fuel-record');
+
+    return [...pending, ...dead].map((action) => {
+      const p = action.payload as DriverFuelDTO;
+      const liters = p?.liters || 0;
+      const price = p?.pricePerLiter || 0;
+      const totalCost = liters * price;
+
+      return {
+        id: action.id,
+        vehicleId: p?.vehicleId || '',
+        vehiclePlate: p?.vehiclePlate || 'Veículo',
+        vehicleModel: p?.vehicleModel || 'Caminhão',
+        fuelType: p?.fuelType || 'DIESEL',
+        liters,
+        pricePerUnit: price,
+        totalCost,
+        odometerAtFueling: p?.currentKm || 0,
+        gasStation: p?.gasStation || null,
+        fullTank: !!p?.fullTank,
+        receiptUrl: null,
+        notes: p?.notes || null,
+        fueledAt: action.occurredAt || action.createdAt,
+        isPendingReceipt: false,
+        // Propriedades da fila offline
+        isOfflineQueueItem: true,
+        offlineStatus: action.status,
+        offlineActionId: action.id,
+        offlineError: action.lastError?.message || null,
+      } as DriverFuelHistoryItem;
+    });
   });
 
-  // Lista de abastecimentos filtrada
-  readonly displayedFuelHistory = computed(() => {
-    const list = this.fuelHistory();
-    if (this.filterPendingOnly()) {
-      return list.filter((f) => f.isPendingReceipt);
-    }
-    return list;
+  // Contagem de pendências (comprovantes + ações offline)
+  readonly pendingCount = computed(() => {
+    const receiptsPending = this.fuelHistory().filter((f) => f.isPendingReceipt).length;
+    const offlinePending = this.offlineFuelItems().length;
+    return receiptsPending + offlinePending;
   });
+
+  // Lista de abastecimentos combinando fila offline com itens do servidor
+  readonly displayedFuelHistory = computed<DriverFuelHistoryItem[]>(() => {
+    const offline = this.offlineFuelItems();
+    const serverList = this.fuelHistory();
+
+    const combined = [...offline, ...serverList];
+    if (this.filterPendingOnly()) {
+      return combined.filter(
+        (f) => f.isOfflineQueueItem || f.isPendingReceipt,
+      );
+    }
+    return combined;
+  });
+
+
 
   ngOnInit(): void {
     // Subscreve a query param ?tab=fuel / ?tab=trips reativamente
@@ -238,7 +298,18 @@ export class DriverHistoryComponent implements OnInit {
     }, 4000);
   }
 
+  retryOfflineAction(actionId: string): void {
+    void this.offlineQueue.retry(actionId);
+    this.showToast('Reenviando abastecimento...');
+  }
+
+  discardOfflineAction(actionId: string): void {
+    void this.offlineQueue.discard(actionId);
+    this.showToast('Registro removido da fila.');
+  }
+
   getFuelTypeBadgeClass(type: string): string {
+
     switch (type) {
       case 'GASOLINA':
         return 'bg-amber-950/80 text-amber-300 border-amber-800/40';

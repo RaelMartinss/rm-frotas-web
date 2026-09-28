@@ -69,7 +69,11 @@ export interface DriverFuelDTO {
   notes?: string;
   receiptUrl?: string;
   date?: string;
+  occurredAt?: string;
+  vehiclePlate?: string;
+  vehicleModel?: string;
 }
+
 
 export interface DriverIncidentDTO {
   tripId?: string;
@@ -125,4 +129,9 @@ export interface DriverFuelHistoryItem {
   notes: string | null;
   fueledAt: string;
   isPendingReceipt: boolean;
+  isOfflineQueueItem?: boolean;
+  offlineStatus?: string;
+  offlineActionId?: string;
+  offlineError?: string | null;
 }
+

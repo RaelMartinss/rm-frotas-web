@@ -45,6 +45,19 @@
 
       <!-- Ações do Topo (Canto Direito) -->
       <div class="flex items-center gap-2 pt-1">
+        <!-- Badge de Sincronização Offline Pendente -->
+        @if (pendingQueueCount() > 0) {
+          <a
+            routerLink="/motorista/historico"
+            [queryParams]="{ tab: 'fuel' }"
+            title="Itens aguardando sincronização"
+            class="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs font-bold transition-all cursor-pointer shadow-xs animate-pulse"
+          >
+            <svg lucideRefreshCw class="size-3 animate-spin text-amber-400"></svg>
+            <span>{{ pendingQueueCount() }}</span>
+          </a>
+        }
+
         <!-- Sino com badge vermelha numérica sobreposta -->
         <button
           (click)="notificationService.togglePanel()"
@@ -71,7 +84,23 @@
     </header>
   }
 
+  <!-- BANNER DISCRETO DE STATUS OFFLINE -->
+  @if (!isOnline()) {
+    <div class="bg-amber-950/90 border-b border-amber-500/40 px-4 py-2 flex items-center justify-between text-xs text-amber-200 shadow-md animate-in slide-from-top duration-200">
+      <div class="flex items-center gap-2">
+        <span class="size-2 rounded-full bg-amber-400 animate-ping"></span>
+        <span class="font-medium">Você está offline. Os registros serão sincronizados automaticamente.</span>
+      </div>
+      @if (pendingQueueCount() > 0) {
+        <span class="font-bold text-amber-300 whitespace-nowrap bg-amber-900/80 px-2 py-0.5 rounded-lg border border-amber-500/30">
+          {{ pendingQueueCount() }} na fila
+        </span>
+      }
+    </div>
+  }
+
   <!-- BANNER DISCRETO DE ATUALIZAÇÃO NATIVA DISPONÍVEL -->
+
   @if (updateService.hasUpdate() && !updateService.isDismissed()) {
     <div class="bg-gradient-to-r from-emerald-950 via-slate-900 to-emerald-950 border-b border-emerald-500/30 px-4 py-2.5 flex items-center justify-between gap-2 text-xs shadow-md animate-in slide-in-from-top duration-300">
       <div class="flex items-center gap-2 min-w-0">
@@ -191,11 +220,12 @@
       >
         <div class="relative">
           <svg lucideClock class="size-5"></svg>
-          @if (pendingReceipts() > 0) {
+          @if (pendingReceipts() > 0 || pendingQueueCount() > 0) {
             <span class="absolute -top-1.5 -right-2 px-1.5 py-0.2 bg-amber-500 text-slate-950 font-black text-[9px] rounded-full border border-slate-900 animate-pulse">
-              {{ pendingReceipts() }}
+              {{ pendingReceipts() + pendingQueueCount() }}
             </span>
           }
+
         </div>
         <span class="text-[11px] leading-tight">Histórico</span>
         <span class="h-0.5 w-8 rounded-full mt-0.5 transition-all" [ngClass]="isCurrentTab('history') ? 'bg-emerald-400' : 'bg-transparent'"></span>
@@ -543,6 +573,14 @@
                 {{ pendingReceipts() }} pendente(s)
               </span>
             </div>
+
+            <div class="bg-slate-800/30 border border-slate-800 px-3.5 py-2.5 rounded-xl flex items-center justify-between">
+              <span class="text-slate-400 text-[11px]">Fila Offline</span>
+              <span class="font-bold text-[11px]" [ngClass]="pendingQueueCount() > 0 ? 'text-amber-400' : 'text-slate-300'">
+                {{ pendingQueueCount() }} pendente(s)
+              </span>
+            </div>
+
           </div>
 
           <!-- SEÇÃO DA VERSÃO DO APP (BEM EMBAIXO COMO PEDIDO) -->

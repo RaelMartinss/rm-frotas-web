@@ -6,7 +6,8 @@ import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { IDriverPortalRepository } from '../../../domain/repositories/driver-portal.repository.interface';
 import { DriverPortalSummary } from '../../../domain/models/driver-portal.model';
 import { ToastService } from '../../../core/services/toast.service';
-import { compressImage } from '../../../core/utils/image-compressor';
+import { compressImageToBlob } from '../../../core/utils/image-compressor';
+import { OfflineQueueService } from '../../../core/offline/offline-queue.service';
 import {
   LucideArrowLeft,
   LucideFuel,
@@ -47,6 +48,7 @@ import {
 })
 export class DriverFuelComponent implements OnInit {
   private readonly portalRepository = inject(IDriverPortalRepository);
+  private readonly offlineQueue = inject(OfflineQueueService);
   private readonly toastService = inject(ToastService);
   private readonly router = inject(Router);
 
@@ -67,6 +69,7 @@ export class DriverFuelComponent implements OnInit {
   readonly fuelFullTank = signal<boolean>(true);
   readonly fuelNotes = signal<string>('');
   readonly receiptPhoto = signal<string | null>(null);
+  readonly receiptBlob = signal<Blob | null>(null);
 
   // Veículo ativo
   readonly vehicle = computed(() => this.summary()?.trip?.vehicle || null);
@@ -131,8 +134,10 @@ export class DriverFuelComponent implements OnInit {
 
     try {
       this.isProcessingPhoto.set(true);
-      const compressed = await compressImage(file, 1280, 1280, 0.75);
-      this.receiptPhoto.set(compressed);
+      const blob = await compressImageToBlob(file, 1280, 1280, 0.7);
+      this.receiptBlob.set(blob);
+      const previewUrl = URL.createObjectURL(blob);
+      this.receiptPhoto.set(previewUrl);
       this.isProcessingPhoto.set(false);
       this.toastService.success('Foto do comprovante anexada!');
     } catch {
@@ -144,6 +149,13 @@ export class DriverFuelComponent implements OnInit {
   }
 
   removePhoto(): void {
+    const preview = this.receiptPhoto();
+    if (preview && preview.startsWith('blob:')) {
+      try {
+        URL.revokeObjectURL(preview);
+      } catch {}
+    }
+    this.receiptBlob.set(null);
     this.receiptPhoto.set(null);
     this.toastService.info('Foto removida.');
   }
@@ -178,36 +190,50 @@ export class DriverFuelComponent implements OnInit {
 
     this.saving.set(true);
 
-    this.portalRepository
-      .registerFuel({
-        vehicleId,
-        currentKm: km,
-        liters,
-        pricePerLiter: price,
-        fuelType: this.fuelType(),
-        gasStation: this.fuelGasStation().trim() || undefined,
-        fullTank: this.fuelFullTank(),
-        notes: this.fuelNotes().trim() || undefined,
-        receiptUrl: this.receiptPhoto() || undefined,
-      })
-      .subscribe({
-        next: async (res) => {
-          this.saving.set(false);
-          try {
-            await Haptics.impact({ style: ImpactStyle.Medium });
-          } catch {}
+    try {
+      const blob = this.receiptBlob();
+      const blobs = blob ? [blob] : [];
 
-          this.toastService.success(`Abastecimento de R$ ${res.totalCost.toFixed(2)} registrado com sucesso!`);
-          this.router.navigate(['/motorista']);
+      await this.offlineQueue.enqueue({
+        type: 'fuel-record',
+        orderingKey: `vehicle:${vehicleId}`,
+        payload: {
+          vehicleId,
+          currentKm: km,
+          liters,
+          pricePerLiter: price,
+          fuelType: this.fuelType(),
+          gasStation: this.fuelGasStation().trim() || undefined,
+          fullTank: this.fuelFullTank(),
+          notes: this.fuelNotes().trim() || undefined,
+          occurredAt: new Date().toISOString(),
+          vehiclePlate: v?.plate,
+          vehicleModel: v?.model,
         },
-        error: (err) => {
-          this.saving.set(false);
-          this.toastService.error(err?.error?.message || 'Falha ao registrar abastecimento. Verifique sua conexão.');
-        },
+        blobs,
+        occurredAt: new Date(),
       });
+
+      try {
+        await Haptics.impact({ style: ImpactStyle.Medium });
+      } catch {}
+
+      if (navigator.onLine) {
+        this.toastService.success('Abastecimento registrado com sucesso!');
+      } else {
+        this.toastService.info('Abastecimento salvo offline! Será sincronizado assim que a conexão voltar.');
+      }
+
+      this.router.navigate(['/motorista']);
+    } catch (err: any) {
+      this.toastService.error(err?.message || 'Falha ao salvar abastecimento.');
+    } finally {
+      this.saving.set(false);
+    }
   }
 
   goBack(): void {
     this.router.navigate(['/motorista']);
   }
 }
+
