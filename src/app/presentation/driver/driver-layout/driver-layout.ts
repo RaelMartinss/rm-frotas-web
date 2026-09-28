@@ -112,7 +112,22 @@ export class DriverLayoutComponent implements OnInit {
 
   readonly isProfileOpen = signal<boolean>(false);
   readonly driverPhoto = signal<string | null>(null);
+  readonly driverName = signal<string | null>(null);
   readonly isUploadingPhoto = signal<boolean>(false);
+
+  readonly driverDisplayName = computed(() => {
+    return this.driverName() || this.currentUser()?.name || 'Motorista';
+  });
+
+  readonly driverInitials = computed(() => {
+    const name = this.driverDisplayName();
+    if (!name || name === 'Motorista') return 'MO';
+    const parts = name.trim().split(/\s+/);
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
+  });
 
   @ViewChild('scrollContainer') private scrollContainerRef?: ElementRef<HTMLElement>;
 
@@ -284,6 +299,9 @@ export class DriverLayoutComponent implements OnInit {
         this.pendingReceipts.set(summary.pendingReceiptsCount ?? 0);
         if (summary.driver?.photoUrl) {
           this.driverPhoto.set(summary.driver.photoUrl);
+        }
+        if (summary.driver?.name) {
+          this.driverName.set(summary.driver.name);
         }
       },
       error: () => {},

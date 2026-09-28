@@ -22,18 +22,18 @@
         title="Toque para ver perfil do motorista"
         class="flex items-start gap-3 min-w-0 text-left cursor-pointer hover:opacity-85 active:scale-95 transition-all p-1 -m-1 rounded-2xl"
       >
-        <!-- Avatar do Motorista: foto se houver, ou círculo com iniciais MV com fundo verde translúcido -->
+        <!-- Avatar do Motorista: foto se houver, ou círculo com iniciais com fundo verde translúcido -->
         <div class="size-11 rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-base flex items-center justify-center shrink-0 border border-emerald-500/30 shadow-xs backdrop-blur-md overflow-hidden">
           @if (driverPhoto()) {
             <img [src]="driverPhoto()" class="w-full h-full object-cover" alt="Foto do motorista" />
           } @else {
-            {{ currentUser()?.name?.substring(0, 2)?.toUpperCase() || 'MV' }}
+            {{ driverInitials() }}
           }
         </div>
         <div class="min-w-0">
           <!-- Linha 1: Nome em destaque com tipografia seminegrito branca -->
           <span class="text-sm font-semibold text-white truncate block leading-snug">
-            {{ currentUser()?.name || 'Marcos Vinicius Pereira' }}
+            {{ driverDisplayName() }}
           </span>
 
           <!-- Linha 2: Subtítulo simplificado apenas como Motorista -->
@@ -464,7 +464,7 @@
               @if (driverPhoto()) {
                 <img [src]="driverPhoto()" class="w-full h-full object-cover" alt="Foto do perfil" />
               } @else {
-                {{ currentUser()?.name?.substring(0, 2)?.toUpperCase() || 'MO' }}
+                {{ driverInitials() }}
               }
 
               @if (isUploadingPhoto()) {
@@ -505,7 +505,7 @@
 
             <div class="min-w-0 flex-1">
               <div class="flex items-center gap-1.5">
-                <h4 class="text-sm font-bold text-white truncate">{{ currentUser()?.name }}</h4>
+                <h4 class="text-sm font-bold text-white truncate">{{ driverDisplayName() }}</h4>
                 <span class="size-2 rounded-full bg-emerald-400 shrink-0"></span>
               </div>
               <p class="text-xs text-emerald-400 font-medium truncate">{{ currentUser()?.clientName || 'RM Frotas Matriz' }}</p>

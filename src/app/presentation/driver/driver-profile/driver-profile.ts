@@ -63,7 +63,7 @@ export class DriverProfileComponent implements OnInit {
   readonly currentUser = computed(() => this.authState.currentUser());
 
   readonly initials = computed(() => {
-    const name = this.summary()?.driver?.name || this.currentUser()?.name || 'MV';
+    const name = this.summary()?.driver?.name || this.currentUser()?.name || 'MO';
     const parts = name.trim().split(/\s+/);
     if (parts.length >= 2) {
       return (parts[0][0] + parts[1][0]).toUpperCase();
