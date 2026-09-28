@@ -19,9 +19,6 @@ import {
   LucideChevronRight,
   LucideTrendingUp,
   LucideFuel,
-  LucideZap,
-  LucideKey,
-  LucidePlay,
   LucideArrowRight,
   LucideLogOut,
   LucideX,
@@ -45,9 +42,6 @@ import {
     LucideChevronRight,
     LucideTrendingUp,
     LucideFuel,
-    LucideZap,
-    LucideKey,
-    LucidePlay,
     LucideArrowRight,
     LucideLogOut,
     LucideX,
@@ -69,7 +63,6 @@ export class DriverProfileComponent implements OnInit {
   readonly driverPhoto = signal<string | null>(null);
   readonly isUploadingPhoto = signal<boolean>(false);
   readonly settingsModalOpen = signal<boolean>(false);
-  readonly resetPasswordModalOpen = signal<boolean>(false);
 
   readonly currentUser = computed(() => this.authState.currentUser());
 
@@ -159,11 +152,6 @@ export class DriverProfileComponent implements OnInit {
       return '****' + cleaned.slice(-4);
     }
     return cleaned;
-  }
-
-  requestPasswordReset(): void {
-    this.resetPasswordModalOpen.set(false);
-    this.toastService.success('Link para redefinição de senha enviado para seu e-mail cadastrado!');
   }
 
   logout(): void {

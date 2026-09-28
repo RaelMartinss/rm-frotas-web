@@ -53,7 +53,7 @@
       <!-- Informações do Motorista -->
       <div class="min-w-0 flex-1">
         <h2 class="text-base sm:text-lg font-bold text-white truncate tracking-tight">
-          {{ summary()?.driver?.name || currentUser()?.name || 'Marcos Vinicius Pereira' }}
+          {{ summary()?.driver?.name || currentUser()?.name || 'Motorista' }}
         </h2>
 
         <!-- Status Online -->
@@ -72,7 +72,7 @@
     </div>
   </div>
 
-  <!-- LINHA DE DADOS DOCUMENTAIS (3 COLUNAS) -->
+  <!-- LINHA DE DADOS DOCUMENTAIS (3 COLUNAS - 100% REAIS DO BANCO) -->
   <div class="bg-[#0A1020]/90 border border-slate-800/80 rounded-2xl p-3.5 grid grid-cols-3 gap-2 shadow-xs">
     <!-- 1. CPF -->
     <div class="space-y-1 min-w-0">
@@ -94,8 +94,8 @@
       <p class="text-xs font-bold text-white font-mono truncate">
         {{ maskCnh(summary()?.driver?.cnhNumber) }}
       </p>
-      <p class="text-[10px] text-slate-400 font-medium leading-tight">
-        Categoria: {{ summary()?.driver?.cnhCategory || 'AB' }}
+      <p class="text-[10px] text-slate-400 font-medium leading-tight truncate">
+        Categoria: {{ summary()?.driver?.cnhCategory || '---' }}
       </p>
     </div>
 
@@ -106,12 +106,12 @@
         <span class="text-[10px] font-semibold uppercase tracking-wider truncate">Validade CNH</span>
       </div>
       <p class="text-xs font-bold text-white font-mono">
-        {{ (summary()?.driver?.cnhExpirationDateIso || summary()?.driver?.cnhExpirationDate) | date:'dd/MM/yyyy' }}
+        {{ (summary()?.driver?.cnhExpirationDateIso || summary()?.driver?.cnhExpirationDate) ? ((summary()?.driver?.cnhExpirationDateIso || summary()?.driver?.cnhExpirationDate) | date:'dd/MM/yyyy') : '---' }}
       </p>
     </div>
   </div>
 
-  <!-- CARDS DE STATUS ATUAL (2 COLUNAS: VEÍCULO ATUAL + ÚLTIMA VIAGEM) -->
+  <!-- CARDS DE STATUS ATUAL (2 COLUNAS: VEÍCULO ATUAL + ÚLTIMA VIAGEM - DADOS REAIS) -->
   <div class="grid grid-cols-2 gap-2.5">
     <!-- 1. Veículo Atual -->
     <div class="bg-[#0A1020]/90 border border-slate-800/80 rounded-2xl p-3 flex flex-col justify-between shadow-xs">
@@ -126,12 +126,21 @@
       </div>
 
       <div class="mt-2.5">
-        <span class="text-sm font-black text-white font-mono block leading-none">
-          {{ summary()?.trip?.vehicle?.plate || 'BR-222' }}
-        </span>
-        <span class="text-[10px] text-slate-400 font-medium block mt-1 truncate">
-          {{ summary()?.trip?.vehicle?.model || 'FH540' }} • {{ (summary()?.trip?.vehicle?.currentKm || 148580) | number }} km
-        </span>
+        @if (summary()?.trip?.vehicle; as vehicle) {
+          <span class="text-sm font-black text-white font-mono block leading-none">
+            {{ vehicle.plate }}
+          </span>
+          <span class="text-[10px] text-slate-400 font-medium block mt-1 truncate">
+            {{ vehicle.model || vehicle.brand || 'Veículo' }}@if (vehicle.currentKm) { • {{ vehicle.currentKm | number }} km }
+          </span>
+        } @else {
+          <span class="text-xs font-semibold text-slate-400 block leading-tight">
+            Sem veículo
+          </span>
+          <span class="text-[10px] text-slate-500 font-medium block mt-1">
+            Aguardando viagem
+          </span>
+        }
       </div>
     </div>
 
@@ -148,20 +157,29 @@
       </div>
 
       <div class="mt-2.5">
-        <span class="text-xs font-bold text-white block leading-tight truncate">
-          {{ summary()?.trip?.originCity || 'Paragominas' }} ({{ summary()?.trip?.originState || 'PA' }}) ➔ {{ summary()?.trip?.destinationCity || 'Belém' }} ({{ summary()?.trip?.destinationState || 'PA' }})
-        </span>
-        <span class="text-[10px] font-medium block mt-1 truncate">
-          <span class="text-slate-400">{{ (summary()?.trip?.startedAt || summary()?.trip?.scheduledDate || summary()?.trip?.createdAt) | date:'dd/MM HH:mm' }} • </span>
-          <span class="text-emerald-400 font-semibold">
-            {{ (summary()?.trip?.status === 'IN_PROGRESS' || summary()?.trip?.status === 'EM_ANDAMENTO') ? 'Em andamento' : 'Concluída' }}
+        @if (summary()?.trip; as trip) {
+          <span class="text-xs font-bold text-white block leading-tight truncate">
+            {{ trip.originCity }} ({{ trip.originState }}) ➔ {{ trip.destinationCity }} ({{ trip.destinationState }})
           </span>
-        </span>
+          <span class="text-[10px] font-medium block mt-1 truncate">
+            <span class="text-slate-400">{{ (trip.startedAt || trip.scheduledDate || trip.createdAt) | date:'dd/MM HH:mm' }} • </span>
+            <span class="text-emerald-400 font-semibold">
+              {{ (trip.status === 'IN_PROGRESS' || trip.status === 'EM_ANDAMENTO') ? 'Em andamento' : 'Concluída' }}
+            </span>
+          </span>
+        } @else {
+          <span class="text-xs font-semibold text-slate-400 block leading-tight">
+            Nenhuma viagem
+          </span>
+          <span class="text-[10px] text-slate-500 font-medium block mt-1">
+            Sem rota ativa
+          </span>
+        }
       </div>
     </div>
   </div>
 
-  <!-- SEÇÃO: ESTATÍSTICAS DO MOTORISTA (2 CARDS: ABASTECIMENTOS E VIAGENS) -->
+  <!-- SEÇÃO: ESTATÍSTICAS DO MOTORISTA (2 CARDS: ABASTECIMENTOS E VIAGENS - DADOS REAIS DO BANCO) -->
   <div class="space-y-2">
     <div class="flex items-center justify-between px-0.5">
       <div class="flex items-center gap-2">
@@ -185,7 +203,7 @@
             Abastecimentos
           </span>
           <span class="text-2xl font-black text-white font-mono leading-none block mt-1">
-            {{ summary()?.monthFuelingsCount ?? 6 }}
+            {{ summary()?.monthFuelingsCount ?? 0 }}
           </span>
           <span class="text-[10px] text-slate-400 font-medium block mt-1">
             últimos 30 dias
@@ -203,94 +221,13 @@
             Viagens
           </span>
           <span class="text-2xl font-black text-white font-mono leading-none block mt-1">
-            {{ summary()?.recentTripsCount ?? 9 }}
+            {{ summary()?.recentTripsCount ?? 0 }}
           </span>
           <span class="text-[10px] text-slate-400 font-medium block mt-1">
             últimos 30 dias
           </span>
         </div>
       </div>
-    </div>
-  </div>
-
-  <!-- SEÇÃO: AÇÕES RÁPIDAS -->
-  <div class="space-y-2.5">
-    <div class="flex items-center gap-2 px-0.5">
-      <svg lucideZap class="size-4 text-emerald-400 fill-emerald-400"></svg>
-      <h3 class="text-xs font-bold text-white uppercase tracking-wider">Ações rápidas</h3>
-    </div>
-
-    <div class="space-y-2">
-      <!-- 1. Ver abastecimentos -->
-      <a
-        routerLink="/motorista/historico"
-        [queryParams]="{ tab: 'fuel' }"
-        class="bg-[#0A1020]/90 hover:bg-[#121B35]/90 active:scale-[0.99] border border-slate-800/80 p-3.5 rounded-2xl flex items-center justify-between transition-all group cursor-pointer shadow-xs"
-      >
-        <div class="flex items-center gap-3 min-w-0">
-          <div class="size-10 rounded-xl bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 flex items-center justify-center shrink-0">
-            <svg lucideFuel class="size-5"></svg>
-          </div>
-          <div class="min-w-0">
-            <p class="text-xs font-bold text-white group-hover:text-emerald-400 transition-colors leading-tight">Ver abastecimentos</p>
-            <p class="text-[10px] text-slate-400 leading-tight mt-0.5">Histórico de abastecimentos</p>
-          </div>
-        </div>
-        <svg lucideChevronRight class="size-4 text-slate-500 group-hover:text-white shrink-0 transition-colors"></svg>
-      </a>
-
-      <!-- 2. Ver viagens -->
-      <a
-        routerLink="/motorista/historico"
-        [queryParams]="{ tab: 'trips' }"
-        class="bg-[#0A1020]/90 hover:bg-[#121B35]/90 active:scale-[0.99] border border-slate-800/80 p-3.5 rounded-2xl flex items-center justify-between transition-all group cursor-pointer shadow-xs"
-      >
-        <div class="flex items-center gap-3 min-w-0">
-          <div class="size-10 rounded-xl bg-blue-500/15 text-blue-400 border border-blue-500/25 flex items-center justify-center shrink-0">
-            <svg lucideMapPin class="size-5"></svg>
-          </div>
-          <div class="min-w-0">
-            <p class="text-xs font-bold text-white group-hover:text-blue-400 transition-colors leading-tight">Ver viagens</p>
-            <p class="text-[10px] text-slate-400 leading-tight mt-0.5">Viagens e rotas realizadas</p>
-          </div>
-        </div>
-        <svg lucideChevronRight class="size-4 text-slate-500 group-hover:text-white shrink-0 transition-colors"></svg>
-      </a>
-
-      <!-- 3. Resetar senha do App -->
-      <button
-        type="button"
-        (click)="resetPasswordModalOpen.set(true)"
-        class="w-full bg-[#0A1020]/90 hover:bg-[#121B35]/90 active:scale-[0.99] border border-slate-800/80 p-3.5 rounded-2xl flex items-center justify-between text-left transition-all group cursor-pointer shadow-xs"
-      >
-        <div class="flex items-center gap-3 min-w-0">
-          <div class="size-10 rounded-xl bg-amber-500/15 text-amber-400 border border-amber-500/25 flex items-center justify-center shrink-0">
-            <svg lucideKey class="size-5"></svg>
-          </div>
-          <div class="min-w-0">
-            <p class="text-xs font-bold text-white group-hover:text-amber-400 transition-colors leading-tight">Resetar senha do App</p>
-            <p class="text-[10px] text-slate-400 leading-tight mt-0.5">Envia um link para o motorista</p>
-          </div>
-        </div>
-        <svg lucideChevronRight class="size-4 text-slate-500 group-hover:text-white shrink-0 transition-colors"></svg>
-      </button>
-
-      <!-- 4. Iniciar viagem -->
-      <a
-        routerLink="/motorista"
-        class="bg-emerald-950/40 hover:bg-emerald-950/60 active:scale-[0.99] border border-emerald-500/30 p-3.5 rounded-2xl flex items-center justify-between transition-all group cursor-pointer shadow-xs"
-      >
-        <div class="flex items-center gap-3 min-w-0">
-          <div class="size-10 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center shrink-0">
-            <svg lucidePlay class="size-5 fill-current ml-0.5"></svg>
-          </div>
-          <div class="min-w-0">
-            <p class="text-xs font-bold text-emerald-400 leading-tight">Iniciar viagem</p>
-            <p class="text-[10px] text-emerald-400/70 leading-tight mt-0.5">Liberar para o motorista começar uma nova viagem</p>
-          </div>
-        </div>
-        <svg lucideChevronRight class="size-4 text-emerald-400 shrink-0 transition-colors"></svg>
-      </a>
     </div>
   </div>
 </div>
@@ -349,44 +286,6 @@
 <!-- Inputs Ocultos de Foto -->
 <input #cameraInput type="file" accept="image/*" capture="user" (change)="onPhotoSelected($event)" class="hidden" />
 <input #galleryInput type="file" accept="image/*" (change)="onPhotoSelected($event)" class="hidden" />
-
-<!-- ========================================== -->
-<!-- MODAL: RESETAR SENHA DO APP                -->
-<!-- ========================================== -->
-@if (resetPasswordModalOpen()) {
-  <div class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-4 animate-in fade-in">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 w-full max-w-sm space-y-4 shadow-2xl animate-in slide-in-from-bottom-4">
-      <div class="flex items-center justify-between">
-        <h3 class="text-sm font-bold text-white flex items-center gap-2">
-          <svg lucideKey class="size-4.5 text-amber-400"></svg>
-          Resetar senha do App
-        </h3>
-        <button (click)="resetPasswordModalOpen.set(false)" class="text-slate-400 hover:text-white p-1">
-          <svg lucideX class="size-4"></svg>
-        </button>
-      </div>
-
-      <p class="text-xs text-slate-300 leading-relaxed">
-        Deseja solicitar o link de redefinição de senha? Um e-mail com as instruções de troca será enviado para o endereço cadastrado do motorista.
-      </p>
-
-      <div class="grid grid-cols-2 gap-2 pt-2">
-        <button
-          (click)="resetPasswordModalOpen.set(false)"
-          class="py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs rounded-xl transition-colors cursor-pointer"
-        >
-          Cancelar
-        </button>
-        <button
-          (click)="requestPasswordReset()"
-          class="py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs rounded-xl shadow-md transition-colors cursor-pointer"
-        >
-          Confirmar Envio
-        </button>
-      </div>
-    </div>
-  </div>
-}
 
 <!-- ========================================== -->
 <!-- MODAL: CONFIGURAÇÕES E LOGOUT              -->
