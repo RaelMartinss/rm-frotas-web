@@ -1,10 +1,10 @@
 <div class="min-h-screen min-h-dvh bg-[#070D18] text-slate-100 flex flex-col font-sans antialiased relative">
 
   <!-- BANNER PANORÂMICO: CAMINHÃO OCUPA HEADER + CARD DE VIAGEM (topo ~540px) -->
-  <div class="absolute top-0 inset-x-0 h-[540px] pointer-events-none overflow-hidden z-0">
+  <div class="absolute top-0 inset-x-0 h-[125px] pointer-events-none overflow-hidden z-0">
     <div
       class="w-full h-full bg-cover bg-no-repeat"
-      style="background-image: url('images/truck-hero-bg.png'); background-position: 70% 25%;"
+      style="background-image: url('images/truck-hero-bg.png'); background-position: 70% 10%;"
     ></div>
     <!-- Gradiente inferior: funde suavemente com o fundo escuro -->
     <div class="absolute inset-0 bg-gradient-to-t from-[#070D18] via-[#070D18]/55 to-transparent"></div>
@@ -38,7 +38,7 @@
         </span>
 
         <!-- Linha 3 (Status Online): Mover a pílula de status logo abaixo do cargo -->
-        <div class="mt-1">
+        <!-- <div class="">
           @if (isOnline()) {
             <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-[#0A1A17]/80 text-emerald-400 border border-emerald-500/30 backdrop-blur-md">
               <span class="size-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
@@ -50,7 +50,7 @@
               Offline
             </span>
           }
-        </div>
+        </div> -->
       </div>
     </button>
 
@@ -474,7 +474,7 @@
                 <span class="size-2 rounded-full bg-emerald-400 shrink-0"></span>
               </div>
               <p class="text-xs text-emerald-400 font-medium truncate">{{ currentUser()?.clientName || 'RM Frotas Matriz' }}</p>
-              
+
               <!-- Ações de Foto: Câmera vs Galeria vs Remover -->
               <div class="flex items-center gap-2 mt-2 flex-wrap">
                 <button

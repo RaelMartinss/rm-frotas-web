@@ -110,7 +110,7 @@
     <!-- CARD 1: VIAGEM EM DESTAQUE (TRANSPARENTE — TRUCK BANNER DO LAYOUT É O FUNDO) -->
     @if (summary.trip; as trip) {
       <div
-        class="relative rounded-3xl overflow-hidden border p-5 mt-2 bg-slate-950/20 backdrop-blur-[2px]"
+        class="relative rounded-3xl overflow-hidden border p-5 mt-2 "
         [class.border-emerald-500/30]="trip.status === 'IN_PROGRESS' || trip.status === 'EM_ANDAMENTO'"
         [class.border-white/10]="trip.status !== 'IN_PROGRESS' && trip.status !== 'EM_ANDAMENTO'"
       >
@@ -140,13 +140,22 @@
           </div>
 
           <!-- Rota em Destaque: Origem (UF) → Destino (UF) -->
-          <div>
-            <div class="flex items-center gap-2 text-base sm:text-lg font-bold text-white tracking-tight">
+          <div class="flex justify-between items-center gap-2">
+            <div class="flex items-center gap-2 text-[14px] sm:text-[10px] font-bold text-white tracking-tight">
               <span>{{ trip.originCity }} ({{ trip.originState }})</span>
               <svg lucideArrowRight class="size-4 text-emerald-400 shrink-0"></svg>
               <span>{{ trip.destinationCity }} ({{ trip.destinationState }})</span>
             </div>
+            <!-- <div class="flex justify-end -mt-1">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold font-mono bg-slate-900/85 text-white border border-slate-700/60 backdrop-blur-md shadow-xs">
+              <svg lucideTruck class="size-3.5 text-slate-300"></svg>
+              <span>{{ trip.vehicle?.plate || 'BR-222' }}</span>
+            </span>
+          </div>-->
           </div>
+
+          <!-- Pill da Placa separada abaixo dos horários (visível na área escura do card) -->
+
 
           <!-- Horários (Saída e Chegada Prevista) + Pill da Placa -->
           <div class="grid grid-cols-2 gap-3 pt-0.5">
@@ -177,13 +186,7 @@
             </div>
           </div>
 
-          <!-- Pill da Placa separada abaixo dos horários (visível na área escura do card) -->
-          <div class="flex justify-end -mt-1">
-            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold font-mono bg-slate-900/85 text-white border border-slate-700/60 backdrop-blur-md shadow-xs">
-              <svg lucideTruck class="size-3.5 text-slate-300"></svg>
-              <span>{{ trip.vehicle?.plate || 'BR-222' }}</span>
-            </span>
-          </div>
+
 
           <!-- Botões de Ação da Viagem -->
           <div class="space-y-2.5 pt-1">
