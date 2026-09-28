@@ -161,14 +161,14 @@
     (touchmove)="onTouchMove($event)"
     (touchend)="onTouchEnd()"
     (touchcancel)="onTouchEnd()"
-    class="flex-1 pb-28 px-4 pt-1 max-w-lg mx-auto w-full relative z-10"
-    [class.pt-safe-top]="isCurrentTab('profile')"
+    class="flex-1 pb-28 px-4 pt-1 max-w-lg mx-auto w-full relative"
+    [class.pt-safe-top]="!shouldShowHeader()"
   >
     <router-outlet (activate)="onActivate($event)"></router-outlet>
   </main>
 
   <!-- BARRA DE NAVEGAÇÃO INFERIOR MOBILE (THUMB ZONE - 3 ITENS) -->
-  <nav class="fixed bottom-0 inset-x-0 bg-[#070D18]/95 backdrop-blur-md border-t border-slate-800/80 z-40 max-w-lg mx-auto pb-safe-bottom">
+  <nav class="fixed bottom-0 inset-x-0 bg-[#070D18]/95 backdrop-blur-md border-t border-slate-800/80 z-30 max-w-lg mx-auto pb-safe-bottom">
     <div class="grid grid-cols-3 h-16 px-4">
       <!-- 1. Início -->
       <a
