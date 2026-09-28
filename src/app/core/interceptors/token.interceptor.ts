@@ -8,6 +8,7 @@ export const tokenInterceptor: HttpInterceptorFn = (req, next) => {
   const isExternalApi =
     req.url.startsWith('http') &&
     !req.url.startsWith(environment.apiUrl) &&
+    !req.url.includes('rm-frotas.duckdns.org') &&
     !req.url.includes('rm-frotas-api.onrender.com') &&
     !req.url.includes('localhost:3000');
 
