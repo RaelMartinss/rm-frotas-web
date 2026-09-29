@@ -126,14 +126,16 @@
             <span>Alertas</span>
           </a>
 
-          <a
-            routerLink="/relatorios"
-            routerLinkActive="bg-emerald-950/60 text-emerald-400 font-semibold border-l-2 border-emerald-500"
-            class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/50 transition-colors"
-          >
-            <svg lucideFileText class="size-4"></svg>
-            <span>Relatórios</span>
-          </a>
+          @if (currentUser()?.role !== 'DRIVER') {
+            <a
+              routerLink="/relatorios"
+              routerLinkActive="bg-emerald-950/60 text-emerald-400 font-semibold border-l-2 border-emerald-500"
+              class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/50 transition-colors"
+            >
+              <svg lucideFileText class="size-4"></svg>
+              <span>Relatórios</span>
+            </a>
+          }
         </div>
 
         <!-- SEÇÃO: SISTEMA / ADMINISTRAÇÃO -->

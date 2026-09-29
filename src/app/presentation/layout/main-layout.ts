@@ -247,10 +247,17 @@ export class MainLayoutComponent {
 
   filteredCommands = computed(() => {
     const q = this.searchQuery().toLowerCase().trim();
+    const role = this.currentUser()?.role;
+    const items = this.commandItems.filter((item) => {
+      if (item.id === 'nav-relatorios' && role === 'DRIVER') return false;
+      if (item.id === 'nav-usuarios' && (role !== 'SUPER_ADMIN' && role !== 'FLEET_MANAGER' && role !== 'ADMIN')) return false;
+      return true;
+    });
+
     if (!q) {
-      return this.commandItems;
+      return items;
     }
-    return this.commandItems.filter((item) => {
+    return items.filter((item) => {
       const matchTitle = item.title.toLowerCase().includes(q);
       const matchSub = item.subtitle?.toLowerCase().includes(q);
       const matchCat = item.category.toLowerCase().includes(q);

@@ -3,6 +3,7 @@ import { authGuard } from './core/guards/auth.guard';
 import { guestGuard } from './core/guards/guest.guard';
 import { mustChangePasswordGuard } from './core/guards/must-change-password.guard';
 import { superAdminGuard } from './core/guards/super-admin.guard';
+import { reportsGuard } from './core/guards/reports.guard';
 
 export const routes: Routes = [
   {
@@ -235,8 +236,23 @@ export const routes: Routes = [
       },
       {
         path: 'relatorios',
-        redirectTo: 'dashboard',
-        pathMatch: 'full'
+        canActivate: [reportsGuard],
+        children: [
+          {
+            path: '',
+            loadComponent: () =>
+              import('./presentation/reports/reports-hub/reports-hub.component').then(
+                (m) => m.ReportsHubComponent
+              ),
+          },
+          {
+            path: 'custo-km',
+            loadComponent: () =>
+              import('./presentation/reports/cost-per-km-report/cost-per-km-report.component').then(
+                (m) => m.CostPerKmReportComponent
+              ),
+          },
+        ],
       },
       {
         path: 'configuracoes',
