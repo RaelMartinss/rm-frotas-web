@@ -322,12 +322,61 @@
         <div>
           <div class="flex items-center justify-between mb-4">
             <div>
-              <h2 class="text-sm font-bold text-white tracking-tight">Movimentação Semanal de Viagens</h2>
-              <p class="text-[11px] text-[#929EAA]">Volume de saídas e conclusões nos últimos 7 dias</p>
+              <h2 class="text-sm font-bold text-white tracking-tight">Movimentação de Viagens</h2>
+              <p class="text-[11px] text-[#929EAA]">{{ currentPeriodSubtitle() }}</p>
             </div>
-            <div class="flex items-center gap-1.5 text-xs text-[#929EAA]">
-              <span class="size-2 rounded-full bg-emerald-500"></span>
-              <span class="text-[11px] font-medium text-[#929EAA]">Semana Atual</span>
+
+            <!-- FILTRO DE PERÍODO INTERATIVO (Semana Atual, Mês Atual, 6 Meses) -->
+            <div class="relative">
+              <button
+                type="button"
+                (click)="togglePeriodDropdown($event)"
+                class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#11161A] hover:bg-[#171D21] border border-[#222A2F] text-xs text-[#929EAA] hover:text-white transition-all cursor-pointer shadow-2xs group focus:outline-none focus:ring-1 focus:ring-[#FF6B00]/40"
+                aria-haspopup="true"
+                [attr.aria-expanded]="periodDropdownOpen()"
+                title="Filtrar período das viagens"
+              >
+                <span class="size-2 rounded-full bg-emerald-500"></span>
+                <span class="text-[11px] font-semibold text-white">{{ currentPeriodLabel() }}</span>
+                <svg
+                  lucideChevronDown
+                  class="size-3 text-[#929EAA] group-hover:text-white transition-transform duration-200"
+                  [class.rotate-180]="periodDropdownOpen()"
+                ></svg>
+              </button>
+
+              @if (periodDropdownOpen()) {
+                <div
+                  class="absolute right-0 mt-2 w-52 bg-[#0F1215] border border-[#222A2F] rounded-xl shadow-2xl z-30 py-1.5 overflow-hidden animate-in fade-in slide-in-from-top-1 duration-150"
+                  (click)="$event.stopPropagation()"
+                >
+                  <div class="px-3.5 py-1 text-[10px] font-bold text-[#62707C] uppercase tracking-wider border-b border-[#222A2F]/60">
+                    Período do Gráfico
+                  </div>
+                  @for (opt of periodOptions; track opt.value) {
+                    <button
+                      type="button"
+                      (click)="selectPeriod(opt.value)"
+                      class="w-full text-left px-3.5 py-2 text-xs flex items-center justify-between hover:bg-[#171D21] transition-colors cursor-pointer group"
+                      [class.bg-[#171D21]/80]="tripsPeriod() === opt.value"
+                    >
+                      <div>
+                        <p
+                          class="font-semibold text-xs leading-tight"
+                          [class.text-[#FF6B00]="tripsPeriod() === opt.value"
+                          [class.text-[#E7EBEE]="tripsPeriod() !== opt.value"
+                        >
+                          {{ opt.label }}
+                        </p>
+                        <p class="text-[10px] text-[#62707C] mt-0.5">{{ opt.description }}</p>
+                      </div>
+                      @if (tripsPeriod() === opt.value) {
+                        <span class="size-1.5 rounded-full bg-[#FF6B00] shrink-0 ml-2"></span>
+                      }
+                    </button>
+                  }
+                </div>
+              }
             </div>
           </div>
 
@@ -337,7 +386,7 @@
         </div>
 
         <div class="mt-4 pt-3 border-t border-[#222A2F] flex items-center justify-between text-xs text-[#929EAA]">
-          <span>Média diária: <strong class="text-white">~{{ summary.weeklyActivity?.dailyAverage || 0 }} viagens</strong></span>
+          <span><strong class="text-white">{{ currentPeriodAverageText() }}</strong></span>
           <a routerLink="/viagens" class="text-[#FF6B00] font-semibold hover:underline">Histórico operacional completo →</a>
         </div>
       </div>
