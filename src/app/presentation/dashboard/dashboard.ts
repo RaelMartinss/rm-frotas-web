@@ -180,10 +180,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
             datasets: [
               {
                 data: total > 0 ? [availableVehicles, inMaintenanceVehicles, unavailableVehicles] : [1, 0, 0],
-                backgroundColor: total > 0 ? ['#10b981', '#f59e0b', '#3b82f6'] : ['#e2e8f0'],
-                hoverBackgroundColor: total > 0 ? ['#059669', '#d97706', '#2563eb'] : ['#cbd5e1'],
+                backgroundColor: total > 0 ? ['#FF6B00', '#F59E0B', '#3EBAF4'] : ['#222A2F'],
+                hoverBackgroundColor: total > 0 ? ['#E05D00', '#D97706', '#0284C7'] : ['#323F4B'],
                 borderWidth: 3,
-                borderColor: '#ffffff',
+                borderColor: '#0F1215',
                 hoverOffset: 4
               }
             ]
@@ -197,9 +197,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 display: false
               },
               tooltip: {
-                backgroundColor: '#0f172a',
-                titleColor: '#f8fafc',
-                bodyColor: '#e2e8f0',
+                backgroundColor: '#080B0C',
+                titleColor: '#FFFFFF',
+                bodyColor: '#929EAA',
+                borderColor: '#222A2F',
+                borderWidth: 1,
                 padding: 10,
                 cornerRadius: 8,
                 callbacks: {
@@ -236,7 +238,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
               {
                 label: 'Viagens Concluídas',
                 data: completedTrips,
-                backgroundColor: '#10b981',
+                backgroundColor: '#FF6B00',
                 borderRadius: 6,
                 barPercentage: 0.6,
                 categoryPercentage: 0.7
@@ -244,7 +246,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
               {
                 label: 'Em Andamento',
                 data: ongoingTrips,
-                backgroundColor: '#3b82f6',
+                backgroundColor: '#3EBAF4',
                 borderRadius: 6,
                 barPercentage: 0.6,
                 categoryPercentage: 0.7
@@ -267,11 +269,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     size: 11,
                     family: "'Inter', sans-serif"
                   },
-                  color: '#64748b'
+                  color: '#929EAA'
                 }
               },
               tooltip: {
-                backgroundColor: '#0f172a',
+                backgroundColor: '#080B0C',
+                borderColor: '#222A2F',
+                borderWidth: 1,
+                titleColor: '#FFFFFF',
+                bodyColor: '#929EAA',
                 padding: 10,
                 cornerRadius: 8,
                 callbacks: {
@@ -291,7 +297,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                   display: false
                 },
                 ticks: {
-                  color: '#94a3b8',
+                  color: '#929EAA',
                   font: {
                     size: 11
                   }
@@ -300,10 +306,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
               y: {
                 beginAtZero: true,
                 grid: {
-                  color: '#f1f5f9'
+                  color: '#1E262B'
                 },
                 ticks: {
-                  color: '#94a3b8',
+                  color: '#929EAA',
                   font: {
                     size: 11
                   },

@@ -1,4 +1,4 @@
-<div class="min-h-screen flex bg-slate-100 text-slate-800 font-sans relative">
+<div class="min-h-screen flex bg-[#080B0C] text-[#E7EBEE] font-sans relative">
   <!-- BACKDROP MOBILE PARA SIDEBAR -->
   @if (sidebarOpen()) {
     <div
@@ -9,16 +9,16 @@
 
   <!-- SIDEBAR LATERAL -->
   <aside
-    class="bg-[#0f172a] text-slate-300 w-64 flex-shrink-0 flex flex-col justify-between transition-all duration-300 z-30 fixed lg:static inset-y-0 left-0"
+    class="bg-[#0A0E11] text-[#929EAA] border-r border-[#222A2F] w-64 flex-shrink-0 flex flex-col justify-between transition-all duration-300 z-30 fixed lg:static inset-y-0 left-0"
     [class.-ml-64]="!sidebarOpen()"
   >
     <div>
       <!-- LOGO -->
-      <div class="h-20 flex items-center px-6 border-b border-slate-800/60">
+      <div class="h-20 flex items-center px-6 border-b border-[#222A2F]">
         <img
-          src="/images/logo.png"
+          src="/images/rm_logo_hd.png"
           alt="RM Frotas"
-          class="h-10 w-auto object-contain"
+          class="h-9 w-auto object-contain [filter:hue-rotate(215deg)_saturate(1.2)]"
         />
       </div>
 
@@ -32,8 +32,8 @@
           </div>
         </div>
       } @else if (currentUser()?.clientName) {
-        <div class="px-4 py-2.5 border-b border-slate-800/40 flex items-center gap-2.5 bg-slate-900/40">
-          <svg lucideBuilding2 class="size-3.5 text-emerald-500 shrink-0"></svg>
+        <div class="px-4 py-2.5 border-b border-[#222A2F] flex items-center gap-2.5 bg-[#11161A]">
+          <svg lucideBuilding2 class="size-3.5 text-[#FF6B00] shrink-0"></svg>
           <div class="min-w-0">
             <p class="text-[9px] text-slate-500 font-bold uppercase tracking-wider leading-none mb-0.5">Empresa</p>
             <p class="text-xs text-slate-200 font-semibold truncate leading-tight">{{ currentUser()?.clientName }}</p>
@@ -46,8 +46,8 @@
         <div>
           <a
             routerLink="/dashboard"
-            routerLinkActive="bg-emerald-950/60 text-emerald-400 font-semibold border-l-2 border-emerald-500 shadow-xs"
-            class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/50 transition-colors"
+            routerLinkActive="bg-[#FF6B00]/15 text-[#FF6B00] font-semibold border-l-2 border-[#FF6B00] shadow-xs"
+            class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-[#929EAA] hover:text-white hover:bg-[#171D21] transition-colors"
           >
             <svg lucideLayoutDashboard class="size-4.5"></svg>
             <span class="text-xs">Dashboard</span>
@@ -56,12 +56,12 @@
 
         <!-- SEÇÃO: OPERAÇÃO -->
         <div class="space-y-1">
-          <p class="px-3.5 py-1 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Operação</p>
+          <p class="px-3.5 py-1 text-[10px] font-bold text-[#62707C] uppercase tracking-wider">Operação</p>
 
           <a
             routerLink="/veiculos"
-            routerLinkActive="bg-emerald-950/60 text-emerald-400 font-semibold border-l-2 border-emerald-500"
-            class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/50 transition-colors"
+            routerLinkActive="bg-[#FF6B00]/15 text-[#FF6B00] font-semibold border-l-2 border-[#FF6B00]"
+            class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-[#929EAA] hover:text-white hover:bg-[#171D21] transition-colors"
           >
             <svg lucideTruck class="size-4"></svg>
             <span>Veículos</span>
@@ -69,8 +69,8 @@
 
           <a
             routerLink="/motoristas"
-            routerLinkActive="bg-emerald-950/60 text-emerald-400 font-semibold border-l-2 border-emerald-500"
-            class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/50 transition-colors"
+            routerLinkActive="bg-[#FF6B00]/15 text-[#FF6B00] font-semibold border-l-2 border-[#FF6B00]"
+            class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-[#929EAA] hover:text-white hover:bg-[#171D21] transition-colors"
           >
             <svg lucideUsers class="size-4"></svg>
             <span>Motoristas</span>
@@ -78,8 +78,8 @@
 
           <a
             routerLink="/viagens"
-            routerLinkActive="bg-emerald-950/60 text-emerald-400 font-semibold border-l-2 border-emerald-500"
-            class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/50 transition-colors"
+            routerLinkActive="bg-[#FF6B00]/15 text-[#FF6B00] font-semibold border-l-2 border-[#FF6B00]"
+            class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-[#929EAA] hover:text-white hover:bg-[#171D21] transition-colors"
           >
             <svg lucideRoute class="size-4"></svg>
             <span>Viagens</span>
@@ -87,8 +87,8 @@
 
           <a
             routerLink="/abastecimentos"
-            routerLinkActive="bg-emerald-950/60 text-emerald-400 font-semibold border-l-2 border-emerald-500"
-            class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/50 transition-colors"
+            routerLinkActive="bg-[#FF6B00]/15 text-[#FF6B00] font-semibold border-l-2 border-[#FF6B00]"
+            class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-[#929EAA] hover:text-white hover:bg-[#171D21] transition-colors"
           >
             <svg lucideFuel class="size-4"></svg>
             <span>Abastecimentos</span>
@@ -96,8 +96,8 @@
 
           <a
             routerLink="/manutencoes"
-            routerLinkActive="bg-emerald-950/60 text-emerald-400 font-semibold border-l-2 border-emerald-500"
-            class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/50 transition-colors"
+            routerLinkActive="bg-[#FF6B00]/15 text-[#FF6B00] font-semibold border-l-2 border-[#FF6B00]"
+            class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-[#929EAA] hover:text-white hover:bg-[#171D21] transition-colors"
           >
             <svg lucideWrench class="size-4"></svg>
             <span>Manutenções</span>
@@ -106,12 +106,12 @@
 
         <!-- SEÇÃO: GESTÃO -->
         <div class="space-y-1">
-          <p class="px-3.5 py-1 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Gestão</p>
+          <p class="px-3.5 py-1 text-[10px] font-bold text-[#62707C] uppercase tracking-wider">Gestão</p>
 
           <a
             routerLink="/expiracoes"
-            routerLinkActive="bg-emerald-950/60 text-emerald-400 font-semibold border-l-2 border-emerald-500"
-            class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/50 transition-colors"
+            routerLinkActive="bg-[#FF6B00]/15 text-[#FF6B00] font-semibold border-l-2 border-[#FF6B00]"
+            class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-[#929EAA] hover:text-white hover:bg-[#171D21] transition-colors"
           >
             <svg lucideClock class="size-4"></svg>
             <span>Expirações</span>
@@ -119,8 +119,8 @@
 
           <a
             routerLink="/alertas"
-            routerLinkActive="bg-emerald-950/60 text-emerald-400 font-semibold border-l-2 border-emerald-500"
-            class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/50 transition-colors"
+            routerLinkActive="bg-[#FF6B00]/15 text-[#FF6B00] font-semibold border-l-2 border-[#FF6B00]"
+            class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-[#929EAA] hover:text-white hover:bg-[#171D21] transition-colors"
           >
             <svg lucideBell class="size-4"></svg>
             <span>Alertas</span>
@@ -129,8 +129,8 @@
           @if (currentUser()?.role !== 'DRIVER') {
             <a
               routerLink="/relatorios"
-              routerLinkActive="bg-emerald-950/60 text-emerald-400 font-semibold border-l-2 border-emerald-500"
-              class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/50 transition-colors"
+              routerLinkActive="bg-[#FF6B00]/15 text-[#FF6B00] font-semibold border-l-2 border-[#FF6B00]"
+              class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-[#929EAA] hover:text-white hover:bg-[#171D21] transition-colors"
             >
               <svg lucideFileText class="size-4"></svg>
               <span>Relatórios</span>
@@ -140,13 +140,13 @@
 
         <!-- SEÇÃO: SISTEMA / ADMINISTRAÇÃO -->
         <div class="space-y-1">
-          <p class="px-3.5 py-1 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Sistema</p>
+          <p class="px-3.5 py-1 text-[10px] font-bold text-[#62707C] uppercase tracking-wider">Sistema</p>
 
           @if (currentUser()?.role === 'SUPER_ADMIN') {
             <a
               routerLink="/clientes"
-              routerLinkActive="bg-emerald-950/60 text-emerald-400 font-semibold border-l-2 border-emerald-500"
-              class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/50 transition-colors"
+              routerLinkActive="bg-[#FF6B00]/15 text-[#FF6B00] font-semibold border-l-2 border-[#FF6B00]"
+              class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-[#929EAA] hover:text-white hover:bg-[#171D21] transition-colors"
             >
               <svg lucideBuilding2 class="size-4"></svg>
               <span>Empresas Clientes</span>
@@ -156,8 +156,8 @@
           @if (currentUser()?.role === 'SUPER_ADMIN' || currentUser()?.role === 'FLEET_MANAGER' || currentUser()?.role === 'ADMIN') {
             <a
               routerLink="/usuarios"
-              routerLinkActive="bg-emerald-950/60 text-emerald-400 font-semibold border-l-2 border-emerald-500"
-              class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/50 transition-colors"
+              routerLinkActive="bg-[#FF6B00]/15 text-[#FF6B00] font-semibold border-l-2 border-[#FF6B00]"
+              class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-[#929EAA] hover:text-white hover:bg-[#171D21] transition-colors"
             >
               <svg lucideUserCheck class="size-4"></svg>
               <span>Usuários</span>
@@ -166,8 +166,8 @@
 
           <a
             routerLink="/configuracoes"
-            routerLinkActive="bg-emerald-950/60 text-emerald-400 font-semibold border-l-2 border-emerald-500"
-            class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/50 transition-colors"
+            routerLinkActive="bg-[#FF6B00]/15 text-[#FF6B00] font-semibold border-l-2 border-[#FF6B00]"
+            class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-[#929EAA] hover:text-white hover:bg-[#171D21] transition-colors"
           >
             <svg lucideSettings class="size-4"></svg>
             <span>Configurações</span>
@@ -177,14 +177,14 @@
     </div>
 
     <!-- RODAPÉ DA SIDEBAR: PERFIL DO USUÁRIO -->
-    <div class="p-4 border-t border-slate-800/60">
-      <div class="flex items-center justify-between p-2 rounded-xl bg-slate-900/60 hover:bg-slate-900/90 transition-colors">
+    <div class="p-4 border-t border-[#222A2F]">
+      <div class="flex items-center justify-between p-2 rounded-xl bg-[#11161A] border border-[#222A2F]/60 hover:bg-[#171D21] transition-colors">
         <a
           routerLink="/perfil"
           class="flex items-center gap-3 min-w-0 flex-1 hover:opacity-90 transition-opacity cursor-pointer"
           title="Ver meu perfil"
         >
-          <div class="size-9 rounded-full bg-emerald-500 text-slate-950 font-black flex items-center justify-center text-xs shadow-xs shrink-0">
+          <div class="size-9 rounded-full bg-[#FF6B00] text-[#080B0C] font-black flex items-center justify-center text-xs shadow-xs shrink-0">
             {{ currentUser()?.name?.substring(0, 2)?.toUpperCase() || 'RM' }}
           </div>
           <div class="text-xs truncate">
@@ -196,7 +196,7 @@
           <button
             (click)="logout()"
             title="Sair da conta"
-            class="p-1.5 text-slate-400 hover:text-rose-400 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
+            class="p-1.5 text-[#929EAA] hover:text-rose-400 rounded-lg hover:bg-[#222A2F] transition-colors cursor-pointer"
           >
             <svg lucideLogOut class="size-3.5"></svg>
           </button>
@@ -248,11 +248,11 @@
     }
 
     <!-- CABEÇALHO SUPERIOR -->
-    <header class="h-16 bg-white border-b border-slate-200/80 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-20">
+    <header class="h-16 bg-[#0A0E11]/90 backdrop-blur-md border-b border-[#222A2F] px-4 sm:px-6 flex items-center justify-between sticky top-0 z-20">
       <div class="flex items-center gap-3 sm:gap-4">
         <button
           (click)="toggleSidebar()"
-          class="p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+          class="p-2 text-[#929EAA] hover:text-white hover:bg-[#171D21] rounded-lg transition-colors cursor-pointer"
           title="Alternar Menu"
         >
           <svg lucideMenu class="size-5"></svg>
@@ -261,12 +261,12 @@
         <!-- Botão de Trigger da Command Palette (Desktop & Mobile) -->
         <button
           (click)="toggleCommandPalette()"
-          class="flex items-center gap-2.5 px-3.5 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100/80 border border-slate-200/80 text-slate-400 hover:text-slate-600 transition-all text-xs cursor-pointer text-left w-48 sm:w-72 shadow-2xs group"
+          class="flex items-center gap-2.5 px-3.5 py-1.5 rounded-xl bg-[#11161A] hover:bg-[#171D21] border border-[#222A2F] text-[#929EAA] hover:text-white hover:border-[#FF6B00]/40 transition-all text-xs cursor-pointer text-left w-48 sm:w-72 shadow-2xs group"
           title="Abrir Command Palette (Ctrl + K)"
         >
-          <svg lucideSearch class="size-4 text-slate-400 group-hover:text-emerald-600 transition-colors shrink-0"></svg>
-          <span class="truncate flex-1 text-slate-500 group-hover:text-slate-700">Buscar ou executar...</span>
-          <span class="hidden sm:inline-flex items-center gap-0.5 text-[10px] font-mono text-slate-400 bg-white border border-slate-200 px-1.5 py-0.5 rounded shadow-2xs">
+          <svg lucideSearch class="size-4 text-[#929EAA] group-hover:text-[#FF6B00] transition-colors shrink-0"></svg>
+          <span class="truncate flex-1 text-[#929EAA] group-hover:text-white">Buscar ou executar...</span>
+          <span class="hidden sm:inline-flex items-center gap-0.5 text-[10px] font-mono text-[#929EAA] bg-[#171D21] border border-[#222A2F] px-1.5 py-0.5 rounded shadow-2xs">
             Ctrl K
           </span>
         </button>
@@ -277,7 +277,7 @@
         <button
           (click)="toggleNotifications()"
           class="relative p-2 rounded-lg transition-colors cursor-pointer"
-          [ngClass]="hasActiveSos() ? 'text-rose-600 bg-rose-50 hover:bg-rose-100 ring-1 ring-rose-300' : (notificationsOpen() ? 'bg-slate-100 text-slate-700' : 'text-slate-600 hover:bg-slate-100')"
+          [ngClass]="hasActiveSos() ? 'text-rose-600 bg-rose-50 hover:bg-rose-100 ring-1 ring-rose-300' : (notificationsOpen() ? 'bg-[#171D21] text-white' : 'text-[#929EAA] hover:text-white hover:bg-[#171D21]')"
           title="Notificações da Frota"
         >
           <svg lucideBell class="size-5" [class.animate-bounce]="hasActiveSos()"></svg>
@@ -297,12 +297,12 @@
           <div class="fixed inset-0 z-40 bg-transparent" (click)="closeNotifications()"></div>
 
           <div
-            class="absolute right-0 top-12 w-80 sm:w-96 bg-white border border-slate-200/90 rounded-2xl shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150"
+            class="absolute right-0 top-12 w-80 sm:w-96 bg-[#0F1215] border border-[#222A2F] text-[#E7EBEE] rounded-2xl shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150"
           >
             <!-- Header do Dropdown -->
-            <div class="px-4 py-3 bg-slate-50/80 border-b border-slate-100 flex items-center justify-between">
+            <div class="px-4 py-3 bg-[#11161A] border-b border-[#222A2F] flex items-center justify-between">
               <div class="flex items-center gap-2">
-                <span class="text-xs font-bold text-slate-900">Notificações da Frota</span>
+                <span class="text-xs font-bold text-white">Notificações da Frota</span>
                 @if (unreadNotificationsCount() > 0) {
                   <span
                     class="text-[10px] font-semibold px-2 py-0.5 rounded-full border"
@@ -324,13 +324,13 @@
             </div>
 
             <!-- Lista de Notificações -->
-            <div class="max-h-80 overflow-y-auto divide-y divide-slate-100">
+            <div class="max-h-80 overflow-y-auto divide-y divide-[#222A2F]">
               @for (notif of dynamicNotifications(); track notif.id) {
                 <a
                   [routerLink]="notif.link"
                   (click)="markNotificationAsRead(notif.id); closeNotifications()"
-                  class="p-3.5 flex gap-3 hover:bg-slate-50 transition-colors cursor-pointer group"
-                  [class.bg-slate-50/40]="!notif.read"
+                  class="p-3.5 flex gap-3 hover:bg-[#171D21] transition-colors cursor-pointer group"
+                  [class.bg-[#171D21]/30]="!notif.read"
                 >
                   <!-- Ícone por categoria e tipo -->
                   <div class="mt-0.5 shrink-0">
@@ -364,7 +364,7 @@
                   <!-- Conteúdo -->
                   <div class="flex-1 min-w-0">
                     <div class="flex items-center justify-between gap-1 mb-0.5">
-                      <p class="text-xs font-semibold text-slate-800 group-hover:text-emerald-600 transition-colors truncate">
+                      <p class="text-xs font-semibold text-white group-hover:text-[#FF6B00] transition-colors truncate">
                         {{ notif.title }}
                       </p>
                       <span class="text-[10px] text-slate-400 whitespace-nowrap">{{ notif.time }}</span>
@@ -377,7 +377,7 @@
                   <!-- Indicador sutil de não lida -->
                   @if (!notif.read) {
                     <div class="mt-1.5 shrink-0 self-center">
-                      <span class="size-2 rounded-full bg-emerald-500 inline-block ring-2 ring-emerald-100" title="Não lida"></span>
+                      <span class="size-2 rounded-full bg-[#FF6B00] inline-block ring-2 ring-[#FF6B00]/30" title="Não lida"></span>
                     </div>
                   }
                 </a>
@@ -389,11 +389,11 @@
             </div>
 
             <!-- Footer do Dropdown -->
-            <div class="p-2.5 bg-slate-50/60 border-t border-slate-100 text-center">
+            <div class="p-2.5 bg-[#11161A] border-t border-[#222A2F] text-center">
               <a
                 routerLink="/alertas"
                 (click)="closeNotifications()"
-                class="text-xs font-semibold text-slate-700 hover:text-emerald-600 transition-colors inline-flex items-center gap-1.5"
+                class="text-xs font-semibold text-[#929EAA] hover:text-[#FF6B00] transition-colors inline-flex items-center gap-1.5"
               >
                 <span>Ver central completa de alertas</span>
                 <svg lucideArrowRight class="size-3.5"></svg>
@@ -405,7 +405,7 @@
     </header>
 
     <!-- CONTAINER DA VIEW -->
-    <main class="p-4 sm:p-6 lg:p-8 flex-1 overflow-y-auto bg-slate-50/60">
+    <main class="p-4 sm:p-6 lg:p-8 flex-1 overflow-y-auto bg-[#080B0C]">
       <router-outlet></router-outlet>
     </main>
   </div>
@@ -420,11 +420,11 @@
     (click)="closeCommandPalette()"
   >
     <div
-      class="w-full max-w-2xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col animate-in zoom-in-95 duration-150"
+      class="w-full max-w-2xl bg-[#0F1215] rounded-2xl shadow-2xl border border-[#222A2F] text-[#E7EBEE] overflow-hidden flex flex-col animate-in zoom-in-95 duration-150"
       (click)="$event.stopPropagation()"
     >
       <!-- Campo de Busca da Paleta -->
-      <div class="p-4 border-b border-slate-100 flex items-center gap-3 bg-slate-50/50">
+      <div class="p-4 border-b border-[#222A2F] flex items-center gap-3 bg-[#11161A]">
         <svg lucideSearch class="size-5 text-slate-400 shrink-0"></svg>
         <input
           #paletteInput
@@ -432,7 +432,7 @@
           [ngModel]="searchQuery()"
           (ngModelChange)="onSearchInput($event)"
           placeholder="O que você deseja fazer ou buscar? (ex: veículos, motoristas, relatórios...)"
-          class="w-full bg-transparent text-sm text-slate-800 placeholder:text-slate-400 focus:outline-hidden"
+          class="w-full bg-transparent text-sm text-white placeholder:text-[#929EAA] focus:outline-hidden"
         />
         @if (searchQuery()) {
           <button
@@ -448,25 +448,25 @@
       </div>
 
       <!-- Lista de Comandos / Sugestões -->
-      <div class="max-h-80 sm:max-h-96 overflow-y-auto p-2 divide-y divide-slate-100">
+      <div class="max-h-80 sm:max-h-96 overflow-y-auto p-2 divide-y divide-[#222A2F]">
         @for (item of filteredCommands(); track item.id; let idx = $index) {
           <div
             (click)="executeCommand(item)"
             (mouseenter)="selectedIndex.set(idx)"
             class="flex items-center justify-between p-3 rounded-xl cursor-pointer transition-colors"
-            [class.bg-emerald-50]="selectedIndex() === idx"
-            [class.text-emerald-950]="selectedIndex() === idx"
-            [class.hover:bg-slate-50]="selectedIndex() !== idx"
+            [class.bg-[#FF6B00]/15]="selectedIndex() === idx"
+            [class.text-[#FF6B00]]="selectedIndex() === idx"
+            [class.hover:bg-[#171D21]]="selectedIndex() !== idx"
           >
             <div class="flex items-center gap-3 min-w-0">
               <div
                 class="size-8 rounded-lg flex items-center justify-center shrink-0 border"
-                [class.bg-emerald-500]="selectedIndex() === idx"
+                [class.bg-[#FF6B00]]="selectedIndex() === idx"
                 [class.text-white]="selectedIndex() === idx"
-                [class.border-emerald-600]="selectedIndex() === idx"
-                [class.bg-slate-100]="selectedIndex() !== idx"
-                [class.text-slate-600]="selectedIndex() !== idx"
-                [class.border-slate-200]="selectedIndex() !== idx"
+                [class.border-[#FF6B00]]="selectedIndex() === idx"
+                [class.bg-[#171D21]]="selectedIndex() !== idx"
+                [class.text-[#929EAA]]="selectedIndex() !== idx"
+                [class.border-[#222A2F]]="selectedIndex() !== idx"
               >
                 @if (item.icon === 'dashboard') { <svg lucideLayoutDashboard class="size-4"></svg> }
                 @else if (item.icon === 'truck') { <svg lucideTruck class="size-4"></svg> }
@@ -486,7 +486,7 @@
               </div>
 
               <div class="min-w-0">
-                <p class="text-xs font-bold text-slate-800 truncate" [class.text-emerald-900]="selectedIndex() === idx">
+                <p class="text-xs font-bold text-white truncate" [class.text-[#FF6B00]]="selectedIndex() === idx">
                   {{ item.title }}
                 </p>
                 @if (item.subtitle) {
@@ -528,7 +528,7 @@
       </div>
 
       <!-- Rodapé com Dicas de Navegação -->
-      <div class="p-3 bg-slate-50/80 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400 px-4">
+      <div class="p-3 bg-[#11161A] border-t border-[#222A2F] flex items-center justify-between text-[11px] text-slate-400 px-4">
         <div class="flex items-center gap-4">
           <span class="inline-flex items-center gap-1">
             <kbd class="px-1.5 py-0.5 bg-white border border-slate-200 rounded font-mono text-[10px] shadow-2xs">↑</kbd>

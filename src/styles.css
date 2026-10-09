@@ -5,20 +5,22 @@
 @theme {
   --font-sans: 'Inter Variable', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'Inter Variable', 'Inter', system-ui, sans-serif;
-  --color-brand-green: #2DA826;
-  --color-brand-green-hover: #24881E;
-  --color-brand-dark-bg: #050A14;
-  --color-brand-sidebar: #0C1322;
-  --color-brand-card: #FFFFFF;
-  --color-brand-border: #E5E7EB;
-  --color-brand-text-main: #111827;
-  --color-brand-text-muted: #6B7280;
+  --color-brand-orange: #FF6B00;
+  --color-brand-orange-hover: #E05D00;
+  --color-brand-green: #FF6B00;
+  --color-brand-green-hover: #E05D00;
+  --color-brand-dark-bg: #080B0C;
+  --color-brand-sidebar: #0A0E11;
+  --color-brand-card: #0F1215;
+  --color-brand-border: #222A2F;
+  --color-brand-text-main: #E7EBEE;
+  --color-brand-text-muted: #929EAA;
 }
 
 @layer base {
   body {
-    background-color: #050A14;
-    color: #111827;
+    background-color: #080B0C;
+    color: #E7EBEE;
     font-family: 'Inter Variable', 'Inter', system-ui, -apple-system, sans-serif;
   }
 
@@ -27,6 +29,27 @@
     font-family: 'Inter Variable', 'Inter', system-ui, sans-serif !important;
     font-variant-numeric: tabular-nums;
     font-feature-settings: 'tnum' 1;
+  }
+
+  /* Custom dark scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #080B0C;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #222A2F;
+    border-radius: 6px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #FF6B00;
+  }
+
+  ::selection {
+    background-color: #FF6B00;
+    color: #080B0C;
   }
 }
 
