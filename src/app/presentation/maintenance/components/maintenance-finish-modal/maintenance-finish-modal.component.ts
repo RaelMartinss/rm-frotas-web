@@ -33,25 +33,25 @@ export interface MaintenanceFinishSubmitPayload {
   ],
   template: `
     @if (isOpen && maintenance) {
-      <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-150">
-        <div class="bg-white rounded-2xl border border-slate-200/90 shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-150 flex flex-col max-h-[90vh]">
+      <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-150">
+        <div class="bg-[#0F1215] rounded-2xl border border-[#222A2F] shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-150 flex flex-col max-h-[90vh]">
           <!-- HEADER DO MODAL -->
-          <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 shrink-0">
+          <div class="px-6 py-4 border-b border-[#222A2F] flex items-center justify-between bg-[#11161A] shrink-0">
             <div>
-              <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
-                <div class="size-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-200/60">
+              <h2 class="text-base font-bold text-white flex items-center gap-2">
+                <div class="size-7 rounded-lg bg-[#FF6B00]/10 text-[#FF6B00] flex items-center justify-center border border-[#FF6B00]/20">
                   <svg lucideCheckCircle2 class="size-4"></svg>
                 </div>
                 Finalizar Manutenção & Liberar Veículo
               </h2>
-              <p class="text-xs text-slate-500 mt-0.5">
-                Veículo {{ maintenance?.vehicle?.plate }} - {{ maintenance?.vehicle?.model }}
+              <p class="text-xs text-[#8E9DA8] mt-0.5">
+                Veículo <span class="text-white font-mono font-bold">{{ maintenance?.vehicle?.plate }}</span> - {{ maintenance?.vehicle?.model }}
               </p>
             </div>
             <button
               type="button"
               (click)="onClose()"
-              class="text-slate-400 hover:text-slate-600 p-1 rounded-lg transition-colors cursor-pointer"
+              class="text-[#8E9DA8] hover:text-white hover:bg-[#171D21] p-1.5 rounded-lg transition-colors cursor-pointer"
             >
               <svg lucideX class="size-5"></svg>
             </button>
@@ -61,23 +61,23 @@ export interface MaintenanceFinishSubmitPayload {
             <!-- Odômetro e Data de Conclusão -->
             <div class="grid grid-cols-2 gap-3">
               <div>
-                <label class="block text-xs font-semibold text-slate-700 mb-1">Odômetro no Encerramento (KM) *</label>
+                <label class="block text-xs font-semibold text-[#8E9DA8] mb-1">Odômetro no Encerramento (KM) *</label>
                 <input
                   type="number"
                   formControlName="odometerAtService"
-                  class="w-full text-xs font-bold bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+                  class="w-full text-xs font-bold font-mono bg-[#11161A] border border-[#222A2F] rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-[#FF6B00] transition-all"
                 />
                 @if (form.get('odometerAtService')?.touched && form.get('odometerAtService')?.invalid) {
-                  <p class="text-[11px] text-rose-600 mt-1">Informe o odômetro atualizado.</p>
+                  <p class="text-[11px] text-rose-400 mt-1">Informe o odômetro atualizado.</p>
                 }
               </div>
 
               <div>
-                <label class="block text-xs font-semibold text-slate-700 mb-1">Data de Conclusão</label>
+                <label class="block text-xs font-semibold text-[#8E9DA8] mb-1">Data de Conclusão</label>
                 <input
                   type="date"
                   formControlName="finishedAt"
-                  class="w-full text-xs bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+                  class="w-full text-xs bg-[#11161A] border border-[#222A2F] rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-[#FF6B00] transition-all cursor-pointer"
                 />
               </div>
             </div>
@@ -86,13 +86,13 @@ export interface MaintenanceFinishSubmitPayload {
             <div>
               <div class="flex items-center justify-between mb-2">
                 <div>
-                  <h3 class="text-xs font-bold text-slate-800">Peças e Serviços Utilizados</h3>
-                  <p class="text-[11px] text-slate-400">Adicione os itens para detalhar os custos da ordem de serviço.</p>
+                  <h3 class="text-xs font-bold text-white">Peças e Serviços Utilizados</h3>
+                  <p class="text-[11px] text-[#8E9DA8]">Adicione os itens para detalhar os custos da ordem de serviço.</p>
                 </div>
                 <button
                   type="button"
                   (click)="addItem()"
-                  class="px-3 py-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg border border-emerald-200 transition-colors flex items-center gap-1.5 cursor-pointer"
+                  class="px-3 py-1.5 text-xs font-bold text-[#FF6B00] bg-[#FF6B00]/10 hover:bg-[#FF6B00]/20 rounded-lg border border-[#FF6B00]/30 transition-colors flex items-center gap-1.5 cursor-pointer"
                 >
                   <svg lucidePlus class="size-3.5"></svg>
                   Adicionar Item
@@ -101,13 +101,13 @@ export interface MaintenanceFinishSubmitPayload {
 
               <div class="space-y-2" formArrayName="items">
                 @for (item of items.controls; track $index) {
-                  <div [formGroupName]="$index" class="p-3 bg-slate-50 rounded-xl border border-slate-200/80 flex items-center gap-2">
+                  <div [formGroupName]="$index" class="p-3 bg-[#11161A] rounded-xl border border-[#222A2F] flex items-center gap-2">
                     <div class="flex-1">
                       <input
                         type="text"
                         formControlName="name"
                         placeholder="Descrição da peça ou serviço (ex: Troca de Óleo)"
-                        class="w-full text-xs bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-800 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                        class="w-full text-xs bg-[#171D21] border border-[#222A2F] rounded-lg px-2.5 py-1.5 text-white placeholder:text-[#62707C] focus:outline-none focus:border-[#FF6B00]"
                       />
                     </div>
                     <div class="w-20">
@@ -116,7 +116,7 @@ export interface MaintenanceFinishSubmitPayload {
                         formControlName="quantity"
                         min="1"
                         placeholder="Qtd"
-                        class="w-full text-xs bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-800 focus:outline-none focus:ring-1 focus:ring-emerald-500 text-center"
+                        class="w-full text-xs bg-[#171D21] border border-[#222A2F] rounded-lg px-2.5 py-1.5 text-white placeholder:text-[#62707C] focus:outline-none focus:border-[#FF6B00] text-center font-mono"
                       />
                     </div>
                     <div class="w-28">
@@ -126,13 +126,13 @@ export interface MaintenanceFinishSubmitPayload {
                         min="0"
                         step="0.01"
                         placeholder="Valor R$"
-                        class="w-full text-xs bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-800 focus:outline-none focus:ring-1 focus:ring-emerald-500 text-right"
+                        class="w-full text-xs bg-[#171D21] border border-[#222A2F] rounded-lg px-2.5 py-1.5 text-white placeholder:text-[#62707C] focus:outline-none focus:border-[#FF6B00] text-right font-mono"
                       />
                     </div>
                     <button
                       type="button"
                       (click)="removeItem($index)"
-                      class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                      class="p-1.5 text-[#8E9DA8] hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors cursor-pointer"
                       title="Remover item"
                     >
                       <svg lucideTrash2 class="size-4"></svg>
@@ -141,9 +141,9 @@ export interface MaintenanceFinishSubmitPayload {
                 }
 
                 <!-- Subtotal Calculado -->
-                <div class="p-3 bg-emerald-50/60 rounded-xl border border-emerald-200/80 flex items-center justify-between text-xs">
-                  <span class="font-bold text-emerald-900">Total Calculado da Manutenção:</span>
-                  <span class="font-extrabold text-sm text-emerald-800">
+                <div class="p-3 bg-[#FF6B00]/10 rounded-xl border border-[#FF6B00]/30 flex items-center justify-between text-xs">
+                  <span class="font-bold text-[#FF6B00]">Total Calculado da Manutenção:</span>
+                  <span class="font-black text-sm text-white font-mono">
                     {{ calculateTotalCost() | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
                   </span>
                 </div>
@@ -151,25 +151,25 @@ export interface MaintenanceFinishSubmitPayload {
             </div>
 
             @if (errorMessage) {
-              <div class="p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-center gap-2 text-rose-800 text-xs">
-                <svg lucideAlertCircle class="size-4 text-rose-600 shrink-0"></svg>
+              <div class="p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl flex items-center gap-2 text-rose-300 text-xs">
+                <svg lucideAlertCircle class="size-4 text-rose-400 shrink-0"></svg>
                 <span>{{ errorMessage }}</span>
               </div>
             }
 
-            <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+            <div class="flex items-center justify-end gap-3 pt-3 border-t border-[#222A2F]">
               <button
                 type="button"
                 (click)="onClose()"
                 [disabled]="isLoading"
-                class="px-4 py-2.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+                class="px-4 py-2.5 text-xs font-semibold text-[#8E9DA8] hover:text-white bg-[#171D21] hover:bg-[#222A2F] border border-[#222A2F] rounded-xl transition-colors cursor-pointer"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
                 [disabled]="isLoading"
-                class="px-5 py-2.5 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-colors flex items-center gap-2 disabled:opacity-50 cursor-pointer shadow-xs"
+                class="px-5 py-2.5 text-xs font-bold text-black bg-[#FF6B00] hover:bg-[#E05D00] rounded-xl transition-colors flex items-center gap-2 disabled:opacity-50 cursor-pointer shadow-xs"
               >
                 @if (isLoading) {
                   <svg lucideLoader2 class="size-4 animate-spin"></svg>

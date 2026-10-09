@@ -63,7 +63,7 @@ import {
           type="button"
           (click)="$event.stopPropagation(); toggleExportMenu()"
           [disabled]="loading() || exporting() || !hasData()"
-          class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-semibold text-xs px-3.5 py-2.5 rounded-xl transition-all shadow-xs hover:shadow-sm cursor-pointer disabled:cursor-not-allowed"
+          class="inline-flex items-center gap-2 bg-[#FF6B00] hover:bg-[#E05D00] disabled:opacity-50 text-[#080B0C] font-bold text-xs px-3.5 py-2.5 rounded-xl transition-all shadow-xs hover:shadow-sm cursor-pointer disabled:cursor-not-allowed"
           title="Exportar dados do relatório"
         >
           @if (exporting()) {
@@ -79,28 +79,28 @@ import {
         @if (exportMenuOpen() && !exporting()) {
           <div
             (click)="$event.stopPropagation()"
-            class="absolute right-0 mt-1.5 w-48 rounded-xl bg-white shadow-lg border border-slate-200 py-1.5 z-50 text-xs focus:outline-none"
+            class="absolute right-0 mt-1.5 w-48 rounded-xl bg-[#0F1215] shadow-xl border border-[#222A2F] py-1.5 z-50 text-xs focus:outline-none"
           >
             <button
               type="button"
               (click)="export('csv')"
-              class="w-full text-left px-3.5 py-2 text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 cursor-pointer transition-colors"
+              class="w-full text-left px-3.5 py-2 text-[#CAD2D9] hover:bg-[#171D21] flex items-center gap-2.5 cursor-pointer transition-colors"
             >
-              <svg lucideFileText class="size-4 text-emerald-600 shrink-0"></svg>
+              <svg lucideFileText class="size-4 text-emerald-400 shrink-0"></svg>
               <div>
-                <span class="font-medium text-slate-900 block">Exportar CSV</span>
-                <span class="text-[10px] text-slate-500">Planilha e dados brutos</span>
+                <span class="font-bold text-white block">Exportar CSV</span>
+                <span class="text-[10px] text-[#929EAA]">Planilha e dados brutos</span>
               </div>
             </button>
             <button
               type="button"
               (click)="export('pdf')"
-              class="w-full text-left px-3.5 py-2 text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 cursor-pointer transition-colors"
+              class="w-full text-left px-3.5 py-2 text-[#CAD2D9] hover:bg-[#171D21] flex items-center gap-2.5 cursor-pointer transition-colors"
             >
-              <svg lucideFileDown class="size-4 text-rose-600 shrink-0"></svg>
+              <svg lucideFileDown class="size-4 text-rose-400 shrink-0"></svg>
               <div>
-                <span class="font-medium text-slate-900 block">Exportar PDF</span>
-                <span class="text-[10px] text-slate-500">Documento executivo</span>
+                <span class="font-bold text-white block">Exportar PDF</span>
+                <span class="text-[10px] text-[#929EAA]">Documento executivo</span>
               </div>
             </button>
           </div>
@@ -120,43 +120,43 @@ import {
             <!-- 4 KPI Skeletons -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
               @for (i of [1, 2, 3, 4]; track i) {
-                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs space-y-4">
+                <div class="bg-[#0F1215] p-5 rounded-2xl border border-[#222A2F] shadow-2xs space-y-4">
                   <div class="flex justify-between items-center">
-                    <div class="h-3.5 w-24 bg-slate-200 rounded"></div>
-                    <div class="h-5 w-16 bg-slate-200 rounded-full"></div>
+                    <div class="h-3.5 w-24 bg-[#171D21] rounded"></div>
+                    <div class="h-5 w-16 bg-[#171D21] rounded-full"></div>
                   </div>
-                  <div class="h-8 w-28 bg-slate-200 rounded-lg"></div>
-                  <div class="h-3 w-36 bg-slate-200 rounded"></div>
+                  <div class="h-8 w-28 bg-[#171D21] rounded-lg"></div>
+                  <div class="h-3 w-36 bg-[#171D21] rounded"></div>
                 </div>
               }
             </div>
 
             <!-- Table Skeleton -->
-            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-2xs overflow-hidden p-6 space-y-4">
-              <div class="h-5 w-44 bg-slate-200 rounded"></div>
-              <div class="h-10 bg-slate-100 rounded-xl"></div>
-              <div class="h-12 bg-slate-50 rounded-xl"></div>
-              <div class="h-12 bg-slate-50 rounded-xl"></div>
-              <div class="h-12 bg-slate-50 rounded-xl"></div>
+            <div class="bg-[#0F1215] rounded-2xl border border-[#222A2F] shadow-2xs overflow-hidden p-6 space-y-4">
+              <div class="h-5 w-44 bg-[#171D21] rounded"></div>
+              <div class="h-10 bg-[#171D21] rounded-xl"></div>
+              <div class="h-12 bg-[#11161A] rounded-xl"></div>
+              <div class="h-12 bg-[#11161A] rounded-xl"></div>
+              <div class="h-12 bg-[#11161A] rounded-xl"></div>
             </div>
           </div>
         }
 
         <!-- 2. ESTADO DE ERRO -->
         @else if (errorMsg()) {
-          <div class="p-6 bg-rose-50 border border-rose-200 rounded-2xl text-rose-800 flex items-center justify-between shadow-2xs">
+          <div class="p-6 bg-rose-950/20 border border-rose-500/30 rounded-2xl text-rose-300 flex items-center justify-between shadow-2xs">
             <div class="flex items-center gap-4">
-              <div class="size-10 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center shrink-0">
+              <div class="size-10 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center shrink-0">
                 <svg lucideAlertTriangle class="size-5"></svg>
               </div>
               <div>
-                <p class="text-sm font-bold">Falha ao processar o relatório</p>
-                <p class="text-xs text-rose-600 mt-0.5">{{ errorMsg() }}</p>
+                <p class="text-sm font-bold text-white">Falha ao processar o relatório</p>
+                <p class="text-xs text-rose-400 mt-0.5">{{ errorMsg() }}</p>
               </div>
             </div>
             <button
               (click)="loadReport()"
-              class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-semibold transition-colors shadow-2xs cursor-pointer"
+              class="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-bold transition-colors shadow-2xs cursor-pointer"
             >
               Tentar novamente
             </button>
@@ -165,12 +165,12 @@ import {
 
         <!-- 3. ESTADO VAZIO -->
         @else if (isEmpty()) {
-          <div class="bg-white rounded-2xl border border-slate-200/80 p-12 text-center shadow-2xs">
-            <div class="size-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-3 border border-slate-200">
+          <div class="bg-[#0F1215] rounded-2xl border border-[#222A2F] p-12 text-center shadow-2xs">
+            <div class="size-12 rounded-2xl bg-[#171D21] text-[#929EAA] flex items-center justify-center mx-auto mb-3 border border-[#222A2F]">
               <svg lucideSearch class="size-6"></svg>
             </div>
-            <h3 class="text-base font-bold text-slate-800">Nenhum dado encontrado</h3>
-            <p class="text-xs sm:text-sm text-slate-500 mt-1 max-w-md mx-auto">
+            <h3 class="text-base font-bold text-white">Nenhum dado encontrado</h3>
+            <p class="text-xs sm:text-sm text-[#929EAA] mt-1 max-w-md mx-auto">
               Não encontramos abastecimentos ou manutenções finalizadas para o filtro e período selecionados.
             </p>
           </div>
@@ -226,45 +226,45 @@ import {
 
           <!-- AVISO QUANDO NENHUM VEÍCULO TEM DADOS SUFICIENTES -->
           @if (report.rows.length > 0 && report.summary.eligibleVehicles === 0) {
-            <div class="p-4 bg-amber-50 border border-amber-200/80 rounded-2xl text-amber-900 flex items-start gap-3 shadow-2xs">
-              <svg lucideAlertTriangle class="size-4.5 text-amber-600 shrink-0 mt-0.5"></svg>
+            <div class="p-4 bg-amber-950/20 border border-amber-500/30 rounded-2xl text-amber-300 flex items-start gap-3 shadow-2xs">
+              <svg lucideAlertTriangle class="size-4.5 text-amber-400 shrink-0 mt-0.5"></svg>
               <div class="text-xs leading-relaxed">
-                <span class="font-bold">Aviso de Dados Insuficientes:</span> Nenhum veículo atingiu os critérios mínimos no período (mínimo de 100 km rodados com odômetro consistente). Verifique se há abastecimentos e leituras de odômetro registradas no período para cálculo de CPK.
+                <span class="font-bold text-amber-200">Aviso de Dados Insuficientes:</span> Nenhum veículo atingiu os critérios mínimos no período (mínimo de 100 km rodados com odômetro consistente). Verifique se há abastecimentos e leituras de odômetro registradas no período para cálculo de CPK.
               </div>
             </div>
           }
 
           <!-- AVISO DE COMPARAÇÃO DE FROTA SE DESATIVADA -->
           @if (!report.summary.fleetComparisonAvailable && report.summary.eligibleVehicles > 0) {
-            <div class="p-4 bg-amber-50 border border-amber-200/80 rounded-2xl text-amber-900 flex items-start gap-3 shadow-2xs">
-              <svg lucideInfo class="size-4.5 text-amber-600 shrink-0 mt-0.5"></svg>
+            <div class="p-4 bg-amber-950/20 border border-amber-500/30 rounded-2xl text-amber-300 flex items-start gap-3 shadow-2xs">
+              <svg lucideInfo class="size-4.5 text-amber-400 shrink-0 mt-0.5"></svg>
               <div class="text-xs leading-relaxed">
-                <span class="font-bold">Aviso de Comparação:</span> A comparação de desvio contra a média da frota exige no mínimo 3 veículos com odômetro consistente e mais de 100 km rodados. Foque na coluna <strong class="text-amber-950 font-bold">vs Período Anterior</strong> para acompanhar tendências individuais.
+                <span class="font-bold text-amber-200">Aviso de Comparação:</span> A comparação de desvio contra a média da frota exige no mínimo 3 veículos com odômetro consistente e mais de 100 km rodados. Foque na coluna <strong class="text-amber-200 font-bold">vs Período Anterior</strong> para acompanhar tendências individuais.
               </div>
             </div>
           }
 
           <!-- TABELA DE VEÍCULOS -->
-          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-2xs overflow-hidden">
-            <div class="px-5 py-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div class="bg-[#0F1215] rounded-2xl border border-[#222A2F] shadow-2xs overflow-hidden">
+            <div class="px-5 py-4 border-b border-[#222A2F] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <div>
-                <h3 class="text-sm font-bold text-slate-900">Detalhamento por Ativo</h3>
-                <p class="text-xs text-slate-500">
+                <h3 class="text-sm font-bold text-white">Detalhamento por Ativo</h3>
+                <p class="text-xs text-[#929EAA]">
                   {{ report.pagination.totalItems }} veículo(s) computado(s) no período de {{ report.period.from }} a {{ report.period.to }}
                 </p>
               </div>
 
               <!-- ORDENAÇÃO RÁPIDA -->
               <div class="flex items-center gap-2">
-                <span class="text-xs text-slate-500 font-medium">Ordenar por:</span>
+                <span class="text-xs text-[#62707C] font-medium">Ordenar por:</span>
                 <select
                   [ngModel]="currentSort()"
                   (ngModelChange)="onSortChange($event)"
-                  class="px-2.5 py-1 text-xs bg-slate-50 border border-slate-200 rounded-lg text-slate-700 focus:outline-none focus:border-emerald-500 cursor-pointer"
+                  class="px-2.5 py-1 text-xs bg-[#11161A] border border-[#222A2F] rounded-lg text-white focus:outline-none focus:border-[#FF6B00] cursor-pointer"
                 >
-                  <option value="cpk_desc">Maior CPK (R$/km)</option>
-                  <option value="cpk_asc">Menor CPK (R$/km)</option>
-                  <option value="plate">Placa do Veículo</option>
+                  <option value="cpk_desc" class="bg-[#11161A] text-white">Maior CPK (R$/km)</option>
+                  <option value="cpk_asc" class="bg-[#11161A] text-white">Menor CPK (R$/km)</option>
+                  <option value="plate" class="bg-[#11161A] text-white">Placa do Veículo</option>
                 </select>
               </div>
             </div>
@@ -272,7 +272,7 @@ import {
             <div class="overflow-x-auto">
               <table class="w-full text-left border-collapse text-xs">
                 <thead>
-                  <tr class="bg-slate-50/80 border-b border-slate-200/80 text-slate-500 font-semibold uppercase tracking-wider text-[10px]">
+                  <tr class="bg-[#11161A] border-b border-[#222A2F] text-[#62707C] font-semibold uppercase tracking-wider text-[10px]">
                     <th class="py-3 px-4">Placa</th>
                     <th class="py-3 px-4">Modelo / Ano</th>
                     <th class="py-3 px-4 text-right">Combustível</th>
@@ -282,7 +282,7 @@ import {
                     <th class="py-3 px-4 text-right">
                       <div class="inline-flex items-center gap-1 cursor-help" title="Períodos curtos podem distorcer o CPK (manutenções são pontuais).">
                         <span>CPK (R$/km)</span>
-                        <svg lucideHelpCircle class="size-3 text-slate-400"></svg>
+                        <svg lucideHelpCircle class="size-3 text-[#62707C]"></svg>
                       </div>
                     </th>
                     <th class="py-3 px-4 text-right">vs Frota</th>
@@ -290,55 +290,55 @@ import {
                     <th class="py-3 px-4 text-center">Status</th>
                   </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100">
+                <tbody class="divide-y divide-[#222A2F]">
                   @for (row of report.rows; track row.vehicleId) {
                     <tr
                       class="transition-colors"
                       [ngClass]="{
-                        'bg-rose-50/50 hover:bg-rose-50/80': row.status === 'ABOVE_AVERAGE',
-                        'hover:bg-slate-50/70': row.status !== 'ABOVE_AVERAGE'
+                        'bg-rose-950/20 hover:bg-rose-950/30': row.status === 'ABOVE_AVERAGE',
+                        'hover:bg-[#171D21]': row.status !== 'ABOVE_AVERAGE'
                       }"
                     >
                       <!-- Placa -->
-                      <td class="py-3.5 px-4 font-mono font-bold text-slate-900 whitespace-nowrap">
+                      <td class="py-3.5 px-4 font-mono font-bold text-white whitespace-nowrap">
                         {{ row.plate }}
                       </td>
 
                       <!-- Modelo / Ano -->
-                      <td class="py-3.5 px-4 text-slate-700 whitespace-nowrap">
+                      <td class="py-3.5 px-4 text-[#CAD2D9] whitespace-nowrap">
                         <span>{{ row.model }}</span>
-                        <span class="text-slate-400 ml-1">({{ row.year }})</span>
+                        <span class="text-[#62707C] ml-1">({{ row.year }})</span>
                       </td>
 
                       <!-- Combustível -->
-                      <td class="py-3.5 px-4 font-mono text-right text-slate-700 whitespace-nowrap">
+                      <td class="py-3.5 px-4 font-mono text-right text-[#CAD2D9] whitespace-nowrap">
                         {{ row.fuelCost | currency:'BRL' }}
                       </td>
 
                       <!-- Manutenção -->
-                      <td class="py-3.5 px-4 font-mono text-right text-slate-700 whitespace-nowrap">
+                      <td class="py-3.5 px-4 font-mono text-right text-[#CAD2D9] whitespace-nowrap">
                         {{ row.maintenanceCost | currency:'BRL' }}
                       </td>
 
                       <!-- Custo Total -->
-                      <td class="py-3.5 px-4 font-mono font-semibold text-right text-slate-900 whitespace-nowrap">
+                      <td class="py-3.5 px-4 font-mono font-bold text-right text-white whitespace-nowrap">
                         {{ row.totalCost | currency:'BRL' }}
                       </td>
 
                       <!-- Km Rodados -->
-                      <td class="py-3.5 px-4 font-mono text-right text-slate-700 whitespace-nowrap">
+                      <td class="py-3.5 px-4 font-mono text-right text-[#CAD2D9] whitespace-nowrap">
                         {{ row.km | number }} km
                       </td>
 
                       <!-- CPK -->
                       <td class="py-3.5 px-4 font-mono font-bold text-right whitespace-nowrap">
                         @if (row.cpk !== null) {
-                          <span [ngClass]="row.status === 'ABOVE_AVERAGE' ? 'text-rose-700' : 'text-slate-900'">
+                          <span [ngClass]="row.status === 'ABOVE_AVERAGE' ? 'text-rose-400 font-black' : 'text-white'">
                             {{ row.cpk | currency:'BRL' }}
                           </span>
                         } @else {
                           <span
-                            class="text-slate-400 cursor-help underline decoration-dotted"
+                            class="text-[#62707C] cursor-help underline decoration-dotted"
                             [title]="mapInsufficientReason(row.insufficientReason)"
                           >
                             —
@@ -351,12 +351,12 @@ import {
                         @if (row.deltaVsFleetPercent !== null) {
                           <span
                             class="font-semibold"
-                            [ngClass]="row.deltaVsFleetPercent > 0 ? 'text-rose-600' : 'text-emerald-600'"
+                            [ngClass]="row.deltaVsFleetPercent > 0 ? 'text-rose-400' : 'text-emerald-400'"
                           >
                             {{ row.deltaVsFleetPercent > 0 ? '+' : '' }}{{ row.deltaVsFleetPercent }}%
                           </span>
                         } @else {
-                          <span class="text-slate-400">—</span>
+                          <span class="text-[#62707C]">—</span>
                         }
                       </td>
 
@@ -365,28 +365,28 @@ import {
                         @if (row.deltaVsPreviousPercent !== null) {
                           <span
                             class="font-semibold"
-                            [ngClass]="row.deltaVsPreviousPercent > 0 ? 'text-rose-600' : 'text-emerald-600'"
+                            [ngClass]="row.deltaVsPreviousPercent > 0 ? 'text-rose-400' : 'text-emerald-400'"
                           >
                             {{ row.deltaVsPreviousPercent > 0 ? '+' : '' }}{{ row.deltaVsPreviousPercent }}%
                           </span>
                         } @else {
-                          <span class="text-slate-400">—</span>
+                          <span class="text-[#62707C]">—</span>
                         }
                       </td>
 
                       <!-- Status Badge -->
                       <td class="py-3.5 px-4 text-center whitespace-nowrap">
                         @if (row.status === 'OK') {
-                          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
                             Normal
                           </span>
                         } @else if (row.status === 'ABOVE_AVERAGE') {
-                          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-100 text-rose-700 border border-rose-200">
+                          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/30">
                             Acima da Média
                           </span>
                         } @else {
                           <span
-                            class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-100 text-slate-600 border border-slate-200 cursor-help"
+                            class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-[#171D21] text-[#929EAA] border border-[#222A2F] cursor-help"
                             [title]="mapInsufficientReason(row.insufficientReason)"
                           >
                             Dados Insuficientes
@@ -396,51 +396,51 @@ import {
                     </tr>
                   }
                 </tbody>
-                <tfoot class="border-t-2 border-slate-300 text-xs">
+                <tfoot class="border-t-2 border-[#222A2F] text-xs">
                   <!-- Linha 1: Elegíveis -->
-                  <tr class="bg-emerald-50/60 text-slate-700">
-                    <td class="py-2.5 px-4 font-semibold" colspan="2">
+                  <tr class="bg-emerald-950/20 text-[#CAD2D9]">
+                    <td class="py-2.5 px-4 font-bold text-white" colspan="2">
                       Elegíveis
-                      <span class="font-normal text-slate-500 text-[10px] ml-1">({{ report.summary.eligible?.vehicles ?? '—' }} veículos)</span>
+                      <span class="font-normal text-[#929EAA] text-[10px] ml-1">({{ report.summary.eligible?.vehicles ?? '—' }} veículos)</span>
                     </td>
                     <td class="py-2.5 px-4 font-mono text-right">{{ report.summary.eligible?.fuelCost | currency:'BRL' }}</td>
                     <td class="py-2.5 px-4 font-mono text-right">{{ report.summary.eligible?.maintenanceCost | currency:'BRL' }}</td>
-                    <td class="py-2.5 px-4 font-mono text-right font-semibold">{{ report.summary.eligible?.totalCost | currency:'BRL' }}</td>
+                    <td class="py-2.5 px-4 font-mono text-right font-bold text-white">{{ report.summary.eligible?.totalCost | currency:'BRL' }}</td>
                     <td class="py-2.5 px-4 font-mono text-right">{{ (report.summary.eligible?.km | number) ?? '—' }} km</td>
-                    <td class="py-2.5 px-4 font-mono text-right font-semibold text-emerald-700">
+                    <td class="py-2.5 px-4 font-mono text-right font-bold text-emerald-400">
                       {{ report.summary.eligible?.cpk ? ((report.summary.eligible.cpk | currency:'BRL') + '/km') : '—' }}
                     </td>
-                    <td class="py-2.5 px-4 text-center text-slate-400 font-mono" colspan="3">—</td>
+                    <td class="py-2.5 px-4 text-center text-[#62707C] font-mono" colspan="3">—</td>
                   </tr>
                   <!-- Linha 2: Sem dados suficientes -->
-                  <tr class="bg-slate-50 text-slate-500">
-                    <td class="py-2.5 px-4 font-semibold" colspan="2">
+                  <tr class="bg-[#11161A] text-[#929EAA]">
+                    <td class="py-2.5 px-4 font-semibold text-[#CAD2D9]" colspan="2">
                       Sem dados suficientes
                       <span class="font-normal text-[10px] ml-1">({{ report.summary.insufficient?.vehicles ?? '—' }} veículos)</span>
                     </td>
                     <td class="py-2.5 px-4 font-mono text-right">{{ report.summary.insufficient?.fuelCost | currency:'BRL' }}</td>
                     <td class="py-2.5 px-4 font-mono text-right">{{ report.summary.insufficient?.maintenanceCost | currency:'BRL' }}</td>
-                    <td class="py-2.5 px-4 font-mono text-right font-semibold">{{ report.summary.insufficient?.totalCost | currency:'BRL' }}</td>
-                    <td class="py-2.5 px-4 font-mono text-right text-slate-400">—</td>
-                    <td class="py-2.5 px-4 font-mono text-right text-slate-400">—</td>
-                    <td class="py-2.5 px-4 text-center text-slate-400 font-mono" colspan="3">—</td>
+                    <td class="py-2.5 px-4 font-mono text-right font-semibold text-[#CAD2D9]">{{ report.summary.insufficient?.totalCost | currency:'BRL' }}</td>
+                    <td class="py-2.5 px-4 font-mono text-right text-[#62707C]">—</td>
+                    <td class="py-2.5 px-4 font-mono text-right text-[#62707C]">—</td>
+                    <td class="py-2.5 px-4 text-center text-[#62707C] font-mono" colspan="3">—</td>
                   </tr>
                   <!-- Linha 3: Total Geral -->
-                  <tr class="border-t-2 border-slate-300 bg-slate-50/90 font-bold text-slate-900">
+                  <tr class="border-t-2 border-[#222A2F] bg-[#0B0E11] font-bold text-white">
                     <td class="py-3 px-4" colspan="2">
                       Totais da Frota
-                      <span class="font-normal text-slate-500 text-[10px] ml-1">({{ report.pagination.totalItems }} veículos)</span>
+                      <span class="font-normal text-[#929EAA] text-[10px] ml-1">({{ report.pagination.totalItems }} veículos)</span>
                     </td>
                     <td class="py-3 px-4 font-mono text-right">{{ report.summary.totalFuelCost | currency:'BRL' }}</td>
                     <td class="py-3 px-4 font-mono text-right">{{ report.summary.totalMaintenanceCost | currency:'BRL' }}</td>
-                    <td class="py-3 px-4 font-mono text-right">{{ report.summary.totalCost | currency:'BRL' }}</td>
-                    <td class="py-3 px-4 font-mono text-right text-slate-500 font-normal">{{ report.summary.eligibleKm | number }} km</td>
-                    <td class="py-3 px-4 font-mono text-right text-emerald-700">
+                    <td class="py-3 px-4 font-mono text-right text-[#FF6B00]">{{ report.summary.totalCost | currency:'BRL' }}</td>
+                    <td class="py-3 px-4 font-mono text-right text-[#CAD2D9] font-normal">{{ report.summary.eligibleKm | number }} km</td>
+                    <td class="py-3 px-4 font-mono text-right text-emerald-400">
                       {{ report.summary.fleetCpk ? ((report.summary.fleetCpk | currency:'BRL') + '/km') : '—' }}
                     </td>
-                    <td class="py-3 px-4 text-right text-slate-400 font-mono font-normal">—</td>
-                    <td class="py-3 px-4 text-right text-slate-400 font-mono font-normal">—</td>
-                    <td class="py-3 px-4 text-center text-slate-600 text-[10px] font-normal">{{ report.summary.eligibleVehicles }} elegíveis</td>
+                    <td class="py-3 px-4 text-right text-[#62707C] font-mono font-normal">—</td>
+                    <td class="py-3 px-4 text-right text-[#62707C] font-mono font-normal">—</td>
+                    <td class="py-3 px-4 text-center text-[#929EAA] text-[10px] font-normal">{{ report.summary.eligibleVehicles }} elegíveis</td>
                   </tr>
                 </tfoot>
               </table>
@@ -459,7 +459,6 @@ import {
           </div>
         }
       </div>
-    </app-report-shell>
   `,
 })
 export class CostPerKmReportComponent {

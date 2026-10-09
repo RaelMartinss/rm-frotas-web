@@ -13,6 +13,10 @@ import {
   LucideCheckCircle2,
   LucideKeyRound,
   LucideShieldAlert,
+  LucideShieldCheck,
+  LucideCoins,
+  LucideClock,
+  LucideArrowRight,
 } from '@lucide/angular';
 
 @Component({
@@ -31,6 +35,10 @@ import {
     LucideCheckCircle2,
     LucideKeyRound,
     LucideShieldAlert,
+    LucideShieldCheck,
+    LucideCoins,
+    LucideClock,
+    LucideArrowRight,
   ],
   templateUrl: './login.html'
 })
@@ -44,6 +52,7 @@ export class LoginComponent {
   loginError = signal<string | null>(null);
   showPassword = signal<boolean>(false);
   readonly currentYear = new Date().getFullYear();
+  readonly appVersion = '2.3.1';
 
   // Signals para Modal "Esqueci minha senha"
   isForgotPasswordModalOpen = signal<boolean>(false);

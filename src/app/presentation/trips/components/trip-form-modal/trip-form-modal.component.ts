@@ -28,22 +28,22 @@ import { CreateTripDTO } from '../../../../domain/models/trip.model';
   ],
   template: `
     @if (isOpen()) {
-      <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-150">
-        <div class="bg-white rounded-2xl border border-slate-200/90 shadow-2xl w-full max-w-xl overflow-hidden animate-in zoom-in-95 duration-150">
-          <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+      <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-150">
+        <div class="bg-[#0F1215] rounded-2xl border border-[#222A2F] shadow-2xl w-full max-w-xl overflow-hidden animate-in zoom-in-95 duration-150">
+          <div class="px-6 py-4 border-b border-[#222A2F] flex items-center justify-between bg-[#0B0E11]">
             <div>
-              <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
-                <div class="size-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-200/60">
+              <h2 class="text-base font-bold text-white flex items-center gap-2">
+                <div class="size-7 rounded-lg bg-[#171D21] text-[#FF6B00] flex items-center justify-center border border-[#222A2F]">
                   <svg lucideNavigation class="size-4"></svg>
                 </div>
                 Lançar Nova Viagem
               </h2>
-              <p class="text-[11px] text-slate-400 mt-0.5 ml-9">Defina o trajeto, condutor e caminhão escalado para o despacho.</p>
+              <p class="text-[11px] text-[#929EAA] mt-0.5 ml-9">Defina o trajeto, condutor e caminhão escalado para o despacho.</p>
             </div>
             <button
               type="button"
               (click)="close.emit()"
-              class="text-slate-400 hover:text-slate-600 p-1 rounded-lg transition-colors cursor-pointer"
+              class="text-[#62707C] hover:text-white p-1 rounded-lg transition-colors cursor-pointer"
             >
               <svg lucideX class="size-5"></svg>
             </button>
@@ -51,10 +51,10 @@ import { CreateTripDTO } from '../../../../domain/models/trip.model';
 
           <form [formGroup]="tripForm" (ngSubmit)="onSubmit()" class="p-6 space-y-4">
             @if (errorMessage()) {
-              <div class="p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-start gap-2 text-rose-800 text-xs">
-                <svg lucideAlertCircle class="size-4 text-rose-600 shrink-0 mt-0.5"></svg>
+              <div class="p-3 bg-rose-950/20 border border-rose-500/30 rounded-xl flex items-start gap-2 text-rose-300 text-xs">
+                <svg lucideAlertCircle class="size-4 text-rose-400 shrink-0 mt-0.5"></svg>
                 <div class="flex-1">
-                  <span class="font-semibold">Erro no cadastro:</span> {{ errorMessage() }}
+                  <span class="font-semibold text-rose-200">Erro no cadastro:</span> {{ errorMessage() }}
                 </div>
               </div>
             }
@@ -62,136 +62,129 @@ import { CreateTripDTO } from '../../../../domain/models/trip.model';
             <!-- Veículo e Motorista -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label class="block text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between">
-                  <span>Veículo da Frota <span class="text-rose-500">*</span></span>
+                <label class="block text-xs font-semibold text-[#CAD2D9] mb-1 flex items-center justify-between">
+                  <span>Veículo da Frota <span class="text-rose-400">*</span></span>
                   @if (loadingAvailability()) {
-                    <span class="text-[10px] text-slate-400 font-normal flex items-center gap-1">
+                    <span class="text-[10px] text-[#62707C] font-normal flex items-center gap-1">
                       <svg lucideLoader2 class="size-2.5 animate-spin"></svg> Verificando...
                     </span>
                   }
                 </label>
                 <select
                   formControlName="vehicleId"
-                  class="w-full bg-slate-50 border rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all disabled:opacity-60 cursor-pointer"
+                  class="w-full bg-[#11161A] border rounded-xl px-3 py-2 text-xs text-white focus:outline-hidden focus:border-[#FF6B00] transition-all disabled:opacity-60 cursor-pointer"
                   [disabled]="loadingAvailability()"
-                  [class.border-rose-400]="tripForm.get('vehicleId')?.invalid && tripForm.get('vehicleId')?.touched"
-                  [class.bg-rose-50/50]="tripForm.get('vehicleId')?.invalid && tripForm.get('vehicleId')?.touched"
-                  [class.border-slate-200]="!(tripForm.get('vehicleId')?.invalid && tripForm.get('vehicleId')?.touched)"
+                  [ngClass]="(tripForm.get('vehicleId')?.invalid && tripForm.get('vehicleId')?.touched) ? 'border-rose-500 bg-rose-950/20' : 'border-[#222A2F]'"
                 >
-                  <option value="">{{ loadingAvailability() ? 'Carregando veículos...' : 'Selecione um veículo disponível...' }}</option>
+                  <option value="" class="bg-[#11161A] text-white">{{ loadingAvailability() ? 'Carregando veículos...' : 'Selecione um veículo disponível...' }}</option>
                   @for (v of availableVehicles(); track v.id) {
-                    <option [value]="v.id">{{ v.plate }} - {{ v.model }} ({{ v.brand }})</option>
+                    <option [value]="v.id" class="bg-[#11161A] text-white">{{ v.plate }} - {{ v.model }} ({{ v.brand }})</option>
                   }
                 </select>
                 @if (tripForm.get('vehicleId')?.touched && tripForm.get('vehicleId')?.errors?.['required']) {
-                  <p class="text-[10px] text-rose-500 mt-1 font-medium">Selecione o veículo.</p>
+                  <p class="text-[10px] text-rose-400 mt-1 font-medium">Selecione o veículo.</p>
                 }
                 @if (!loadingAvailability() && availableVehicles().length === 0) {
-                  <p class="text-[10px] text-amber-600 mt-1 font-medium">Nenhum veículo disponível ou livre no momento.</p>
+                  <p class="text-[10px] text-amber-400 mt-1 font-medium">Nenhum veículo disponível ou livre no momento.</p>
                 }
               </div>
 
               <div>
-                <label class="block text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between">
-                  <span>Motorista Escalado <span class="text-rose-500">*</span></span>
+                <label class="block text-xs font-semibold text-[#CAD2D9] mb-1 flex items-center justify-between">
+                  <span>Motorista Escalado <span class="text-rose-400">*</span></span>
                   @if (loadingAvailability()) {
-                    <span class="text-[10px] text-slate-400 font-normal flex items-center gap-1">
+                    <span class="text-[10px] text-[#62707C] font-normal flex items-center gap-1">
                       <svg lucideLoader2 class="size-2.5 animate-spin"></svg> Verificando...
                     </span>
                   }
                 </label>
                 <select
                   formControlName="driverId"
-                  class="w-full bg-slate-50 border rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all disabled:opacity-60 cursor-pointer"
+                  class="w-full bg-[#11161A] border rounded-xl px-3 py-2 text-xs text-white focus:outline-hidden focus:border-[#FF6B00] transition-all disabled:opacity-60 cursor-pointer"
                   [disabled]="loadingAvailability()"
-                  [class.border-rose-400]="tripForm.get('driverId')?.invalid && tripForm.get('driverId')?.touched"
-                  [class.bg-rose-50/50]="tripForm.get('driverId')?.invalid && tripForm.get('driverId')?.touched"
-                  [class.border-slate-200]="!(tripForm.get('driverId')?.invalid && tripForm.get('driverId')?.touched)"
+                  [ngClass]="(tripForm.get('driverId')?.invalid && tripForm.get('driverId')?.touched) ? 'border-rose-500 bg-rose-950/20' : 'border-[#222A2F]'"
                 >
-                  <option value="">{{ loadingAvailability() ? 'Carregando motoristas...' : 'Selecione um motorista disponível...' }}</option>
+                  <option value="" class="bg-[#11161A] text-white">{{ loadingAvailability() ? 'Carregando motoristas...' : 'Selecione um motorista disponível...' }}</option>
                   @for (d of availableDrivers(); track d.id) {
-                    <option [value]="d.id">{{ d.name }} (CNH: {{ d.cnhNumber }})</option>
+                    <option [value]="d.id" class="bg-[#11161A] text-white">{{ d.name }} (CNH: {{ d.cnhNumber }})</option>
                   }
                 </select>
                 @if (tripForm.get('driverId')?.touched && tripForm.get('driverId')?.errors?.['required']) {
-                  <p class="text-[10px] text-rose-500 mt-1 font-medium">Selecione o motorista.</p>
+                  <p class="text-[10px] text-rose-400 mt-1 font-medium">Selecione o motorista.</p>
                 }
                 @if (!loadingAvailability() && availableDrivers().length === 0) {
-                  <p class="text-[10px] text-amber-600 mt-1 font-medium">Nenhum motorista ativo ou livre no momento.</p>
+                  <p class="text-[10px] text-amber-400 mt-1 font-medium">Nenhum motorista ativo ou livre no momento.</p>
                 }
               </div>
             </div>
 
             <!-- Datas: Saída Prevista e Previsão de Chegada -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80">
-                <label class="block text-xs font-semibold text-slate-700 mb-1 flex items-center gap-1.5">
-                  <svg lucideCalendar class="size-3.5 text-emerald-600"></svg>
-                  <span>Data/Hora Saída Prevista <span class="text-rose-500">*</span></span>
+              <div class="p-3.5 bg-[#11161A] rounded-xl border border-[#222A2F]">
+                <label class="block text-xs font-semibold text-[#CAD2D9] mb-1 flex items-center gap-1.5">
+                  <svg lucideCalendar class="size-3.5 text-[#FF6B00]"></svg>
+                  <span>Data/Hora Saída Prevista <span class="text-rose-400">*</span></span>
                 </label>
                 <input
                   type="datetime-local"
                   formControlName="scheduledDate"
-                  class="w-full bg-white border rounded-lg px-3 py-1.5 text-xs text-slate-800 focus:outline-hidden focus:border-emerald-500 transition-colors"
-                  [class.border-rose-400]="tripForm.get('scheduledDate')?.invalid && tripForm.get('scheduledDate')?.touched"
-                  [class.border-slate-200]="!(tripForm.get('scheduledDate')?.invalid && tripForm.get('scheduledDate')?.touched)"
+                  class="w-full bg-[#0B0E11] border rounded-lg px-3 py-1.5 text-xs text-white focus:outline-hidden focus:border-[#FF6B00] transition-colors"
+                  [ngClass]="(tripForm.get('scheduledDate')?.invalid && tripForm.get('scheduledDate')?.touched) ? 'border-rose-500 bg-rose-950/20' : 'border-[#222A2F]'"
                 />
                 @if (tripForm.get('scheduledDate')?.touched && tripForm.get('scheduledDate')?.errors?.['required']) {
-                  <p class="text-[10px] text-rose-500 mt-1 font-medium">Informe a data e horário previstos para a saída.</p>
+                  <p class="text-[10px] text-rose-400 mt-1 font-medium">Informe a data e horário previstos para a saída.</p>
                 }
               </div>
 
-              <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80">
-                <label class="block text-xs font-semibold text-slate-700 mb-1 flex items-center gap-1.5">
-                  <svg lucideCalendar class="size-3.5 text-blue-600"></svg>
+              <div class="p-3.5 bg-[#11161A] rounded-xl border border-[#222A2F]">
+                <label class="block text-xs font-semibold text-[#CAD2D9] mb-1 flex items-center gap-1.5">
+                  <svg lucideCalendar class="size-3.5 text-blue-400"></svg>
                   <span>Previsão de Chegada</span>
                 </label>
                 <input
                   type="datetime-local"
                   formControlName="estimatedArrivalDate"
-                  class="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-800 focus:outline-hidden focus:border-emerald-500 transition-colors"
+                  class="w-full bg-[#0B0E11] border border-[#222A2F] rounded-lg px-3 py-1.5 text-xs text-white focus:outline-hidden focus:border-[#FF6B00] transition-colors"
                 />
-                <p class="text-[10px] text-slate-400 mt-1 font-normal">Data e hora estimada para conclusão.</p>
+                <p class="text-[10px] text-[#62707C] mt-1 font-normal">Data e hora estimada para conclusão.</p>
               </div>
             </div>
 
             <!-- Origem -->
-            <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80 space-y-3">
-              <div class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                <svg lucideMapPin class="size-3.5 text-emerald-600"></svg>
+            <div class="p-3.5 bg-[#11161A] rounded-xl border border-[#222A2F] space-y-3">
+              <div class="text-xs font-bold text-white flex items-center gap-1.5">
+                <svg lucideMapPin class="size-3.5 text-[#FF6B00]"></svg>
                 Local de Origem
               </div>
               <div>
-                <label class="block text-[11px] font-medium text-slate-600 mb-1">Logradouro / Ponto de Partida <span class="text-rose-500">*</span></label>
+                <label class="block text-[11px] font-medium text-[#929EAA] mb-1">Logradouro / Ponto de Partida <span class="text-rose-400">*</span></label>
                 <input
                   type="text"
                   formControlName="originAddress"
                   placeholder="Ex: Pátio Matriz - Av. Transamazônica, 500"
-                  class="w-full bg-white border rounded-lg px-3 py-1.5 text-xs text-slate-800 focus:outline-hidden focus:border-emerald-500 transition-colors placeholder:text-slate-400"
-                  [class.border-rose-400]="tripForm.get('originAddress')?.invalid && tripForm.get('originAddress')?.touched"
-                  [class.border-slate-200]="!(tripForm.get('originAddress')?.invalid && tripForm.get('originAddress')?.touched)"
+                  class="w-full bg-[#0B0E11] border rounded-lg px-3 py-1.5 text-xs text-white focus:outline-hidden focus:border-[#FF6B00] transition-colors placeholder:text-[#62707C]"
+                  [ngClass]="(tripForm.get('originAddress')?.invalid && tripForm.get('originAddress')?.touched) ? 'border-rose-500 bg-rose-950/20' : 'border-[#222A2F]'"
                 />
               </div>
               <div class="grid grid-cols-3 gap-3">
                 <div class="col-span-2">
-                  <label class="block text-[11px] font-medium text-slate-600 mb-1">Cidade <span class="text-rose-500">*</span></label>
+                  <label class="block text-[11px] font-medium text-[#929EAA] mb-1">Cidade <span class="text-rose-400">*</span></label>
                   <input
                     type="text"
                     formControlName="originCity"
                     placeholder="Ex: Paragominas"
-                    class="w-full bg-white border rounded-lg px-3 py-1.5 text-xs text-slate-800 focus:outline-hidden focus:border-emerald-500 transition-colors placeholder:text-slate-400"
-                    [class.border-rose-400]="tripForm.get('originCity')?.invalid && tripForm.get('originCity')?.touched"
-                    [class.border-slate-200]="!(tripForm.get('originCity')?.invalid && tripForm.get('originCity')?.touched)"
+                    class="w-full bg-[#0B0E11] border rounded-lg px-3 py-1.5 text-xs text-white focus:outline-hidden focus:border-[#FF6B00] transition-colors placeholder:text-[#62707C]"
+                    [ngClass]="(tripForm.get('originCity')?.invalid && tripForm.get('originCity')?.touched) ? 'border-rose-500 bg-rose-950/20' : 'border-[#222A2F]'"
                   />
                 </div>
                 <div>
-                  <label class="block text-[11px] font-medium text-slate-600 mb-1">UF <span class="text-rose-500">*</span></label>
+                  <label class="block text-[11px] font-medium text-[#929EAA] mb-1">UF <span class="text-rose-400">*</span></label>
                   <select
                     formControlName="originState"
-                    class="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-800 focus:outline-hidden focus:border-emerald-500 transition-colors cursor-pointer"
+                    class="w-full bg-[#0B0E11] border border-[#222A2F] rounded-lg px-3 py-1.5 text-xs text-white focus:outline-hidden focus:border-[#FF6B00] transition-colors cursor-pointer"
                   >
                     @for (uf of states(); track uf) {
-                      <option [value]="uf">{{ uf }}</option>
+                      <option [value]="uf" class="bg-[#11161A] text-white">{{ uf }}</option>
                     }
                   </select>
                 </div>
@@ -199,42 +192,40 @@ import { CreateTripDTO } from '../../../../domain/models/trip.model';
             </div>
 
             <!-- Destino -->
-            <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80 space-y-3">
-              <div class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                <svg lucideMapPin class="size-3.5 text-blue-600"></svg>
+            <div class="p-3.5 bg-[#11161A] rounded-xl border border-[#222A2F] space-y-3">
+              <div class="text-xs font-bold text-white flex items-center gap-1.5">
+                <svg lucideMapPin class="size-3.5 text-blue-400"></svg>
                 Local de Destino
               </div>
               <div>
-                <label class="block text-[11px] font-medium text-slate-600 mb-1">Logradouro / Ponto de Chegada <span class="text-rose-500">*</span></label>
+                <label class="block text-[11px] font-medium text-[#929EAA] mb-1">Logradouro / Ponto de Chegada <span class="text-rose-400">*</span></label>
                 <input
                   type="text"
                   formControlName="destinationAddress"
                   placeholder="Ex: Porto de Belém / Av. Almirante Barroso"
-                  class="w-full bg-white border rounded-lg px-3 py-1.5 text-xs text-slate-800 focus:outline-hidden focus:border-emerald-500 transition-colors placeholder:text-slate-400"
-                  [class.border-rose-400]="tripForm.get('destinationAddress')?.invalid && tripForm.get('destinationAddress')?.touched"
-                  [class.border-slate-200]="!(tripForm.get('destinationAddress')?.invalid && tripForm.get('destinationAddress')?.touched)"
+                  class="w-full bg-[#0B0E11] border rounded-lg px-3 py-1.5 text-xs text-white focus:outline-hidden focus:border-[#FF6B00] transition-colors placeholder:text-[#62707C]"
+                  [ngClass]="(tripForm.get('destinationAddress')?.invalid && tripForm.get('destinationAddress')?.touched) ? 'border-rose-500 bg-rose-950/20' : 'border-[#222A2F]'"
                 />
               </div>
               <div class="grid grid-cols-3 gap-3">
                 <div class="col-span-2">
-                  <label class="block text-[11px] font-medium text-slate-600 mb-1">Cidade <span class="text-rose-500">*</span></label>
+                  <label class="block text-[11px] font-medium text-[#929EAA] mb-1">Cidade <span class="text-rose-400">*</span></label>
                   <input
                     type="text"
                     formControlName="destinationCity"
                     placeholder="Ex: Belém"
-                    class="w-full bg-white border rounded-lg px-3 py-1.5 text-xs text-slate-800 focus:outline-hidden focus:border-emerald-500 transition-colors placeholder:text-slate-400"
-                    [class.border-rose-400]="tripForm.get('destinationCity')?.invalid && tripForm.get('destinationCity')?.touched"
-                    [class.border-slate-200]="!(tripForm.get('destinationCity')?.invalid && tripForm.get('destinationCity')?.touched)"
+                    class="w-full bg-[#0B0E11] border rounded-lg px-3 py-1.5 text-xs text-white focus:outline-hidden focus:border-[#FF6B00] transition-colors placeholder:text-[#62707C]"
+                    [ngClass]="(tripForm.get('destinationCity')?.invalid && tripForm.get('destinationCity')?.touched) ? 'border-rose-500 bg-rose-950/20' : 'border-[#222A2F]'"
                   />
                 </div>
                 <div>
-                  <label class="block text-[11px] font-medium text-slate-600 mb-1">UF <span class="text-rose-500">*</span></label>
+                  <label class="block text-[11px] font-medium text-[#929EAA] mb-1">UF <span class="text-rose-400">*</span></label>
                   <select
                     formControlName="destinationState"
-                    class="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-800 focus:outline-hidden focus:border-emerald-500 transition-colors cursor-pointer"
+                    class="w-full bg-[#0B0E11] border border-[#222A2F] rounded-lg px-3 py-1.5 text-xs text-white focus:outline-hidden focus:border-[#FF6B00] transition-colors cursor-pointer"
                   >
                     @for (uf of states(); track uf) {
-                      <option [value]="uf">{{ uf }}</option>
+                      <option [value]="uf" class="bg-[#11161A] text-white">{{ uf }}</option>
                     }
                   </select>
                 </div>
@@ -242,28 +233,28 @@ import { CreateTripDTO } from '../../../../domain/models/trip.model';
             </div>
 
             <!-- Observações -->
-            <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80">
-              <label class="block text-xs font-semibold text-slate-700 mb-1">Observações da Viagem</label>
+            <div class="p-3.5 bg-[#11161A] rounded-xl border border-[#222A2F]">
+              <label class="block text-xs font-semibold text-[#CAD2D9] mb-1">Observações da Viagem</label>
               <input
                 type="text"
                 formControlName="notes"
                 placeholder="Ex: Entrega de materiais, Sem intercorrências, Viagem urgente..."
-                class="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-800 focus:outline-hidden focus:border-emerald-500 transition-colors placeholder:text-slate-400"
+                class="w-full bg-[#0B0E11] border border-[#222A2F] rounded-lg px-3 py-1.5 text-xs text-white focus:outline-hidden focus:border-[#FF6B00] transition-colors placeholder:text-[#62707C]"
               />
             </div>
 
-            <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
+            <div class="pt-4 border-t border-[#222A2F] flex items-center justify-end gap-3">
               <button
                 type="button"
                 (click)="close.emit()"
-                class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+                class="px-4 py-2 text-xs font-semibold text-[#929EAA] hover:text-white hover:bg-[#171D21] rounded-xl transition-colors cursor-pointer border border-[#222A2F]"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
                 [disabled]="isSaving()"
-                class="px-4 py-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-colors flex items-center gap-2 disabled:opacity-50 cursor-pointer shadow-xs"
+                class="px-5 py-2 text-xs font-bold text-[#080B0C] bg-[#FF6B00] hover:bg-[#E05D00] rounded-xl transition-colors flex items-center gap-2 disabled:opacity-50 cursor-pointer shadow-xs"
               >
                 @if (isSaving()) {
                   <svg lucideLoader2 class="size-4 animate-spin"></svg>

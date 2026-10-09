@@ -21,33 +21,33 @@ import {
   ],
   template: `
     @if (isOpen() && vehicle()) {
-      <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-150">
-        <div class="bg-white rounded-2xl border border-slate-200/90 shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-150">
+      <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-150">
+        <div class="bg-[#0F1215] rounded-2xl border border-[#222A2F] shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-150">
           <div class="p-6 text-center space-y-4">
-            <div class="size-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto border border-emerald-200">
+            <div class="size-12 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center mx-auto border border-emerald-500/20">
               <svg lucideCheckCircle2 class="size-6"></svg>
             </div>
             <div>
-              <h3 class="text-base font-bold text-slate-800">Finalizar Manutenção</h3>
-              <p class="text-xs text-slate-500 mt-1">
-                Os serviços foram concluídos? O veículo retornará ao status <strong>Disponível</strong>.
+              <h3 class="text-base font-bold text-white">Finalizar Manutenção</h3>
+              <p class="text-xs text-[#8E9DA8] mt-1">
+                Os serviços foram concluídos? O veículo retornará ao status <strong class="text-emerald-400">Disponível</strong>.
               </p>
             </div>
 
-            <div class="p-4 bg-slate-50 rounded-xl border border-slate-200/70 text-left space-y-2">
+            <div class="p-4 bg-[#11161A] rounded-xl border border-[#222A2F] text-left space-y-2">
               <div class="flex justify-between items-center text-xs">
-                <span class="text-slate-500">Placa:</span>
-                <span class="font-mono font-bold text-slate-800 bg-white px-2 py-0.5 rounded border border-slate-200">{{ vehicle()?.plate }}</span>
+                <span class="text-[#8E9DA8]">Placa:</span>
+                <span class="font-mono font-bold text-white bg-[#0F1215] px-2 py-0.5 rounded border border-[#222A2F]">{{ vehicle()?.plate }}</span>
               </div>
               <div class="flex justify-between items-center text-xs">
-                <span class="text-slate-500">Modelo:</span>
-                <span class="font-semibold text-slate-700">{{ vehicle()?.brand }} {{ vehicle()?.model }}</span>
+                <span class="text-[#8E9DA8]">Modelo:</span>
+                <span class="font-semibold text-white">{{ vehicle()?.brand }} {{ vehicle()?.model }}</span>
               </div>
             </div>
 
             @if (actionError()) {
-              <div class="p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-center gap-2 text-rose-800 text-xs text-left">
-                <svg lucideAlertCircle class="size-4 text-rose-600 shrink-0"></svg>
+              <div class="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl flex items-center gap-2 text-rose-400 text-xs text-left">
+                <svg lucideAlertCircle class="size-4 text-rose-400 shrink-0"></svg>
                 <span>{{ actionError() }}</span>
               </div>
             }
@@ -57,15 +57,15 @@ import {
                 type="button"
                 (click)="onClose()"
                 [disabled]="isActionLoading()"
-                class="flex-1 py-2.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+                class="flex-1 py-2.5 text-xs font-semibold text-[#8E9DA8] hover:text-white bg-[#171D21] hover:bg-[#222A2F] border border-[#222A2F] rounded-xl transition-colors cursor-pointer"
               >
                 Voltar
               </button>
               <button
-                type="button"
+                type="submit"
                 (click)="confirmFinishMaintenance()"
                 [disabled]="isActionLoading()"
-                class="flex-1 py-2.5 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-colors flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer shadow-xs"
+                class="flex-1 py-2.5 text-xs font-bold text-[#080B0C] bg-[#FF6B00] hover:bg-[#E05D00] rounded-xl transition-colors flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer shadow-xs"
               >
                 @if (isActionLoading()) {
                   <svg lucideLoader2 class="size-4 animate-spin"></svg>

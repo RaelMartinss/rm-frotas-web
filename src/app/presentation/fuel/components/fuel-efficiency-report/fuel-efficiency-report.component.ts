@@ -271,16 +271,16 @@ export class FuelEfficiencyReportComponent implements OnInit, OnDestroy {
             scales: {
               y: {
                 beginAtZero: false,
-                grid: { color: 'rgba(226, 232, 240, 0.6)' },
+                grid: { color: 'rgba(255, 255, 255, 0.08)' },
                 ticks: {
                   callback: (val) => `${val} km/L`,
-                  color: '#64748b',
+                  color: '#8E9DA8',
                   font: { size: 11 },
                 },
               },
               x: {
                 grid: { display: false },
-                ticks: { color: '#64748b', font: { size: 11 } },
+                ticks: { color: '#8E9DA8', font: { size: 11 } },
               },
             },
           },
@@ -306,9 +306,9 @@ export class FuelEfficiencyReportComponent implements OnInit, OnDestroy {
               {
                 label: 'Gastos (R$)',
                 data,
-                backgroundColor: '#6366f1',
+                backgroundColor: '#FF6B00',
                 borderRadius: 6,
-                hoverBackgroundColor: '#4f46e5',
+                hoverBackgroundColor: '#E05D00',
               },
             ],
           },
@@ -318,7 +318,11 @@ export class FuelEfficiencyReportComponent implements OnInit, OnDestroy {
             plugins: {
               legend: { display: false },
               tooltip: {
-                backgroundColor: '#0f172a',
+                backgroundColor: '#0F1215',
+                borderColor: '#222A2F',
+                borderWidth: 1,
+                titleColor: '#FFFFFF',
+                bodyColor: '#8E9DA8',
                 padding: 10,
                 callbacks: {
                   label: (context) =>
@@ -332,16 +336,16 @@ export class FuelEfficiencyReportComponent implements OnInit, OnDestroy {
             scales: {
               y: {
                 beginAtZero: true,
-                grid: { color: 'rgba(226, 232, 240, 0.6)' },
+                grid: { color: 'rgba(255, 255, 255, 0.08)' },
                 ticks: {
                   callback: (val) => `R$ ${val}`,
-                  color: '#64748b',
+                  color: '#8E9DA8',
                   font: { size: 10 },
                 },
               },
               x: {
                 grid: { display: false },
-                ticks: { color: '#64748b', font: { size: 10 } },
+                ticks: { color: '#8E9DA8', font: { size: 10 } },
               },
             },
           },
@@ -379,7 +383,11 @@ export class FuelEfficiencyReportComponent implements OnInit, OnDestroy {
             plugins: {
               legend: { display: false },
               tooltip: {
-                backgroundColor: '#0f172a',
+                backgroundColor: '#0F1215',
+                borderColor: '#222A2F',
+                borderWidth: 1,
+                titleColor: '#FFFFFF',
+                bodyColor: '#8E9DA8',
                 padding: 10,
                 callbacks: {
                   label: (context) => ` ${(context.raw as number).toFixed(2)} L`,
@@ -389,16 +397,16 @@ export class FuelEfficiencyReportComponent implements OnInit, OnDestroy {
             scales: {
               y: {
                 beginAtZero: true,
-                grid: { color: 'rgba(226, 232, 240, 0.6)' },
+                grid: { color: 'rgba(255, 255, 255, 0.08)' },
                 ticks: {
                   callback: (val) => `${val} L`,
-                  color: '#64748b',
+                  color: '#8E9DA8',
                   font: { size: 10 },
                 },
               },
               x: {
                 grid: { display: false },
-                ticks: { color: '#64748b', font: { size: 10 } },
+                ticks: { color: '#8E9DA8', font: { size: 10 } },
               },
             },
           },
@@ -439,7 +447,11 @@ export class FuelEfficiencyReportComponent implements OnInit, OnDestroy {
             plugins: {
               legend: { display: false },
               tooltip: {
-                backgroundColor: '#0f172a',
+                backgroundColor: '#0F1215',
+                borderColor: '#222A2F',
+                borderWidth: 1,
+                titleColor: '#FFFFFF',
+                bodyColor: '#8E9DA8',
                 padding: 10,
                 callbacks: {
                   label: (context) => ` R$ ${(context.raw as number).toFixed(2)} / L`,
@@ -449,16 +461,16 @@ export class FuelEfficiencyReportComponent implements OnInit, OnDestroy {
             scales: {
               y: {
                 beginAtZero: false,
-                grid: { color: 'rgba(226, 232, 240, 0.6)' },
+                grid: { color: 'rgba(255, 255, 255, 0.08)' },
                 ticks: {
                   callback: (val) => `R$ ${val}`,
-                  color: '#64748b',
+                  color: '#8E9DA8',
                   font: { size: 10 },
                 },
               },
               x: {
                 grid: { display: false },
-                ticks: { color: '#64748b', font: { size: 10 } },
+                ticks: { color: '#8E9DA8', font: { size: 10 } },
               },
             },
           },
@@ -472,7 +484,7 @@ export class FuelEfficiencyReportComponent implements OnInit, OnDestroy {
       if (ctx) {
         const labels = report.fuelDistribution.map((d) => d.label);
         const data = report.fuelDistribution.map((d) => d.percentage);
-        const colors = ['#10b981', '#6366f1', '#f59e0b', '#0ea5e9', '#ec4899', '#8b5cf6'];
+        const colors = ['#10b981', '#FF6B00', '#f59e0b', '#0ea5e9', '#ec4899', '#8b5cf6'];
 
         this.distributionChartInstance = new Chart(ctx, {
           type: 'bar',
@@ -493,7 +505,11 @@ export class FuelEfficiencyReportComponent implements OnInit, OnDestroy {
             plugins: {
               legend: { display: false },
               tooltip: {
-                backgroundColor: '#0f172a',
+                backgroundColor: '#0F1215',
+                borderColor: '#222A2F',
+                borderWidth: 1,
+                titleColor: '#FFFFFF',
+                bodyColor: '#8E9DA8',
                 padding: 10,
                 callbacks: {
                   label: (context) => {
@@ -508,16 +524,16 @@ export class FuelEfficiencyReportComponent implements OnInit, OnDestroy {
               x: {
                 beginAtZero: true,
                 max: 100,
-                grid: { color: 'rgba(226, 232, 240, 0.6)' },
+                grid: { color: 'rgba(255, 255, 255, 0.08)' },
                 ticks: {
                   callback: (val) => `${val}%`,
-                  color: '#64748b',
+                  color: '#8E9DA8',
                   font: { size: 10 },
                 },
               },
               y: {
                 grid: { display: false },
-                ticks: { color: '#334155', font: { size: 11, weight: 'bold' } },
+                ticks: { color: '#C5D1D9', font: { size: 11, weight: 'bold' } },
               },
             },
           },

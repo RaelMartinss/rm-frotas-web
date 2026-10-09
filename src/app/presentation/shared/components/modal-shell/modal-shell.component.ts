@@ -9,28 +9,28 @@ import { LucideX } from '@lucide/angular';
   template: `
     @if (isOpen()) {
       <div 
-        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-150"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-150"
         (click)="onBackdropClick($event)"
       >
         <div 
-          class="bg-white rounded-2xl border border-slate-200/90 shadow-2xl w-full overflow-hidden animate-in zoom-in-95 duration-150 flex flex-col max-h-[92vh]"
+          class="bg-[#0F1215] rounded-2xl border border-[#222A2F] shadow-2xl w-full overflow-hidden animate-in zoom-in-95 duration-150 flex flex-col max-h-[92vh]"
           [ngClass]="maxWidthClass()"
         >
           <!-- HEADER -->
-          <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 shrink-0">
+          <div class="px-6 py-4 border-b border-[#222A2F] flex items-center justify-between bg-[#0B0E11] shrink-0">
             <div class="flex items-center gap-2.5">
               <ng-content select="[header-icon]"></ng-content>
               <div>
-                <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">{{ title() }}</h2>
+                <h2 class="text-base font-bold text-white flex items-center gap-2">{{ title() }}</h2>
                 @if (subtitle()) {
-                  <p class="text-[11px] text-slate-400 mt-0.5">{{ subtitle() }}</p>
+                  <p class="text-[11px] text-[#929EAA] mt-0.5">{{ subtitle() }}</p>
                 }
               </div>
             </div>
             <button
               type="button"
               (click)="close.emit()"
-              class="text-slate-400 hover:text-slate-600 p-1 rounded-lg transition-colors cursor-pointer"
+              class="text-[#62707C] hover:text-white p-1 rounded-lg transition-colors cursor-pointer"
               title="Fechar"
             >
               <svg lucideX class="size-5"></svg>

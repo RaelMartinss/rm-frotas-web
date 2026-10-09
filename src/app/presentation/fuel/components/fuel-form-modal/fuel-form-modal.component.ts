@@ -54,25 +54,25 @@ export interface FuelFormSubmitPayload {
   ],
   template: `
     @if (isOpen()) {
-      <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-150">
-        <div class="bg-white rounded-2xl border border-slate-200/90 shadow-2xl w-full max-w-xl overflow-hidden animate-in zoom-in-95 duration-150 flex flex-col max-h-[90vh]">
+      <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-150">
+        <div class="bg-[#0F1215] rounded-2xl border border-[#222A2F] shadow-2xl w-full max-w-xl overflow-hidden animate-in zoom-in-95 duration-150 flex flex-col max-h-[90vh]">
           <!-- Header do Modal -->
-          <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 shrink-0">
+          <div class="px-6 py-4 border-b border-[#222A2F] flex items-center justify-between bg-[#0B0E11] shrink-0">
             <div class="flex items-center gap-3">
-              <div class="p-2 bg-emerald-50 text-emerald-600 rounded-xl border border-emerald-100">
+              <div class="p-2 bg-[#171D21] text-[#FF6B00] rounded-xl border border-[#222A2F]">
                 <svg lucideFuel class="size-5"></svg>
               </div>
               <div>
-                <h3 class="text-sm font-bold text-slate-800">
+                <h3 class="text-sm font-bold text-white">
                   {{ isEdit() ? 'Editar Abastecimento' : 'Registrar Novo Abastecimento' }}
                 </h3>
-                <p class="text-[11px] text-slate-400">Preencha os dados do abastecimento realizado</p>
+                <p class="text-[11px] text-[#929EAA]">Preencha os dados do abastecimento realizado</p>
               </div>
             </div>
             <button
               type="button"
               (click)="close.emit()"
-              class="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+              class="p-1.5 text-[#62707C] hover:text-white hover:bg-[#171D21] rounded-lg transition-colors cursor-pointer"
             >
               <svg lucideX class="size-4"></svg>
             </button>
@@ -81,42 +81,42 @@ export interface FuelFormSubmitPayload {
           <!-- Formulário com Scroll -->
           <form [formGroup]="fuelForm" (ngSubmit)="onSubmit()" class="p-6 overflow-y-auto space-y-4 text-xs">
             @if (errorMessage()) {
-              <div class="p-3 bg-rose-50 text-rose-700 border border-rose-200 rounded-xl flex items-center gap-2">
-                <svg lucideAlertCircle class="size-4 shrink-0"></svg>
+              <div class="p-3 bg-rose-950/20 text-rose-300 border border-rose-500/30 rounded-xl flex items-center gap-2">
+                <svg lucideAlertCircle class="size-4 shrink-0 text-rose-400"></svg>
                 <span>{{ errorMessage() }}</span>
               </div>
             }
 
             <!-- Veículo -->
             <div>
-              <label class="block font-semibold text-slate-700 mb-1">Veículo *</label>
+              <label class="block font-semibold text-[#CAD2D9] mb-1">Veículo *</label>
               <select
                 formControlName="vehicleId"
-                class="w-full px-3 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 cursor-pointer"
-                [ngClass]="fuelForm.get('vehicleId')?.invalid && fuelForm.get('vehicleId')?.touched ? 'border-rose-300 bg-rose-50/30' : ''"
+                class="w-full px-3 py-2.5 bg-[#11161A] rounded-xl border border-[#222A2F] text-white focus:outline-none focus:border-[#FF6B00] cursor-pointer"
+                [ngClass]="fuelForm.get('vehicleId')?.invalid && fuelForm.get('vehicleId')?.touched ? 'border-rose-500 bg-rose-950/20' : ''"
               >
-                <option value="" disabled>Selecione o veículo</option>
+                <option value="" disabled class="bg-[#11161A] text-white">Selecione o veículo</option>
                 @for (v of vehicles(); track v.id) {
-                  <option [value]="v.id">{{ v.plate }} - {{ v.model }} (Atual: {{ v.currentKm | number }} km)</option>
+                  <option [value]="v.id" class="bg-[#11161A] text-white">{{ v.plate }} - {{ v.model }} (Atual: {{ v.currentKm | number }} km)</option>
                 }
               </select>
               @if (getSelectedVehicleKm() !== null) {
-                <p class="text-[11px] text-slate-400 mt-1">KM atual do veículo cadastrado: <strong class="text-slate-700">{{ getSelectedVehicleKm() | number }} km</strong></p>
+                <p class="text-[11px] text-[#929EAA] mt-1">KM atual do veículo cadastrado: <strong class="text-white">{{ getSelectedVehicleKm() | number }} km</strong></p>
               }
             </div>
 
             <!-- Motorista (se Gestor) -->
             @if (!isDriverUser()) {
               <div>
-                <label class="block font-semibold text-slate-700 mb-1">Motorista Responsável *</label>
+                <label class="block font-semibold text-[#CAD2D9] mb-1">Motorista Responsável *</label>
                 <select
                   formControlName="driverId"
-                  class="w-full px-3 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 cursor-pointer"
-                  [ngClass]="fuelForm.get('driverId')?.invalid && fuelForm.get('driverId')?.touched ? 'border-rose-300 bg-rose-50/30' : ''"
+                  class="w-full px-3 py-2.5 bg-[#11161A] rounded-xl border border-[#222A2F] text-white focus:outline-none focus:border-[#FF6B00] cursor-pointer"
+                  [ngClass]="fuelForm.get('driverId')?.invalid && fuelForm.get('driverId')?.touched ? 'border-rose-500 bg-rose-950/20' : ''"
                 >
-                  <option value="" disabled>Selecione o motorista</option>
+                  <option value="" disabled class="bg-[#11161A] text-white">Selecione o motorista</option>
                   @for (d of drivers(); track d.id) {
-                    <option [value]="d.id">{{ d.name }} (CPF: {{ d.cpf }})</option>
+                    <option [value]="d.id" class="bg-[#11161A] text-white">{{ d.name }} (CPF: {{ d.cpf }})</option>
                   }
                 </select>
               </div>
@@ -125,25 +125,25 @@ export interface FuelFormSubmitPayload {
             <!-- Tipo de Combustível & Odômetro -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label class="block font-semibold text-slate-700 mb-1">Tipo de Combustível *</label>
+                <label class="block font-semibold text-[#CAD2D9] mb-1">Tipo de Combustível *</label>
                 <select
                   formControlName="fuelType"
-                  class="w-full px-3 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 cursor-pointer"
+                  class="w-full px-3 py-2.5 bg-[#11161A] rounded-xl border border-[#222A2F] text-white focus:outline-none focus:border-[#FF6B00] cursor-pointer"
                 >
                   @for (ft of fuelTypes; track ft.value) {
-                    <option [value]="ft.value">{{ ft.label }}</option>
+                    <option [value]="ft.value" class="bg-[#11161A] text-white">{{ ft.label }}</option>
                   }
                 </select>
               </div>
 
               <div>
-                <label class="block font-semibold text-slate-700 mb-1">Odômetro no Abastecimento (KM) *</label>
+                <label class="block font-semibold text-[#CAD2D9] mb-1">Odômetro no Abastecimento (KM) *</label>
                 <input
                   type="number"
                   formControlName="odometerAtFueling"
                   placeholder="Ex: 50250"
-                  class="w-full px-3 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-                  [ngClass]="fuelForm.get('odometerAtFueling')?.invalid && fuelForm.get('odometerAtFueling')?.touched ? 'border-rose-300 bg-rose-50/30' : ''"
+                  class="w-full px-3 py-2.5 bg-[#11161A] rounded-xl border border-[#222A2F] text-white focus:outline-none focus:border-[#FF6B00] placeholder:text-[#62707C]"
+                  [ngClass]="fuelForm.get('odometerAtFueling')?.invalid && fuelForm.get('odometerAtFueling')?.touched ? 'border-rose-500 bg-rose-950/20' : ''"
                 />
               </div>
             </div>
@@ -151,55 +151,55 @@ export interface FuelFormSubmitPayload {
             <!-- Litros, Preço/L e Total -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
-                <label class="block font-semibold text-slate-700 mb-1">Litros Abastecidos *</label>
+                <label class="block font-semibold text-[#CAD2D9] mb-1">Litros Abastecidos *</label>
                 <input
                   type="number"
                   step="0.01"
                   formControlName="liters"
                   placeholder="Ex: 45.5"
-                  class="w-full px-3 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-                  [ngClass]="fuelForm.get('liters')?.invalid && fuelForm.get('liters')?.touched ? 'border-rose-300 bg-rose-50/30' : ''"
+                  class="w-full px-3 py-2.5 bg-[#11161A] rounded-xl border border-[#222A2F] text-white focus:outline-none focus:border-[#FF6B00] placeholder:text-[#62707C]"
+                  [ngClass]="fuelForm.get('liters')?.invalid && fuelForm.get('liters')?.touched ? 'border-rose-500 bg-rose-950/20' : ''"
                 />
               </div>
 
               <div>
-                <label class="block font-semibold text-slate-700 mb-1">Preço por Litro (R$)</label>
+                <label class="block font-semibold text-[#CAD2D9] mb-1">Preço por Litro (R$)</label>
                 <input
                   type="number"
                   step="0.001"
                   formControlName="pricePerUnit"
                   placeholder="Ex: 5.89"
-                  class="w-full px-3 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                  class="w-full px-3 py-2.5 bg-[#11161A] rounded-xl border border-[#222A2F] text-white focus:outline-none focus:border-[#FF6B00] placeholder:text-[#62707C]"
                 />
               </div>
 
               <div>
-                <label class="block font-semibold text-slate-700 mb-1">Valor Total (R$) *</label>
+                <label class="block font-semibold text-[#CAD2D9] mb-1">Valor Total (R$) *</label>
                 <input
                   type="number"
                   step="0.01"
                   formControlName="totalCost"
                   placeholder="Ex: 267.99"
-                  class="w-full px-3 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-                  [ngClass]="fuelForm.get('totalCost')?.invalid && fuelForm.get('totalCost')?.touched ? 'border-rose-300 bg-rose-50/30' : ''"
+                  class="w-full px-3 py-2.5 bg-[#11161A] rounded-xl border border-[#222A2F] text-white font-bold focus:outline-none focus:border-[#FF6B00] placeholder:text-[#62707C]"
+                  [ngClass]="fuelForm.get('totalCost')?.invalid && fuelForm.get('totalCost')?.touched ? 'border-rose-500 bg-rose-950/20' : ''"
                 />
               </div>
             </div>
 
             <!-- TOGGLE EM DESTAQUE: TANQUE CHEIO -->
-            <div class="p-4 bg-emerald-50/60 rounded-2xl border border-emerald-200/80 flex items-start gap-3">
+            <div class="p-4 bg-emerald-500/10 rounded-2xl border border-emerald-500/30 flex items-start gap-3">
               <input
                 type="checkbox"
                 id="fullTankToggle"
                 formControlName="fullTank"
-                class="mt-1 size-4 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500 cursor-pointer"
+                class="mt-1 size-4 accent-[#FF6B00] rounded cursor-pointer"
               />
               <label for="fullTankToggle" class="cursor-pointer">
-                <span class="font-bold text-slate-800 text-xs flex items-center gap-1.5">
+                <span class="font-bold text-white text-xs flex items-center gap-1.5">
                   Encheu o tanque? (Tanque Cheio)
-                  <span class="px-1.5 py-0.5 rounded-full text-[9px] bg-emerald-200 text-emerald-800 font-bold">Importante</span>
+                  <span class="px-1.5 py-0.5 rounded-full text-[9px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold">Importante</span>
                 </span>
-                <p class="text-[11px] text-slate-500 mt-0.5">
+                <p class="text-[11px] text-[#929EAA] mt-0.5">
                   Marcar esta opção é indispensável para que o sistema consiga calcular com exatidão o consumo médio (Km/L) entre os abastecimentos.
                 </p>
               </label>
@@ -208,43 +208,43 @@ export interface FuelFormSubmitPayload {
             <!-- Posto de Gasolina & Data -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label class="block font-semibold text-slate-700 mb-1">Posto de Combustível</label>
+                <label class="block font-semibold text-[#CAD2D9] mb-1">Posto de Combustível</label>
                 <input
                   type="text"
                   formControlName="gasStation"
                   placeholder="Ex: Posto Ipiranga Centro"
-                  class="w-full px-3 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                  class="w-full px-3 py-2.5 bg-[#11161A] rounded-xl border border-[#222A2F] text-white focus:outline-none focus:border-[#FF6B00] placeholder:text-[#62707C]"
                 />
               </div>
 
               <div>
-                <label class="block font-semibold text-slate-700 mb-1">Data e Hora do Abastecimento</label>
+                <label class="block font-semibold text-[#CAD2D9] mb-1">Data e Hora do Abastecimento</label>
                 <input
                   type="datetime-local"
                   formControlName="fueledAt"
-                  class="w-full px-3 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                  class="w-full px-3 py-2.5 bg-[#11161A] rounded-xl border border-[#222A2F] text-white focus:outline-none focus:border-[#FF6B00]"
                 />
               </div>
             </div>
 
             <!-- Comprovante / Foto da Nota Fiscal -->
             <div>
-              <label class="block font-semibold text-slate-700 mb-1">Foto do Comprovante / Cupom Fiscal (Opcional)</label>
+              <label class="block font-semibold text-[#CAD2D9] mb-1">Foto do Comprovante / Cupom Fiscal (Opcional)</label>
               @if (receiptPhotoPreview()) {
-                <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-between gap-3">
+                <div class="p-3 bg-[#11161A] rounded-2xl border border-[#222A2F] flex items-center justify-between gap-3">
                   <div class="flex items-center gap-3 overflow-hidden">
                     <img
                       [src]="receiptPhotoPreview()"
                       alt="Prévia do comprovante"
-                      class="size-14 rounded-xl object-cover border border-slate-200 shrink-0 bg-slate-900/10 cursor-pointer"
+                      class="size-14 rounded-xl object-cover border border-[#222A2F] shrink-0 bg-black/40 cursor-pointer"
                       (click)="openFullReceipt.emit(receiptPhotoPreview()!)"
                     />
                     <div class="truncate">
-                      <span class="text-xs font-bold text-slate-800 block">Comprovante anexado</span>
+                      <span class="text-xs font-bold text-white block">Comprovante anexado</span>
                       <button
                         type="button"
                         (click)="openFullReceipt.emit(receiptPhotoPreview()!)"
-                        class="text-[11px] text-emerald-600 hover:text-emerald-700 font-semibold inline-flex items-center gap-1 hover:underline cursor-pointer"
+                        class="text-[11px] text-[#FF6B00] hover:text-[#E05D00] font-semibold inline-flex items-center gap-1 hover:underline cursor-pointer"
                       >
                         Ver foto cheia
                         <svg lucideExternalLink class="size-3"></svg>
@@ -255,18 +255,18 @@ export interface FuelFormSubmitPayload {
                     type="button"
                     (click)="removeReceiptPhoto()"
                     title="Remover foto"
-                    class="p-2 text-rose-600 hover:bg-rose-50 rounded-xl transition-colors cursor-pointer border border-rose-200/60 shrink-0"
+                    class="p-2 text-rose-400 hover:bg-rose-500/10 rounded-xl transition-colors cursor-pointer border border-rose-500/30 shrink-0"
                   >
                     <svg lucideTrash2 class="size-4"></svg>
                   </button>
                 </div>
               } @else {
-                <label class="flex flex-col items-center justify-center p-4 border-2 border-dashed border-slate-200 hover:border-emerald-500 rounded-2xl bg-slate-50/70 hover:bg-emerald-50/30 cursor-pointer transition-all">
-                  <div class="p-2 bg-white rounded-xl shadow-2xs border border-slate-100 text-slate-500 mb-1.5">
-                    <svg lucideCamera class="size-5 text-emerald-600"></svg>
+                <label class="flex flex-col items-center justify-center p-4 border-2 border-dashed border-[#222A2F] hover:border-[#FF6B00] rounded-2xl bg-[#11161A]/60 hover:bg-[#171D21]/60 cursor-pointer transition-all">
+                  <div class="p-2 bg-[#171D21] rounded-xl shadow-2xs border border-[#222A2F] text-[#FF6B00] mb-1.5">
+                    <svg lucideCamera class="size-5"></svg>
                   </div>
-                  <span class="text-xs font-bold text-slate-700">Clique para anexar foto do comprovante</span>
-                  <span class="text-[11px] text-slate-400 mt-0.5">JPG, PNG ou foto da câmera (comprimida automaticamente)</span>
+                  <span class="text-xs font-bold text-white">Clique para anexar foto do comprovante</span>
+                  <span class="text-[11px] text-[#62707C] mt-0.5">JPG, PNG ou foto da câmera (comprimida automaticamente)</span>
                   <input
                     type="file"
                     accept="image/*"
@@ -279,28 +279,28 @@ export interface FuelFormSubmitPayload {
 
             <!-- Observações -->
             <div>
-              <label class="block font-semibold text-slate-700 mb-1">Observações</label>
+              <label class="block font-semibold text-[#CAD2D9] mb-1">Observações</label>
               <textarea
                 formControlName="notes"
                 rows="2"
                 placeholder="Alguma observação sobre o combustível ou posto..."
-                class="w-full px-3 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 resize-none"
+                class="w-full px-3 py-2.5 bg-[#11161A] rounded-xl border border-[#222A2F] text-white focus:outline-none focus:border-[#FF6B00] placeholder:text-[#62707C] resize-none"
               ></textarea>
             </div>
 
             <!-- Botões de Ação -->
-            <div class="pt-3 border-t border-slate-100 flex items-center justify-end gap-3 shrink-0">
+            <div class="pt-3 border-t border-[#222A2F] flex items-center justify-end gap-3 shrink-0">
               <button
                 type="button"
                 (click)="close.emit()"
-                class="px-4 py-2.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+                class="px-4 py-2.5 text-xs font-semibold text-[#929EAA] hover:text-white hover:bg-[#171D21] rounded-xl transition-colors cursor-pointer border border-[#222A2F]"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
                 [disabled]="isSubmitting()"
-                class="px-5 py-2.5 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 rounded-xl shadow-xs transition-all flex items-center gap-2 cursor-pointer"
+                class="px-5 py-2.5 text-xs font-bold text-[#080B0C] bg-[#FF6B00] hover:bg-[#E05D00] disabled:opacity-50 rounded-xl shadow-xs transition-all flex items-center gap-2 cursor-pointer"
               >
                 @if (isSubmitting()) {
                   <svg lucideLoader2 class="size-4 animate-spin"></svg>

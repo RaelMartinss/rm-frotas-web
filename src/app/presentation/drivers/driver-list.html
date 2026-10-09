@@ -1,23 +1,23 @@
 <div class="space-y-6 animate-in fade-in duration-200">
   <!-- CABEÇALHO EXECUTIVO -->
-  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-200/70 pb-5">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-[#222A2F] pb-5">
     <div>
       <div class="flex items-center gap-2 mb-1">
-        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
           <span class="size-1.5 rounded-full bg-emerald-500"></span>
           Equipe Operacional
         </span>
-        <span class="text-xs text-slate-400">•</span>
-        <span class="text-xs text-slate-500 font-medium">{{ totalItems() | number }} motoristas cadastrados</span>
+        <span class="text-xs text-[#62707C]">•</span>
+        <span class="text-xs text-[#929EAA] font-medium">{{ totalItems() | number }} motoristas cadastrados</span>
       </div>
-      <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Gestão de Motoristas</h1>
-      <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Cadastre e acompanhe a situação das CNHs e condutores da frota.</p>
+      <h1 class="text-2xl sm:text-3xl font-bold text-white tracking-tight">Gestão de Motoristas</h1>
+      <p class="text-xs sm:text-sm text-[#929EAA] mt-0.5">Cadastre e acompanhe a situação das CNHs e condutores da frota.</p>
     </div>
     <div class="flex items-center gap-2">
       @if (!impersonationService.isReadOnly()) {
         <button
           (click)="openModal()"
-          class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs px-4 py-2.5 rounded-xl transition-all shadow-xs hover:shadow-sm cursor-pointer"
+          class="inline-flex items-center gap-2 bg-[#FF6B00] hover:bg-[#E05D00] text-[#080B0C] font-bold text-xs px-4 py-2.5 rounded-xl transition-all shadow-sm cursor-pointer"
         >
           <svg lucidePlus class="size-4"></svg>
           <span>Novo Motorista</span>
@@ -27,20 +27,20 @@
   </div>
 
   <!-- BARRA DE CONTROLE: BUSCA E FILTROS EM CHIPS -->
-  <div class="flex flex-col lg:flex-row gap-3 justify-between items-stretch lg:items-center bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-2xs">
+  <div class="flex flex-col lg:flex-row gap-3 justify-between items-stretch lg:items-center bg-[#0F1215] p-3.5 rounded-2xl border border-[#222A2F] shadow-xs">
     <!-- Input com Debounce e Botão Limpar -->
     <div class="relative flex-1 max-w-md">
-      <svg lucideSearch class="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></svg>
+      <svg lucideSearch class="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#62707C]"></svg>
       <input
         type="text"
         [formControl]="searchControl"
         placeholder="Buscar por nome, CPF ou CNH..."
-        class="w-full bg-slate-50 text-slate-800 text-xs rounded-xl pl-9 pr-8 py-2 border border-slate-200 focus:outline-hidden focus:border-emerald-500 transition-colors placeholder:text-slate-400"
+        class="w-full bg-[#11161A] text-white text-xs rounded-xl pl-9 pr-8 py-2 border border-[#222A2F] focus:outline-hidden focus:border-[#FF6B00] transition-colors placeholder:text-[#62707C]"
       />
       @if (searchTerm()) {
         <button
           (click)="clearSearch()"
-          class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
+          class="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#62707C] hover:text-white p-0.5 cursor-pointer"
           title="Limpar busca"
         >
           <svg lucideX class="size-3.5"></svg>
@@ -54,12 +54,12 @@
         type="button"
         (click)="setStatusFilter('ALL')"
         class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shrink-0 cursor-pointer border"
-        [ngClass]="selectedStatus() === 'ALL' ? 'bg-slate-900 text-white border-slate-900 shadow-2xs' : 'bg-slate-50 text-slate-600 border-slate-200/80 hover:bg-slate-100'"
+        [ngClass]="selectedStatus() === 'ALL' ? 'bg-[#FF6B00] text-[#080B0C] font-bold border-[#FF6B00] shadow-sm' : 'bg-[#11161A] text-[#929EAA] border-[#222A2F] hover:bg-[#171D21] hover:text-white'"
       >
         <span>Todos</span>
         <span
           class="ml-0.5 px-1.5 py-0.2 rounded-full text-[10px] font-bold transition-colors"
-          [ngClass]="selectedStatus() === 'ALL' ? 'bg-white/20 text-white' : 'bg-slate-200/70 text-slate-700'"
+          [ngClass]="selectedStatus() === 'ALL' ? 'bg-black/20 text-[#080B0C]' : 'bg-[#1F262C] text-[#929EAA]'"
         >
           {{ statusCounts().all }}
         </span>
@@ -69,13 +69,13 @@
         type="button"
         (click)="setStatusFilter('ACTIVE')"
         class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shrink-0 cursor-pointer border"
-        [ngClass]="selectedStatus() === 'ACTIVE' ? 'bg-emerald-600 text-white border-emerald-600 shadow-2xs' : 'bg-slate-50 text-slate-600 border-slate-200/80 hover:bg-slate-100'"
+        [ngClass]="selectedStatus() === 'ACTIVE' ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm' : 'bg-[#11161A] text-[#929EAA] border-[#222A2F] hover:bg-[#171D21] hover:text-white'"
       >
         <span class="size-1.5 rounded-full" [ngClass]="selectedStatus() === 'ACTIVE' ? 'bg-white' : 'bg-emerald-500'"></span>
         <span>Ativos</span>
         <span
           class="ml-0.5 px-1.5 py-0.2 rounded-full text-[10px] font-bold transition-colors"
-          [ngClass]="selectedStatus() === 'ACTIVE' ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-800'"
+          [ngClass]="selectedStatus() === 'ACTIVE' ? 'bg-white/20 text-white' : 'bg-emerald-500/15 text-emerald-400'"
         >
           {{ statusCounts().active }}
         </span>
@@ -85,13 +85,13 @@
         type="button"
         (click)="setStatusFilter('IN_TRIP')"
         class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shrink-0 cursor-pointer border"
-        [ngClass]="selectedStatus() === 'IN_TRIP' ? 'bg-blue-600 text-white border-blue-600 shadow-2xs' : 'bg-slate-50 text-slate-600 border-slate-200/80 hover:bg-slate-100'"
+        [ngClass]="selectedStatus() === 'IN_TRIP' ? 'bg-blue-600 text-white border-blue-600 shadow-sm' : 'bg-[#11161A] text-[#929EAA] border-[#222A2F] hover:bg-[#171D21] hover:text-white'"
       >
         <span class="size-1.5 rounded-full" [ngClass]="selectedStatus() === 'IN_TRIP' ? 'bg-white' : 'bg-blue-500'"></span>
         <span>Em Viagem</span>
         <span
           class="ml-0.5 px-1.5 py-0.2 rounded-full text-[10px] font-bold transition-colors"
-          [ngClass]="selectedStatus() === 'IN_TRIP' ? 'bg-white/20 text-white' : 'bg-blue-100 text-blue-800'"
+          [ngClass]="selectedStatus() === 'IN_TRIP' ? 'bg-white/20 text-white' : 'bg-blue-500/15 text-blue-400'"
         >
           {{ statusCounts().inTrip }}
         </span>
@@ -101,13 +101,13 @@
         type="button"
         (click)="setStatusFilter('INACTIVE')"
         class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shrink-0 cursor-pointer border"
-        [ngClass]="selectedStatus() === 'INACTIVE' ? 'bg-slate-700 text-white border-slate-700 shadow-2xs' : 'bg-slate-50 text-slate-600 border-slate-200/80 hover:bg-slate-100'"
+        [ngClass]="selectedStatus() === 'INACTIVE' ? 'bg-slate-700 text-white border-slate-700 shadow-sm' : 'bg-[#11161A] text-[#929EAA] border-[#222A2F] hover:bg-[#171D21] hover:text-white'"
       >
         <span class="size-1.5 rounded-full" [ngClass]="selectedStatus() === 'INACTIVE' ? 'bg-white' : 'bg-slate-500'"></span>
         <span>Inativos</span>
         <span
           class="ml-0.5 px-1.5 py-0.2 rounded-full text-[10px] font-bold transition-colors"
-          [ngClass]="selectedStatus() === 'INACTIVE' ? 'bg-white/20 text-white' : 'bg-slate-200/70 text-slate-700'"
+          [ngClass]="selectedStatus() === 'INACTIVE' ? 'bg-white/20 text-white' : 'bg-[#1F262C] text-[#929EAA]'"
         >
           {{ statusCounts().inactive }}
         </span>
@@ -117,13 +117,13 @@
         type="button"
         (click)="setStatusFilter('SUSPENDED')"
         class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shrink-0 cursor-pointer border"
-        [ngClass]="selectedStatus() === 'SUSPENDED' ? 'bg-rose-600 text-white border-rose-600 shadow-2xs' : 'bg-slate-50 text-slate-600 border-slate-200/80 hover:bg-slate-100'"
+        [ngClass]="selectedStatus() === 'SUSPENDED' ? 'bg-rose-600 text-white border-rose-600 shadow-sm' : 'bg-[#11161A] text-[#929EAA] border-[#222A2F] hover:bg-[#171D21] hover:text-white'"
       >
         <span class="size-1.5 rounded-full" [ngClass]="selectedStatus() === 'SUSPENDED' ? 'bg-white' : 'bg-rose-500'"></span>
         <span>Suspensos</span>
         <span
           class="ml-0.5 px-1.5 py-0.2 rounded-full text-[10px] font-bold transition-colors"
-          [ngClass]="selectedStatus() === 'SUSPENDED' ? 'bg-white/20 text-white' : 'bg-rose-100 text-rose-800'"
+          [ngClass]="selectedStatus() === 'SUSPENDED' ? 'bg-white/20 text-white' : 'bg-rose-500/15 text-rose-400'"
         >
           {{ statusCounts().suspended }}
         </span>
@@ -132,32 +132,32 @@
   </div>
 
   <!-- TABELA DE MOTORISTAS -->
-  <div class="bg-white rounded-2xl border border-slate-200/80 shadow-2xs overflow-hidden">
+  <div class="bg-[#0F1215] rounded-2xl border border-[#222A2F] shadow-xs overflow-hidden">
     @if (loading()) {
       <!-- SKELETON TABLE SHIMMER -->
       <div class="p-4 space-y-3 animate-pulse">
-        <div class="h-8 bg-slate-100 rounded-xl"></div>
+        <div class="h-8 bg-[#11161A] rounded-xl"></div>
         @for (i of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]; track i) {
-          <div class="flex items-center justify-between py-3 px-2 border-b border-slate-100">
+          <div class="flex items-center justify-between py-3 px-2 border-b border-[#222A2F]">
             <div class="flex items-center gap-3 w-1/4">
-              <div class="size-8 rounded-full bg-slate-200"></div>
+              <div class="size-8 rounded-full bg-[#171D21]"></div>
               <div class="space-y-1.5 flex-1">
-                <div class="h-4 bg-slate-200 rounded w-28"></div>
-                <div class="h-3 bg-slate-100 rounded w-20"></div>
+                <div class="h-4 bg-[#171D21] rounded w-28"></div>
+                <div class="h-3 bg-[#11161A] rounded w-20"></div>
               </div>
             </div>
-            <div class="h-3 bg-slate-200 rounded w-24"></div>
-            <div class="h-4 bg-slate-200 rounded w-24"></div>
-            <div class="h-3 bg-slate-100 rounded w-20"></div>
-            <div class="h-6 bg-slate-200 rounded-full w-20"></div>
-            <div class="h-7 bg-slate-100 rounded-lg w-28"></div>
+            <div class="h-3 bg-[#171D21] rounded w-24"></div>
+            <div class="h-4 bg-[#171D21] rounded w-24"></div>
+            <div class="h-3 bg-[#11161A] rounded w-20"></div>
+            <div class="h-6 bg-[#171D21] rounded-full w-20"></div>
+            <div class="h-7 bg-[#11161A] rounded-lg w-28"></div>
           </div>
         }
       </div>
     } @else {
       <div class="overflow-x-auto min-h-[340px]">
         <table class="w-full text-left text-xs">
-          <thead class="bg-slate-50/80 border-b border-slate-100 text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
+          <thead class="bg-[#11161A] border-b border-[#222A2F] text-[#929EAA] font-bold uppercase tracking-wider text-[11px]">
             <tr>
               <th class="py-3.5 px-4">Condutor / CPF</th>
               <th class="py-3.5 px-4">Contato</th>
@@ -167,12 +167,12 @@
               <th class="py-3.5 px-4 text-right">Ações</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-slate-100">
+          <tbody class="divide-y divide-[#222A2F]">
             @for (driver of drivers(); track driver.id) {
-              <tr class="hover:bg-slate-50/80 transition-colors">
+              <tr class="hover:bg-[#171D21] transition-colors">
                 <td class="py-3.5 px-4">
                   <div class="flex items-center gap-3">
-                    <div class="size-8 rounded-full bg-slate-900 text-white font-bold flex items-center justify-center text-xs shrink-0 shadow-2xs overflow-hidden">
+                    <div class="size-8 rounded-full bg-[#171D21] text-[#FF6B00] font-bold flex items-center justify-center text-xs shrink-0 border border-[#222A2F] shadow-2xs overflow-hidden">
                       @if (driver.photoUrl) {
                         <img [src]="driver.photoUrl" class="w-full h-full object-cover" [alt]="driver.name" />
                       } @else {
@@ -180,56 +180,56 @@
                       }
                     </div>
                     <div>
-                      <div class="font-semibold text-slate-900">{{ driver.name }}</div>
-                      <div class="text-slate-500 text-[11px] font-mono">{{ driver.cpf }}</div>
+                      <div class="font-semibold text-white">{{ driver.name }}</div>
+                      <div class="text-[#62707C] text-[11px] font-mono">{{ driver.cpf }}</div>
                     </div>
                   </div>
                 </td>
-                <td class="py-3.5 px-4 text-slate-600 font-medium">
+                <td class="py-3.5 px-4 text-[#929EAA] font-medium">
                   @if (driver.email) {
-                    <div class="flex items-center gap-1.5 text-xs text-slate-700">
-                      <svg lucideMail class="size-3.5 text-slate-400 shrink-0"></svg>
+                    <div class="flex items-center gap-1.5 text-xs text-white">
+                      <svg lucideMail class="size-3.5 text-[#62707C] shrink-0"></svg>
                       <span class="truncate max-w-[170px]" [title]="driver.email">{{ driver.email }}</span>
                     </div>
                   }
-                  <div class="flex items-center gap-1.5 text-[11px] text-slate-500" [class.mt-1]="driver.email">
-                    <svg lucidePhone class="size-3 text-slate-400 shrink-0"></svg>
+                  <div class="flex items-center gap-1.5 text-[11px] text-[#929EAA]" [class.mt-1]="driver.email">
+                    <svg lucidePhone class="size-3 text-[#62707C] shrink-0"></svg>
                     <span>{{ driver.phone || '-' }}</span>
                   </div>
                 </td>
-                <td class="py-3.5 px-4 text-slate-700">
-                  <span class="font-mono font-bold text-slate-800">{{ getCnhNumber(driver) }}</span>
-                  <span class="ml-2 px-1.5 py-0.5 bg-slate-100 text-slate-700 font-bold rounded-md text-[10px] border border-slate-200">
+                <td class="py-3.5 px-4 text-white">
+                  <span class="font-mono font-bold text-white">{{ getCnhNumber(driver) }}</span>
+                  <span class="ml-2 px-1.5 py-0.5 bg-[#11161A] text-[#929EAA] font-bold rounded-md text-[10px] border border-[#222A2F]">
                     Cat. {{ getCnhCategory(driver) }}
                   </span>
                 </td>
                 <td class="py-3.5 px-4">
                   @if (getCnhExpiration(driver)) {
                     <div class="flex flex-col gap-1 items-start">
-                      <div class="flex items-center gap-1.5 text-slate-800 font-medium text-xs">
-                        <svg lucideCalendar class="size-3.5 text-slate-400 shrink-0"></svg>
+                      <div class="flex items-center gap-1.5 text-white font-medium text-xs">
+                        <svg lucideCalendar class="size-3.5 text-[#62707C] shrink-0"></svg>
                         <span class="tabular-nums">{{ (getCnhExpiration(driver) | date:'dd/MM/yyyy') }}</span>
                       </div>
 
                       @if (isCnhExpired(getCnhExpiration(driver))) {
-                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-50 text-rose-700 border border-rose-200/70 shadow-2xs">
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/30 shadow-2xs">
                           <span class="size-1.5 rounded-full bg-rose-500"></span>
                           <span>Vencida</span>
                         </span>
                       } @else if (isCnhExpiringSoon(getCnhExpiration(driver))) {
-                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-200/70 shadow-2xs">
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/30 shadow-2xs">
                           <span class="size-1.5 rounded-full bg-amber-500"></span>
                           <span>{{ getCnhDaysLabel(getCnhExpiration(driver)) }}</span>
                         </span>
                       } @else {
-                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/70 shadow-2xs">
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 shadow-2xs">
                           <span class="size-1.5 rounded-full bg-emerald-500"></span>
                           <span>Válida</span>
                         </span>
                       }
                     </div>
                   } @else {
-                    <span class="text-slate-400 font-medium">-</span>
+                    <span class="text-[#62707C] font-medium">-</span>
                   }
                 </td>
                 <td class="py-3.5 px-4">
@@ -246,10 +246,10 @@
                     <!-- Botão Editar -->
                     <a
                       [routerLink]="['/motoristas', driver.id]"
-                      class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200/90 bg-white text-slate-700 hover:text-slate-900 hover:bg-slate-50 font-semibold text-xs transition-all shadow-2xs cursor-pointer hover:border-slate-300"
+                      class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#222A2F] bg-[#11161A] text-white hover:bg-[#171D21] hover:border-[#FF6B00]/40 font-semibold text-xs transition-all shadow-xs cursor-pointer"
                       title="Editar Motorista"
                     >
-                      <svg lucidePencil class="size-3.5 text-slate-500"></svg>
+                      <svg lucidePencil class="size-3.5 text-[#929EAA]"></svg>
                       <span>Editar</span>
                     </a>
                   </div>
@@ -257,16 +257,16 @@
               </tr>
             } @empty {
               <tr>
-                <td colspan="6" class="py-12 text-center text-slate-400">
-                  <div class="size-10 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-2">
+                <td colspan="6" class="py-12 text-center text-[#62707C]">
+                  <div class="size-10 rounded-full bg-[#11161A] text-[#62707C] border border-[#222A2F] flex items-center justify-center mx-auto mb-2">
                     <svg lucideUsers class="size-5"></svg>
                   </div>
-                  <p class="text-xs font-semibold text-slate-700">Nenhum motorista encontrado</p>
-                  <p class="text-[11px] text-slate-400 mt-0.5">Tente ajustar os filtros ou o termo de busca.</p>
+                  <p class="text-xs font-semibold text-white">Nenhum motorista encontrado</p>
+                  <p class="text-[11px] text-[#929EAA] mt-0.5">Tente ajustar os filtros ou o termo de busca.</p>
                   @if (searchTerm() || selectedStatus() !== 'ALL') {
                     <button
                       (click)="clearSearch(); setStatusFilter('ALL')"
-                      class="mt-3 text-xs font-semibold text-emerald-600 hover:underline cursor-pointer"
+                      class="mt-3 text-xs font-semibold text-[#FF6B00] hover:underline cursor-pointer"
                     >
                       Limpar todos os filtros
                     </button>

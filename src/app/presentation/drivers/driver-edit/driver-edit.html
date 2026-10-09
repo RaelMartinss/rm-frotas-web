@@ -3,7 +3,7 @@
   <div>
     <a
       routerLink="/motoristas"
-      class="inline-flex items-center gap-2 text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors group cursor-pointer"
+      class="inline-flex items-center gap-2 text-xs font-semibold text-[#8E9DA8] hover:text-white transition-colors group cursor-pointer"
     >
       <svg lucideArrowLeft class="size-4 transition-transform group-hover:-translate-x-0.5"></svg>
       <span>Voltar para a lista de motoristas</span>
@@ -11,16 +11,16 @@
   </div>
 
   @if (loading()) {
-    <div class="bg-white rounded-2xl border border-slate-200/80 p-12 text-center shadow-2xs">
-      <svg lucideLoader2 class="size-8 animate-spin text-emerald-600 mx-auto mb-3"></svg>
-      <p class="text-sm font-semibold text-slate-700">Carregando dados do motorista...</p>
+    <div class="bg-[#0F1215] rounded-2xl border border-[#222A2F] p-12 text-center shadow-2xs">
+      <svg lucideLoader2 class="size-8 animate-spin text-[#FF6B00] mx-auto mb-3"></svg>
+      <p class="text-sm font-semibold text-white">Carregando dados do motorista...</p>
     </div>
   } @else if (driver()) {
     <!-- CABEÇALHO DO MOTORISTA -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#0F1215] p-5 rounded-2xl border border-[#222A2F] shadow-2xs">
       <div class="flex items-center gap-4">
         <!-- AVATAR COM FOTO / INICIAIS E UPLOAD -->
-        <div class="relative group size-16 rounded-2xl bg-slate-900 text-white font-bold flex items-center justify-center text-xl shrink-0 shadow-md ring-2 ring-slate-200/80 overflow-hidden">
+        <div class="relative group size-16 rounded-2xl bg-[#11161A] text-white font-bold flex items-center justify-center text-xl shrink-0 shadow-md ring-2 ring-[#222A2F] overflow-hidden">
           @if (photoPreview()) {
             <img [src]="photoPreview()" class="w-full h-full object-cover" alt="Foto de {{ driver()?.name }}" />
           } @else {
@@ -31,11 +31,11 @@
             <!-- Overlay com ícone de câmera ao passar o mouse -->
             <label
               for="driverPhotoFileInput"
-              class="absolute inset-0 bg-slate-950/65 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center gap-1 transition-opacity cursor-pointer text-white z-10 backdrop-blur-xs"
+              class="absolute inset-0 bg-black/75 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center gap-1 transition-opacity cursor-pointer text-white z-10 backdrop-blur-xs"
               title="Clique para alterar a foto do motorista"
             >
-              <svg lucideCamera class="size-4"></svg>
-              <span class="text-[9px] font-semibold tracking-wider uppercase">Alterar</span>
+              <svg lucideCamera class="size-4 text-[#FF6B00]"></svg>
+              <span class="text-[9px] font-semibold tracking-wider uppercase text-white">Alterar</span>
             </label>
           }
         </div>
@@ -51,7 +51,7 @@
 
         <div>
           <div class="flex items-center gap-2.5 flex-wrap">
-            <h1 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+            <h1 class="text-xl sm:text-2xl font-bold text-white tracking-tight">
               {{ driver()?.name }}
             </h1>
             <span
@@ -66,7 +66,7 @@
               <button
                 type="button"
                 (click)="removePhoto()"
-                class="text-[11px] text-rose-600 hover:text-rose-700 font-medium inline-flex items-center gap-1 hover:underline cursor-pointer ml-1"
+                class="text-[11px] text-rose-400 hover:text-rose-300 font-medium inline-flex items-center gap-1 hover:underline cursor-pointer ml-1"
                 title="Remover foto do motorista"
               >
                 <svg lucideTrash2 class="size-3"></svg>
@@ -74,7 +74,7 @@
               </button>
             }
           </div>
-          <div class="flex items-center gap-3 text-xs text-slate-500 mt-1 flex-wrap font-medium">
+          <div class="flex items-center gap-3 text-xs text-[#8E9DA8] mt-1 flex-wrap font-medium">
             <span class="font-mono">CPF: {{ driver()?.cpf }}</span>
             <span>•</span>
             <span>E-mail: {{ driver()?.email || 'Não informado' }}</span>
@@ -86,7 +86,7 @@
       <div class="flex items-center gap-2.5 self-end md:self-center">
         <a
           routerLink="/motoristas"
-          class="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 font-semibold text-xs transition-colors cursor-pointer"
+          class="px-4 py-2.5 rounded-xl border border-[#222A2F] text-[#8E9DA8] hover:text-white hover:bg-[#171D21] font-semibold text-xs transition-colors cursor-pointer"
         >
           Cancelar
         </a>
@@ -95,7 +95,7 @@
             type="button"
             (click)="save()"
             [disabled]="saving()"
-            class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs px-5 py-2.5 rounded-xl transition-all shadow-xs hover:shadow-sm cursor-pointer disabled:opacity-50"
+            class="inline-flex items-center gap-2 bg-[#FF6B00] hover:bg-[#E05D00] text-[#080B0C] font-bold text-xs px-5 py-2.5 rounded-xl transition-all shadow-sm cursor-pointer disabled:opacity-50"
           >
             @if (saving()) {
               <svg lucideLoader2 class="size-4 animate-spin"></svg>
@@ -114,135 +114,135 @@
       <div class="lg:col-span-2 space-y-6">
         <form [formGroup]="form" class="space-y-6">
           <!-- CARD 1: DADOS PESSOAIS -->
-          <div class="bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-6 shadow-2xs space-y-5">
-            <div class="flex items-center gap-2.5 pb-4 border-b border-slate-100">
-              <div class="size-8 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center border border-slate-200/60">
-                <svg lucideUser class="size-4 text-slate-700"></svg>
+          <div class="bg-[#0F1215] rounded-2xl border border-[#222A2F] p-5 sm:p-6 shadow-2xs space-y-5">
+            <div class="flex items-center gap-2.5 pb-4 border-b border-[#222A2F]">
+              <div class="size-8 rounded-xl bg-[#171D21] text-[#8E9DA8] flex items-center justify-center border border-[#222A2F]">
+                <svg lucideUser class="size-4 text-[#8E9DA8]"></svg>
               </div>
               <div>
-                <h2 class="text-sm font-bold text-slate-900">Dados Pessoais</h2>
-                <p class="text-[11px] text-slate-500">Informações cadastrais e dados de contato do condutor</p>
+                <h2 class="text-sm font-bold text-white">Dados Pessoais</h2>
+                <p class="text-[11px] text-[#8E9DA8]">Informações cadastrais e dados de contato do condutor</p>
               </div>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <!-- Nome Completo -->
               <div class="sm:col-span-2">
-                <label class="block text-xs font-semibold text-slate-700 mb-1.5">
-                  Nome completo <span class="text-rose-500">*</span>
+                <label class="block text-xs font-semibold text-[#8E9DA8] mb-1.5">
+                  Nome completo <span class="text-rose-400">*</span>
                 </label>
                 <div class="relative">
-                  <svg lucideUser class="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></svg>
+                  <svg lucideUser class="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#8E9DA8]"></svg>
                   <input
                     type="text"
                     formControlName="name"
                     placeholder="Nome completo do motorista"
-                    class="w-full bg-slate-50 text-slate-800 text-xs rounded-xl pl-9 pr-3 py-2.5 border border-slate-200 focus:outline-hidden focus:border-emerald-500 focus:bg-white transition-colors"
+                    class="w-full bg-[#11161A] text-white text-xs rounded-xl pl-9 pr-3 py-2.5 border border-[#222A2F] focus:outline-hidden focus:border-[#FF6B00] placeholder:text-[#62707C] transition-colors"
                   />
                 </div>
                 @if (form.get('name')?.touched && form.get('name')?.invalid) {
-                  <span class="text-[11px] text-rose-500 mt-1 block">O nome completo é obrigatório.</span>
+                  <span class="text-[11px] text-rose-400 mt-1 block">O nome completo é obrigatório.</span>
                 }
               </div>
 
               <!-- CPF (Read-only) -->
               <div>
-                <label class="block text-xs font-semibold text-slate-700 mb-1.5">
-                  CPF <span class="text-slate-400 font-normal">(não editável)</span>
+                <label class="block text-xs font-semibold text-[#8E9DA8] mb-1.5">
+                  CPF <span class="text-[#62707C] font-normal">(não editável)</span>
                 </label>
                 <div class="relative">
-                  <svg lucideIdCard class="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></svg>
+                  <svg lucideIdCard class="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#8E9DA8]"></svg>
                   <input
                     type="text"
                     formControlName="cpf"
-                    class="w-full bg-slate-100 text-slate-500 text-xs font-mono rounded-xl pl-9 pr-3 py-2.5 border border-slate-200 cursor-not-allowed"
+                    class="w-full bg-[#171D21] text-[#8E9DA8] text-xs font-mono rounded-xl pl-9 pr-3 py-2.5 border border-[#222A2F] cursor-not-allowed"
                   />
                 </div>
               </div>
 
               <!-- Telefone / WhatsApp -->
               <div>
-                <label class="block text-xs font-semibold text-slate-700 mb-1.5">
-                  Telefone / WhatsApp <span class="text-rose-500">*</span>
+                <label class="block text-xs font-semibold text-[#8E9DA8] mb-1.5">
+                  Telefone / WhatsApp <span class="text-rose-400">*</span>
                 </label>
                 <div class="relative">
-                  <svg lucidePhone class="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></svg>
+                  <svg lucidePhone class="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#8E9DA8]"></svg>
                   <input
                     type="text"
                     appPhoneMask
                     formControlName="phone"
                     placeholder="(00) 00000-0000"
                     maxlength="15"
-                    class="w-full bg-slate-50 text-slate-800 text-xs rounded-xl pl-9 pr-3 py-2.5 border border-slate-200 focus:outline-hidden focus:border-emerald-500 focus:bg-white transition-colors"
+                    class="w-full bg-[#11161A] text-white text-xs rounded-xl pl-9 pr-3 py-2.5 border border-[#222A2F] focus:outline-hidden focus:border-[#FF6B00] placeholder:text-[#62707C] transition-colors"
                   />
                 </div>
                 @if (form.get('phone')?.touched && form.get('phone')?.invalid) {
-                  <span class="text-[11px] text-rose-500 mt-1 block">O telefone é obrigatório.</span>
+                  <span class="text-[11px] text-rose-400 mt-1 block">O telefone é obrigatório.</span>
                 }
               </div>
 
               <!-- E-mail de acesso -->
               <div>
-                <label class="block text-xs font-semibold text-slate-700 mb-1.5">
-                  E-mail de acesso <span class="text-rose-500">*</span>
+                <label class="block text-xs font-semibold text-[#8E9DA8] mb-1.5">
+                  E-mail de acesso <span class="text-rose-400">*</span>
                 </label>
                 <div class="relative">
-                  <svg lucideMail class="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></svg>
+                  <svg lucideMail class="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#8E9DA8]"></svg>
                   <input
                     type="email"
                     formControlName="email"
                     placeholder="email@empresa.com.br"
-                    class="w-full bg-slate-50 text-slate-800 text-xs rounded-xl pl-9 pr-3 py-2.5 border border-slate-200 focus:outline-hidden focus:border-emerald-500 focus:bg-white transition-colors"
+                    class="w-full bg-[#11161A] text-white text-xs rounded-xl pl-9 pr-3 py-2.5 border border-[#222A2F] focus:outline-hidden focus:border-[#FF6B00] placeholder:text-[#62707C] transition-colors"
                   />
                 </div>
                 @if (form.get('email')?.touched && form.get('email')?.invalid) {
-                  <span class="text-[11px] text-rose-500 mt-1 block">Informe um e-mail válido.</span>
+                  <span class="text-[11px] text-rose-400 mt-1 block">Informe um e-mail válido.</span>
                 }
               </div>
 
               <!-- Data de Nascimento -->
               <div>
-                <label class="block text-xs font-semibold text-slate-700 mb-1.5">
+                <label class="block text-xs font-semibold text-[#8E9DA8] mb-1.5">
                   Data de nascimento
                 </label>
                 <div class="relative">
-                  <svg lucideCalendar class="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></svg>
+                  <svg lucideCalendar class="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#8E9DA8]"></svg>
                   <input
                     type="date"
                     formControlName="birthDate"
-                    class="w-full bg-slate-50 text-slate-800 text-xs rounded-xl pl-9 pr-3 py-2.5 border border-slate-200 focus:outline-hidden focus:border-emerald-500 focus:bg-white transition-colors"
+                    class="w-full bg-[#11161A] text-white text-xs rounded-xl pl-9 pr-3 py-2.5 border border-[#222A2F] focus:outline-hidden focus:border-[#FF6B00] transition-colors"
                   />
                 </div>
               </div>
 
               <!-- Cargo / Função -->
               <div>
-                <label class="block text-xs font-semibold text-slate-700 mb-1.5">
+                <label class="block text-xs font-semibold text-[#8E9DA8] mb-1.5">
                   Cargo / Função
                 </label>
                 <div class="relative">
-                  <svg lucideBriefcase class="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></svg>
+                  <svg lucideBriefcase class="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#8E9DA8]"></svg>
                   <input
                     type="text"
                     formControlName="role"
                     placeholder="Ex: Motorista Carreteiro"
-                    class="w-full bg-slate-50 text-slate-800 text-xs rounded-xl pl-9 pr-3 py-2.5 border border-slate-200 focus:outline-hidden focus:border-emerald-500 focus:bg-white transition-colors"
+                    class="w-full bg-[#11161A] text-white text-xs rounded-xl pl-9 pr-3 py-2.5 border border-[#222A2F] focus:outline-hidden focus:border-[#FF6B00] placeholder:text-[#62707C] transition-colors"
                   />
                 </div>
               </div>
 
               <!-- Endereço -->
               <div>
-                <label class="block text-xs font-semibold text-slate-700 mb-1.5">
+                <label class="block text-xs font-semibold text-[#8E9DA8] mb-1.5">
                   Endereço
                 </label>
                 <div class="relative">
-                  <svg lucideMapPin class="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></svg>
+                  <svg lucideMapPin class="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#8E9DA8]"></svg>
                   <input
                     type="text"
                     formControlName="address"
                     placeholder="Cidade, UF ou logradouro"
-                    class="w-full bg-slate-50 text-slate-800 text-xs rounded-xl pl-9 pr-3 py-2.5 border border-slate-200 focus:outline-hidden focus:border-emerald-500 focus:bg-white transition-colors"
+                    class="w-full bg-[#11161A] text-white text-xs rounded-xl pl-9 pr-3 py-2.5 border border-[#222A2F] focus:outline-hidden focus:border-[#FF6B00] placeholder:text-[#62707C] transition-colors"
                   />
                 </div>
               </div>
@@ -250,15 +250,15 @@
           </div>
 
           <!-- CARD 2: CNH E DOCUMENTAÇÃO -->
-          <div class="bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-6 shadow-2xs space-y-5">
-            <div class="flex items-center justify-between pb-4 border-b border-slate-100 flex-wrap gap-2">
+          <div class="bg-[#0F1215] rounded-2xl border border-[#222A2F] p-5 sm:p-6 shadow-2xs space-y-5">
+            <div class="flex items-center justify-between pb-4 border-b border-[#222A2F] flex-wrap gap-2">
               <div class="flex items-center gap-2.5">
-                <div class="size-8 rounded-xl bg-indigo-50 text-indigo-700 flex items-center justify-center border border-indigo-200/60">
-                  <svg lucideIdCard class="size-4 text-indigo-700"></svg>
+                <div class="size-8 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center border border-indigo-500/20">
+                  <svg lucideIdCard class="size-4 text-indigo-400"></svg>
                 </div>
                 <div>
-                  <h2 class="text-sm font-bold text-slate-900">CNH e Documentação</h2>
-                  <p class="text-[11px] text-slate-500">Dados da Carteira Nacional de Habilitação</p>
+                  <h2 class="text-sm font-bold text-white">CNH e Documentação</h2>
+                  <p class="text-[11px] text-[#8E9DA8]">Dados da Carteira Nacional de Habilitação</p>
                 </div>
               </div>
 
@@ -273,31 +273,31 @@
 
             <!-- Banner Informativo da Situação da CNH -->
             @if (cnhStatus.isExpired) {
-              <div class="p-3.5 bg-rose-50 border border-rose-200/80 rounded-xl flex items-start gap-2.5 text-rose-800 text-xs">
-                <svg lucideShieldAlert class="size-4 text-rose-600 shrink-0 mt-0.5"></svg>
+              <div class="p-3.5 bg-rose-950/30 border border-rose-500/30 rounded-xl flex items-start gap-2.5 text-rose-300 text-xs">
+                <svg lucideShieldAlert class="size-4 text-rose-400 shrink-0 mt-0.5"></svg>
                 <div>
-                  <span class="font-bold block">Atenção: A CNH deste motorista está vencida</span>
-                  <span class="text-[11px] text-rose-700 mt-0.5 block">
+                  <span class="font-bold block text-white">Atenção: A CNH deste motorista está vencida</span>
+                  <span class="text-[11px] text-rose-300/80 mt-0.5 block">
                     Atualize a data de validade com a nova via renovada antes de escalar este condutor em viagens.
                   </span>
                 </div>
               </div>
             } @else if (cnhStatus.isSoon) {
-              <div class="p-3.5 bg-amber-50 border border-amber-200/80 rounded-xl flex items-start gap-2.5 text-amber-800 text-xs">
-                <svg lucideAlertTriangle class="size-4 text-amber-600 shrink-0 mt-0.5"></svg>
+              <div class="p-3.5 bg-amber-950/30 border border-amber-500/30 rounded-xl flex items-start gap-2.5 text-amber-300 text-xs">
+                <svg lucideAlertTriangle class="size-4 text-amber-400 shrink-0 mt-0.5"></svg>
                 <div>
-                  <span class="font-bold block">Aviso: A CNH vencerá em breve</span>
-                  <span class="text-[11px] text-amber-700 mt-0.5 block">
+                  <span class="font-bold block text-white">Aviso: A CNH vencerá em breve</span>
+                  <span class="text-[11px] text-amber-200/80 mt-0.5 block">
                     A habilitação está próxima da data de expiração. Solicite a renovação com antecedência.
                   </span>
                 </div>
               </div>
             } @else {
-              <div class="p-3.5 bg-emerald-50/70 border border-emerald-200/60 rounded-xl flex items-start gap-2.5 text-emerald-800 text-xs">
-                <svg lucideShieldCheck class="size-4 text-emerald-600 shrink-0 mt-0.5"></svg>
+              <div class="p-3.5 bg-emerald-950/30 border border-emerald-500/30 rounded-xl flex items-start gap-2.5 text-emerald-300 text-xs">
+                <svg lucideShieldCheck class="size-4 text-emerald-400 shrink-0 mt-0.5"></svg>
                 <div>
-                  <span class="font-bold block">Documentação regular</span>
-                  <span class="text-[11px] text-emerald-700 mt-0.5 block">
+                  <span class="font-bold block text-white">Documentação regular</span>
+                  <span class="text-[11px] text-emerald-300/80 mt-0.5 block">
                     A CNH deste condutor está válida e em dia com a legislação de trânsito.
                   </span>
                 </div>
@@ -307,8 +307,8 @@
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <!-- Número da CNH -->
               <div>
-                <label class="block text-xs font-semibold text-slate-700 mb-1.5">
-                  Número da CNH <span class="text-rose-500">*</span>
+                <label class="block text-xs font-semibold text-[#8E9DA8] mb-1.5">
+                  Número da CNH <span class="text-rose-400">*</span>
                 </label>
                 <input
                   type="text"
@@ -316,21 +316,21 @@
                   formControlName="cnhNumber"
                   placeholder="11 dígitos"
                   maxlength="11"
-                  class="w-full bg-slate-50 text-slate-800 text-xs font-mono rounded-xl px-3 py-2.5 border border-slate-200 focus:outline-hidden focus:border-emerald-500 focus:bg-white transition-colors"
+                  class="w-full bg-[#11161A] text-white text-xs font-mono rounded-xl px-3 py-2.5 border border-[#222A2F] focus:outline-hidden focus:border-[#FF6B00] transition-colors"
                 />
                 @if (form.get('cnhNumber')?.touched && form.get('cnhNumber')?.invalid) {
-                  <span class="text-[11px] text-rose-500 mt-1 block">A CNH deve conter 11 dígitos numéricos.</span>
+                  <span class="text-[11px] text-rose-400 mt-1 block">A CNH deve conter 11 dígitos numéricos.</span>
                 }
               </div>
 
               <!-- Categoria CNH -->
               <div>
-                <label class="block text-xs font-semibold text-slate-700 mb-1.5">
-                  Categoria <span class="text-rose-500">*</span>
+                <label class="block text-xs font-semibold text-[#8E9DA8] mb-1.5">
+                  Categoria <span class="text-rose-400">*</span>
                 </label>
                 <select
                   formControlName="cnhCategory"
-                  class="w-full bg-slate-50 text-slate-800 text-xs rounded-xl px-3 py-2.5 border border-slate-200 focus:outline-hidden focus:border-emerald-500 focus:bg-white transition-colors cursor-pointer"
+                  class="w-full bg-[#11161A] text-white text-xs rounded-xl px-3 py-2.5 border border-[#222A2F] focus:outline-hidden focus:border-[#FF6B00] transition-colors cursor-pointer [&>option]:bg-[#11161A] [&>option]:text-white"
                 >
                   @for (cat of cnhCategories; track cat) {
                     <option [value]="cat">Categoria {{ cat }}</option>
@@ -340,49 +340,49 @@
 
               <!-- Validade da CNH -->
               <div>
-                <label class="block text-xs font-semibold text-slate-700 mb-1.5">
-                  Validade da CNH <span class="text-rose-500">*</span>
+                <label class="block text-xs font-semibold text-[#8E9DA8] mb-1.5">
+                  Validade da CNH <span class="text-rose-400">*</span>
                 </label>
                 <input
                   type="date"
                   formControlName="cnhExpirationDate"
-                  class="w-full bg-slate-50 text-slate-800 text-xs rounded-xl px-3 py-2.5 border border-slate-200 focus:outline-hidden focus:border-emerald-500 focus:bg-white transition-colors"
+                  class="w-full bg-[#11161A] text-white text-xs rounded-xl px-3 py-2.5 border border-[#222A2F] focus:outline-hidden focus:border-[#FF6B00] transition-colors"
                 />
                 @if (form.get('cnhExpirationDate')?.touched && form.get('cnhExpirationDate')?.invalid) {
-                  <span class="text-[11px] text-rose-500 mt-1 block">A data de validade é obrigatória.</span>
+                  <span class="text-[11px] text-rose-400 mt-1 block">A data de validade é obrigatória.</span>
                 }
               </div>
             </div>
           </div>
 
           <!-- CARD 3: VEÍCULO VINCULADO -->
-          <div class="bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-6 shadow-2xs space-y-4">
-            <div class="flex items-center gap-2.5 pb-4 border-b border-slate-100">
-              <div class="size-8 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center border border-blue-200/60">
-                <svg lucideCar class="size-4 text-blue-700"></svg>
+          <div class="bg-[#0F1215] rounded-2xl border border-[#222A2F] p-5 sm:p-6 shadow-2xs space-y-4">
+            <div class="flex items-center gap-2.5 pb-4 border-b border-[#222A2F]">
+              <div class="size-8 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center border border-blue-500/20">
+                <svg lucideCar class="size-4 text-blue-400"></svg>
               </div>
               <div>
-                <h2 class="text-sm font-bold text-slate-900">Veículo(s) Vinculado(s)</h2>
-                <p class="text-[11px] text-slate-500">Veículo atualmente sob responsabilidade ou em viagem com o condutor</p>
+                <h2 class="text-sm font-bold text-white">Veículo(s) Vinculado(s)</h2>
+                <p class="text-[11px] text-[#8E9DA8]">Veículo atualmente sob responsabilidade ou em viagem com o condutor</p>
               </div>
             </div>
 
             @if (activeTrip()) {
-              <div class="p-4 bg-blue-50/50 border border-blue-200/70 rounded-xl flex items-center justify-between flex-wrap gap-3">
+              <div class="p-4 bg-blue-950/30 border border-blue-500/30 rounded-xl flex items-center justify-between flex-wrap gap-3">
                 <div class="flex items-center gap-3">
                   <div class="size-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-xs">
                     <svg lucideCar class="size-5"></svg>
                   </div>
                   <div>
                     <div class="flex items-center gap-2">
-                      <span class="text-xs font-bold text-slate-900">
+                      <span class="text-xs font-bold text-white font-mono">
                         {{ activeTrip()?.vehiclePlate || 'Veículo em rota' }}
                       </span>
-                      <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-100 text-blue-800 border border-blue-200">
+                      <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-500/20 text-blue-300 border border-blue-500/30">
                         Em Viagem
                       </span>
                     </div>
-                    <p class="text-[11px] text-slate-600 mt-0.5">
+                    <p class="text-[11px] text-[#8E9DA8] mt-0.5">
                       Rota: {{ activeTrip()?.origin }} → {{ activeTrip()?.destination }}
                     </p>
                   </div>
@@ -390,16 +390,16 @@
 
                 <a
                   [routerLink]="['/viagens']"
-                  class="text-xs font-semibold text-blue-700 hover:text-blue-800 hover:underline cursor-pointer"
+                  class="text-xs font-semibold text-[#FF6B00] hover:text-[#E05D00] hover:underline cursor-pointer"
                 >
                   Ver Viagem →
                 </a>
               </div>
             } @else {
-              <div class="p-4 bg-slate-50/70 border border-slate-200/60 rounded-xl text-center py-6">
-                <svg lucideCar class="size-8 text-slate-300 mx-auto mb-2"></svg>
-                <p class="text-xs font-semibold text-slate-700">Nenhum veículo vinculado no momento</p>
-                <p class="text-[11px] text-slate-400 mt-0.5 max-w-sm mx-auto">
+              <div class="p-4 bg-[#11161A] border border-[#222A2F] rounded-xl text-center py-6">
+                <svg lucideCar class="size-8 text-[#62707C] mx-auto mb-2"></svg>
+                <p class="text-xs font-semibold text-white">Nenhum veículo vinculado no momento</p>
+                <p class="text-[11px] text-[#8E9DA8] mt-0.5 max-w-sm mx-auto">
                   O vínculo com veículos ocorre dinamicamente conforme o motorista é escalado para viagens na frota.
                 </p>
               </div>
@@ -407,22 +407,22 @@
           </div>
 
           <!-- CARD 4: CONTROLE OPERACIONAL -->
-          <div class="bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-6 shadow-2xs space-y-5">
-            <div class="flex items-center gap-2.5 pb-4 border-b border-slate-100">
-              <div class="size-8 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center border border-slate-200/60">
-                <svg lucideUserCheck class="size-4 text-slate-700"></svg>
+          <div class="bg-[#0F1215] rounded-2xl border border-[#222A2F] p-5 sm:p-6 shadow-2xs space-y-5">
+            <div class="flex items-center gap-2.5 pb-4 border-b border-[#222A2F]">
+              <div class="size-8 rounded-xl bg-[#171D21] text-[#8E9DA8] flex items-center justify-center border border-[#222A2F]">
+                <svg lucideUserCheck class="size-4 text-[#8E9DA8]"></svg>
               </div>
               <div>
-                <h2 class="text-sm font-bold text-slate-900">Controle Operacional</h2>
-                <p class="text-[11px] text-slate-500">Parâmetros de status e anotações internas da gestão</p>
+                <h2 class="text-sm font-bold text-white">Controle Operacional</h2>
+                <p class="text-[11px] text-[#8E9DA8]">Parâmetros de status e anotações internas da gestão</p>
               </div>
             </div>
 
             <!-- Switch: Motorista Ativo -->
-            <div class="flex items-center justify-between p-3.5 bg-slate-50 rounded-xl border border-slate-200/70">
+            <div class="flex items-center justify-between p-3.5 bg-[#11161A] rounded-xl border border-[#222A2F]">
               <div>
-                <label class="text-xs font-bold text-slate-900 block">Motorista está ativo</label>
-                <span class="text-[11px] text-slate-500 block mt-0.5">
+                <label class="text-xs font-bold text-white block">Motorista está ativo</label>
+                <span class="text-[11px] text-[#8E9DA8] block mt-0.5">
                   Ativa ou desativa o acesso e a disponibilidade operacional do condutor na frota.
                 </span>
               </div>
@@ -432,36 +432,36 @@
                   formControlName="isActive"
                   class="sr-only peer"
                 />
-                <div class="w-11 h-6 bg-slate-200 peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                <div class="w-11 h-6 bg-[#222A2F] peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-[#35414B] after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#FF6B00]"></div>
               </label>
             </div>
 
             <!-- Data de Início no Sistema -->
             <div>
-              <label class="block text-xs font-semibold text-slate-700 mb-1.5">
+              <label class="block text-xs font-semibold text-[#8E9DA8] mb-1.5">
                 Data de início no sistema
               </label>
               <div class="relative">
-                <svg lucideCalendar class="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></svg>
+                <svg lucideCalendar class="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#8E9DA8]"></svg>
                 <input
                   type="text"
                   [value]="driver()?.createdAt | date:'dd/MM/yyyy'"
                   disabled
-                  class="w-full bg-slate-100 text-slate-500 text-xs font-mono rounded-xl pl-9 pr-3 py-2.5 border border-slate-200 cursor-not-allowed"
+                  class="w-full bg-[#171D21] text-[#8E9DA8] text-xs font-mono rounded-xl pl-9 pr-3 py-2.5 border border-[#222A2F] cursor-not-allowed"
                 />
               </div>
             </div>
 
             <!-- Observações -->
             <div>
-              <label class="block text-xs font-semibold text-slate-700 mb-1.5">
+              <label class="block text-xs font-semibold text-[#8E9DA8] mb-1.5">
                 Observações internas
               </label>
               <textarea
                 formControlName="notes"
                 rows="3"
                 placeholder="Observações operacionais sobre o motorista, preferências de rotas, etc."
-                class="w-full bg-slate-50 text-slate-800 text-xs rounded-xl p-3 border border-slate-200 focus:outline-hidden focus:border-emerald-500 focus:bg-white transition-colors"
+                class="w-full bg-[#11161A] text-white text-xs rounded-xl p-3 border border-[#222A2F] focus:outline-hidden focus:border-[#FF6B00] placeholder:text-[#62707C] transition-colors"
               ></textarea>
             </div>
           </div>
@@ -470,10 +470,10 @@
 
       <!-- COLUNA LATERAL: AÇÕES RÁPIDAS COM ACORDEÃO (1/3) -->
       <div class="space-y-6">
-        <div class="bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-6 shadow-2xs space-y-4">
-          <div class="pb-3 border-b border-slate-100">
-            <h2 class="text-sm font-bold text-slate-900">Ações Rápidas</h2>
-            <p class="text-[11px] text-slate-500">Operações diretas sobre o cadastro do condutor</p>
+        <div class="bg-[#0F1215] rounded-2xl border border-[#222A2F] p-5 sm:p-6 shadow-2xs space-y-4">
+          <div class="pb-3 border-b border-[#222A2F]">
+            <h2 class="text-sm font-bold text-white">Ações Rápidas</h2>
+            <p class="text-[11px] text-[#8E9DA8]">Operações diretas sobre o cadastro do condutor</p>
           </div>
 
           <div class="space-y-3">
@@ -481,16 +481,16 @@
             <a
               [routerLink]="['/abastecimentos']"
               [queryParams]="{ driverId: driver()?.id }"
-              class="flex items-start gap-3 p-3.5 rounded-2xl border border-slate-200/80 hover:border-slate-300 hover:bg-slate-50 transition-colors group cursor-pointer text-left w-full shadow-2xs"
+              class="flex items-start gap-3 p-3.5 rounded-2xl border border-[#222A2F] bg-[#11161A] hover:bg-[#171D21] transition-colors group cursor-pointer text-left w-full shadow-2xs"
             >
-              <div class="size-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-200/60 mt-0.5">
+              <div class="size-8 rounded-lg bg-[#FF6B00]/10 text-[#FF6B00] flex items-center justify-center shrink-0 border border-[#FF6B00]/20 mt-0.5">
                 <svg lucideFuel class="size-4"></svg>
               </div>
               <div class="flex-1">
-                <div class="text-xs font-bold text-slate-900 group-hover:text-emerald-700 transition-colors">
+                <div class="text-xs font-bold text-white group-hover:text-[#FF6B00] transition-colors">
                   Ver Abastecimentos
                 </div>
-                <div class="text-[11px] text-slate-500 mt-0.5">
+                <div class="text-[11px] text-[#8E9DA8] mt-0.5">
                   Consultar histórico de abastecimentos do condutor
                 </div>
               </div>
@@ -500,7 +500,7 @@
               <!-- 2. RESETAR SENHA DO APP (ACORDEÃO EXPANSÍVEL) -->
               <div
                 class="rounded-2xl border transition-all overflow-hidden shadow-2xs"
-                [ngClass]="expandedAction() === 'reset-password' ? 'border-amber-300 ring-2 ring-amber-500/10 bg-amber-50/20 shadow-xs' : 'border-slate-200/80 bg-white hover:border-slate-300'"
+                [ngClass]="expandedAction() === 'reset-password' ? 'border-amber-500/40 ring-2 ring-amber-500/10 bg-amber-950/20 shadow-xs' : 'border-[#222A2F] bg-[#11161A] hover:border-[#35414B]'"
               >
                 <button
                   type="button"
@@ -508,20 +508,20 @@
                   class="flex items-center justify-between w-full p-3.5 text-left cursor-pointer transition-colors group"
                 >
                   <div class="flex items-start gap-3">
-                    <div class="size-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 border border-amber-200/60 mt-0.5">
+                    <div class="size-8 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center shrink-0 border border-amber-500/20 mt-0.5">
                       <svg lucideKeyRound class="size-4"></svg>
                     </div>
                     <div>
-                      <div class="text-xs font-bold text-slate-900 group-hover:text-amber-700 transition-colors">
+                      <div class="text-xs font-bold text-white group-hover:text-amber-400 transition-colors">
                         Resetar Senha do App
                       </div>
-                      <div class="text-[11px] text-slate-500 mt-0.5">
+                      <div class="text-[11px] text-[#8E9DA8] mt-0.5">
                         Gerar nova senha temporária para acesso móvel
                       </div>
                     </div>
                   </div>
                   <div
-                    class="size-7 rounded-lg flex items-center justify-center text-slate-400 group-hover:text-slate-600 transition-transform duration-200 shrink-0 ml-2"
+                    class="size-7 rounded-lg flex items-center justify-center text-[#8E9DA8] group-hover:text-white transition-transform duration-200 shrink-0 ml-2"
                     [class.rotate-180]="expandedAction() === 'reset-password'"
                   >
                     <svg lucideChevronDown class="size-4"></svg>
@@ -529,24 +529,24 @@
                 </button>
 
                 @if (expandedAction() === 'reset-password') {
-                  <div class="px-4 pb-4 pt-2 border-t border-amber-100 bg-white space-y-3 animate-in fade-in duration-150">
+                  <div class="px-4 pb-4 pt-2 border-t border-[#222A2F] bg-[#0F1215] space-y-3 animate-in fade-in duration-150">
                     @if (resetError()) {
-                      <div class="p-2.5 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl flex items-center gap-2">
-                        <svg lucideAlertTriangle class="size-3.5 shrink-0"></svg>
+                      <div class="p-2.5 bg-rose-950/30 border border-rose-500/30 text-rose-300 text-xs rounded-xl flex items-center gap-2">
+                        <svg lucideAlertTriangle class="size-3.5 shrink-0 text-rose-400"></svg>
                         <span>{{ resetError() }}</span>
                       </div>
                     }
 
                     @if (!tempPassword()) {
-                      <p class="text-xs text-slate-600 leading-relaxed">
-                        Será gerada uma nova senha temporária para o motorista <strong class="text-slate-800">{{ driver()?.name }}</strong>. No próximo login no aplicativo, o condutor será obrigado a cadastrar uma nova senha pessoal.
+                      <p class="text-xs text-[#C5D1D9] leading-relaxed">
+                        Será gerada uma nova senha temporária para o motorista <strong class="text-white">{{ driver()?.name }}</strong>. No próximo login no aplicativo, o condutor será obrigado a cadastrar uma nova senha pessoal.
                       </p>
 
                       <div class="flex items-center justify-end gap-2 pt-1">
                         <button
                           type="button"
                           (click)="toggleAction('reset-password')"
-                          class="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+                          class="px-3 py-1.5 text-xs font-semibold text-[#8E9DA8] hover:text-white hover:bg-[#171D21] border border-[#222A2F] rounded-lg transition-colors cursor-pointer"
                         >
                           Cancelar
                         </button>
@@ -554,7 +554,7 @@
                           type="button"
                           (click)="executeResetPassword()"
                           [disabled]="isResetting()"
-                          class="px-4 py-2 text-xs font-semibold text-white bg-amber-600 hover:bg-amber-700 rounded-xl transition-colors flex items-center gap-2 cursor-pointer shadow-xs disabled:opacity-50"
+                          class="px-4 py-2 text-xs font-semibold text-white bg-amber-600 hover:bg-amber-500 rounded-xl transition-colors flex items-center gap-2 cursor-pointer shadow-xs disabled:opacity-50"
                         >
                           @if (isResetting()) {
                             <svg lucideLoader2 class="size-3.5 animate-spin"></svg>
@@ -563,22 +563,22 @@
                         </button>
                       </div>
                     } @else {
-                      <div class="p-3.5 bg-slate-900 rounded-xl border border-slate-800 space-y-2">
-                        <div class="flex items-center justify-between text-[11px] text-slate-400 font-medium">
+                      <div class="p-3.5 bg-[#0B0E11] rounded-xl border border-[#222A2F] space-y-2">
+                        <div class="flex items-center justify-between text-[11px] text-[#8E9DA8] font-medium">
                           <span>Senha Provisória</span>
                           <span class="text-amber-400 flex items-center gap-1">
                             <span class="size-1.5 rounded-full bg-amber-400 animate-pulse"></span>
                             Troca obrigatória no app
                           </span>
                         </div>
-                        <div class="flex items-center justify-between gap-2 bg-slate-950/80 px-3 py-2 rounded-lg border border-slate-800">
+                        <div class="flex items-center justify-between gap-2 bg-[#080B0C] px-3 py-2 rounded-lg border border-[#222A2F]">
                           <span class="font-mono text-sm font-bold text-emerald-400 tracking-wider select-all">
                             {{ tempPassword() }}
                           </span>
                           <button
                             type="button"
                             (click)="copyPassword()"
-                            class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-emerald-600 hover:bg-emerald-500 text-white transition-all cursor-pointer shadow-xs shrink-0"
+                            class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-bold bg-[#FF6B00] hover:bg-[#E05D00] text-[#080B0C] transition-all cursor-pointer shadow-xs shrink-0"
                           >
                             @if (passwordCopied()) {
                               <svg lucideCheck class="size-3"></svg>
@@ -590,14 +590,14 @@
                           </button>
                         </div>
                       </div>
-                      <p class="text-[11px] text-slate-500">
+                      <p class="text-[11px] text-[#8E9DA8]">
                         Copie e envie esta senha para o motorista. Por segurança, guarde-a antes de fechar este painel.
                       </p>
                       <div class="flex justify-end pt-1">
                         <button
                           type="button"
                           (click)="tempPassword.set(null); toggleAction('reset-password')"
-                          class="px-3.5 py-1.5 text-xs font-semibold text-white bg-slate-800 hover:bg-slate-700 rounded-xl transition-colors cursor-pointer"
+                          class="px-3.5 py-1.5 text-xs font-semibold text-white bg-[#171D21] hover:bg-[#222A2F] border border-[#222A2F] rounded-xl transition-colors cursor-pointer"
                         >
                           Concluir
                         </button>
@@ -611,7 +611,7 @@
               @if (!isSuspended()) {
                 <div
                   class="rounded-2xl border transition-all overflow-hidden shadow-2xs"
-                  [ngClass]="expandedAction() === 'status' ? 'border-slate-400 ring-2 ring-slate-500/10 bg-slate-50/50 shadow-xs' : 'border-slate-200/80 bg-white hover:border-slate-300'"
+                  [ngClass]="expandedAction() === 'status' ? 'border-[#35414B] ring-2 ring-white/5 bg-[#171D21] shadow-xs' : 'border-[#222A2F] bg-[#11161A] hover:border-[#35414B]'"
                 >
                   <button
                     type="button"
@@ -621,7 +621,7 @@
                     <div class="flex items-start gap-3">
                       <div
                         class="size-8 rounded-lg flex items-center justify-center shrink-0 border mt-0.5"
-                        [ngClass]="isActive() ? 'bg-slate-100 text-slate-600 border-slate-200' : 'bg-emerald-50 text-emerald-600 border-emerald-200/60'"
+                        [ngClass]="isActive() ? 'bg-slate-800 text-[#8E9DA8] border-[#222A2F]' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'"
                       >
                         @if (isActive()) {
                           <svg lucideBan class="size-4"></svg>
@@ -630,16 +630,16 @@
                         }
                       </div>
                       <div>
-                        <div class="text-xs font-bold text-slate-900 group-hover:text-slate-800 transition-colors">
+                        <div class="text-xs font-bold text-white group-hover:text-[#FF6B00] transition-colors">
                           {{ isActive() ? 'Desativar Motorista' : 'Ativar Motorista' }}
                         </div>
-                        <div class="text-[11px] text-slate-500 mt-0.5">
+                        <div class="text-[11px] text-[#8E9DA8] mt-0.5">
                           {{ isActive() ? 'Pausar disponibilidade operacional do condutor' : 'Liberar cadastro para novas viagens' }}
                         </div>
                       </div>
                     </div>
                     <div
-                      class="size-7 rounded-lg flex items-center justify-center text-slate-400 group-hover:text-slate-600 transition-transform duration-200 shrink-0 ml-2"
+                      class="size-7 rounded-lg flex items-center justify-center text-[#8E9DA8] group-hover:text-white transition-transform duration-200 shrink-0 ml-2"
                       [class.rotate-180]="expandedAction() === 'status'"
                     >
                       <svg lucideChevronDown class="size-4"></svg>
@@ -647,19 +647,19 @@
                   </button>
 
                   @if (expandedAction() === 'status') {
-                    <div class="px-4 pb-4 pt-2 border-t border-slate-100 bg-white space-y-3 animate-in fade-in duration-150">
+                    <div class="px-4 pb-4 pt-2 border-t border-[#222A2F] bg-[#0F1215] space-y-3 animate-in fade-in duration-150">
                       @if (actionError()) {
-                        <div class="p-2.5 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl flex items-center gap-2">
-                          <svg lucideAlertTriangle class="size-3.5 shrink-0"></svg>
+                        <div class="p-2.5 bg-rose-950/30 border border-rose-500/30 text-rose-300 text-xs rounded-xl flex items-center gap-2">
+                          <svg lucideAlertTriangle class="size-3.5 shrink-0 text-rose-400"></svg>
                           <span>{{ actionError() }}</span>
                         </div>
                       }
 
-                      <p class="text-xs text-slate-600 leading-relaxed">
+                      <p class="text-xs text-[#C5D1D9] leading-relaxed">
                         @if (isActive()) {
-                          Tem certeza que deseja <strong>desativar</strong> o motorista <strong class="text-slate-800">{{ driver()?.name }}</strong>? Ele não poderá ser alocado em novas viagens até que seja reativado.
+                          Tem certeza que deseja <strong>desativar</strong> o motorista <strong class="text-white">{{ driver()?.name }}</strong>? Ele não poderá ser alocado em novas viagens até que seja reativado.
                         } @else {
-                          Deseja <strong>reativar</strong> o motorista <strong class="text-slate-800">{{ driver()?.name }}</strong>? Ele voltará a ficar disponível para a frota.
+                          Deseja <strong>reativar</strong> o motorista <strong class="text-white">{{ driver()?.name }}</strong>? Ele voltará a ficar disponível para a frota.
                         }
                       </p>
 
@@ -667,7 +667,7 @@
                         <button
                           type="button"
                           (click)="toggleAction('status')"
-                          class="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+                          class="px-3 py-1.5 text-xs font-semibold text-[#8E9DA8] hover:text-white hover:bg-[#171D21] border border-[#222A2F] rounded-lg transition-colors cursor-pointer"
                         >
                           Cancelar
                         </button>
@@ -676,7 +676,7 @@
                           (click)="executeStatusChange(isActive() ? 'deactivate' : 'activate')"
                           [disabled]="isStatusLoading()"
                           class="px-4 py-2 text-xs font-semibold text-white rounded-xl transition-colors flex items-center gap-2 cursor-pointer shadow-xs disabled:opacity-50"
-                          [ngClass]="isActive() ? 'bg-slate-900 hover:bg-slate-800' : 'bg-emerald-600 hover:bg-emerald-700'"
+                          [ngClass]="isActive() ? 'bg-rose-600 hover:bg-rose-700' : 'bg-emerald-600 hover:bg-emerald-700'"
                         >
                           @if (isStatusLoading()) {
                             <svg lucideLoader2 class="size-3.5 animate-spin"></svg>
@@ -694,7 +694,7 @@
                 <!-- SE ESTIVER SUSPENSO: ENCERRAR SUSPENSÃO -->
                 <div
                   class="rounded-2xl border transition-all overflow-hidden shadow-2xs"
-                  [ngClass]="expandedAction() === 'lift' ? 'border-emerald-300 ring-2 ring-emerald-500/10 bg-emerald-50/20 shadow-xs' : 'border-emerald-200 bg-emerald-50/40 hover:border-emerald-300'"
+                  [ngClass]="expandedAction() === 'lift' ? 'border-emerald-500/40 ring-2 ring-emerald-500/10 bg-emerald-950/20 shadow-xs' : 'border-emerald-500/30 bg-emerald-950/15 hover:border-emerald-500/50'"
                 >
                   <button
                     type="button"
@@ -702,20 +702,20 @@
                     class="flex items-center justify-between w-full p-3.5 text-left cursor-pointer transition-colors group"
                   >
                     <div class="flex items-start gap-3">
-                      <div class="size-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 border border-emerald-200 mt-0.5">
+                      <div class="size-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/20 mt-0.5">
                         <svg lucidePlay class="size-4"></svg>
                       </div>
                       <div>
-                        <div class="text-xs font-bold text-emerald-900 group-hover:text-emerald-800 transition-colors">
+                        <div class="text-xs font-bold text-white group-hover:text-emerald-400 transition-colors">
                           Encerrar Suspensão
                         </div>
-                        <div class="text-[11px] text-emerald-700 mt-0.5">
+                        <div class="text-[11px] text-[#8E9DA8] mt-0.5">
                           Reativar condutor após suspensão
                         </div>
                       </div>
                     </div>
                     <div
-                      class="size-7 rounded-lg flex items-center justify-center text-slate-400 group-hover:text-slate-600 transition-transform duration-200 shrink-0 ml-2"
+                      class="size-7 rounded-lg flex items-center justify-center text-[#8E9DA8] group-hover:text-white transition-transform duration-200 shrink-0 ml-2"
                       [class.rotate-180]="expandedAction() === 'lift'"
                     >
                       <svg lucideChevronDown class="size-4"></svg>
@@ -723,43 +723,43 @@
                   </button>
 
                   @if (expandedAction() === 'lift') {
-                    <form [formGroup]="liftForm" (ngSubmit)="executeLift()" class="px-4 pb-4 pt-2 border-t border-emerald-100 bg-white space-y-3 animate-in fade-in duration-150">
+                    <form [formGroup]="liftForm" (ngSubmit)="executeLift()" class="px-4 pb-4 pt-2 border-t border-[#222A2F] bg-[#0F1215] space-y-3 animate-in fade-in duration-150">
                       @if (liftError()) {
-                        <div class="p-2.5 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl flex items-center gap-2">
-                          <svg lucideAlertTriangle class="size-3.5 shrink-0"></svg>
+                        <div class="p-2.5 bg-rose-950/30 border border-rose-500/30 text-rose-300 text-xs rounded-xl flex items-center gap-2">
+                          <svg lucideAlertTriangle class="size-3.5 shrink-0 text-rose-400"></svg>
                           <span>{{ liftError() }}</span>
                         </div>
                       }
 
                       @if (activeSuspension()) {
-                        <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200/70 text-[11px] space-y-1">
+                        <div class="p-2.5 bg-[#11161A] rounded-xl border border-[#222A2F] text-[11px] space-y-1">
                           <div class="flex justify-between">
-                            <span class="text-slate-500">Motivo registrado:</span>
-                            <span class="font-semibold text-slate-800">{{ formatReason(activeSuspension()?.reasonCategory) }}</span>
+                            <span class="text-[#8E9DA8]">Motivo registrado:</span>
+                            <span class="font-semibold text-white">{{ formatReason(activeSuspension()?.reasonCategory) }}</span>
                           </div>
                           @if (activeSuspension()?.reasonDetails) {
-                            <div class="text-slate-600 italic">"{{ activeSuspension()?.reasonDetails }}"</div>
+                            <div class="text-[#8E9DA8] italic">"{{ activeSuspension()?.reasonDetails }}"</div>
                           }
                         </div>
                       }
 
                       <div>
-                        <label class="block text-[11px] font-semibold text-slate-700 mb-1">
+                        <label class="block text-[11px] font-semibold text-[#8E9DA8] mb-1">
                           Motivo do Encerramento / Observação
                         </label>
                         <input
                           type="text"
                           formControlName="liftReason"
                           placeholder="Ex: CNH renovada apresentada com sucesso"
-                          class="w-full bg-slate-50 text-slate-800 text-xs rounded-xl p-2.5 border border-slate-200 focus:outline-hidden focus:border-emerald-500"
+                          class="w-full bg-[#11161A] text-white text-xs rounded-xl p-2.5 border border-[#222A2F] focus:outline-hidden focus:border-[#FF6B00] placeholder:text-[#62707C]"
                         />
                       </div>
 
-                      <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+                      <div class="flex items-center justify-end gap-2 pt-2 border-t border-[#222A2F]">
                         <button
                           type="button"
                           (click)="toggleAction('lift')"
-                          class="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+                          class="px-3 py-1.5 text-xs font-semibold text-[#8E9DA8] hover:text-white hover:bg-[#171D21] border border-[#222A2F] rounded-lg transition-colors cursor-pointer"
                         >
                           Cancelar
                         </button>
@@ -781,7 +781,7 @@
                 <!-- SE NÃO ESTIVER SUSPENSO: SUSPENDER MOTORISTA -->
                 <div
                   class="rounded-2xl border transition-all overflow-hidden shadow-2xs"
-                  [ngClass]="expandedAction() === 'suspend' ? 'border-rose-300 ring-2 ring-rose-500/10 bg-rose-50/20 shadow-xs' : 'border-slate-200/80 bg-white hover:border-slate-300'"
+                  [ngClass]="expandedAction() === 'suspend' ? 'border-rose-500/40 ring-2 ring-rose-500/10 bg-rose-950/20 shadow-xs' : 'border-[#222A2F] bg-[#11161A] hover:border-[#35414B]'"
                 >
                   <button
                     type="button"
@@ -789,20 +789,20 @@
                     class="flex items-center justify-between w-full p-3.5 text-left cursor-pointer transition-colors group"
                   >
                     <div class="flex items-start gap-3">
-                      <div class="size-8 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center shrink-0 border border-rose-200/60 mt-0.5">
+                      <div class="size-8 rounded-lg bg-rose-500/10 text-rose-400 flex items-center justify-center shrink-0 border border-rose-500/20 mt-0.5">
                         <svg lucidePauseCircle class="size-4"></svg>
                       </div>
                       <div>
-                        <div class="text-xs font-bold text-rose-900 group-hover:text-rose-800 transition-colors">
+                        <div class="text-xs font-bold text-white group-hover:text-rose-400 transition-colors">
                           Suspender Motorista
                         </div>
-                        <div class="text-[11px] text-rose-700 mt-0.5">
+                        <div class="text-[11px] text-[#8E9DA8] mt-0.5">
                           Registrar evento disciplinar ou afastamento
                         </div>
                       </div>
                     </div>
                     <div
-                      class="size-7 rounded-lg flex items-center justify-center text-slate-400 group-hover:text-slate-600 transition-transform duration-200 shrink-0 ml-2"
+                      class="size-7 rounded-lg flex items-center justify-center text-[#8E9DA8] group-hover:text-white transition-transform duration-200 shrink-0 ml-2"
                       [class.rotate-180]="expandedAction() === 'suspend'"
                     >
                       <svg lucideChevronDown class="size-4"></svg>
@@ -810,22 +810,22 @@
                   </button>
 
                   @if (expandedAction() === 'suspend') {
-                    <form [formGroup]="suspendForm" (ngSubmit)="executeSuspend()" class="px-4 pb-4 pt-2 border-t border-rose-100 bg-white space-y-3 animate-in fade-in duration-150">
+                    <form [formGroup]="suspendForm" (ngSubmit)="executeSuspend()" class="px-4 pb-4 pt-2 border-t border-[#222A2F] bg-[#0F1215] space-y-3 animate-in fade-in duration-150">
                       @if (suspendError()) {
-                        <div class="p-2.5 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl flex items-center gap-2">
-                          <svg lucideAlertTriangle class="size-3.5 shrink-0"></svg>
+                        <div class="p-2.5 bg-rose-950/30 border border-rose-500/30 text-rose-300 text-xs rounded-xl flex items-center gap-2">
+                          <svg lucideAlertTriangle class="size-3.5 shrink-0 text-rose-400"></svg>
                           <span>{{ suspendError() }}</span>
                         </div>
                       }
 
                       <!-- Motivo da Suspensão -->
                       <div>
-                        <label class="block text-[11px] font-semibold text-slate-700 mb-1">
-                          Motivo da Suspensão <span class="text-rose-500">*</span>
+                        <label class="block text-[11px] font-semibold text-[#8E9DA8] mb-1">
+                          Motivo da Suspensão <span class="text-rose-400">*</span>
                         </label>
                         <select
                           formControlName="reasonCategory"
-                          class="w-full bg-slate-50 text-slate-800 text-xs rounded-xl p-2.5 border border-slate-200 focus:outline-hidden focus:border-rose-500 cursor-pointer"
+                          class="w-full bg-[#11161A] text-white text-xs rounded-xl p-2.5 border border-[#222A2F] focus:outline-hidden focus:border-[#FF6B00] cursor-pointer [&>option]:bg-[#11161A] [&>option]:text-white"
                         >
                           @for (reason of suspendReasons; track reason.value) {
                             <option [value]="reason.value">{{ reason.label }}</option>
@@ -835,46 +835,46 @@
 
                       <!-- Detalhes / Justificativa -->
                       <div>
-                        <label class="block text-[11px] font-semibold text-slate-700 mb-1">
+                        <label class="block text-[11px] font-semibold text-[#8E9DA8] mb-1">
                           Observações / Justificativa
                         </label>
                         <input
                           type="text"
                           formControlName="reasonDetails"
                           placeholder="Ex: Aguardando renovação de CNH..."
-                          class="w-full bg-slate-50 text-slate-800 text-xs rounded-xl p-2.5 border border-slate-200 focus:outline-hidden focus:border-rose-500"
+                          class="w-full bg-[#11161A] text-white text-xs rounded-xl p-2.5 border border-[#222A2F] focus:outline-hidden focus:border-[#FF6B00] placeholder:text-[#62707C]"
                         />
                       </div>
 
                       <!-- Indeterminado -->
-                      <div class="flex items-center justify-between p-2.5 bg-slate-50 rounded-xl border border-slate-200/70">
-                        <label class="text-[11px] font-semibold text-slate-700">Tempo indeterminado</label>
+                      <div class="flex items-center justify-between p-2.5 bg-[#11161A] rounded-xl border border-[#222A2F]">
+                        <label class="text-[11px] font-semibold text-[#C5D1D9]">Tempo indeterminado</label>
                         <input
                           type="checkbox"
                           formControlName="indefinite"
-                          class="size-4 rounded text-rose-600 focus:ring-rose-500 cursor-pointer"
+                          class="size-4 rounded accent-[#FF6B00] cursor-pointer"
                         />
                       </div>
 
                       <!-- Previsão de Retorno -->
                       @if (!suspendForm.get('indefinite')?.value) {
                         <div>
-                          <label class="block text-[11px] font-semibold text-slate-700 mb-1">
-                            Previsão de Retorno <span class="text-rose-500">*</span>
+                          <label class="block text-[11px] font-semibold text-[#8E9DA8] mb-1">
+                            Previsão de Retorno <span class="text-rose-400">*</span>
                           </label>
                           <input
                             type="date"
                             formControlName="expectedReturnDate"
-                            class="w-full bg-slate-50 text-slate-800 text-xs rounded-xl p-2.5 border border-slate-200 focus:outline-hidden focus:border-rose-500"
+                            class="w-full bg-[#11161A] text-white text-xs rounded-xl p-2.5 border border-[#222A2F] focus:outline-hidden focus:border-[#FF6B00]"
                           />
                         </div>
                       }
 
-                      <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+                      <div class="flex items-center justify-end gap-2 pt-2 border-t border-[#222A2F]">
                         <button
                           type="button"
                           (click)="toggleAction('suspend')"
-                          class="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+                          class="px-3 py-1.5 text-xs font-semibold text-[#8E9DA8] hover:text-white hover:bg-[#171D21] border border-[#222A2F] rounded-lg transition-colors cursor-pointer"
                         >
                           Cancelar
                         </button>

@@ -45,28 +45,28 @@ import {
   ],
   template: `
     @if (isOpen() && driver()) {
-      <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-150">
-        <div class="bg-white rounded-2xl border border-slate-200/90 shadow-2xl w-full max-w-xl overflow-hidden animate-in zoom-in-95 duration-150 flex flex-col max-h-[90vh]">
+      <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-150">
+        <div class="bg-[#0F1215] rounded-2xl border border-[#222A2F] shadow-2xl w-full max-w-xl overflow-hidden animate-in zoom-in-95 duration-150 flex flex-col max-h-[90vh]">
           <!-- HEADER DO MODAL -->
-          <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 shrink-0">
-            <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
-              <div class="size-7 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-200/60">
+          <div class="px-6 py-4 border-b border-[#222A2F] flex items-center justify-between bg-[#0B0E11] shrink-0">
+            <h2 class="text-base font-bold text-white flex items-center gap-2">
+              <div class="size-7 rounded-lg bg-[#FF6B00]/10 text-[#FF6B00] flex items-center justify-center border border-[#FF6B00]/20">
                 <svg lucideIdCard class="size-4"></svg>
               </div>
               Ficha do Condutor
             </h2>
-            <button (click)="close.emit()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg transition-colors cursor-pointer">
+            <button (click)="close.emit()" class="text-[#8E9DA8] hover:text-white hover:bg-[#171D21] p-1.5 rounded-lg transition-colors cursor-pointer">
               <svg lucideX class="size-5"></svg>
             </button>
           </div>
 
           <!-- NAVEGAÇÃO POR ABAS -->
-          <div class="flex border-b border-slate-200/80 px-6 bg-slate-50/40 shrink-0">
+          <div class="flex border-b border-[#222A2F] px-6 bg-[#0B0E11] shrink-0">
             <button
               type="button"
               (click)="detailsTab.set('info')"
               class="py-3 px-4 text-xs font-bold border-b-2 transition-colors cursor-pointer flex items-center gap-2"
-              [ngClass]="detailsTab() === 'info' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-slate-700'"
+              [ngClass]="detailsTab() === 'info' ? 'border-[#FF6B00] text-[#FF6B00]' : 'border-transparent text-[#8E9DA8] hover:text-white'"
             >
               <svg lucideIdCard class="size-4"></svg>
               Informações Gerais
@@ -75,31 +75,31 @@ import {
               type="button"
               (click)="detailsTab.set('suspensions')"
               class="py-3 px-4 text-xs font-bold border-b-2 transition-colors cursor-pointer flex items-center gap-2"
-              [ngClass]="detailsTab() === 'suspensions' ? 'border-rose-600 text-rose-600' : 'border-transparent text-slate-500 hover:text-slate-700'"
+              [ngClass]="detailsTab() === 'suspensions' ? 'border-rose-500 text-rose-400' : 'border-transparent text-[#8E9DA8] hover:text-white'"
             >
               <svg lucideHistory class="size-4"></svg>
               Histórico de Suspensões
               @if (suspensionHistory().length > 0) {
-                <span class="px-1.5 py-0.2 text-[10px] rounded-full bg-rose-100 text-rose-700 font-bold">
+                <span class="px-1.5 py-0.2 text-[10px] rounded-full bg-rose-900/50 text-rose-300 font-bold border border-rose-500/30">
                   {{ suspensionHistory().length }}
                 </span>
               }
             </button>
           </div>
 
-          <div class="p-6 overflow-y-auto space-y-6 flex-1">
+          <div class="p-6 overflow-y-auto space-y-6 flex-1 text-xs">
             <!-- ABA 1: INFORMAÇÕES GERAIS -->
             @if (detailsTab() === 'info') {
               <!-- HEADER COM AVATAR E DADOS PRINCIPAIS -->
               <div class="flex items-center gap-4">
-                <div class="size-14 rounded-2xl bg-indigo-50 text-indigo-600 border border-indigo-200 flex items-center justify-center text-xl font-bold">
+                <div class="size-14 rounded-2xl bg-[#171D21] text-[#FF6B00] border border-[#222A2F] flex items-center justify-center text-xl font-bold">
                   {{ driver()?.name?.charAt(0) || 'M' }}
                 </div>
                 <div>
-                  <h3 class="text-base font-bold text-slate-800">{{ driver()?.name }}</h3>
+                  <h3 class="text-base font-bold text-white">{{ driver()?.name }}</h3>
                   @if (driver()?.email) {
-                    <div class="text-xs text-slate-500 flex items-center gap-1.5 mt-0.5 font-medium">
-                      <svg lucideMail class="size-3.5 text-indigo-500 shrink-0"></svg>
+                    <div class="text-xs text-[#8E9DA8] flex items-center gap-1.5 mt-0.5 font-medium">
+                      <svg lucideMail class="size-3.5 text-[#FF6B00] shrink-0"></svg>
                       <span>{{ driver()?.email }}</span>
                     </div>
                   }
@@ -115,7 +115,7 @@ import {
                       <button
                         type="button"
                         (click)="openLiftModal.emit(driver()!)"
-                        class="text-[11px] font-bold text-emerald-600 hover:underline cursor-pointer ml-2"
+                        class="text-[11px] font-bold text-emerald-400 hover:underline cursor-pointer ml-2"
                       >
                         Reativar Agora →
                       </button>
@@ -126,62 +126,62 @@ import {
 
               <!-- CARDS DE INFORMAÇÃO -->
               <div class="grid grid-cols-2 gap-3 text-xs">
-                <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/70">
-                  <div class="text-[11px] text-slate-400 font-medium">CPF do Condutor</div>
-                  <div class="text-sm font-bold text-slate-800 mt-0.5 font-mono">{{ driver()?.cpf }}</div>
+                <div class="p-3.5 bg-[#11161A] rounded-xl border border-[#222A2F]">
+                  <div class="text-[11px] text-[#8E9DA8] font-medium">CPF do Condutor</div>
+                  <div class="text-sm font-bold text-white mt-0.5 font-mono">{{ driver()?.cpf }}</div>
                 </div>
 
-                <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/70">
-                  <div class="text-[11px] text-slate-400 font-medium">Telefone / WhatsApp</div>
-                  <div class="text-sm font-bold text-slate-800 mt-0.5">{{ driver()?.phone || 'Não informado' }}</div>
+                <div class="p-3.5 bg-[#11161A] rounded-xl border border-[#222A2F]">
+                  <div class="text-[11px] text-[#8E9DA8] font-medium">Telefone / WhatsApp</div>
+                  <div class="text-sm font-bold text-white mt-0.5">{{ driver()?.phone || 'Não informado' }}</div>
                 </div>
 
-                <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/70 col-span-2">
-                  <div class="text-[11px] text-slate-400 font-medium">E-mail de Acesso (App do Motorista)</div>
-                  <div class="text-sm font-semibold text-slate-800 mt-0.5 flex items-center gap-2">
-                    <svg lucideMail class="size-4 text-indigo-500 shrink-0"></svg>
+                <div class="p-3.5 bg-[#11161A] rounded-xl border border-[#222A2F] col-span-2">
+                  <div class="text-[11px] text-[#8E9DA8] font-medium">E-mail de Acesso (App do Motorista)</div>
+                  <div class="text-sm font-semibold text-white mt-0.5 flex items-center gap-2">
+                    <svg lucideMail class="size-4 text-[#FF6B00] shrink-0"></svg>
                     <span>{{ driver()?.email || 'Não informado' }}</span>
                   </div>
                 </div>
               </div>
 
               <!-- CARTEIRA DE MOTORISTA (CNH) CARD -->
-              <div class="p-4 bg-gradient-to-br from-indigo-50/50 to-blue-50/30 rounded-2xl border border-indigo-100 space-y-3">
+              <div class="p-4 bg-[#11161A] rounded-2xl border border-[#222A2F] space-y-3">
                 <div class="flex items-center justify-between">
-                  <span class="text-xs font-bold text-indigo-950 uppercase tracking-wider">Carteira Nacional de Habilitação</span>
-                  <span class="px-2 py-0.5 bg-indigo-600 text-white text-[11px] font-bold rounded-md shadow-2xs">
+                  <span class="text-xs font-bold text-white uppercase tracking-wider">Carteira Nacional de Habilitação</span>
+                  <span class="px-2 py-0.5 bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-[11px] font-bold rounded-md shadow-2xs">
                     Cat. {{ getCnhCategory(driver()!) }}
                   </span>
                 </div>
 
                 <div class="grid grid-cols-2 gap-2 text-xs pt-1">
                   <div>
-                    <span class="text-[10px] text-slate-400 block font-medium">Nº DO REGISTRO</span>
-                    <span class="font-mono font-bold text-slate-800 text-sm">{{ getCnhNumber(driver()!) }}</span>
+                    <span class="text-[10px] text-[#8E9DA8] block font-medium">Nº DO REGISTRO</span>
+                    <span class="font-mono font-bold text-white text-sm">{{ getCnhNumber(driver()!) }}</span>
                   </div>
                   <div>
-                    <span class="text-[10px] text-slate-400 block font-medium">VALIDADE</span>
-                    <span class="font-bold text-slate-800 text-sm">
+                    <span class="text-[10px] text-[#8E9DA8] block font-medium">VALIDADE</span>
+                    <span class="font-bold text-white text-sm">
                       {{ (getCnhExpiration(driver()!) | date:'dd/MM/yyyy') || 'Não informada' }}
                     </span>
                   </div>
                 </div>
 
-                <div class="pt-2 border-t border-indigo-100 flex items-center justify-between">
+                <div class="pt-2 border-t border-[#222A2F] flex items-center justify-between">
                   <div class="flex items-center gap-1.5 text-xs">
                     @if (isCnhExpired(getCnhExpiration(driver()!))) {
-                      <span class="px-2 py-0.5 bg-rose-100 text-rose-700 font-bold rounded text-[10px] border border-rose-200 flex items-center gap-1">
-                        <svg lucideAlertTriangle class="size-3"></svg>
+                      <span class="px-2 py-0.5 bg-rose-950/30 text-rose-300 font-bold rounded text-[10px] border border-rose-500/30 flex items-center gap-1">
+                        <svg lucideAlertTriangle class="size-3 text-rose-400"></svg>
                         CNH Vencida
                       </span>
                     } @else if (isCnhExpiringSoon(getCnhExpiration(driver()!))) {
-                      <span class="px-2 py-0.5 bg-amber-100 text-amber-700 font-semibold rounded text-[10px] border border-amber-200 flex items-center gap-1">
-                        <svg lucideAlertTriangle class="size-3"></svg>
+                      <span class="px-2 py-0.5 bg-amber-950/30 text-amber-300 font-semibold rounded text-[10px] border border-amber-500/30 flex items-center gap-1">
+                        <svg lucideAlertTriangle class="size-3 text-amber-400"></svg>
                         Vencimento Próximo
                       </span>
                     } @else {
-                      <span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 font-semibold rounded text-[10px] border border-emerald-200 flex items-center gap-1">
-                        <svg lucideCheck class="size-3"></svg>
+                      <span class="px-2 py-0.5 bg-emerald-950/30 text-emerald-300 font-semibold rounded text-[10px] border border-emerald-500/30 flex items-center gap-1">
+                        <svg lucideCheck class="size-3 text-emerald-400"></svg>
                         Habilitação Regular
                       </span>
                     }
@@ -190,7 +190,7 @@ import {
                   <button
                     type="button"
                     (click)="openUpdateCnhModal.emit(driver()!)"
-                    class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition-colors cursor-pointer"
+                    class="text-xs font-semibold text-[#FF6B00] hover:text-[#E05D00] transition-colors cursor-pointer"
                   >
                     Renovar CNH →
                   </button>
@@ -202,57 +202,57 @@ import {
             @if (detailsTab() === 'suspensions') {
               <div class="space-y-4">
                 @if (loadingSuspensions()) {
-                  <div class="py-8 flex flex-col items-center justify-center text-slate-400 gap-2">
-                    <svg lucideLoader2 class="size-6 animate-spin text-rose-600"></svg>
+                  <div class="py-8 flex flex-col items-center justify-center text-[#8E9DA8] gap-2">
+                    <svg lucideLoader2 class="size-6 animate-spin text-rose-500"></svg>
                     <span class="text-xs font-medium">Carregando histórico de suspensões...</span>
                   </div>
                 } @else if (suspensionHistory().length === 0) {
-                  <div class="p-8 text-center bg-slate-50 rounded-2xl border border-slate-200/70 space-y-2">
-                    <div class="size-10 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto">
+                  <div class="p-8 text-center bg-[#11161A] rounded-2xl border border-[#222A2F] space-y-2">
+                    <div class="size-10 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto">
                       <svg lucideCheck class="size-5"></svg>
                     </div>
-                    <h4 class="text-xs font-bold text-slate-800">Nenhuma suspensão registrada</h4>
-                    <p class="text-[11px] text-slate-500">Este condutor não possui eventos de suspensão no histórico.</p>
+                    <h4 class="text-xs font-bold text-white">Nenhuma suspensão registrada</h4>
+                    <p class="text-[11px] text-[#8E9DA8]">Este condutor não possui eventos de suspensão no histórico.</p>
                   </div>
                 } @else {
                   <div class="space-y-3">
                     @for (susp of suspensionHistory(); track susp.id) {
                       <div
                         class="p-4 rounded-xl border text-xs space-y-2.5 transition-all"
-                        [ngClass]="susp.status === 'ATIVA' ? 'bg-rose-50/50 border-rose-200' : 'bg-slate-50 border-slate-200/80'"
+                        [ngClass]="susp.status === 'ATIVA' ? 'bg-rose-950/20 border-rose-500/30' : 'bg-[#11161A] border-[#222A2F]'"
                       >
                         <div class="flex items-center justify-between">
                           <div class="flex items-center gap-2">
                             <span
                               class="px-2 py-0.5 rounded-md text-[10px] font-bold border"
-                              [ngClass]="susp.status === 'ATIVA' ? 'bg-rose-100 text-rose-700 border-rose-200' : 'bg-slate-200 text-slate-700 border-slate-300'"
+                              [ngClass]="susp.status === 'ATIVA' ? 'bg-rose-900/50 text-rose-300 border-rose-500/30' : 'bg-[#171D21] text-[#8E9DA8] border-[#222A2F]'"
                             >
                               {{ susp.status === 'ATIVA' ? 'SUSPENSÃO ATIVA' : 'ENCERRADA' }}
                             </span>
-                            <span class="font-bold text-slate-800">{{ formatSuspensionReason(susp.reasonCategory) }}</span>
+                            <span class="font-bold text-white">{{ formatSuspensionReason(susp.reasonCategory) }}</span>
                           </div>
-                          <span class="text-[10px] text-slate-400">
+                          <span class="text-[10px] text-[#8E9DA8]">
                             {{ susp.suspendedAt | date:'dd/MM/yyyy HH:mm' }}
                           </span>
                         </div>
 
                         @if (susp.reasonDetails) {
-                          <div class="text-slate-600 bg-white/70 p-2.5 rounded-lg border border-slate-200/50 text-[11px]">
-                            <strong class="text-slate-700">Justificativa:</strong> {{ susp.reasonDetails }}
+                          <div class="text-[#C5D1D9] bg-[#0F1215] p-2.5 rounded-lg border border-[#222A2F] text-[11px]">
+                            <strong class="text-white">Justificativa:</strong> {{ susp.reasonDetails }}
                           </div>
                         }
 
-                        <div class="grid grid-cols-2 gap-2 text-[11px] text-slate-500 pt-1">
+                        <div class="grid grid-cols-2 gap-2 text-[11px] text-[#8E9DA8] pt-1">
                           <div>
-                            <span class="text-slate-400 block text-[10px]">PREVISÃO DE RETORNO</span>
-                            <span class="font-medium text-slate-800">
+                            <span class="text-[#8E9DA8] block text-[10px]">PREVISÃO DE RETORNO</span>
+                            <span class="font-medium text-white">
                               {{ susp.indefinite ? 'Sem prazo definido' : ((susp.expectedReturnDate | date:'dd/MM/yyyy') || 'Não informada') }}
                             </span>
                           </div>
                           @if (susp.liftedAt) {
                             <div>
-                              <span class="text-slate-400 block text-[10px]">ENCERRADA EM</span>
-                              <span class="font-medium text-emerald-700">
+                              <span class="text-[#8E9DA8] block text-[10px]">ENCERRADA EM</span>
+                              <span class="font-medium text-emerald-400">
                                 {{ susp.liftedAt | date:'dd/MM/yyyy HH:mm' }}
                               </span>
                             </div>
@@ -260,8 +260,8 @@ import {
                         </div>
 
                         @if (susp.liftReason) {
-                          <div class="text-[11px] text-emerald-800 bg-emerald-50/70 p-2 rounded-lg border border-emerald-200/50">
-                            <strong class="text-emerald-900">Motivo do Encerramento:</strong> {{ susp.liftReason }}
+                          <div class="text-[11px] text-emerald-300 bg-emerald-950/30 p-2 rounded-lg border border-emerald-500/30">
+                            <strong class="text-white">Motivo do Encerramento:</strong> {{ susp.liftReason }}
                           </div>
                         }
 
@@ -270,7 +270,7 @@ import {
                             <a
                               [href]="susp.attachmentUrl"
                               target="_blank"
-                              class="inline-flex items-center gap-1 text-[11px] font-semibold text-indigo-600 hover:underline"
+                              class="inline-flex items-center gap-1 text-[11px] font-semibold text-[#FF6B00] hover:underline"
                             >
                               <svg lucideFileText class="size-3.5"></svg>
                               Ver Documento Anexo ↗
@@ -279,11 +279,11 @@ import {
                         }
 
                         @if (susp.status === 'ATIVA') {
-                          <div class="pt-2 border-t border-rose-200 flex justify-end">
+                          <div class="pt-2 border-t border-rose-500/30 flex justify-end">
                             <button
                               type="button"
                               (click)="openLiftModal.emit(driver()!)"
-                              class="px-3 py-1.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                              class="px-3 py-1.5 text-xs font-bold text-[#080B0C] bg-[#FF6B00] hover:bg-[#E05D00] rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs"
                             >
                               <svg lucidePlay class="size-3.5"></svg>
                               Reativar Condutor
@@ -297,13 +297,13 @@ import {
               </div>
             }
 
-            <div class="pt-2 flex items-center justify-between border-t border-slate-100 gap-2 flex-wrap">
+            <div class="pt-2 flex items-center justify-between border-t border-[#222A2F] gap-2 flex-wrap">
               <div class="flex items-center gap-3">
                 <a
                   [routerLink]="['/abastecimentos']"
                   [queryParams]="{ driverId: driver()?.id }"
                   (click)="close.emit()"
-                  class="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-600 hover:text-emerald-700 hover:underline cursor-pointer"
+                  class="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-400 hover:text-emerald-300 hover:underline cursor-pointer"
                 >
                   <svg lucideFuel class="size-4"></svg>
                   <span>Abastecimentos</span>
@@ -314,7 +314,7 @@ import {
                   <button
                     type="button"
                     (click)="openResetPasswordModal.emit(driver()!)"
-                    class="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-600 hover:text-amber-700 hover:underline cursor-pointer"
+                    class="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-400 hover:text-amber-300 hover:underline cursor-pointer"
                   >
                     <svg lucideKeyRound class="size-4"></svg>
                     <span>Resetar Senha de Acesso</span>
@@ -325,7 +325,7 @@ import {
               <button
                 type="button"
                 (click)="close.emit()"
-                class="px-5 py-2.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer"
+                class="px-5 py-2.5 text-xs font-semibold text-white bg-[#171D21] hover:bg-[#222A2F] border border-[#222A2F] rounded-xl transition-colors cursor-pointer"
               >
                 Fechar
               </button>

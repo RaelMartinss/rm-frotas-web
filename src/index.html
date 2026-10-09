@@ -5,20 +5,21 @@
   <title>RM Frotas</title>
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#0f172a">
+  <meta name="theme-color" content="#080B0C">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="RM Motorista">
-  <link rel="manifest" href="manifest.webmanifest">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=4">
-  <link rel="icon" type="image/x-icon" href="favicon.ico?v=4">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png?v=4">
-  <link rel="icon" type="image/png" sizes="192x192" href="favicon-192x192.png?v=4">
-  <link rel="icon" type="image/png" sizes="512x512" href="favicon-512x512.png?v=4">
+  <link rel="manifest" href="manifest.webmanifest?v=5">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=5">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=5">
+  <link rel="icon" type="image/x-icon" href="favicon.ico?v=5">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png?v=5">
+  <link rel="icon" type="image/png" sizes="192x192" href="favicon-192x192.png?v=5">
+  <link rel="icon" type="image/png" sizes="512x512" href="favicon-512x512.png?v=5">
   <style>
     @keyframes pulse-glow {
-      0%, 100% { opacity: 0.7; transform: scale(0.98); }
+      0%, 100% { opacity: 0.8; transform: scale(0.98); }
       50% { opacity: 1; transform: scale(1.02); }
     }
     @keyframes spin {
@@ -31,7 +32,8 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      background-color: #050A14;
+      background-color: #080B0C;
+      background-image: radial-gradient(circle at 50% 45%, rgba(255, 107, 0, 0.08) 0%, transparent 60%);
       font-family: 'Inter Variable', 'Inter', system-ui, -apple-system, sans-serif;
       z-index: 99999;
     }
@@ -39,45 +41,56 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 16px;
+      gap: 14px;
     }
     .app-splash-logo {
-      width: 52px;
-      height: 52px;
-      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-      border-radius: 14px;
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, #FF6B00 0%, #E05D00 100%);
+      border-radius: 16px;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 0 30px rgba(16, 185, 129, 0.35);
+      box-shadow: 0 0 35px rgba(255, 107, 0, 0.45);
       animation: pulse-glow 2s ease-in-out infinite;
+      border: 1px solid rgba(255, 255, 255, 0.15);
     }
     .app-splash-logo svg {
-      width: 28px;
-      height: 28px;
+      width: 30px;
+      height: 30px;
       color: white;
     }
     .app-splash-title {
-      font-size: 20px;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      color: #f8fafc;
+      font-size: 21px;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      color: #FFFFFF;
       margin: 0;
     }
     .app-splash-title span {
-      color: #10b981;
+      color: #FF6B00;
+    }
+    .app-splash-subtitle {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #8E9DA8;
+      margin-top: -8px;
     }
     .app-splash-spinner {
       width: 18px;
       height: 18px;
-      border: 2px solid rgba(255, 255, 255, 0.15);
-      border-top-color: #10b981;
+      border: 2px solid rgba(255, 255, 255, 0.12);
+      border-top-color: #FF6B00;
       border-radius: 50%;
+      box-shadow: 0 0 12px rgba(255, 107, 0, 0.35);
       animation: spin 0.7s linear infinite;
     }
     .app-splash-status {
-      font-size: 13px;
-      color: #94a3b8;
+      font-size: 12px;
+      font-weight: 500;
+      color: #8E9DA8;
       display: flex;
       align-items: center;
       gap: 10px;
@@ -96,6 +109,7 @@
           </svg>
         </div>
         <h1 class="app-splash-title">RM <span>Frotas</span></h1>
+        <div class="app-splash-subtitle">Portal Operacional</div>
         <div class="app-splash-status">
           <div class="app-splash-spinner"></div>
           <span>Carregando sistema...</span>

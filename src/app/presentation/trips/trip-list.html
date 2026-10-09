@@ -1,31 +1,31 @@
 <div class="space-y-6 animate-in fade-in duration-200">
   <!-- CABEÇALHO EXECUTIVO -->
-  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-200/70 pb-5">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-[#222A2F] pb-5">
     <div>
       <div class="flex items-center gap-2 mb-1">
-        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
           <span class="size-1.5 rounded-full bg-emerald-500"></span>
           Logística & Despacho
         </span>
-        <span class="text-xs text-slate-400">•</span>
-        <span class="text-xs text-slate-500 font-medium">{{ totalItems() | number }} viagens registradas</span>
+        <span class="text-xs text-[#62707C]">•</span>
+        <span class="text-xs text-[#929EAA] font-medium">{{ totalItems() | number }} viagens registradas</span>
       </div>
-      <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Gestão de Viagens</h1>
-      <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Controle rotas em tempo real, condutores alocados e histórico de abastecimentos.</p>
+      <h1 class="text-2xl sm:text-3xl font-bold text-white tracking-tight">Gestão de Viagens</h1>
+      <p class="text-xs sm:text-sm text-[#929EAA] mt-0.5">Controle rotas em tempo real, condutores alocados e histórico de abastecimentos.</p>
     </div>
     <div class="flex items-center gap-2">
       <a
         routerLink="/abastecimentos"
-        class="inline-flex items-center gap-2 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs px-3.5 py-2.5 rounded-xl border border-slate-200/90 transition-all shadow-2xs hover:shadow-xs cursor-pointer"
+        class="inline-flex items-center gap-2 bg-[#0F1215] hover:bg-[#171D21] text-white font-semibold text-xs px-3.5 py-2.5 rounded-xl border border-[#222A2F] transition-all cursor-pointer shadow-xs hover:border-[#FF6B00]/40"
         title="Acessar Central de Abastecimentos"
       >
-        <svg lucideFuel class="size-4 text-emerald-600"></svg>
+        <svg lucideFuel class="size-4 text-[#FF6B00]"></svg>
         <span>Abastecimentos</span>
       </a>
       @if (!impersonationService.isReadOnly()) {
         <button
           (click)="openTripModal()"
-          class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs px-4 py-2.5 rounded-xl transition-all shadow-xs hover:shadow-sm cursor-pointer"
+          class="inline-flex items-center gap-2 bg-[#FF6B00] hover:bg-[#E05D00] text-[#080B0C] font-bold text-xs px-4 py-2.5 rounded-xl transition-all shadow-sm cursor-pointer"
         >
           <svg lucideNavigation class="size-4"></svg>
           <span>Nova Viagem</span>
@@ -35,16 +35,16 @@
   </div>
 
   <!-- SELETOR DE ABAS PRINCIPAIS -->
-  <div class="flex items-center gap-2 border-b border-slate-200">
+  <div class="flex items-center gap-2 border-b border-[#222A2F]">
     <button
       type="button"
       (click)="activeMainTab.set('trips')"
       class="flex items-center gap-2 px-4 py-2.5 text-xs sm:text-sm font-semibold border-b-2 transition-colors cursor-pointer"
-      [ngClass]="activeMainTab() === 'trips' ? 'border-emerald-600 text-emerald-700 bg-emerald-50/50 rounded-t-lg' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'"
+      [ngClass]="activeMainTab() === 'trips' ? 'border-[#FF6B00] text-white bg-[#171D21] rounded-t-lg' : 'border-transparent text-[#929EAA] hover:text-white hover:border-[#62707C]'"
     >
       <svg lucideNavigation class="size-4"></svg>
       <span>Viagens Operacionais</span>
-      <span class="ml-1 px-1.5 py-0.5 rounded-full text-[10px] bg-slate-100 text-slate-600 font-medium">
+      <span class="ml-1 px-1.5 py-0.5 rounded-full text-[10px] bg-[#11161A] text-[#929EAA] border border-[#222A2F] font-medium">
         {{ totalItems() }}
       </span>
     </button>
@@ -53,13 +53,13 @@
       type="button"
       (click)="activeMainTab.set('history_incidents')"
       class="flex items-center gap-2 px-4 py-2.5 text-xs sm:text-sm font-semibold border-b-2 transition-colors cursor-pointer relative"
-      [ngClass]="activeMainTab() === 'history_incidents' ? 'border-rose-600 text-rose-700 bg-rose-50/50 rounded-t-lg' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'"
+      [ngClass]="activeMainTab() === 'history_incidents' ? 'border-rose-500 text-white bg-rose-500/10 rounded-t-lg' : 'border-transparent text-[#929EAA] hover:text-white hover:border-[#62707C]'"
     >
       <svg lucideAlertTriangle class="size-4"></svg>
       <span>Histórico & Ocorrências SOS</span>
       @if (allIncidents().length > 0) {
         <span class="ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold"
-          [ngClass]="filteredIncidents().length > 0 ? 'bg-rose-500 text-white' : 'bg-slate-200 text-slate-700'">
+          [ngClass]="filteredIncidents().length > 0 ? 'bg-rose-500 text-white' : 'bg-[#1F262C] text-[#929EAA]'">
           {{ allIncidents().length }}
         </span>
       }
@@ -72,17 +72,17 @@
     <!-- Card 1: Total de Viagens -->
     <div
       (click)="setStatusFilter('ALL')"
-      class="bg-white rounded-2xl border p-4 shadow-2xs transition-all cursor-pointer hover:border-slate-300 hover:shadow-xs select-none"
-      [ngClass]="selectedStatus() === 'ALL' ? 'border-emerald-500/60 ring-2 ring-emerald-500/15 bg-emerald-50/10' : 'border-slate-200/80'"
+      class="bg-[#0F1215] rounded-2xl border p-4 shadow-xs transition-all cursor-pointer select-none"
+      [ngClass]="selectedStatus() === 'ALL' ? 'border-[#FF6B00] ring-1 ring-[#FF6B00]/30 bg-[#FF6B00]/5' : 'border-[#222A2F] hover:border-[#62707C]'"
       title="Filtrar por todas as viagens"
     >
       <div class="flex items-center gap-3.5">
-        <div class="size-11 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center shrink-0">
+        <div class="size-11 rounded-2xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center shrink-0">
           <svg lucideMapPin class="size-5"></svg>
         </div>
         <div class="flex-1 min-w-0">
-          <span class="text-xs font-medium text-slate-500 block truncate">Total de viagens</span>
-          <div class="text-xl sm:text-2xl font-bold text-slate-900 font-mono tabular-nums tracking-tight mt-0.5">
+          <span class="text-xs font-medium text-[#929EAA] block truncate">Total de viagens</span>
+          <div class="text-xl sm:text-2xl font-bold text-white font-mono tabular-nums tracking-tight mt-0.5">
             {{ statusCounts().all }}
           </div>
         </div>
@@ -92,17 +92,17 @@
     <!-- Card 2: Em Andamento -->
     <div
       (click)="setStatusFilter('IN_PROGRESS')"
-      class="bg-white rounded-2xl border p-4 shadow-2xs transition-all cursor-pointer hover:border-slate-300 hover:shadow-xs select-none"
-      [ngClass]="selectedStatus() === 'IN_PROGRESS' ? 'border-blue-500/60 ring-2 ring-blue-500/15 bg-blue-50/10' : 'border-slate-200/80'"
+      class="bg-[#0F1215] rounded-2xl border p-4 shadow-xs transition-all cursor-pointer select-none"
+      [ngClass]="selectedStatus() === 'IN_PROGRESS' ? 'border-blue-500 ring-1 ring-blue-500/30 bg-blue-500/5' : 'border-[#222A2F] hover:border-[#62707C]'"
       title="Filtrar por viagens em andamento"
     >
       <div class="flex items-center gap-3.5">
-        <div class="size-11 rounded-2xl bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center shrink-0">
+        <div class="size-11 rounded-2xl bg-blue-500/10 text-blue-400 border border-blue-500/20 flex items-center justify-center shrink-0">
           <svg lucideTruck class="size-5"></svg>
         </div>
         <div class="flex-1 min-w-0">
-          <span class="text-xs font-medium text-slate-500 block truncate">Em andamento</span>
-          <div class="text-xl sm:text-2xl font-bold text-slate-900 font-mono tabular-nums tracking-tight mt-0.5">
+          <span class="text-xs font-medium text-[#929EAA] block truncate">Em andamento</span>
+          <div class="text-xl sm:text-2xl font-bold text-white font-mono tabular-nums tracking-tight mt-0.5">
             {{ statusCounts().inProgress }}
           </div>
         </div>
@@ -112,17 +112,17 @@
     <!-- Card 3: Concluídas -->
     <div
       (click)="setStatusFilter('COMPLETED')"
-      class="bg-white rounded-2xl border p-4 shadow-2xs transition-all cursor-pointer hover:border-slate-300 hover:shadow-xs select-none"
-      [ngClass]="selectedStatus() === 'COMPLETED' ? 'border-emerald-500/60 ring-2 ring-emerald-500/15 bg-emerald-50/10' : 'border-slate-200/80'"
+      class="bg-[#0F1215] rounded-2xl border p-4 shadow-xs transition-all cursor-pointer select-none"
+      [ngClass]="selectedStatus() === 'COMPLETED' ? 'border-emerald-500 ring-1 ring-emerald-500/30 bg-emerald-500/5' : 'border-[#222A2F] hover:border-[#62707C]'"
       title="Filtrar por viagens concluídas"
     >
       <div class="flex items-center gap-3.5">
-        <div class="size-11 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center shrink-0">
+        <div class="size-11 rounded-2xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center shrink-0">
           <svg lucideCheckCircle2 class="size-5"></svg>
         </div>
         <div class="flex-1 min-w-0">
-          <span class="text-xs font-medium text-slate-500 block truncate">Concluídas</span>
-          <div class="text-xl sm:text-2xl font-bold text-slate-900 font-mono tabular-nums tracking-tight mt-0.5">
+          <span class="text-xs font-medium text-[#929EAA] block truncate">Concluídas</span>
+          <div class="text-xl sm:text-2xl font-bold text-white font-mono tabular-nums tracking-tight mt-0.5">
             {{ statusCounts().completed }}
           </div>
         </div>
@@ -132,17 +132,17 @@
     <!-- Card 4: Programadas -->
     <div
       (click)="setStatusFilter('PLANNED')"
-      class="bg-white rounded-2xl border p-4 shadow-2xs transition-all cursor-pointer hover:border-slate-300 hover:shadow-xs select-none"
-      [ngClass]="selectedStatus() === 'PLANNED' ? 'border-amber-500/60 ring-2 ring-amber-500/15 bg-amber-50/10' : 'border-slate-200/80'"
+      class="bg-[#0F1215] rounded-2xl border p-4 shadow-xs transition-all cursor-pointer select-none"
+      [ngClass]="selectedStatus() === 'PLANNED' ? 'border-amber-500 ring-1 ring-amber-500/30 bg-amber-500/5' : 'border-[#222A2F] hover:border-[#62707C]'"
       title="Filtrar por viagens programadas"
     >
       <div class="flex items-center gap-3.5">
-        <div class="size-11 rounded-2xl bg-amber-50 text-amber-600 border border-amber-100 flex items-center justify-center shrink-0">
+        <div class="size-11 rounded-2xl bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center shrink-0">
           <svg lucideClock class="size-5"></svg>
         </div>
         <div class="flex-1 min-w-0">
-          <span class="text-xs font-medium text-slate-500 block truncate">Programadas</span>
-          <div class="text-xl sm:text-2xl font-bold text-slate-900 font-mono tabular-nums tracking-tight mt-0.5">
+          <span class="text-xs font-medium text-[#929EAA] block truncate">Programadas</span>
+          <div class="text-xl sm:text-2xl font-bold text-white font-mono tabular-nums tracking-tight mt-0.5">
             {{ statusCounts().planned }}
           </div>
         </div>
@@ -152,17 +152,17 @@
     <!-- Card 5: Canceladas -->
     <div
       (click)="setStatusFilter('CANCELLED')"
-      class="bg-white rounded-2xl border p-4 shadow-2xs transition-all cursor-pointer hover:border-slate-300 hover:shadow-xs select-none"
-      [ngClass]="selectedStatus() === 'CANCELLED' ? 'border-rose-500/60 ring-2 ring-rose-500/15 bg-rose-50/10' : 'border-slate-200/80'"
+      class="bg-[#0F1215] rounded-2xl border p-4 shadow-xs transition-all cursor-pointer select-none"
+      [ngClass]="selectedStatus() === 'CANCELLED' ? 'border-rose-500 ring-1 ring-rose-500/30 bg-rose-500/5' : 'border-[#222A2F] hover:border-[#62707C]'"
       title="Filtrar por viagens canceladas"
     >
       <div class="flex items-center gap-3.5">
-        <div class="size-11 rounded-2xl bg-rose-50 text-rose-600 border border-rose-100 flex items-center justify-center shrink-0">
+        <div class="size-11 rounded-2xl bg-rose-500/10 text-rose-400 border border-rose-500/20 flex items-center justify-center shrink-0">
           <svg lucideAlertCircle class="size-5"></svg>
         </div>
         <div class="flex-1 min-w-0">
-          <span class="text-xs font-medium text-slate-500 block truncate">Canceladas</span>
-          <div class="text-xl sm:text-2xl font-bold text-slate-900 font-mono tabular-nums tracking-tight mt-0.5">
+          <span class="text-xs font-medium text-[#929EAA] block truncate">Canceladas</span>
+          <div class="text-xl sm:text-2xl font-bold text-white font-mono tabular-nums tracking-tight mt-0.5">
             {{ statusCounts().cancelled }}
           </div>
         </div>
@@ -171,21 +171,21 @@
   </div>
 
   <!-- BARRA DE CONTROLE E FILTROS UNIFICADA -->
-  <div class="bg-white p-3 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col md:flex-row items-stretch md:items-center gap-2.5">
+  <div class="bg-[#0F1215] p-3 rounded-2xl border border-[#222A2F] shadow-xs flex flex-col md:flex-row items-stretch md:items-center gap-2.5">
     <!-- Input com Debounce e Botão Limpar -->
     <div class="relative flex-1 min-w-[200px]">
-      <svg lucideSearch class="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></svg>
+      <svg lucideSearch class="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#62707C]"></svg>
       <input
         type="text"
         [formControl]="searchControl"
         placeholder="Buscar por motorista, placa, destino, veículo..."
-        class="w-full bg-slate-50 text-slate-800 text-xs rounded-xl pl-9 pr-8 py-2 border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all placeholder:text-slate-400"
+        class="w-full bg-[#11161A] text-white text-xs rounded-xl pl-9 pr-8 py-2 border border-[#222A2F] focus:outline-hidden focus:ring-1 focus:ring-[#FF6B00]/20 focus:border-[#FF6B00] transition-all placeholder:text-[#62707C]"
       />
       @if (searchTerm()) {
         <button
           type="button"
           (click)="clearSearchInput()"
-          class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
+          class="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#62707C] hover:text-white p-0.5 cursor-pointer"
           title="Limpar busca"
         >
           <svg lucideX class="size-3.5"></svg>
@@ -196,10 +196,10 @@
     <!-- Filtro de Período / Data -->
     <div class="relative shrink-0">
       <div class="relative flex items-center">
-        <svg lucideCalendar class="size-3.5 absolute left-3 text-slate-400 pointer-events-none"></svg>
+        <svg lucideCalendar class="size-3.5 absolute left-3 text-[#62707C] pointer-events-none"></svg>
         <select
           [formControl]="dateFilterControl"
-          class="w-full sm:w-auto appearance-none bg-slate-50 rounded-xl border border-slate-200 pl-8.5 pr-8 py-2 text-xs text-slate-700 font-medium focus:outline-hidden focus:ring-2 focus:ring-emerald-500/10 focus:border-emerald-500 cursor-pointer"
+          class="w-full sm:w-auto appearance-none bg-[#11161A] rounded-xl border border-[#222A2F] pl-8.5 pr-8 py-2 text-xs text-white font-medium focus:outline-hidden focus:ring-1 focus:ring-[#FF6B00]/20 focus:border-[#FF6B00] cursor-pointer"
         >
           <option value="ALL">Todo o período</option>
           <option value="TODAY">Hoje</option>
@@ -207,7 +207,7 @@
           <option value="THIS_MONTH">Este Mês</option>
           <option value="LAST_30_DAYS">Últimos 30 dias</option>
         </select>
-        <svg lucideChevronDown class="size-3.5 absolute right-2.5 text-slate-400 pointer-events-none"></svg>
+        <svg lucideChevronDown class="size-3.5 absolute right-2.5 text-[#62707C] pointer-events-none"></svg>
       </div>
     </div>
 
@@ -216,14 +216,14 @@
       <div class="relative flex items-center">
         <select
           [formControl]="vehicleFilterControl"
-          class="w-full sm:w-auto appearance-none bg-slate-50 rounded-xl border border-slate-200 px-3 pr-8 py-2 text-xs text-slate-700 font-medium focus:outline-hidden focus:ring-2 focus:ring-emerald-500/10 focus:border-emerald-500 cursor-pointer"
+          class="w-full sm:w-auto appearance-none bg-[#11161A] rounded-xl border border-[#222A2F] px-3 pr-8 py-2 text-xs text-white font-medium focus:outline-hidden focus:ring-1 focus:ring-[#FF6B00]/20 focus:border-[#FF6B00] cursor-pointer"
         >
           <option value="ALL">Todos os Veículos</option>
           @for (v of vehicles(); track v.id) {
             <option [value]="v.id">{{ v.plate }} - {{ v.model }}</option>
           }
         </select>
-        <svg lucideChevronDown class="size-3.5 absolute right-2.5 text-slate-400 pointer-events-none"></svg>
+        <svg lucideChevronDown class="size-3.5 absolute right-2.5 text-[#62707C] pointer-events-none"></svg>
       </div>
     </div>
 
@@ -232,14 +232,14 @@
       <div class="relative flex items-center">
         <select
           [formControl]="driverFilterControl"
-          class="w-full sm:w-auto appearance-none bg-slate-50 rounded-xl border border-slate-200 px-3 pr-8 py-2 text-xs text-slate-700 font-medium focus:outline-hidden focus:ring-2 focus:ring-emerald-500/10 focus:border-emerald-500 cursor-pointer"
+          class="w-full sm:w-auto appearance-none bg-[#11161A] rounded-xl border border-[#222A2F] px-3 pr-8 py-2 text-xs text-white font-medium focus:outline-hidden focus:ring-1 focus:ring-[#FF6B00]/20 focus:border-[#FF6B00] cursor-pointer"
         >
           <option value="ALL">Todos os Motoristas</option>
           @for (d of drivers(); track d.id) {
             <option [value]="d.id">{{ d.name }}</option>
           }
         </select>
-        <svg lucideChevronDown class="size-3.5 absolute right-2.5 text-slate-400 pointer-events-none"></svg>
+        <svg lucideChevronDown class="size-3.5 absolute right-2.5 text-[#62707C] pointer-events-none"></svg>
       </div>
     </div>
 
@@ -248,7 +248,7 @@
       <div class="relative flex items-center">
         <select
           [formControl]="statusFilterControl"
-          class="w-full sm:w-auto appearance-none bg-slate-50 rounded-xl border border-slate-200 px-3 pr-8 py-2 text-xs text-slate-700 font-medium focus:outline-hidden focus:ring-2 focus:ring-emerald-500/10 focus:border-emerald-500 cursor-pointer"
+          class="w-full sm:w-auto appearance-none bg-[#11161A] rounded-xl border border-[#222A2F] px-3 pr-8 py-2 text-xs text-white font-medium focus:outline-hidden focus:ring-1 focus:ring-[#FF6B00]/20 focus:border-[#FF6B00] cursor-pointer"
         >
           <option value="ALL">Todos os Status</option>
           <option value="IN_PROGRESS">Em Andamento</option>
@@ -256,7 +256,7 @@
           <option value="PLANNED">Programadas</option>
           <option value="CANCELLED">Canceladas</option>
         </select>
-        <svg lucideChevronDown class="size-3.5 absolute right-2.5 text-slate-400 pointer-events-none"></svg>
+        <svg lucideChevronDown class="size-3.5 absolute right-2.5 text-[#62707C] pointer-events-none"></svg>
       </div>
     </div>
 
@@ -264,8 +264,8 @@
     <button
       type="button"
       (click)="clearAllFilters()"
-      class="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold border transition-all cursor-pointer shadow-2xs whitespace-nowrap shrink-0"
-      [ngClass]="hasActiveFilters() ? 'text-rose-600 bg-rose-50 hover:bg-rose-100 border-rose-200/80 active:scale-95' : 'text-slate-500 bg-slate-50 hover:bg-slate-100 hover:text-slate-700 border-slate-200'"
+      class="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold border transition-all cursor-pointer shadow-xs whitespace-nowrap shrink-0"
+      [ngClass]="hasActiveFilters() ? 'text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 border-rose-500/30 active:scale-95' : 'text-[#929EAA] bg-[#11161A] hover:bg-[#171D21] hover:text-white border-[#222A2F]'"
       title="Limpar todos os filtros"
     >
       <svg lucideFilter class="size-3.5"></svg>
@@ -274,28 +274,28 @@
   </div>
 
   <!-- TABELA DE VIAGENS -->
-  <div class="bg-white rounded-2xl border border-slate-200/80 shadow-2xs overflow-hidden">
+  <div class="bg-[#0F1215] rounded-2xl border border-[#222A2F] shadow-xs overflow-hidden">
     @if (loading()) {
       <!-- SKELETON TABLE SHIMMER -->
       <div class="p-4 space-y-3 animate-pulse">
-        <div class="h-8 bg-slate-100 rounded-xl"></div>
+        <div class="h-8 bg-[#11161A] rounded-xl"></div>
         @for (i of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]; track i) {
-          <div class="flex items-center justify-between py-3 px-2 border-b border-slate-100">
+          <div class="flex items-center justify-between py-3 px-2 border-b border-[#222A2F]">
             <div class="space-y-1.5 w-1/4">
-              <div class="h-4 bg-slate-200 rounded w-24"></div>
-              <div class="h-3 bg-slate-100 rounded w-32"></div>
+              <div class="h-4 bg-[#171D21] rounded w-24"></div>
+              <div class="h-3 bg-[#11161A] rounded w-32"></div>
             </div>
-            <div class="h-4 bg-slate-200 rounded w-44"></div>
-            <div class="h-3 bg-slate-100 rounded w-24"></div>
-            <div class="h-6 bg-slate-200 rounded-full w-24"></div>
-            <div class="h-7 bg-slate-100 rounded-lg w-32"></div>
+            <div class="h-4 bg-[#171D21] rounded w-44"></div>
+            <div class="h-3 bg-[#11161A] rounded w-24"></div>
+            <div class="h-6 bg-[#171D21] rounded-full w-24"></div>
+            <div class="h-7 bg-[#11161A] rounded-lg w-32"></div>
           </div>
         }
       </div>
     } @else {
-      <div class="overflow-x-auto">
+      <div class="overflow-x-auto min-h-[380px] pb-12">
         <table class="w-full text-left text-xs">
-          <thead class="bg-slate-50/80 border-b border-slate-100 text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
+          <thead class="bg-[#11161A] border-b border-[#222A2F] text-[#929EAA] font-bold uppercase tracking-wider text-[11px]">
             <tr>
               <th class="py-3.5 px-4">Data / Hora</th>
               <th class="py-3.5 px-4">Veículo</th>
@@ -307,29 +307,29 @@
               <th class="py-3.5 px-4 text-right">Ações</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-slate-100">
+          <tbody class="divide-y divide-[#222A2F]">
             @for (trip of trips(); track trip.id) {
-              <tr class="hover:bg-slate-50/80 transition-colors">
+              <tr class="hover:bg-[#171D21] transition-colors">
                 <!-- DATA / HORA -->
-                <td class="py-3.5 px-4 text-slate-800 font-medium text-xs tabular-nums whitespace-nowrap">
+                <td class="py-3.5 px-4 text-white font-medium text-xs tabular-nums whitespace-nowrap">
                   {{ (trip.scheduledDate || trip.startedAt || trip.createdAt) | date:'dd/MM/yyyy HH:mm' }}
                 </td>
 
                 <!-- VEÍCULO -->
                 <td class="py-3.5 px-4">
                   <div class="flex items-center gap-3">
-                    <div class="size-9 rounded-xl bg-slate-50 border border-slate-200/80 p-1.5 flex items-center justify-center shrink-0">
+                    <div class="size-9 rounded-xl bg-[#11161A] border border-[#222A2F] p-1.5 flex items-center justify-center shrink-0">
                       @if (getVehicleLogo(trip.vehicleId); as logo) {
                         <img [src]="logo" [alt]="getVehicle(trip.vehicleId)?.brand || 'Veículo'" class="size-6 object-contain" />
                       } @else {
-                        <svg lucideTruck class="size-4 text-slate-500"></svg>
+                        <svg lucideTruck class="size-4 text-[#929EAA]"></svg>
                       }
                     </div>
                     <div class="min-w-0">
-                      <div class="font-bold text-slate-900 text-xs font-mono tracking-tight">
+                      <div class="font-bold text-white text-xs font-mono tracking-tight">
                         {{ getVehicle(trip.vehicleId)?.plate || trip.vehiclePlate || '—' }}
                       </div>
-                      <div class="text-[11px] text-slate-500 truncate">
+                      <div class="text-[11px] text-[#929EAA] truncate">
                         {{ getVehicle(trip.vehicleId)?.model || '—' }}
                       </div>
                     </div>
@@ -339,7 +339,7 @@
                 <!-- MOTORISTA -->
                 <td class="py-3.5 px-4">
                   <div class="flex items-center gap-2.5">
-                    <div class="size-8 rounded-full bg-slate-100 border border-slate-200/80 text-slate-600 flex items-center justify-center shrink-0 overflow-hidden shadow-2xs">
+                    <div class="size-8 rounded-full bg-[#11161A] border border-[#222A2F] text-[#FF6B00] font-bold flex items-center justify-center shrink-0 overflow-hidden shadow-2xs">
                       @if (getDriver(trip.driverId)?.photoUrl) {
                         <img
                           [src]="getDriver(trip.driverId)!.photoUrl"
@@ -349,14 +349,14 @@
                           [alt]="getDriver(trip.driverId)?.name || 'Motorista'"
                         />
                       } @else {
-                        <svg lucideUser class="size-4 text-slate-500"></svg>
+                        <svg lucideUser class="size-4 text-[#929EAA]"></svg>
                       }
                     </div>
                     <div class="min-w-0">
-                      <div class="font-bold text-slate-900 text-xs truncate">
+                      <div class="font-bold text-white text-xs truncate">
                         {{ getDriver(trip.driverId)?.name || trip.driverName || '—' }}
                       </div>
-                      <div class="text-[11px] text-slate-500 font-mono tabular-nums truncate">
+                      <div class="text-[11px] text-[#62707C] font-mono tabular-nums truncate">
                         {{ getDriver(trip.driverId)?.cpf || getDriver(trip.driverId)?.cnhNumber || '—' }}
                       </div>
                     </div>
@@ -364,27 +364,27 @@
                 </td>
 
                 <!-- ORIGEM → DESTINO -->
-                <td class="py-3.5 px-4 text-slate-700">
+                <td class="py-3.5 px-4 text-white">
                   <div class="flex items-center gap-1.5 font-medium text-xs">
-                    <svg lucideMapPin class="size-3.5 text-slate-700 shrink-0"></svg>
-                    <span class="truncate max-w-[130px]" [title]="trip.originCity || trip.originAddress || trip.origin">
+                    <svg lucideMapPin class="size-3.5 text-[#929EAA] shrink-0"></svg>
+                    <span class="truncate max-w-[130px] text-white" [title]="trip.originCity || trip.originAddress || trip.origin">
                       {{ trip.originCity ? (trip.originCity + (trip.originState ? ' - ' + trip.originState : '')) : trip.origin }}
                     </span>
-                    <span class="text-slate-300 font-normal px-0.5">→</span>
-                    <svg lucideMapPin class="size-3.5 text-emerald-600 shrink-0"></svg>
-                    <span class="truncate max-w-[130px]" [title]="trip.destinationCity || trip.destinationAddress || trip.destination">
+                    <span class="text-[#62707C] font-normal px-0.5">→</span>
+                    <svg lucideMapPin class="size-3.5 text-[#FF6B00] shrink-0"></svg>
+                    <span class="truncate max-w-[130px] text-white" [title]="trip.destinationCity || trip.destinationAddress || trip.destination">
                       {{ trip.destinationCity ? (trip.destinationCity + (trip.destinationState ? ' - ' + trip.destinationState : '')) : trip.destination }}
                     </span>
                   </div>
                   @if (trip.notes) {
-                    <div class="mt-1 text-[11px] text-slate-400 flex items-center gap-1 truncate max-w-xs" [title]="trip.notes">
-                      <span class="text-[9px] font-semibold text-slate-400 uppercase tracking-wider">Obs:</span>
+                    <div class="mt-1 text-[11px] text-[#62707C] flex items-center gap-1 truncate max-w-xs" [title]="trip.notes">
+                      <span class="text-[9px] font-semibold text-[#62707C] uppercase tracking-wider">Obs:</span>
                       <span class="truncate italic">{{ trip.notes }}</span>
                     </div>
                   }
                   @if (getSosIncidentForTrip(trip.id); as sos) {
-                    <div class="mt-1.5 p-1.5 bg-rose-50 border border-rose-200 rounded-lg text-rose-700 text-[10px] flex items-start gap-1.5 max-w-xs shadow-2xs">
-                      <svg lucideShieldAlert class="size-3.5 text-rose-600 shrink-0 mt-0.5 animate-pulse"></svg>
+                    <div class="mt-1.5 p-1.5 bg-rose-500/10 border border-rose-500/30 rounded-lg text-rose-400 text-[10px] flex items-start gap-1.5 max-w-xs shadow-2xs">
+                      <svg lucideShieldAlert class="size-3.5 text-rose-400 shrink-0 mt-0.5 animate-pulse"></svg>
                       <div class="flex-1">
                         <span class="font-bold">🚨 SOS [{{ sos.category }}]:</span> {{ sos.description }}
                       </div>
@@ -392,7 +392,7 @@
                         <button
                           (click)="resolveSos(sos.id)"
                           title="Marcar SOS como atendido"
-                          class="px-1.5 py-0.5 bg-white hover:bg-rose-100 text-rose-700 font-bold rounded border border-rose-300 text-[9px] cursor-pointer shrink-0"
+                          class="px-1.5 py-0.5 bg-[#11161A] hover:bg-rose-500/20 text-rose-400 font-bold rounded border border-rose-500/40 text-[9px] cursor-pointer shrink-0"
                         >
                           Atendido
                         </button>
@@ -402,12 +402,12 @@
                 </td>
 
                 <!-- DISTÂNCIA -->
-                <td class="py-3.5 px-4 text-slate-700 text-xs font-medium tabular-nums whitespace-nowrap">
+                <td class="py-3.5 px-4 text-white text-xs font-medium tabular-nums whitespace-nowrap">
                   {{ getTripDistance(trip) }}
                 </td>
 
                 <!-- PREVISÃO CHEGADA -->
-                <td class="py-3.5 px-4 text-slate-700 text-xs font-medium tabular-nums whitespace-nowrap">
+                <td class="py-3.5 px-4 text-[#929EAA] text-xs font-medium tabular-nums whitespace-nowrap">
                   {{ (trip.estimatedArrivalDate || trip.completedAt) ? ((trip.estimatedArrivalDate || trip.completedAt) | date:'dd/MM/yyyy HH:mm') : '—' }}
                 </td>
 
@@ -429,10 +429,10 @@
                     <button
                       type="button"
                       (click)="openRouteMap(trip)"
-                      class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-700 font-semibold rounded-xl text-xs transition-colors border border-slate-200/80 cursor-pointer shadow-2xs"
+                      class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#11161A] hover:bg-[#171D21] text-white font-semibold rounded-xl text-xs transition-colors border border-[#222A2F] hover:border-[#FF6B00]/40 cursor-pointer shadow-xs"
                       title="Visualizar rota no mapa"
                     >
-                      <svg lucideEye class="size-3.5 text-slate-500"></svg>
+                      <svg lucideEye class="size-3.5 text-[#929EAA]"></svg>
                       <span>Ver rota</span>
                     </button>
 
@@ -442,7 +442,7 @@
                         type="button"
                         (click)="$event.stopPropagation(); toggleDropdown(trip.id)"
                         class="size-8 rounded-xl border transition-all cursor-pointer shadow-2xs flex items-center justify-center"
-                        [ngClass]="activeDropdownTripId() === trip.id ? 'border-slate-900 bg-white ring-2 ring-slate-900/10 text-slate-900 shadow-xs' : 'border-slate-200/90 bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-50 hover:border-slate-300'"
+                        [ngClass]="activeDropdownTripId() === trip.id ? 'border-[#FF6B00] bg-[#171D21] text-[#FF6B00] shadow-xs' : 'border-[#222A2F] bg-[#11161A] text-[#929EAA] hover:text-white hover:bg-[#171D21] hover:border-[#FF6B00]/40'"
                         title="Mais opções"
                         aria-label="Mais opções"
                       >
@@ -452,16 +452,16 @@
                       @if (activeDropdownTripId() === trip.id) {
                         <div
                           (click)="$event.stopPropagation()"
-                          class="absolute right-0 w-48 rounded-2xl bg-white p-1.5 shadow-xl border border-slate-100 ring-1 ring-slate-900/5 z-50 animate-in fade-in zoom-in-95 duration-100 text-left"
-                          [ngClass]="$index >= trips().length - 2 && trips().length > 2 ? 'bottom-full mb-1.5 origin-bottom-right' : 'top-full mt-1.5 origin-top-right'"
+                          class="absolute right-0 w-48 rounded-2xl bg-[#0F1215] p-1.5 shadow-2xl border border-[#222A2F] ring-1 ring-white/5 z-50 animate-in fade-in zoom-in-95 duration-100 text-left"
+                          [ngClass]="($index > 0 && $index >= trips().length - 2) ? 'bottom-full mb-1.5 origin-bottom-right' : 'top-full mt-1.5 origin-top-right'"
                         >
                           <!-- Ver rota -->
                           <button
                             type="button"
                             (click)="closeDropdown(); openRouteMap(trip)"
-                            class="flex items-center gap-2.5 w-full px-3 py-2 text-xs font-semibold text-slate-700 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer text-left"
+                            class="flex items-center gap-2.5 w-full px-3 py-2 text-xs font-semibold text-[#929EAA] rounded-xl hover:bg-[#171D21] hover:text-white transition-colors cursor-pointer text-left"
                           >
-                            <svg lucideMap class="size-4 text-slate-500 shrink-0"></svg>
+                            <svg lucideMap class="size-4 text-[#929EAA] shrink-0"></svg>
                             <span>Ver rota</span>
                           </button>
 
@@ -471,9 +471,9 @@
                               <button
                                 type="button"
                                 (click)="closeDropdown(); startTrip(trip)"
-                                class="flex items-center gap-2.5 w-full px-3 py-2 text-xs font-semibold text-emerald-700 rounded-xl hover:bg-emerald-50 transition-colors cursor-pointer text-left"
+                                class="flex items-center gap-2.5 w-full px-3 py-2 text-xs font-semibold text-emerald-400 rounded-xl hover:bg-emerald-500/10 transition-colors cursor-pointer text-left"
                               >
-                                <svg lucidePlay class="size-4 text-emerald-600 shrink-0"></svg>
+                                <svg lucidePlay class="size-4 text-emerald-400 shrink-0"></svg>
                                 <span>Iniciar viagem</span>
                               </button>
                             } @else if (trip.status === 'IN_PROGRESS' || trip.status === 'EM_ANDAMENTO') {
@@ -481,9 +481,9 @@
                               <button
                                 type="button"
                                 (click)="closeDropdown(); openCancelModal(trip)"
-                                class="flex items-center gap-2.5 w-full px-3 py-2 text-xs font-semibold text-rose-600 rounded-xl hover:bg-rose-50 hover:text-rose-700 transition-colors cursor-pointer text-left"
+                                class="flex items-center gap-2.5 w-full px-3 py-2 text-xs font-semibold text-rose-400 rounded-xl hover:bg-rose-500/10 transition-colors cursor-pointer text-left"
                               >
-                                <svg lucideBan class="size-4 text-rose-500 shrink-0"></svg>
+                                <svg lucideBan class="size-4 text-rose-400 shrink-0"></svg>
                                 <span>Cancelar viagem</span>
                               </button>
                             }
@@ -492,9 +492,9 @@
                             <button
                               type="button"
                               (click)="openSupplyModal(trip)"
-                              class="flex items-center gap-2.5 w-full px-3 py-2 text-xs font-semibold text-slate-700 rounded-xl hover:bg-amber-50 hover:text-amber-700 transition-colors cursor-pointer text-left"
+                              class="flex items-center gap-2.5 w-full px-3 py-2 text-xs font-semibold text-[#929EAA] rounded-xl hover:bg-amber-500/10 hover:text-amber-400 transition-colors cursor-pointer text-left"
                             >
-                              <svg lucideFuel class="size-4 text-amber-500 shrink-0"></svg>
+                              <svg lucideFuel class="size-4 text-amber-400 shrink-0"></svg>
                               <span>Registrar abastecimento</span>
                             </button>
 
@@ -502,9 +502,9 @@
                             <button
                               type="button"
                               (click)="onRegisterMaintenance(trip)"
-                              class="flex items-center gap-2.5 w-full px-3 py-2 text-xs font-semibold text-slate-700 rounded-xl hover:bg-orange-50 hover:text-orange-700 transition-colors cursor-pointer text-left"
+                              class="flex items-center gap-2.5 w-full px-3 py-2 text-xs font-semibold text-[#929EAA] rounded-xl hover:bg-[#FF6B00]/10 hover:text-[#FF6B00] transition-colors cursor-pointer text-left"
                             >
-                              <svg lucideWrench class="size-4 text-orange-500 shrink-0"></svg>
+                              <svg lucideWrench class="size-4 text-[#FF6B00] shrink-0"></svg>
                               <span>Registrar manutenção</span>
                             </button>
                           }
@@ -513,21 +513,21 @@
                           <button
                             type="button"
                             (click)="onViewDetails(trip)"
-                            class="flex items-center gap-2.5 w-full px-3 py-2 text-xs font-semibold text-slate-700 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer text-left"
+                            class="flex items-center gap-2.5 w-full px-3 py-2 text-xs font-semibold text-[#929EAA] rounded-xl hover:bg-[#171D21] hover:text-white transition-colors cursor-pointer text-left"
                           >
-                            <svg lucideEye class="size-4 text-blue-500 shrink-0"></svg>
+                            <svg lucideEye class="size-4 text-blue-400 shrink-0"></svg>
                             <span>Ver detalhes</span>
                           </button>
 
                           @if (!impersonationService.isReadOnly() && (trip.status === 'PLANNED' || trip.status === 'PROGRAMADA')) {
-                            <div class="h-px bg-slate-100 my-1"></div>
+                            <div class="h-px bg-[#222A2F] my-1"></div>
                             <!-- Cancelar viagem -->
                             <button
                               type="button"
                               (click)="openCancelModal(trip)"
-                              class="flex items-center gap-2.5 w-full px-3 py-2 text-xs font-semibold text-rose-600 rounded-xl hover:bg-rose-50 hover:text-rose-700 transition-colors cursor-pointer text-left"
+                              class="flex items-center gap-2.5 w-full px-3 py-2 text-xs font-semibold text-rose-400 rounded-xl hover:bg-rose-500/10 transition-colors cursor-pointer text-left"
                             >
-                              <svg lucideBan class="size-4 text-rose-500 shrink-0"></svg>
+                              <svg lucideBan class="size-4 text-rose-400 shrink-0"></svg>
                               <span>Cancelar viagem</span>
                             </button>
                           }
@@ -539,16 +539,16 @@
               </tr>
             } @empty {
               <tr>
-                <td colspan="8" class="py-12 text-center text-slate-400">
-                  <div class="size-10 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-2">
+                <td colspan="8" class="py-12 text-center text-[#62707C]">
+                  <div class="size-10 rounded-full bg-[#11161A] text-[#62707C] border border-[#222A2F] flex items-center justify-center mx-auto mb-2">
                     <svg lucideNavigation class="size-5"></svg>
                   </div>
-                  <p class="text-xs font-semibold text-slate-700">Nenhuma viagem encontrada</p>
-                  <p class="text-[11px] text-slate-400 mt-0.5">Tente ajustar os filtros de status ou a busca por rota.</p>
+                  <p class="text-xs font-semibold text-white">Nenhuma viagem encontrada</p>
+                  <p class="text-[11px] text-[#929EAA] mt-0.5">Tente ajustar os filtros de status ou a busca por rota.</p>
                   @if (searchTerm() || selectedStatus() !== 'ALL') {
                     <button
                       (click)="clearSearch(); setStatusFilter('ALL')"
-                      class="mt-3 text-xs font-semibold text-emerald-600 hover:underline cursor-pointer"
+                      class="mt-3 text-xs font-semibold text-[#FF6B00] hover:underline cursor-pointer"
                     >
                       Limpar todos os filtros
                     </button>
@@ -575,20 +575,20 @@
   </div>
   } @else if (activeMainTab() === 'history_incidents') {
     <!-- BARRA DE CONTROLE SOS: BUSCA, FILTROS E RELOAD -->
-    <div class="flex flex-col lg:flex-row gap-3 justify-between items-stretch lg:items-center bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-2xs">
+    <div class="flex flex-col lg:flex-row gap-3 justify-between items-stretch lg:items-center bg-[#0F1215] p-3.5 rounded-2xl border border-[#222A2F] shadow-xs">
       <!-- Input com Debounce e Botão Limpar -->
       <div class="relative flex-1 max-w-md">
-        <svg lucideSearch class="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></svg>
+        <svg lucideSearch class="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#62707C]"></svg>
         <input
           type="text"
           [formControl]="searchControl"
           placeholder="Buscar por protocolo, condutor, placa, rota..."
-          class="w-full bg-slate-50 text-slate-800 text-xs rounded-xl pl-9 pr-8 py-2 border border-slate-200 focus:outline-hidden focus:border-rose-500 transition-colors placeholder:text-slate-400"
+          class="w-full bg-[#11161A] text-white text-xs rounded-xl pl-9 pr-8 py-2 border border-[#222A2F] focus:outline-hidden focus:border-rose-500 transition-colors placeholder:text-[#62707C]"
         />
         @if (searchTerm()) {
           <button
             (click)="clearSearch()"
-            class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
+            class="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#62707C] hover:text-white p-0.5 cursor-pointer"
             title="Limpar busca"
           >
             <svg lucideX class="size-3.5"></svg>
@@ -601,7 +601,7 @@
         <select
           [value]="incidentFilterCategory()"
           (change)="setIncidentCategoryFilter($any($event.target).value)"
-          class="bg-slate-50 border border-slate-200 text-slate-700 text-xs rounded-xl px-3 py-2 focus:outline-hidden focus:border-rose-500 cursor-pointer"
+          class="bg-[#11161A] border border-[#222A2F] text-white text-xs rounded-xl px-3 py-2 focus:outline-hidden focus:border-rose-500 cursor-pointer"
         >
           <option value="ALL">Todas as Categorias</option>
           <option value="PNEU">🛞 Pneu / Borracharia</option>
@@ -615,7 +615,7 @@
         <button
           type="button"
           (click)="loadIncidents(true)"
-          class="p-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors cursor-pointer"
+          class="p-2 rounded-xl border border-[#222A2F] bg-[#11161A] text-[#929EAA] hover:bg-[#171D21] hover:text-white transition-colors cursor-pointer"
           title="Atualizar Ocorrências"
         >
           <svg lucideRefreshCw class="size-4" [class.animate-spin]="loadingIncidents()"></svg>
@@ -628,7 +628,7 @@
           type="button"
           (click)="setIncidentStatusFilter('ALL')"
           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shrink-0 cursor-pointer border"
-          [ngClass]="incidentFilterStatus() === 'ALL' ? 'bg-slate-900 text-white border-slate-900 shadow-2xs' : 'bg-slate-50 text-slate-600 border-slate-200/80 hover:bg-slate-100'"
+          [ngClass]="incidentFilterStatus() === 'ALL' ? 'bg-[#FF6B00] text-[#080B0C] font-bold border-[#FF6B00] shadow-sm' : 'bg-[#11161A] text-[#929EAA] border-[#222A2F] hover:bg-[#171D21] hover:text-white'"
         >
           <span>Todos</span>
         </button>
@@ -637,7 +637,7 @@
           type="button"
           (click)="setIncidentStatusFilter('OPEN')"
           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shrink-0 cursor-pointer border"
-          [ngClass]="incidentFilterStatus() === 'OPEN' ? 'bg-rose-600 text-white border-rose-600 shadow-2xs' : 'bg-slate-50 text-slate-600 border-slate-200/80 hover:bg-slate-100'"
+          [ngClass]="incidentFilterStatus() === 'OPEN' ? 'bg-rose-600 text-white border-rose-600 shadow-sm' : 'bg-[#11161A] text-[#929EAA] border-[#222A2F] hover:bg-[#171D21] hover:text-white'"
         >
           <span class="size-1.5 rounded-full" [ngClass]="incidentFilterStatus() === 'OPEN' ? 'bg-white' : 'bg-rose-500 animate-pulse'"></span>
           <span>Abertas</span>
@@ -647,7 +647,7 @@
           type="button"
           (click)="setIncidentStatusFilter('IN_PROGRESS')"
           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shrink-0 cursor-pointer border"
-          [ngClass]="incidentFilterStatus() === 'IN_PROGRESS' ? 'bg-amber-600 text-white border-amber-600 shadow-2xs' : 'bg-slate-50 text-slate-600 border-slate-200/80 hover:bg-slate-100'"
+          [ngClass]="incidentFilterStatus() === 'IN_PROGRESS' ? 'bg-amber-600 text-white border-amber-600 shadow-sm' : 'bg-[#11161A] text-[#929EAA] border-[#222A2F] hover:bg-[#171D21] hover:text-white'"
         >
           <span class="size-1.5 rounded-full" [ngClass]="incidentFilterStatus() === 'IN_PROGRESS' ? 'bg-white' : 'bg-amber-500'"></span>
           <span>Em Atendimento</span>
@@ -657,7 +657,7 @@
           type="button"
           (click)="setIncidentStatusFilter('RESOLVED')"
           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shrink-0 cursor-pointer border"
-          [ngClass]="incidentFilterStatus() === 'RESOLVED' ? 'bg-emerald-600 text-white border-emerald-600 shadow-2xs' : 'bg-slate-50 text-slate-600 border-slate-200/80 hover:bg-slate-100'"
+          [ngClass]="incidentFilterStatus() === 'RESOLVED' ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm' : 'bg-[#11161A] text-[#929EAA] border-[#222A2F] hover:bg-[#171D21] hover:text-white'"
         >
           <span class="size-1.5 rounded-full" [ngClass]="incidentFilterStatus() === 'RESOLVED' ? 'bg-white' : 'bg-emerald-500'"></span>
           <span>Resolvidas</span>
@@ -669,26 +669,26 @@
     @if (loadingIncidents()) {
       <div class="space-y-4">
         @for (i of [1, 2, 3]; track i) {
-          <div class="bg-white rounded-2xl border border-slate-200/80 p-5 animate-pulse space-y-4">
+          <div class="bg-[#0F1215] rounded-2xl border border-[#222A2F] p-5 animate-pulse space-y-4">
             <div class="flex justify-between">
-              <div class="h-6 bg-slate-200 rounded w-48"></div>
-              <div class="h-6 bg-slate-200 rounded w-28"></div>
+              <div class="h-6 bg-[#171D21] rounded w-48"></div>
+              <div class="h-6 bg-[#171D21] rounded w-28"></div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div class="h-16 bg-slate-100 rounded-xl"></div>
-              <div class="h-16 bg-slate-100 rounded-xl"></div>
-              <div class="h-16 bg-slate-100 rounded-xl"></div>
+              <div class="h-16 bg-[#11161A] rounded-xl"></div>
+              <div class="h-16 bg-[#11161A] rounded-xl"></div>
+              <div class="h-16 bg-[#11161A] rounded-xl"></div>
             </div>
           </div>
         }
       </div>
     } @else if (filteredIncidents().length === 0) {
-      <div class="bg-white rounded-2xl border border-slate-200/80 p-12 text-center shadow-2xs">
-        <div class="size-16 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-3 border border-emerald-200/60">
+      <div class="bg-[#0F1215] rounded-2xl border border-[#222A2F] p-12 text-center shadow-xs">
+        <div class="size-16 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center mx-auto mb-3 border border-emerald-500/30">
           <svg lucideCheckCircle2 class="size-8"></svg>
         </div>
-        <h3 class="text-base font-bold text-slate-800">Nenhuma Ocorrência Encontrada</h3>
-        <p class="text-xs text-slate-500 max-w-md mx-auto mt-1">
+        <h3 class="text-base font-bold text-white">Nenhuma Ocorrência Encontrada</h3>
+        <p class="text-xs text-[#929EAA] max-w-md mx-auto mt-1">
           Não há chamados de socorro SOS ou ocorrências cadastradas para os critérios de filtro selecionados.
         </p>
       </div>
@@ -696,34 +696,34 @@
       <div class="space-y-4">
         @for (inc of filteredIncidents(); track inc.id) {
           <div
-            class="bg-white rounded-2xl border shadow-2xs overflow-hidden transition-all duration-200 hover:shadow-md"
+            class="bg-[#0F1215] rounded-2xl border shadow-xs overflow-hidden transition-all duration-200"
             [ngClass]="{
-              'border-l-4 border-l-rose-500 border-slate-200/80': inc.status === 'OPEN',
-              'border-l-4 border-l-amber-500 border-slate-200/80': inc.status === 'IN_PROGRESS',
-              'border-l-4 border-l-emerald-500 border-slate-200/80': inc.status === 'RESOLVED'
+              'border-l-4 border-l-rose-500 border-[#222A2F]': inc.status === 'OPEN',
+              'border-l-4 border-l-amber-500 border-[#222A2F]': inc.status === 'IN_PROGRESS',
+              'border-l-4 border-l-emerald-500 border-[#222A2F]': inc.status === 'RESOLVED'
             }"
           >
             <!-- CABEÇALHO DO CARD -->
-            <div class="px-5 py-4 bg-slate-50/70 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3">
+            <div class="px-5 py-4 bg-[#11161A] border-b border-[#222A2F] flex flex-wrap items-center justify-between gap-3">
               <div class="flex items-center gap-2.5">
-                <span class="font-mono text-xs font-bold px-2.5 py-1 rounded-lg bg-slate-900 text-white shadow-2xs">
+                <span class="font-mono text-xs font-bold px-2.5 py-1 rounded-lg bg-[#1F262C] text-[#FF6B00] border border-[#222A2F] shadow-2xs">
                   {{ inc.protocol || ('#' + inc.id.substring(0, 6).toUpperCase()) }}
                 </span>
                 <span
                   class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold"
                   [ngClass]="{
-                    'bg-rose-100 text-rose-800 border border-rose-200': inc.category === 'ACIDENTE',
-                    'bg-amber-100 text-amber-800 border border-amber-200': inc.category === 'MECANICA' || inc.category === 'PNEU',
-                    'bg-blue-100 text-blue-800 border border-blue-200': inc.category === 'ELETRICA',
-                    'bg-purple-100 text-purple-800 border border-purple-200': inc.category === 'ATRASO',
-                    'bg-slate-100 text-slate-700 border border-slate-200': inc.category === 'OUTRO'
+                    'bg-rose-500/10 text-rose-400 border border-rose-500/30': inc.category === 'ACIDENTE',
+                    'bg-amber-500/10 text-amber-400 border border-amber-500/30': inc.category === 'MECANICA' || inc.category === 'PNEU',
+                    'bg-blue-500/10 text-blue-400 border border-blue-500/30': inc.category === 'ELETRICA',
+                    'bg-purple-500/10 text-purple-400 border border-purple-500/30': inc.category === 'ATRASO',
+                    'bg-[#1F262C] text-[#929EAA] border border-[#222A2F]': inc.category === 'OUTRO'
                   }"
                 >
                   <svg lucideAlertTriangle class="size-3.5"></svg>
                   <span>{{ inc.category }}</span>
                 </span>
-                <span class="text-xs text-slate-400 flex items-center gap-1">
-                  <svg lucideClock class="size-3 text-slate-400"></svg>
+                <span class="text-xs text-[#62707C] flex items-center gap-1">
+                  <svg lucideClock class="size-3 text-[#62707C]"></svg>
                   {{ inc.createdAt | date:'dd/MM/yyyy HH:mm' }}
                 </span>
               </div>
@@ -731,17 +731,17 @@
               <!-- Status Badge -->
               <div class="flex items-center gap-2">
                 @if (inc.status === 'OPEN') {
-                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200 animate-pulse">
-                    <span class="size-2 rounded-full bg-rose-600"></span>
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-500/10 text-rose-400 border border-rose-500/30 animate-pulse">
+                    <span class="size-2 rounded-full bg-rose-500"></span>
                     Aberta • Aguardando Socorro
                   </span>
                 } @else if (inc.status === 'IN_PROGRESS') {
-                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/10 text-amber-400 border border-amber-500/30">
                     <span class="size-2 rounded-full bg-amber-500"></span>
                     Em Atendimento
                   </span>
                 } @else {
-                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
                     <span class="size-2 rounded-full bg-emerald-500"></span>
                     Resolvida
                   </span>
@@ -753,22 +753,22 @@
             <div class="p-5 space-y-4">
               <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <!-- COLUNA 1: MOTORISTA -->
-                <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-100 space-y-2">
-                  <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                    <svg lucideUser class="size-3.5 text-slate-500"></svg>
+                <div class="p-3.5 bg-[#11161A] rounded-xl border border-[#222A2F] space-y-2">
+                  <div class="text-[11px] font-bold uppercase tracking-wider text-[#929EAA] flex items-center gap-1.5">
+                    <svg lucideUser class="size-3.5 text-[#929EAA]"></svg>
                     Condutor / Motorista
                   </div>
-                  <div class="font-semibold text-xs text-slate-800">
+                  <div class="font-semibold text-xs text-white">
                     {{ inc.driverName || 'Não identificado' }}
                   </div>
                   @if (inc.driverPhone) {
                     <div class="pt-1">
                       <a
                         [href]="'tel:' + inc.driverPhone"
-                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs font-semibold transition-colors cursor-pointer"
+                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-semibold transition-colors cursor-pointer"
                         title="Ligar para motorista"
                       >
-                        <svg lucidePhone class="size-3 text-emerald-600"></svg>
+                        <svg lucidePhone class="size-3 text-emerald-400"></svg>
                         <span>Ligar: {{ inc.driverPhone }}</span>
                       </a>
                     </div>
@@ -776,43 +776,43 @@
                 </div>
 
                 <!-- COLUNA 2: VEÍCULO & ROTA -->
-                <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-100 space-y-2">
-                  <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                    <svg lucideTruck class="size-3.5 text-slate-500"></svg>
+                <div class="p-3.5 bg-[#11161A] rounded-xl border border-[#222A2F] space-y-2">
+                  <div class="text-[11px] font-bold uppercase tracking-wider text-[#929EAA] flex items-center gap-1.5">
+                    <svg lucideTruck class="size-3.5 text-[#929EAA]"></svg>
                     Veículo & Rota
                   </div>
                   <div class="flex items-center gap-2">
-                    <span class="font-mono text-xs font-bold px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-900 shadow-2xs">
+                    <span class="font-mono text-xs font-bold px-2 py-0.5 rounded-md bg-[#1F262C] border border-[#222A2F] text-white shadow-2xs">
                       {{ inc.vehiclePlate || 'N/A' }}
                     </span>
-                    <span class="text-xs text-slate-600 truncate">{{ inc.vehicleModel || '' }}</span>
+                    <span class="text-xs text-[#929EAA] truncate">{{ inc.vehicleModel || '' }}</span>
                   </div>
                   @if (inc.vehicleKm) {
-                    <div class="text-[11px] text-slate-500">
-                      Hodômetro: <strong class="text-slate-700">{{ inc.vehicleKm | number }} km</strong>
+                    <div class="text-[11px] text-[#929EAA]">
+                      Hodômetro: <strong class="text-white font-mono">{{ inc.vehicleKm | number }} km</strong>
                     </div>
                   }
                   @if (inc.tripRoute) {
-                    <div class="text-[11px] text-slate-500 truncate flex items-center gap-1">
-                      <svg lucideNavigation class="size-3 text-slate-400 shrink-0"></svg>
+                    <div class="text-[11px] text-[#929EAA] truncate flex items-center gap-1">
+                      <svg lucideNavigation class="size-3 text-[#62707C] shrink-0"></svg>
                       <span>{{ inc.tripRoute }}</span>
                     </div>
                   }
                 </div>
 
                 <!-- COLUNA 3: LOCALIZAÇÃO GPS -->
-                <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-100 space-y-2">
-                  <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                    <svg lucideMapPin class="size-3.5 text-rose-500"></svg>
+                <div class="p-3.5 bg-[#11161A] rounded-xl border border-[#222A2F] space-y-2">
+                  <div class="text-[11px] font-bold uppercase tracking-wider text-[#929EAA] flex items-center gap-1.5">
+                    <svg lucideMapPin class="size-3.5 text-rose-400"></svg>
                     Localização & GPS
                   </div>
                   @if (inc.locationAddress) {
-                    <div class="text-xs text-slate-700 font-medium line-clamp-2">
+                    <div class="text-xs text-white font-medium line-clamp-2">
                       {{ inc.locationAddress }}
                     </div>
                   }
                   @if (inc.latitude && inc.longitude) {
-                    <div class="text-[11px] font-mono text-slate-500">
+                    <div class="text-[11px] font-mono text-[#929EAA]">
                       {{ inc.latitude | number:'1.4-4' }}, {{ inc.longitude | number:'1.4-4' }}
                     </div>
                     <div>
@@ -820,37 +820,37 @@
                         [href]="'https://www.google.com/maps?q=' + inc.latitude + ',' + inc.longitude"
                         target="_blank"
                         rel="noopener noreferrer"
-                        class="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
+                        class="inline-flex items-center gap-1 text-xs font-semibold text-blue-400 hover:text-blue-300 hover:underline cursor-pointer"
                       >
                         <svg lucideExternalLink class="size-3"></svg>
                         <span>Abrir no Google Maps</span>
                       </a>
                     </div>
                   } @else {
-                    <div class="text-xs text-slate-400 italic">GPS não informado</div>
+                    <div class="text-xs text-[#62707C] italic">GPS não informado</div>
                   }
                 </div>
               </div>
 
               <!-- RELATO DO MOTORISTA -->
               @if (inc.description) {
-                <div class="p-3 bg-amber-50/60 rounded-xl border border-amber-200/70 text-xs text-amber-900">
-                  <span class="font-bold text-amber-950">Relato do condutor:</span> {{ inc.description }}
+                <div class="p-3 bg-amber-500/10 rounded-xl border border-amber-500/30 text-xs text-amber-300">
+                  <span class="font-bold text-amber-200">Relato do condutor:</span> {{ inc.description }}
                 </div>
               }
 
               <!-- SEÇÃO DE FOTOS DA AVARIA -->
               @if (inc.photoUrl || (inc.photos && inc.photos.length > 0)) {
-                <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80 space-y-2">
+                <div class="p-3.5 bg-[#11161A] rounded-xl border border-[#222A2F] space-y-2">
                   <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                      <svg lucideCamera class="size-4 text-rose-600"></svg>
+                    <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                      <svg lucideCamera class="size-4 text-rose-400"></svg>
                       Evidência Fotográfica da Avaria / Danos
                     </span>
                     <button
                       type="button"
                       (click)="openPhotoModal(inc.photoUrl || inc.photos![0], inc)"
-                      class="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 hover:text-emerald-700 cursor-pointer"
+                      class="inline-flex items-center gap-1 text-xs font-semibold text-[#FF6B00] hover:text-[#E05D00] cursor-pointer"
                     >
                       <svg lucideZoomIn class="size-3.5"></svg>
                       <span>Inspecionar em Tela Cheia</span>
@@ -859,20 +859,20 @@
                   <div class="flex items-center gap-3">
                     <div
                       (click)="openPhotoModal(inc.photoUrl || inc.photos![0], inc)"
-                      class="relative size-20 rounded-xl overflow-hidden border border-slate-200 bg-slate-900 group cursor-pointer shadow-xs"
+                      class="relative size-20 rounded-xl overflow-hidden border border-[#222A2F] bg-black group cursor-pointer shadow-xs"
                     >
                       <img
                         [src]="inc.photoUrl || inc.photos![0]"
                         alt="Avaria"
                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
                       />
-                      <div class="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+                      <div class="absolute inset-0 bg-black/40 group-hover:bg-black/10 transition-colors flex items-center justify-center">
                         <svg lucideZoomIn class="size-5 text-white drop-shadow"></svg>
                       </div>
                     </div>
-                    <div class="text-xs text-slate-500 space-y-1">
-                      <p class="font-medium text-slate-700">Foto registrada pelo aplicativo do condutor</p>
-                      <p class="text-[11px]">Clique sobre a imagem para inspecionar em alta definição.</p>
+                    <div class="text-xs text-[#929EAA] space-y-1">
+                      <p class="font-medium text-white">Foto registrada pelo aplicativo do condutor</p>
+                      <p class="text-[11px] text-[#62707C]">Clique sobre a imagem para inspecionar em alta definição.</p>
                     </div>
                   </div>
                 </div>
@@ -880,9 +880,9 @@
             </div>
 
             <!-- RODAPÉ DO CARD COM AÇÕES DO GESTOR -->
-            <div class="px-5 py-3 bg-slate-50/60 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
-              <div class="text-[11px] text-slate-400">
-                Ocorrência ID: <span class="font-mono text-slate-600">{{ inc.id }}</span>
+            <div class="px-5 py-3 bg-[#11161A] border-t border-[#222A2F] flex flex-wrap items-center justify-between gap-3">
+              <div class="text-[11px] text-[#62707C]">
+                Ocorrência ID: <span class="font-mono text-[#929EAA]">{{ inc.id }}</span>
               </div>
 
               <div class="flex items-center gap-2">
@@ -890,7 +890,7 @@
                   <button
                     type="button"
                     (click)="updateIncidentStatus(inc, 'IN_PROGRESS')"
-                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-semibold text-xs transition-colors cursor-pointer shadow-2xs"
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-semibold text-xs transition-colors cursor-pointer shadow-xs"
                   >
                     <svg lucidePlay class="size-3.5"></svg>
                     <span>Iniciar Atendimento</span>
@@ -898,7 +898,7 @@
                   <button
                     type="button"
                     (click)="updateIncidentStatus(inc, 'RESOLVED')"
-                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs transition-colors cursor-pointer shadow-2xs"
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs transition-colors cursor-pointer shadow-xs"
                   >
                     <svg lucideCheck class="size-3.5"></svg>
                     <span>Resolver Ocorrência</span>
@@ -907,7 +907,7 @@
                   <button
                     type="button"
                     (click)="updateIncidentStatus(inc, 'RESOLVED')"
-                    class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs transition-colors cursor-pointer shadow-2xs"
+                    class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs transition-colors cursor-pointer shadow-xs"
                   >
                     <svg lucideCheck class="size-3.5"></svg>
                     <span>Concluir / Marcar como Resolvida</span>
@@ -916,7 +916,7 @@
                   <button
                     type="button"
                     (click)="updateIncidentStatus(inc, 'IN_PROGRESS')"
-                    class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100 text-xs font-medium transition-colors cursor-pointer"
+                    class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[#929EAA] hover:text-white hover:bg-[#171D21] text-xs font-medium transition-colors cursor-pointer"
                   >
                     <svg lucideRefreshCw class="size-3"></svg>
                     <span>Reabrir Atendimento</span>

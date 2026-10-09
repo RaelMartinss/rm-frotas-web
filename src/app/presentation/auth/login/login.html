@@ -1,54 +1,133 @@
 <div
-  class="min-h-screen w-full bg-[#040812] flex items-center justify-center p-4 sm:p-8 lg:p-12 xl:p-16 relative selection:bg-emerald-500 selection:text-white overflow-x-hidden"
+  class="min-h-screen w-full bg-[#080B0C] relative flex flex-col justify-between p-4 sm:p-6 lg:p-10 overflow-x-hidden selection:bg-[#FF6B00] selection:text-black"
 >
-  <!-- Imagem de Fundo Adaptável: redimensiona e se adapta em desktop/laptop, oculta em telas pequenas -->
-  <div class="hidden lg:block absolute inset-0 z-0 overflow-hidden pointer-events-none">
+  <!-- IMAGEM DE FUNDO CINEMATOGRÁFICA COM OVERLAY INDUSTRIAL ESCURO -->
+  <div class="absolute inset-0 z-0 overflow-hidden pointer-events-none">
     <img
-      src="/images/login-bg.png"
-      alt="RM Frotas Background"
+      src="/images/login-sunset-truck.jpg"
+      alt="RM Frotas Highway"
       class="w-full h-full object-cover object-center select-none"
     />
-    <div class="absolute inset-0 bg-black/10"></div>
+    <!-- Gradiente escuro lateral para legibilidade do texto e contraste do card -->
+    <div class="absolute inset-0 bg-gradient-to-r from-[#080B0C]/90 via-[#080B0C]/60 to-[#080B0C]/85"></div>
+    <div class="absolute inset-0 bg-gradient-to-t from-[#080B0C] via-transparent to-[#080B0C]/70"></div>
   </div>
 
-  <div class="relative z-10 w-full max-w-7xl min-h-[640px] flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-16 py-6 px-2 sm:px-6 lg:px-10">
+  <!-- DETALHES GEOMÉTRICOS LARANJA NOS CANTOS (FIEL AO DESIGN) -->
+  <!-- Canto Superior Direito -->
+  <svg class="absolute top-0 right-0 w-64 h-32 pointer-events-none opacity-40 z-1" viewBox="0 0 256 128" fill="none">
+    <path d="M0 0 L180 0 L256 76" stroke="#FF6B00" stroke-width="1.5" />
+    <path d="M40 0 L195 0 L256 61" stroke="#FF6B00" stroke-width="1" stroke-dasharray="4 4" opacity="0.6" />
+  </svg>
 
-    <!-- LADO ESQUERDO: Espaço reservado para visualização limpa do branding da imagem de fundo no desktop -->
-    <div class="hidden lg:block lg:w-1/2"></div>
+  <!-- Canto Inferior Esquerdo -->
+  <svg class="absolute bottom-0 left-0 w-80 h-48 pointer-events-none opacity-35 z-1" viewBox="0 0 320 192" fill="none">
+    <path d="M-20 192 L120 120 L260 192" stroke="#FF6B00" stroke-width="1.5" />
+    <path d="M20 192 L150 100 L280 192" stroke="#FF6B00" stroke-width="1" stroke-dasharray="4 4" opacity="0.6" />
+  </svg>
 
-    <!-- Mobile Branding: Exibido em telas pequenas onde a imagem de fundo é desativada -->
-    <div class="lg:hidden flex flex-col items-center text-center text-white mb-4">
+  <!-- CABEÇALHO SUPERIOR (LOGO & BADGE DE SEGURANÇA) -->
+  <header class="relative z-10 w-full flex items-center justify-between">
+    <!-- LOGO RM FROTAS COM EMBLEMA LARANJA -->
+    <div class="flex items-center gap-3 group">
       <img
-        src="/images/logo.png"
+        src="/images/rm_logo_nav.png"
         alt="RM Frotas"
-        class="h-12 w-auto object-contain drop-shadow-md mb-3"
+        class="h-9 sm:h-11 w-auto object-contain [filter:hue-rotate(215deg)_saturate(1.3)] drop-shadow-[0_2px_12px_rgba(255,107,0,0.35)]"
       />
-      <h1 class="text-2xl font-extrabold tracking-tight">
-        Gestão inteligente da sua <span class="text-emerald-500 font-black">frota</span>
-      </h1>
-      <p class="text-slate-400 text-xs mt-1 max-w-xs leading-relaxed">
-        Controle, acompanhe e otimize sua operação com eficiência e segurança.
-      </p>
+      <span class="text-xl sm:text-2xl font-black text-white tracking-[0.25em] uppercase font-sans">
+        FROTAS
+      </span>
     </div>
 
-    <!-- LADO DIREITO: CARD DE LOGIN (Fiel ao Protótipo) -->
-    <div class="w-full lg:w-auto flex justify-center lg:justify-end lg:pr-2 xl:pr-6">
-      <div
-        class="bg-white rounded-[28px] shadow-[0_25px_60px_-15px_rgba(0,0,0,0.65),0_12px_28px_-8px_rgba(0,0,0,0.35)] p-8 sm:p-10 w-full max-w-[440px] border border-slate-100 ring-1 ring-black/[0.04] animate-in fade-in zoom-in-95 duration-200"
-      >
+    <!-- BADGE SEGURO E CRIPTOGRAFADO -->
+    <div class="flex items-center gap-2 text-xs font-semibold text-[#8E9DA8] bg-[#0F1215]/70 border border-[#222A2F] backdrop-blur-md px-3.5 py-1.5 rounded-full shadow-2xs">
+      <svg lucideShieldCheck class="size-4 text-[#FF6B00]"></svg>
+      <span class="hidden sm:inline">Seguro e criptografado</span>
+    </div>
+  </header>
 
-        <!-- Títulos do Card -->
-        <div class="text-center mb-7">
-          <h2 class="text-2xl font-extrabold text-slate-900 tracking-tight">Acesse sua conta</h2>
-          <p class="text-xs text-slate-500 mt-1.5 font-normal">
-            Entre para gerenciar sua frota com mais eficiência
-          </p>
+  <!-- ÁREA CENTRAL (HERO À ESQUERDA + CARD DE LOGIN À DIREITA) -->
+  <main class="relative z-10 w-full max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-10 lg:gap-14 py-8 sm:py-12">
+    
+    <!-- LADO ESQUERDO: BRANDING, OVERLINE, TÍTULO E BENEFÍCIOS -->
+    <div class="w-full lg:w-1/2 flex flex-col justify-center space-y-6 max-w-xl text-left">
+      <!-- Eyebrow Bar e Texto -->
+      <div>
+        <div class="w-12 h-1 bg-[#FF6B00] mb-3 rounded-full shadow-[0_0_10px_rgba(255,107,0,0.5)]"></div>
+        <span class="text-[11px] font-extrabold text-[#FF6B00] tracking-[0.2em] uppercase">
+          GESTÃO DE FROTAS, MAIS EFICIENTE
+        </span>
+      </div>
+
+      <!-- Título Principal -->
+      <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-[1.12]">
+        Gestão inteligente<br />da sua <span class="text-[#FF6B00]">frota.</span>
+      </h1>
+
+      <!-- Subtítulo -->
+      <p class="text-xs sm:text-sm lg:text-base text-[#CAD2D9] leading-relaxed max-w-lg font-normal">
+        Controle, acompanhe e otimize sua operação com eficiência e segurança.
+      </p>
+
+      <!-- 3 Badges de Benefícios -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3">
+        <!-- Benefício 1: Mais controle e segurança -->
+        <div class="flex items-center gap-3 p-2.5 rounded-xl bg-[#0B0E11]/70 border border-[#222A2F] backdrop-blur-sm shadow-2xs">
+          <div class="size-9 rounded-xl bg-[#FF6B00]/10 border border-[#FF6B00]/25 text-[#FF6B00] flex items-center justify-center shrink-0">
+            <svg lucideShieldCheck class="size-4.5"></svg>
+          </div>
+          <div class="text-[11px] leading-tight">
+            <span class="font-bold text-white block">Mais controle</span>
+            <span class="text-[#8E9DA8]">e segurança</span>
+          </div>
+        </div>
+
+        <!-- Benefício 2: Redução de custos -->
+        <div class="flex items-center gap-3 p-2.5 rounded-xl bg-[#0B0E11]/70 border border-[#222A2F] backdrop-blur-sm shadow-2xs">
+          <div class="size-9 rounded-xl bg-[#FF6B00]/10 border border-[#FF6B00]/25 text-[#FF6B00] flex items-center justify-center shrink-0">
+            <svg lucideCoins class="size-4.5"></svg>
+          </div>
+          <div class="text-[11px] leading-tight">
+            <span class="font-bold text-white block">Redução</span>
+            <span class="text-[#8E9DA8]">de custos</span>
+          </div>
+        </div>
+
+        <!-- Benefício 3: Menos imprevistos -->
+        <div class="flex items-center gap-3 p-2.5 rounded-xl bg-[#0B0E11]/70 border border-[#222A2F] backdrop-blur-sm shadow-2xs">
+          <div class="size-9 rounded-xl bg-[#FF6B00]/10 border border-[#FF6B00]/25 text-[#FF6B00] flex items-center justify-center shrink-0">
+            <svg lucideClock class="size-4.5"></svg>
+          </div>
+          <div class="text-[11px] leading-tight">
+            <span class="font-bold text-white block">Menos imprevistos</span>
+            <span class="text-[#8E9DA8]">na sua operação</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LADO DIREITO: CARD DE LOGIN INDUSTRIAL DARK COM ACENTO LARANJA -->
+    <div class="w-full lg:w-auto flex justify-center lg:justify-end">
+      <div
+        class="bg-[#0B0E11]/85 backdrop-blur-xl rounded-3xl p-7 sm:p-9 w-full max-w-[430px] border border-[#222A2F] shadow-[0_25px_60px_-15px_rgba(0,0,0,0.85)] ring-1 ring-white/5 animate-in fade-in zoom-in-95 duration-200"
+      >
+        <!-- Título com Acento Vertical Laranja -->
+        <div class="flex items-start gap-3 mb-6">
+          <div class="w-1.5 h-7 bg-[#FF6B00] rounded-full mt-0.5 shrink-0 shadow-[0_0_12px_rgba(255,107,0,0.6)]"></div>
+          <div>
+            <h2 class="text-xl sm:text-2xl font-black text-white tracking-tight">Acesse sua conta</h2>
+            <p class="text-xs text-[#8E9DA8] mt-1 leading-snug">
+              Entre para gerenciar sua frota com mais eficiência e segurança.
+            </p>
+          </div>
         </div>
 
         <!-- Mensagem de Erro de Login -->
         @if (loginError()) {
-          <div class="mb-5 p-3.5 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-xs font-medium leading-relaxed">
-            {{ loginError() }}
+          <div class="mb-5 p-3.5 bg-rose-500/10 border border-rose-500/30 text-rose-300 rounded-xl text-xs font-medium leading-relaxed flex items-start gap-2.5">
+            <svg lucideShieldAlert class="size-4 text-rose-400 shrink-0 mt-0.5"></svg>
+            <span>{{ loginError() }}</span>
           </div>
         }
 
@@ -56,11 +135,11 @@
         <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-4">
           <!-- Campo E-mail -->
           <div>
-            <label for="email" class="block text-xs font-semibold text-slate-700 mb-1.5">
+            <label for="email" class="block text-xs font-semibold text-[#CAD2D9] mb-1.5">
               E-mail
             </label>
             <div class="relative">
-              <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+              <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#62707C]">
                 <svg lucideMail class="size-4"></svg>
               </div>
               <input
@@ -68,25 +147,24 @@
                 id="email"
                 formControlName="email"
                 placeholder="seu@email.com"
-                class="w-full pl-10 pr-3.5 py-2.5 bg-white border rounded-xl text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 transition-all"
-                [class.border-rose-400]="f['email'].touched && f['email'].invalid"
-                [class.border-slate-200]="!(f['email'].touched && f['email'].invalid)"
+                class="w-full pl-10 pr-3.5 py-3 bg-[#11161A] border rounded-xl text-xs text-white placeholder:text-[#62707C] focus:outline-none focus:border-[#FF6B00] focus:ring-1 focus:ring-[#FF6B00]/30 transition-all"
+                [ngClass]="f['email'].touched && f['email'].invalid ? 'border-rose-500' : 'border-[#222A2F]'"
               />
             </div>
             @if (f['email'].touched && f['email'].hasError('required')) {
-              <p class="text-[10px] text-rose-500 mt-1 font-medium">E-mail é obrigatório.</p>
+              <p class="text-[10px] text-rose-400 mt-1 font-medium">E-mail é obrigatório.</p>
             } @else if (f['email'].touched && f['email'].hasError('email')) {
-              <p class="text-[10px] text-rose-500 mt-1 font-medium">Insira um e-mail válido.</p>
+              <p class="text-[10px] text-rose-400 mt-1 font-medium">Insira um e-mail válido.</p>
             }
           </div>
 
           <!-- Campo Senha -->
           <div>
-            <label for="password" class="block text-xs font-semibold text-slate-700 mb-1.5">
+            <label for="password" class="block text-xs font-semibold text-[#CAD2D9] mb-1.5">
               Senha
             </label>
             <div class="relative">
-              <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+              <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#62707C]">
                 <svg lucideLock class="size-4"></svg>
               </div>
               <input
@@ -94,87 +172,87 @@
                 id="password"
                 formControlName="password"
                 placeholder="Digite sua senha"
-                class="w-full pl-10 pr-12 py-2.5 bg-white border rounded-xl text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 transition-all"
-                [class.border-rose-400]="f['password'].touched && f['password'].invalid"
-                [class.border-slate-200]="!(f['password'].touched && f['password'].invalid)"
+                class="w-full pl-10 pr-12 py-3 bg-[#11161A] border rounded-xl text-xs text-white placeholder:text-[#62707C] focus:outline-none focus:border-[#FF6B00] focus:ring-1 focus:ring-[#FF6B00]/30 transition-all font-mono"
+                [ngClass]="f['password'].touched && f['password'].invalid ? 'border-rose-500' : 'border-[#222A2F]'"
               />
               <button
                 type="button"
                 (click)="showPassword.set(!showPassword())"
-                class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-slate-800 focus:text-emerald-600 transition-colors cursor-pointer group"
+                class="absolute inset-y-0 right-0 pr-3 flex items-center text-[#62707C] hover:text-white transition-colors cursor-pointer group"
                 tabindex="-1"
                 [title]="showPassword() ? 'Ocultar senha' : 'Exibir senha'"
               >
-                <span class="p-1 rounded-md group-hover:bg-slate-100 transition-colors flex items-center justify-center">
+                <span class="p-1 rounded-md group-hover:bg-[#171D21] transition-colors flex items-center justify-center">
                   @if (!showPassword()) {
-                    <svg lucideEye class="size-4.5 stroke-[2.2] text-slate-500 group-hover:text-slate-800"></svg>
+                    <svg lucideEye class="size-4 text-[#62707C] group-hover:text-white"></svg>
                   } @else {
-                    <svg lucideEyeOff class="size-4.5 stroke-[2.2] text-emerald-600"></svg>
+                    <svg lucideEyeOff class="size-4 text-[#FF6B00]"></svg>
                   }
                 </span>
               </button>
             </div>
             @if (f['password'].touched && f['password'].hasError('required')) {
-              <p class="text-[10px] text-rose-500 mt-1 font-medium">Senha é obrigatória.</p>
+              <p class="text-[10px] text-rose-400 mt-1 font-medium">Senha é obrigatória.</p>
             } @else if (f['password'].touched && f['password'].hasError('minlength')) {
-              <p class="text-[10px] text-rose-500 mt-1 font-medium">A senha deve ter no mínimo 6 caracteres.</p>
+              <p class="text-[10px] text-rose-400 mt-1 font-medium">A senha deve ter no mínimo 6 caracteres.</p>
             }
           </div>
 
           <!-- Lembrar-me e Esqueci minha senha -->
           <div class="flex items-center justify-between pt-1">
-            <label class="flex items-center gap-2 cursor-pointer text-xs text-slate-600 select-none">
+            <label class="flex items-center gap-2 cursor-pointer text-xs text-[#8E9DA8] select-none hover:text-white transition-colors">
               <input
                 type="checkbox"
-                class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 size-3.5 cursor-pointer"
+                class="size-3.5 rounded border-[#222A2F] bg-[#11161A] text-[#FF6B00] focus:ring-[#FF6B00] cursor-pointer"
               />
               <span>Lembrar-me</span>
             </label>
             <a
               href="#"
               (click)="$event.preventDefault(); openForgotPasswordModal()"
-              class="text-xs font-semibold text-blue-600 hover:text-blue-700 hover:underline transition-colors"
+              class="text-xs font-semibold text-[#FF6B00] hover:text-[#FFA04D] hover:underline transition-colors"
             >
               Esqueci minha senha
             </a>
           </div>
 
           <!-- Botão Entrar -->
-          <div class="pt-3">
+          <div class="pt-2">
             <button
               type="submit"
               [disabled]="isLoading()"
-              class="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold text-sm rounded-xl transition-all shadow-md shadow-emerald-600/20 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+              class="w-full py-3.5 px-4 bg-[#FF6B00] hover:bg-[#E05D00] active:scale-[0.99] text-[#080B0C] font-black text-sm rounded-xl transition-all shadow-lg shadow-[#FF6B00]/25 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               @if (isLoading()) {
                 <svg lucideLoader2 class="size-4 animate-spin"></svg>
                 <span>Autenticando...</span>
               } @else {
                 <span>Entrar</span>
+                <svg lucideArrowRight class="size-4 stroke-[2.5]"></svg>
               }
             </button>
           </div>
         </form>
 
         <!-- Rodapé do Card -->
-        <div class="mt-8 pt-4 border-t border-slate-100 flex flex-col items-center gap-2.5 text-center text-xs text-slate-500 font-normal">
+        <div class="mt-6 pt-5 border-t border-[#222A2F] flex flex-col items-center gap-3 text-center text-xs text-[#8E9DA8]">
           <div>
             Não tem uma conta?
             <a
               href="#"
               (click)="$event.preventDefault()"
-              class="font-semibold text-blue-600 hover:text-blue-700 hover:underline transition-colors ml-1"
+              class="font-bold text-[#FF6B00] hover:text-[#FFA04D] hover:underline transition-colors ml-1"
             >
               Fale com um administrador
             </a>
           </div>
 
-          <div class="pt-1">
+          <div class="w-full pt-1">
             <a
               routerLink="/admin-login"
-              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-600 hover:text-slate-900 border border-slate-200/80 text-[11px] font-semibold transition cursor-pointer"
+              class="w-full inline-flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-[#11161A] hover:bg-[#171D21] text-[#8E9DA8] hover:text-white border border-[#222A2F] hover:border-[#FF6B00]/40 text-xs font-semibold transition-all cursor-pointer shadow-2xs"
             >
-              <svg lucideShieldAlert class="size-3.5 text-emerald-600 shrink-0"></svg>
+              <svg lucideShieldCheck class="size-4 text-emerald-400 shrink-0"></svg>
               <span>Acesso Administrativo (Super Admin)</span>
             </a>
           </div>
@@ -183,22 +261,32 @@
       </div>
     </div>
 
-  </div>
+  </main>
+
+  <!-- RODAPÉ INFERIOR (BRANDING SLOGAN & VERSÃO) -->
+  <footer class="relative z-10 w-full flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-[#8E9DA8] pt-4">
+    <div class="font-semibold tracking-wider uppercase text-[#8E9DA8]">
+      RM FROTAS <span class="text-[#FF6B00] mx-1">•</span> SUA FROTA, MAIS EFICIENTE
+    </div>
+    <div class="font-mono text-[#62707C]">
+      Versão {{ appVersion }}
+    </div>
+  </footer>
 
   <!-- MODAL: RECUPERAÇÃO DE SENHA (ESQUECI MINHA SENHA) -->
   @if (isForgotPasswordModalOpen()) {
     <div
-      class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-sm p-4 animate-in fade-in duration-200"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200"
       (click)="closeForgotPasswordModal()"
     >
       <div
-        class="bg-white rounded-2xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-100 relative animate-in zoom-in-95 duration-200"
+        class="bg-[#0F1215] rounded-2xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-[#222A2F] relative animate-in zoom-in-95 duration-200"
         (click)="$event.stopPropagation()"
       >
         <!-- Botão Fechar -->
         <button
           (click)="closeForgotPasswordModal()"
-          class="absolute top-4 right-4 p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+          class="absolute top-4 right-4 p-1.5 text-[#8E9DA8] hover:text-white hover:bg-[#171D21] rounded-lg transition-colors cursor-pointer"
           title="Fechar"
         >
           <svg lucideX class="size-5"></svg>
@@ -206,19 +294,19 @@
 
         <!-- Cabeçalho do Modal -->
         <div class="flex items-center gap-3 mb-4">
-          <div class="size-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100">
+          <div class="size-10 rounded-xl bg-[#FF6B00]/10 text-[#FF6B00] flex items-center justify-center border border-[#FF6B00]/25">
             <svg lucideKeyRound class="size-5"></svg>
           </div>
           <div>
-            <h3 class="text-lg font-bold text-slate-900">Recuperar Senha</h3>
-            <p class="text-xs text-slate-500">Informe seu e-mail para receber as instruções</p>
+            <h3 class="text-lg font-bold text-white">Recuperar Senha</h3>
+            <p class="text-xs text-[#8E9DA8]">Informe seu e-mail para receber as instruções</p>
           </div>
         </div>
 
         <!-- Feedback de Sucesso -->
         @if (forgotSuccessMessage()) {
-          <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs flex items-start gap-3 my-4">
-            <svg lucideCheckCircle2 class="size-5 shrink-0 text-emerald-600 mt-0.5"></svg>
+          <div class="p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-emerald-300 text-xs flex items-start gap-3 my-4">
+            <svg lucideCheckCircle2 class="size-5 shrink-0 text-emerald-400 mt-0.5"></svg>
             <div class="leading-relaxed">
               {{ forgotSuccessMessage() }}
             </div>
@@ -228,7 +316,7 @@
             <button
               type="button"
               (click)="closeForgotPasswordModal()"
-              class="w-full py-2.5 px-4 bg-slate-800 hover:bg-slate-900 text-white font-semibold text-xs rounded-xl transition-all cursor-pointer"
+              class="w-full py-2.5 px-4 bg-[#171D21] hover:bg-[#222A2F] text-white border border-[#222A2F] font-semibold text-xs rounded-xl transition-all cursor-pointer"
             >
               Voltar para o login
             </button>
@@ -237,17 +325,17 @@
           <!-- Formulário de Envio de E-mail -->
           <form [formGroup]="forgotForm" (ngSubmit)="onSubmitForgotPassword()" class="space-y-4 my-2">
             @if (forgotErrorMessage()) {
-              <div class="p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs">
+              <div class="p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl text-rose-300 text-xs">
                 {{ forgotErrorMessage() }}
               </div>
             }
 
             <div>
-              <label for="forgot-email" class="block text-xs font-semibold text-slate-700 mb-1.5">
+              <label for="forgot-email" class="block text-xs font-semibold text-[#CAD2D9] mb-1.5">
                 E-mail cadastrado
               </label>
               <div class="relative">
-                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#62707C]">
                   <svg lucideMail class="size-4"></svg>
                 </div>
                 <input
@@ -255,15 +343,14 @@
                   id="forgot-email"
                   formControlName="email"
                   placeholder="seu@email.com"
-                  class="w-full pl-10 pr-3.5 py-2.5 bg-white border rounded-xl text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 transition-all"
-                  [class.border-rose-400]="forgotF['email'].touched && forgotF['email'].invalid"
-                  [class.border-slate-200]="!(forgotF['email'].touched && forgotF['email'].invalid)"
+                  class="w-full pl-10 pr-3.5 py-2.5 bg-[#11161A] border rounded-xl text-xs text-white placeholder:text-[#62707C] focus:outline-none focus:border-[#FF6B00] transition-all"
+                  [ngClass]="forgotF['email'].touched && forgotF['email'].invalid ? 'border-rose-500' : 'border-[#222A2F]'"
                 />
               </div>
               @if (forgotF['email'].touched && forgotF['email'].hasError('required')) {
-                <p class="text-[10px] text-rose-500 mt-1 font-medium">E-mail é obrigatório.</p>
+                <p class="text-[10px] text-rose-400 mt-1 font-medium">E-mail é obrigatório.</p>
               } @else if (forgotF['email'].touched && forgotF['email'].hasError('email')) {
-                <p class="text-[10px] text-rose-500 mt-1 font-medium">Insira um e-mail válido.</p>
+                <p class="text-[10px] text-rose-400 mt-1 font-medium">Insira um e-mail válido.</p>
               }
             </div>
 
@@ -271,14 +358,14 @@
               <button
                 type="button"
                 (click)="closeForgotPasswordModal()"
-                class="py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-xl transition-all cursor-pointer"
+                class="py-2.5 px-4 bg-[#171D21] hover:bg-[#222A2F] text-[#8E9DA8] hover:text-white border border-[#222A2F] font-semibold text-xs rounded-xl transition-all cursor-pointer"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
                 [disabled]="isForgotLoading()"
-                class="py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition-all shadow-xs flex items-center gap-2 disabled:opacity-60 cursor-pointer"
+                class="py-2.5 px-4 bg-[#FF6B00] hover:bg-[#E05D00] text-[#080B0C] font-bold text-xs rounded-xl transition-all shadow-xs flex items-center gap-2 disabled:opacity-60 cursor-pointer"
               >
                 @if (isForgotLoading()) {
                   <svg lucideLoader2 class="size-4 animate-spin"></svg>
@@ -294,10 +381,4 @@
       </div>
     </div>
   }
-
-  <!-- Copyright Dinâmico no Rodapé Inferior -->
-  <div class="lg:hidden absolute bottom-3 text-center w-full text-[11px] text-slate-500 pointer-events-none">
-    &copy; {{ currentYear }} <strong class="text-slate-400 font-medium">RM Frotas</strong>. Todos os direitos reservados.
-  </div>
 </div>
-

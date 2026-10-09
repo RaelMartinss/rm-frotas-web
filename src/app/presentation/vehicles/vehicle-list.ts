@@ -449,15 +449,15 @@ export class VehicleListComponent implements OnInit {
     switch (status) {
       case 'AVAILABLE':
       case 'DISPONIVEL':
-        return 'bg-emerald-50 text-emerald-700 border-emerald-200/70';
+        return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30';
       case 'IN_USE':
       case 'EM_VIAGEM':
-        return 'bg-blue-50 text-blue-700 border-blue-200/70';
+        return 'bg-blue-500/10 text-blue-400 border-blue-500/30';
       case 'IN_MAINTENANCE':
       case 'MANUTENCAO':
-        return 'bg-amber-50 text-amber-700 border-amber-200/70';
+        return 'bg-amber-500/10 text-amber-400 border-amber-500/30';
       default:
-        return 'bg-rose-50 text-rose-700 border-rose-200/70';
+        return 'bg-rose-500/10 text-rose-400 border-rose-500/30';
     }
   }
 

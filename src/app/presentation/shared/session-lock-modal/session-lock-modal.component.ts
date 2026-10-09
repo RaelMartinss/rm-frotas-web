@@ -20,26 +20,26 @@ import { formatUserRole } from '../../../domain/models/user.model';
   imports: [CommonModule, FormsModule],
   template: `
     <div
-      class="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/85 backdrop-blur-md p-4 animate-in fade-in duration-300"
+      class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-300"
     >
       <div
-        class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl p-6 md:p-8 shadow-2xl text-slate-100 flex flex-col items-center text-center relative overflow-hidden"
+        class="w-full max-w-md bg-[#0F1215] border border-[#222A2F] rounded-2xl p-6 md:p-8 shadow-2xl text-slate-100 flex flex-col items-center text-center relative overflow-hidden"
       >
-        <!-- Detalhe superior em gradiente esmeralda -->
+        <!-- Detalhe superior em gradiente laranja industrial -->
         <div
-          class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-600"
+          class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#FF6B00] via-[#FFA800] to-[#FF6B00]"
         ></div>
 
         <!-- Ícone / Avatar -->
         <div class="relative mb-5 mt-2">
           <div
-            class="w-20 h-20 rounded-2xl bg-slate-800/90 border border-slate-700 flex items-center justify-center text-2xl font-bold text-emerald-400 shadow-inner"
+            class="w-20 h-20 rounded-2xl bg-[#171D21] border border-[#222A2F] flex items-center justify-center text-2xl font-black text-[#FF6B00] shadow-inner"
           >
             @if (currentUser()?.name) {
               {{ getInitials(currentUser()?.name) }}
             } @else {
               <svg
-                class="w-10 h-10 text-emerald-400"
+                class="w-10 h-10 text-[#FF6B00]"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -55,10 +55,10 @@ import { formatUserRole } from '../../../domain/models/user.model';
           </div>
           <!-- Badge de Cadeado -->
           <div
-            class="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-emerald-500 border-2 border-slate-900 flex items-center justify-center shadow"
+            class="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-[#FF6B00] border-2 border-[#0F1215] flex items-center justify-center shadow"
           >
             <svg
-              class="w-3.5 h-3.5 text-slate-950"
+              class="w-3.5 h-3.5 text-[#080B0C]"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -74,26 +74,26 @@ import { formatUserRole } from '../../../domain/models/user.model';
         </div>
 
         <!-- Título e Identificação -->
-        <h2 class="text-xl font-bold tracking-tight text-white mb-1">
+        <h2 class="text-xl font-black tracking-tight text-white mb-1">
           Sessão Bloqueada
         </h2>
-        <p class="text-sm text-slate-400 mb-1">
-          Olá, <span class="text-slate-200 font-medium">{{ currentUser()?.name || 'Gestor' }}</span>
+        <p class="text-sm text-[#929EAA] mb-1">
+          Olá, <span class="text-white font-bold">{{ currentUser()?.name || 'Gestor' }}</span>
         </p>
         <span
-          class="inline-block px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mb-6"
+          class="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#FF6B00]/15 text-[#FF6B00] border border-[#FF6B00]/30 mb-6"
         >
           {{ formatRole(currentUser()?.role) }}
         </span>
 
-        <p class="text-xs text-slate-400 mb-5 leading-relaxed max-w-xs">
+        <p class="text-xs text-[#929EAA] mb-5 leading-relaxed max-w-xs">
           Sua sessão foi bloqueada temporariamente por inatividade. Confirme sua senha para continuar.
         </p>
 
         <!-- Formulário de Desbloqueio -->
         <form (ngSubmit)="onUnlock()" class="w-full space-y-4">
           <div class="relative text-left">
-            <label class="block text-xs font-medium text-slate-300 mb-1.5">
+            <label class="block text-xs font-semibold text-[#CAD2D9] mb-1.5">
               Senha de Acesso
             </label>
             <div class="relative">
@@ -106,18 +106,18 @@ import { formatUserRole } from '../../../domain/models/user.model';
                 required
                 autocomplete="current-password"
                 placeholder="Digite sua senha"
-                class="w-full px-4 py-2.5 pr-11 rounded-xl bg-slate-800/80 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 text-sm transition"
+                class="w-full px-4 py-2.5 pr-11 rounded-xl bg-[#11161A] border border-[#222A2F] text-white placeholder-[#62707C] focus:outline-none focus:border-[#FF6B00] focus:ring-1 focus:ring-[#FF6B00]/40 text-sm transition"
               />
               <button
                 type="button"
                 (click)="toggleShowPassword()"
-                class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 p-1 rounded transition"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-[#62707C] hover:text-white p-1 rounded transition cursor-pointer"
                 tabindex="-1"
                 aria-label="Alternar visualização da senha"
               >
                 @if (showPassword()) {
                   <!-- Eye Off -->
-                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg class="w-4 h-4 text-[#FF6B00]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
                   </svg>
                 } @else {
@@ -147,10 +147,10 @@ import { formatUserRole } from '../../../domain/models/user.model';
           <button
             type="submit"
             [disabled]="isLoading() || !password()"
-            class="w-full py-2.5 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-600 disabled:bg-slate-800 disabled:text-slate-500 text-slate-950 font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20"
+            class="w-full py-2.5 px-4 rounded-xl bg-[#FF6B00] hover:bg-[#E05D00] disabled:bg-[#171D21] disabled:text-[#62707C] disabled:cursor-not-allowed text-[#080B0C] font-bold text-sm transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-[#FF6B00]/20 cursor-pointer"
           >
             @if (isLoading()) {
-              <svg class="animate-spin h-4 w-4 text-slate-950" fill="none" viewBox="0 0 24 24">
+              <svg class="animate-spin h-4 w-4 text-[#080B0C]" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
               </svg>
@@ -165,11 +165,11 @@ import { formatUserRole } from '../../../domain/models/user.model';
         </form>
 
         <!-- Link Discreto de Logout -->
-        <div class="mt-6 pt-4 border-t border-slate-800/80 w-full">
+        <div class="mt-6 pt-4 border-t border-[#222A2F] w-full">
           <button
             type="button"
             (click)="onLogout()"
-            class="text-xs text-slate-400 hover:text-rose-400 transition inline-flex items-center gap-1.5"
+            class="text-xs text-[#929EAA] hover:text-rose-400 transition inline-flex items-center gap-1.5 cursor-pointer"
           >
             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />

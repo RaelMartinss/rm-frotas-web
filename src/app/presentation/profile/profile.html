@@ -1,26 +1,26 @@
-<div class="max-w-4xl mx-auto space-y-8">
+<div class="max-w-4xl mx-auto space-y-8 animate-in fade-in duration-200">
   <!-- CABEÇALHO DA PÁGINA -->
-  <div>
-    <h1 class="text-2xl font-bold text-slate-800">Meu Perfil</h1>
-    <p class="text-sm text-slate-500">Gerencie suas informações cadastrais e credenciais de acesso ao sistema.</p>
+  <div class="border-b border-[#222A2F] pb-5">
+    <h1 class="text-2xl sm:text-3xl font-black text-white tracking-tight">Meu Perfil</h1>
+    <p class="text-xs sm:text-sm text-[#929EAA] mt-1">Gerencie suas informações cadastrais e credenciais de acesso ao sistema.</p>
   </div>
 
   <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
     <!-- COLUNA DA ESQUERDA: CARD DO USUÁRIO -->
     <div class="md:col-span-1">
-      <div class="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs flex flex-col items-center text-center space-y-4">
-        <div class="size-20 rounded-full bg-emerald-100 border-4 border-emerald-50 flex items-center justify-center text-emerald-700 font-extrabold text-2xl shadow-inner">
+      <div class="bg-[#0F1215] rounded-2xl border border-[#222A2F] p-6 shadow-xs flex flex-col items-center text-center space-y-4">
+        <div class="size-20 rounded-full bg-[#171D21] border-4 border-[#222A2F] flex items-center justify-center text-[#FF6B00] font-black text-2xl shadow-inner">
           {{ currentUser()?.name?.substring(0, 2)?.toUpperCase() || 'RM' }}
         </div>
         <div>
-          <h2 class="text-base font-bold text-slate-800">{{ currentUser()?.name || 'Usuário' }}</h2>
-          <p class="text-xs text-slate-500 mt-0.5">{{ currentUser()?.email }}</p>
+          <h2 class="text-base font-bold text-white">{{ currentUser()?.name || 'Usuário' }}</h2>
+          <p class="text-xs text-[#929EAA] mt-0.5">{{ currentUser()?.email }}</p>
         </div>
-        <div class="w-full pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-600">
-          <span class="flex items-center gap-1.5 text-slate-400">
-            <svg lucideShield class="size-4 text-emerald-600"></svg> Nível de Acesso:
+        <div class="w-full pt-4 border-t border-[#222A2F] flex items-center justify-between text-xs text-[#CAD2D9]">
+          <span class="flex items-center gap-1.5 text-[#929EAA]">
+            <svg lucideShield class="size-4 text-[#FF6B00]"></svg> Nível de Acesso:
           </span>
-          <span class="font-bold bg-emerald-50 text-emerald-700 px-2.5 py-0.5 rounded-md border border-emerald-200/60 text-[11px]">
+          <span class="font-bold bg-[#FF6B00]/15 text-[#FF6B00] px-2.5 py-0.5 rounded-md border border-[#FF6B00]/30 text-[11px]">
             {{ formatUserRole(currentUser()?.role) }}
           </span>
         </div>
@@ -30,47 +30,47 @@
     <!-- COLUNA DA DIREITA: FORMULÁRIOS -->
     <div class="md:col-span-2 space-y-6">
       <!-- FORMULÁRIO DE DADOS PESSOAIS -->
-      <div class="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs space-y-4">
-        <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2 border-b border-slate-100 pb-3">
-          <svg lucideUser class="size-4 text-emerald-600"></svg>
+      <div class="bg-[#0F1215] rounded-2xl border border-[#222A2F] p-6 shadow-xs space-y-4">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2 border-b border-[#222A2F] pb-3">
+          <svg lucideUser class="size-4 text-[#FF6B00]"></svg>
           Informações Pessoais
         </h3>
 
         @if (profileSuccessMsg()) {
-          <div class="p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 flex items-center gap-2.5 text-xs animate-in fade-in">
-            <svg lucideCheckCircle2 class="size-4 shrink-0 text-emerald-600"></svg>
+          <div class="p-3.5 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-emerald-300 flex items-center gap-2.5 text-xs animate-in fade-in">
+            <svg lucideCheckCircle2 class="size-4 shrink-0 text-emerald-400"></svg>
             <span>{{ profileSuccessMsg() }}</span>
           </div>
         }
 
         @if (profileErrorMsg()) {
-          <div class="p-3.5 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 flex items-center gap-2.5 text-xs animate-in fade-in">
-            <svg lucideAlertCircle class="size-4 shrink-0 text-rose-500"></svg>
+          <div class="p-3.5 bg-rose-500/10 border border-rose-500/30 rounded-xl text-rose-300 flex items-center gap-2.5 text-xs animate-in fade-in">
+            <svg lucideAlertCircle class="size-4 shrink-0 text-rose-400"></svg>
             <span>{{ profileErrorMsg() }}</span>
           </div>
         }
 
         <form [formGroup]="profileForm" (ngSubmit)="updateProfile()" class="space-y-4">
           <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">Nome completo</label>
+            <label class="block text-xs font-semibold text-[#CAD2D9] mb-1">Nome completo</label>
             <input
               type="text"
               formControlName="name"
               placeholder="Seu nome completo"
-              class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 transition-all"
+              class="w-full bg-[#11161A] border border-[#222A2F] rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-[#FF6B00] transition-all placeholder:text-[#62707C]"
             />
           </div>
 
           <div>
             <div class="flex items-center justify-between mb-1">
-              <label class="block text-xs font-semibold text-slate-700">E-mail corporativo</label>
-              <span class="text-[10px] text-slate-400 font-medium">(Identificador da conta)</span>
+              <label class="block text-xs font-semibold text-[#CAD2D9]">E-mail corporativo</label>
+              <span class="text-[10px] text-[#62707C] font-medium">(Identificador da conta)</span>
             </div>
             <input
               type="email"
               formControlName="email"
               readonly
-              class="w-full bg-slate-100 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-500 cursor-not-allowed focus:outline-none"
+              class="w-full bg-[#0B0E11] border border-[#222A2F] rounded-xl px-3.5 py-2.5 text-xs text-[#62707C] cursor-not-allowed focus:outline-none"
             />
           </div>
 
@@ -78,7 +78,7 @@
             <button
               type="submit"
               [disabled]="isSavingProfile()"
-              class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-all shadow-xs flex items-center gap-2 disabled:opacity-50 cursor-pointer"
+              class="px-5 py-2.5 bg-[#FF6B00] hover:bg-[#E05D00] text-[#080B0C] text-xs font-bold rounded-xl transition-all shadow-xs flex items-center gap-2 disabled:opacity-50 cursor-pointer"
             >
               @if (isSavingProfile()) {
                 <svg lucideLoader2 class="size-4 animate-spin"></svg>
@@ -92,70 +92,70 @@
       </div>
 
       <!-- FORMULÁRIO DE ALTERAÇÃO DE SENHA -->
-      <div class="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs space-y-4">
-        <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2 border-b border-slate-100 pb-3">
-          <svg lucideLock class="size-4 text-emerald-600"></svg>
+      <div class="bg-[#0F1215] rounded-2xl border border-[#222A2F] p-6 shadow-xs space-y-4">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2 border-b border-[#222A2F] pb-3">
+          <svg lucideLock class="size-4 text-[#FF6B00]"></svg>
           Segurança e Senha
         </h3>
 
         @if (passwordSuccessMsg()) {
-          <div class="p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 flex items-center gap-2.5 text-xs animate-in fade-in">
-            <svg lucideCheckCircle2 class="size-4 shrink-0 text-emerald-600"></svg>
+          <div class="p-3.5 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-emerald-300 flex items-center gap-2.5 text-xs animate-in fade-in">
+            <svg lucideCheckCircle2 class="size-4 shrink-0 text-emerald-400"></svg>
             <span>{{ passwordSuccessMsg() }}</span>
           </div>
         }
 
         @if (passwordErrorMsg()) {
-          <div class="p-3.5 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 flex items-center gap-2.5 text-xs animate-in fade-in">
-            <svg lucideAlertCircle class="size-4 shrink-0 text-rose-500"></svg>
+          <div class="p-3.5 bg-rose-500/10 border border-rose-500/30 rounded-xl text-rose-300 flex items-center gap-2.5 text-xs animate-in fade-in">
+            <svg lucideAlertCircle class="size-4 shrink-0 text-rose-400"></svg>
             <span>{{ passwordErrorMsg() }}</span>
           </div>
         }
 
         <form [formGroup]="passwordForm" (ngSubmit)="updatePassword()" class="space-y-4">
           <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">Senha Atual</label>
+            <label class="block text-xs font-semibold text-[#CAD2D9] mb-1">Senha Atual</label>
             <div class="relative">
               <input
                 [type]="showCurrentPassword() ? 'text' : 'password'"
                 formControlName="currentPassword"
                 placeholder="Digite sua senha atual"
-                class="w-full bg-slate-50 border border-slate-200 rounded-xl pr-10 pl-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 transition-all"
+                class="w-full bg-[#11161A] border border-[#222A2F] rounded-xl pr-10 pl-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-[#FF6B00] transition-all placeholder:text-[#62707C]"
               />
               <button
                 type="button"
                 (click)="showCurrentPassword.set(!showCurrentPassword())"
-                class="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 cursor-pointer"
+                class="absolute right-3 top-2.5 text-[#62707C] hover:text-white cursor-pointer"
                 title="Alternar visibilidade"
               >
                 @if (!showCurrentPassword()) {
                   <svg lucideEye class="size-4"></svg>
                 } @else {
-                  <svg lucideEyeOff class="size-4 text-emerald-600"></svg>
+                  <svg lucideEyeOff class="size-4 text-[#FF6B00]"></svg>
                 }
               </button>
             </div>
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">Nova Senha</label>
+            <label class="block text-xs font-semibold text-[#CAD2D9] mb-1">Nova Senha</label>
             <div class="relative">
               <input
                 [type]="showNewPassword() ? 'text' : 'password'"
                 formControlName="newPassword"
                 placeholder="No mínimo 6 caracteres"
-                class="w-full bg-slate-50 border border-slate-200 rounded-xl pr-10 pl-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 transition-all"
+                class="w-full bg-[#11161A] border border-[#222A2F] rounded-xl pr-10 pl-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-[#FF6B00] transition-all placeholder:text-[#62707C]"
               />
               <button
                 type="button"
                 (click)="showNewPassword.set(!showNewPassword())"
-                class="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 cursor-pointer"
+                class="absolute right-3 top-2.5 text-[#62707C] hover:text-white cursor-pointer"
                 title="Alternar visibilidade"
               >
                 @if (!showNewPassword()) {
                   <svg lucideEye class="size-4"></svg>
                 } @else {
-                  <svg lucideEyeOff class="size-4 text-emerald-600"></svg>
+                  <svg lucideEyeOff class="size-4 text-[#FF6B00]"></svg>
                 }
               </button>
             </div>
@@ -165,7 +165,7 @@
             <button
               type="submit"
               [disabled]="isSavingPassword()"
-              class="px-5 py-2.5 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold rounded-xl transition-all shadow-xs flex items-center gap-2 disabled:opacity-50 cursor-pointer"
+              class="px-5 py-2.5 bg-[#171D21] hover:bg-[#222A2F] text-white border border-[#222A2F] text-xs font-bold rounded-xl transition-all shadow-xs flex items-center gap-2 disabled:opacity-50 cursor-pointer"
             >
               @if (isSavingPassword()) {
                 <svg lucideLoader2 class="size-4 animate-spin"></svg>

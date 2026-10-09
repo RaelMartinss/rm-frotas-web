@@ -20,11 +20,11 @@ export interface ReportFilterState {
     <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
       <!-- PRESETS & DATAS -->
       <div class="flex flex-wrap items-center gap-3">
-        <div class="inline-flex flex-wrap rounded-xl bg-slate-100 p-1 border border-slate-200/80 gap-0.5">
+        <div class="inline-flex flex-wrap rounded-xl bg-[#11161A] p-1 border border-[#222A2F] gap-0.5">
           <button
             type="button"
             (click)="selectPreset('current_month')"
-            [ngClass]="preset() === 'current_month' ? 'bg-emerald-600 text-white font-semibold shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'"
+            [ngClass]="preset() === 'current_month' ? 'bg-[#FF6B00] text-[#080B0C] font-bold shadow-xs' : 'text-[#929EAA] hover:text-white hover:bg-[#171D21]'"
             class="px-2.5 py-1.5 text-xs rounded-lg transition-all cursor-pointer"
           >
             Mês atual
@@ -32,7 +32,7 @@ export interface ReportFilterState {
           <button
             type="button"
             (click)="selectPreset('last_month')"
-            [ngClass]="preset() === 'last_month' ? 'bg-emerald-600 text-white font-semibold shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'"
+            [ngClass]="preset() === 'last_month' ? 'bg-[#FF6B00] text-[#080B0C] font-bold shadow-xs' : 'text-[#929EAA] hover:text-white hover:bg-[#171D21]'"
             class="px-2.5 py-1.5 text-xs rounded-lg transition-all cursor-pointer"
           >
             Mês anterior
@@ -40,7 +40,7 @@ export interface ReportFilterState {
           <button
             type="button"
             (click)="selectPreset('last_30')"
-            [ngClass]="preset() === 'last_30' ? 'bg-emerald-600 text-white font-semibold shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'"
+            [ngClass]="preset() === 'last_30' ? 'bg-[#FF6B00] text-[#080B0C] font-bold shadow-xs' : 'text-[#929EAA] hover:text-white hover:bg-[#171D21]'"
             class="px-2.5 py-1.5 text-xs rounded-lg transition-all cursor-pointer"
           >
             Últimos 30 dias
@@ -48,7 +48,7 @@ export interface ReportFilterState {
           <button
             type="button"
             (click)="selectPreset('last_90')"
-            [ngClass]="preset() === 'last_90' ? 'bg-emerald-600 text-white font-semibold shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'"
+            [ngClass]="preset() === 'last_90' ? 'bg-[#FF6B00] text-[#080B0C] font-bold shadow-xs' : 'text-[#929EAA] hover:text-white hover:bg-[#171D21]'"
             class="px-2.5 py-1.5 text-xs rounded-lg transition-all cursor-pointer"
           >
             Últimos 90 dias
@@ -56,7 +56,7 @@ export interface ReportFilterState {
           <button
             type="button"
             (click)="selectPreset('custom')"
-            [ngClass]="preset() === 'custom' ? 'bg-emerald-600 text-white font-semibold shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'"
+            [ngClass]="preset() === 'custom' ? 'bg-[#FF6B00] text-[#080B0C] font-bold shadow-xs' : 'text-[#929EAA] hover:text-white hover:bg-[#171D21]'"
             class="px-2.5 py-1.5 text-xs rounded-lg transition-all cursor-pointer"
           >
             Personalizado
@@ -69,14 +69,14 @@ export interface ReportFilterState {
             type="date"
             [ngModel]="from()"
             (ngModelChange)="onFromChange($event)"
-            class="px-2.5 py-1.5 text-xs bg-white border border-slate-200/90 rounded-xl text-slate-800 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 font-mono shadow-2xs"
+            class="px-2.5 py-1.5 text-xs bg-[#11161A] border border-[#222A2F] rounded-xl text-white focus:outline-none focus:border-[#FF6B00] font-mono shadow-2xs"
           />
-          <span class="text-xs text-slate-400 font-medium">até</span>
+          <span class="text-xs text-[#62707C] font-medium">até</span>
           <input
             type="date"
             [ngModel]="to()"
             (ngModelChange)="onToChange($event)"
-            class="px-2.5 py-1.5 text-xs bg-white border border-slate-200/90 rounded-xl text-slate-800 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 font-mono shadow-2xs"
+            class="px-2.5 py-1.5 text-xs bg-[#11161A] border border-[#222A2F] rounded-xl text-white focus:outline-none focus:border-[#FF6B00] font-mono shadow-2xs"
           />
         </div>
       </div>
@@ -86,11 +86,11 @@ export interface ReportFilterState {
         <select
           [ngModel]="selectedVehicleId()"
           (ngModelChange)="onVehicleChange($event)"
-          class="w-full sm:w-64 px-3 py-1.5 text-xs bg-white border border-slate-200/90 rounded-xl text-slate-800 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 shadow-2xs cursor-pointer"
+          class="w-full sm:w-64 px-3 py-1.5 text-xs bg-[#11161A] border border-[#222A2F] rounded-xl text-white focus:outline-none focus:border-[#FF6B00] shadow-2xs cursor-pointer"
         >
-          <option value="">Todos os veículos</option>
+          <option value="" class="bg-[#11161A] text-white">Todos os veículos</option>
           @for (v of vehicles(); track v.id) {
-            <option [value]="v.id">{{ v.plate }} - {{ v.model }}</option>
+            <option [value]="v.id" class="bg-[#11161A] text-white">{{ v.plate }} - {{ v.model }}</option>
           }
         </select>
       </div>

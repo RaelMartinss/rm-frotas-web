@@ -1,30 +1,30 @@
 <div class="space-y-6 animate-in fade-in duration-200">
   <!-- CABEÇALHO EXECUTIVO -->
-  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-200/70 pb-5">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-[#222A2F] pb-5">
     <div>
       <div class="flex items-center gap-2 mb-1">
-        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200/60">
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/30">
           <span class="size-1.5 rounded-full bg-amber-500 animate-pulse"></span>
           Conformidade Documental
         </span>
-        <span class="text-xs text-slate-400">•</span>
-        <span class="text-xs text-slate-500 font-medium">{{ totalMonitored() }} documentos monitorados</span>
+        <span class="text-xs text-[#62707C]">•</span>
+        <span class="text-xs text-[#929EAA] font-medium">{{ totalMonitored() }} documentos monitorados</span>
       </div>
-      <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Painel de Expirações</h1>
-      <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Controle proativo de validade de CNH dos motoristas e CRLV dos veículos da frota.</p>
+      <h1 class="text-2xl sm:text-3xl font-bold text-white tracking-tight">Painel de Expirações</h1>
+      <p class="text-xs sm:text-sm text-[#929EAA] mt-0.5">Controle proativo de validade de CNH dos motoristas e CRLV dos veículos da frota.</p>
     </div>
   </div>
 
   <!-- CARDS DE MÉTRICAS / KPIS -->
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
     <!-- Total Monitorados -->
-    <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs flex items-center justify-between">
+    <div class="bg-[#0F1215] p-4 rounded-2xl border border-[#222A2F] shadow-xs flex items-center justify-between">
       <div>
-        <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">Total Monitorados</span>
-        <span class="text-2xl font-bold text-slate-900 mt-0.5 block">{{ totalMonitored() }}</span>
-        <span class="text-[11px] text-slate-500 mt-0.5 block">CNHs e CRLVs ativos</span>
+        <span class="text-[11px] font-semibold text-[#929EAA] uppercase tracking-wider block">Total Monitorados</span>
+        <span class="text-2xl font-bold text-white font-mono mt-0.5 block">{{ totalMonitored() }}</span>
+        <span class="text-[11px] text-[#62707C] mt-0.5 block">CNHs e CRLVs ativos</span>
       </div>
-      <div class="size-11 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center border border-slate-200/60">
+      <div class="size-11 rounded-xl bg-[#11161A] text-[#929EAA] flex items-center justify-center border border-[#222A2F]">
         <svg lucideClock class="size-5"></svg>
       </div>
     </div>
@@ -32,16 +32,16 @@
     <!-- Vencidos (Crítico) -->
     <div
       (click)="setStatusFilter('EXPIRED')"
-      class="bg-white p-4 rounded-2xl border border-rose-200/80 shadow-2xs flex items-center justify-between cursor-pointer hover:border-rose-400 transition-colors"
+      class="bg-[#0F1215] p-4 rounded-2xl border border-rose-500/30 shadow-xs flex items-center justify-between cursor-pointer hover:border-rose-400 transition-colors"
       [class.ring-2]="selectedStatusFilter() === 'EXPIRED'"
       [class.ring-rose-500]="selectedStatusFilter() === 'EXPIRED'"
     >
       <div>
-        <span class="text-[11px] font-semibold text-rose-600 uppercase tracking-wider block">Vencidos (Crítico)</span>
-        <span class="text-2xl font-bold text-rose-700 mt-0.5 block">{{ totalExpired() }}</span>
-        <span class="text-[11px] text-rose-500 mt-0.5 block">Ação imediata requerida</span>
+        <span class="text-[11px] font-semibold text-rose-400 uppercase tracking-wider block">Vencidos (Crítico)</span>
+        <span class="text-2xl font-bold text-rose-400 font-mono mt-0.5 block">{{ totalExpired() }}</span>
+        <span class="text-[11px] text-rose-400/80 mt-0.5 block">Ação imediata requerida</span>
       </div>
-      <div class="size-11 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center border border-rose-200/60">
+      <div class="size-11 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center border border-rose-500/20">
         <svg lucideShieldAlert class="size-5"></svg>
       </div>
     </div>
@@ -49,16 +49,16 @@
     <!-- A Vencer em 30 Dias -->
     <div
       (click)="setStatusFilter('EXPIRING_SOON')"
-      class="bg-white p-4 rounded-2xl border border-amber-200/80 shadow-2xs flex items-center justify-between cursor-pointer hover:border-amber-400 transition-colors"
+      class="bg-[#0F1215] p-4 rounded-2xl border border-amber-500/30 shadow-xs flex items-center justify-between cursor-pointer hover:border-amber-400 transition-colors"
       [class.ring-2]="selectedStatusFilter() === 'EXPIRING_SOON'"
       [class.ring-amber-500]="selectedStatusFilter() === 'EXPIRING_SOON'"
     >
       <div>
-        <span class="text-[11px] font-semibold text-amber-600 uppercase tracking-wider block">Próximos (≤ 30 dias)</span>
-        <span class="text-2xl font-bold text-amber-700 mt-0.5 block">{{ totalExpiringSoon() }}</span>
-        <span class="text-[11px] text-amber-500 mt-0.5 block">Acompanhamento preventivo</span>
+        <span class="text-[11px] font-semibold text-amber-400 uppercase tracking-wider block">Próximos (≤ 30 dias)</span>
+        <span class="text-2xl font-bold text-amber-400 font-mono mt-0.5 block">{{ totalExpiringSoon() }}</span>
+        <span class="text-[11px] text-amber-400/80 mt-0.5 block">Acompanhamento preventivo</span>
       </div>
-      <div class="size-11 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-200/60">
+      <div class="size-11 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center border border-amber-500/20">
         <svg lucideAlertTriangle class="size-5"></svg>
       </div>
     </div>
@@ -66,36 +66,36 @@
     <!-- Regulares -->
     <div
       (click)="setStatusFilter('REGULAR')"
-      class="bg-white p-4 rounded-2xl border border-emerald-200/80 shadow-2xs flex items-center justify-between cursor-pointer hover:border-emerald-400 transition-colors"
+      class="bg-[#0F1215] p-4 rounded-2xl border border-emerald-500/30 shadow-xs flex items-center justify-between cursor-pointer hover:border-emerald-400 transition-colors"
       [class.ring-2]="selectedStatusFilter() === 'REGULAR'"
       [class.ring-emerald-500]="selectedStatusFilter() === 'REGULAR'"
     >
       <div>
-        <span class="text-[11px] font-semibold text-emerald-600 uppercase tracking-wider block">Regulares (> 30 dias)</span>
-        <span class="text-2xl font-bold text-emerald-700 mt-0.5 block">{{ totalRegular() }}</span>
-        <span class="text-[11px] text-emerald-500 mt-0.5 block">Documentação em dia</span>
+        <span class="text-[11px] font-semibold text-emerald-400 uppercase tracking-wider block">Regulares (> 30 dias)</span>
+        <span class="text-2xl font-bold text-emerald-400 font-mono mt-0.5 block">{{ totalRegular() }}</span>
+        <span class="text-[11px] text-emerald-400/80 mt-0.5 block">Documentação em dia</span>
       </div>
-      <div class="size-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-200/60">
+      <div class="size-11 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/20">
         <svg lucideCheckCircle2 class="size-5"></svg>
       </div>
     </div>
   </div>
 
   <!-- BARRA DE CONTROLE: BUSCA E FILTROS -->
-  <div class="flex flex-col lg:flex-row gap-3 justify-between items-stretch lg:items-center bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-2xs">
+  <div class="flex flex-col lg:flex-row gap-3 justify-between items-stretch lg:items-center bg-[#0F1215] p-3.5 rounded-2xl border border-[#222A2F] shadow-xs">
     <!-- Input com Debounce e Botão Limpar -->
     <div class="relative flex-1 max-w-md">
-      <svg lucideSearch class="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></svg>
+      <svg lucideSearch class="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#62707C]"></svg>
       <input
         type="text"
         [formControl]="searchControl"
         placeholder="Buscar por placa, motorista, categoria..."
-        class="w-full bg-slate-50 text-slate-800 text-xs rounded-xl pl-9 pr-8 py-2 border border-slate-200 focus:outline-hidden focus:border-emerald-500 transition-colors placeholder:text-slate-400"
+        class="w-full bg-[#11161A] text-white text-xs rounded-xl pl-9 pr-8 py-2 border border-[#222A2F] focus:outline-hidden focus:border-[#FF6B00] transition-colors placeholder:text-[#62707C]"
       />
       @if (searchTerm()) {
         <button
           (click)="clearSearch()"
-          class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
+          class="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#62707C] hover:text-white p-0.5 cursor-pointer"
           title="Limpar busca"
         >
           <svg lucideX class="size-3.5"></svg>
@@ -109,7 +109,7 @@
         type="button"
         (click)="setTypeFilter('ALL'); setStatusFilter('ALL')"
         class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shrink-0 cursor-pointer border"
-        [ngClass]="selectedTypeFilter() === 'ALL' && selectedStatusFilter() === 'ALL' ? 'bg-slate-900 text-white border-slate-900 shadow-2xs' : 'bg-slate-50 text-slate-600 border-slate-200/80 hover:bg-slate-100'"
+        [ngClass]="selectedTypeFilter() === 'ALL' && selectedStatusFilter() === 'ALL' ? 'bg-[#FF6B00] text-[#080B0C] font-bold border-[#FF6B00] shadow-sm' : 'bg-[#11161A] text-[#929EAA] border-[#222A2F] hover:bg-[#171D21] hover:text-white'"
       >
         <span>Todos</span>
       </button>
@@ -118,7 +118,7 @@
         type="button"
         (click)="setTypeFilter('CNH')"
         class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shrink-0 cursor-pointer border"
-        [ngClass]="selectedTypeFilter() === 'CNH' ? 'bg-indigo-600 text-white border-indigo-600 shadow-2xs' : 'bg-slate-50 text-slate-600 border-slate-200/80 hover:bg-slate-100'"
+        [ngClass]="selectedTypeFilter() === 'CNH' ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm' : 'bg-[#11161A] text-[#929EAA] border-[#222A2F] hover:bg-[#171D21] hover:text-white'"
       >
         <svg lucideIdCard class="size-3.5"></svg>
         <span>CNH (Motoristas)</span>
@@ -128,7 +128,7 @@
         type="button"
         (click)="setTypeFilter('CRLV')"
         class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shrink-0 cursor-pointer border"
-        [ngClass]="selectedTypeFilter() === 'CRLV' ? 'bg-blue-600 text-white border-blue-600 shadow-2xs' : 'bg-slate-50 text-slate-600 border-slate-200/80 hover:bg-slate-100'"
+        [ngClass]="selectedTypeFilter() === 'CRLV' ? 'bg-blue-600 text-white border-blue-600 shadow-sm' : 'bg-[#11161A] text-[#929EAA] border-[#222A2F] hover:bg-[#171D21] hover:text-white'"
       >
         <svg lucideTruck class="size-3.5"></svg>
         <span>CRLV (Veículos)</span>
@@ -138,7 +138,7 @@
         type="button"
         (click)="setStatusFilter('EXPIRED')"
         class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shrink-0 cursor-pointer border"
-        [ngClass]="selectedStatusFilter() === 'EXPIRED' ? 'bg-rose-600 text-white border-rose-600 shadow-2xs' : 'bg-slate-50 text-slate-600 border-slate-200/80 hover:bg-slate-100'"
+        [ngClass]="selectedStatusFilter() === 'EXPIRED' ? 'bg-rose-600 text-white border-rose-600 shadow-sm' : 'bg-[#11161A] text-[#929EAA] border-[#222A2F] hover:bg-[#171D21] hover:text-white'"
       >
         <span class="size-1.5 rounded-full" [ngClass]="selectedStatusFilter() === 'EXPIRED' ? 'bg-white' : 'bg-rose-500'"></span>
         <span>Apenas Vencidos</span>
@@ -147,31 +147,31 @@
   </div>
 
   <!-- TABELA DE EXPIRAÇÕES -->
-  <div class="bg-white rounded-2xl border border-slate-200/80 shadow-2xs overflow-hidden">
+  <div class="bg-[#0F1215] rounded-2xl border border-[#222A2F] shadow-xs overflow-hidden">
     @if (loading()) {
       <!-- SKELETON TABLE SHIMMER -->
       <div class="p-4 space-y-3 animate-pulse">
-        <div class="h-8 bg-slate-100 rounded-xl"></div>
+        <div class="h-8 bg-[#11161A] rounded-xl"></div>
         @for (i of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]; track i) {
-          <div class="flex items-center justify-between py-3 px-2 border-b border-slate-100">
+          <div class="flex items-center justify-between py-3 px-2 border-b border-[#222A2F]">
             <div class="flex items-center gap-3 w-1/3">
-              <div class="size-8 rounded-full bg-slate-200"></div>
+              <div class="size-8 rounded-full bg-[#171D21]"></div>
               <div class="space-y-1.5 flex-1">
-                <div class="h-4 bg-slate-200 rounded w-32"></div>
-                <div class="h-3 bg-slate-100 rounded w-44"></div>
+                <div class="h-4 bg-[#171D21] rounded w-32"></div>
+                <div class="h-3 bg-[#11161A] rounded w-44"></div>
               </div>
             </div>
-            <div class="h-4 bg-slate-200 rounded w-24"></div>
-            <div class="h-4 bg-slate-200 rounded w-28"></div>
-            <div class="h-6 bg-slate-200 rounded-full w-28"></div>
-            <div class="h-7 bg-slate-100 rounded-lg w-24"></div>
+            <div class="h-4 bg-[#171D21] rounded w-24"></div>
+            <div class="h-4 bg-[#171D21] rounded w-28"></div>
+            <div class="h-6 bg-[#171D21] rounded-full w-28"></div>
+            <div class="h-7 bg-[#11161A] rounded-lg w-24"></div>
           </div>
         }
       </div>
     } @else {
       <div class="overflow-x-auto">
         <table class="w-full text-left text-xs">
-          <thead class="bg-slate-50/80 border-b border-slate-100 text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
+          <thead class="bg-[#11161A] border-b border-[#222A2F] text-[#929EAA] font-bold uppercase tracking-wider text-[11px]">
             <tr>
               <th class="py-3.5 px-4">Tipo & Documento</th>
               <th class="py-3.5 px-4">Titular / Identificação</th>
@@ -180,27 +180,27 @@
               <th class="py-3.5 px-4 text-right">Ação Direta</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-slate-100">
+          <tbody class="divide-y divide-[#222A2F]">
             @for (item of displayedItems(); track item.id) {
-              <tr class="hover:bg-slate-50/80 transition-colors">
+              <tr class="hover:bg-[#171D21] transition-colors">
                 <!-- Tipo -->
                 <td class="py-3.5 px-4">
                   <div class="flex items-center gap-2.5">
                     @if (item.type === 'CNH') {
-                      <div class="size-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-200/60 shrink-0">
+                      <div class="size-8 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center border border-indigo-500/20 shrink-0">
                         <svg lucideIdCard class="size-4"></svg>
                       </div>
                       <div>
-                        <div class="font-bold text-slate-900">Carteira CNH</div>
-                        <div class="text-[11px] text-slate-500 font-mono">{{ item.identifier }}</div>
+                        <div class="font-bold text-white">Carteira CNH</div>
+                        <div class="text-[11px] text-[#62707C] font-mono">{{ item.identifier }}</div>
                       </div>
                     } @else {
-                      <div class="size-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-200/60 shrink-0">
+                      <div class="size-8 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center border border-blue-500/20 shrink-0">
                         <svg lucideTruck class="size-4"></svg>
                       </div>
                       <div>
-                        <div class="font-bold text-slate-900">CRLV Veicular</div>
-                        <div class="text-[11px] text-slate-500 font-mono font-bold">{{ item.identifier }}</div>
+                        <div class="font-bold text-white">CRLV Veicular</div>
+                        <div class="text-[11px] text-[#62707C] font-mono font-bold">{{ item.identifier }}</div>
                       </div>
                     }
                   </div>
@@ -208,14 +208,14 @@
 
                 <!-- Titular / Descrição -->
                 <td class="py-3.5 px-4">
-                  <div class="font-semibold text-slate-900">{{ item.title }}</div>
-                  <div class="text-[11px] text-slate-500">{{ item.categoryOrModel }}</div>
+                  <div class="font-semibold text-white">{{ item.title }}</div>
+                  <div class="text-[11px] text-[#929EAA]">{{ item.categoryOrModel }}</div>
                 </td>
 
                 <!-- Data de Validade -->
-                <td class="py-3.5 px-4 text-slate-700 font-medium">
+                <td class="py-3.5 px-4 text-white font-mono font-medium">
                   <div class="flex items-center gap-1.5">
-                    <svg lucideCalendar class="size-3.5 text-slate-400"></svg>
+                    <svg lucideCalendar class="size-3.5 text-[#62707C]"></svg>
                     <span>{{ item.expirationDate | date:'dd/MM/yyyy' }}</span>
                   </div>
                 </td>
@@ -223,17 +223,17 @@
                 <!-- Prazo / Situação -->
                 <td class="py-3.5 px-4">
                   @if (item.status === 'EXPIRED') {
-                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200 inline-flex items-center gap-1 shadow-2xs">
+                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-500/10 text-rose-400 border border-rose-500/30 inline-flex items-center gap-1 shadow-2xs">
                       <svg lucideAlertTriangle class="size-3"></svg>
                       Vencido há {{ -item.daysRemaining }} dias
                     </span>
                   } @else if (item.status === 'EXPIRING_SOON') {
-                    <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 inline-flex items-center gap-1 shadow-2xs">
+                    <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/30 inline-flex items-center gap-1 shadow-2xs">
                       <svg lucideAlertTriangle class="size-3"></svg>
                       Vence em {{ item.daysRemaining }} dias
                     </span>
                   } @else {
-                    <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 inline-flex items-center gap-1">
+                    <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 inline-flex items-center gap-1">
                       <svg lucideCheckCircle2 class="size-3"></svg>
                       Vence em {{ item.daysRemaining }} dias
                     </span>
@@ -244,25 +244,25 @@
                 <td class="py-3.5 px-4 text-right">
                   <button
                     (click)="navigateTo(item.targetUrl)"
-                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-700 font-semibold rounded-lg text-xs border border-slate-200 transition-colors shadow-2xs cursor-pointer"
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#11161A] hover:bg-[#171D21] text-white font-semibold rounded-lg text-xs border border-[#222A2F] hover:border-[#FF6B00]/40 transition-colors shadow-xs cursor-pointer"
                   >
                     <span>Ver no Módulo</span>
-                    <svg lucideArrowRight class="size-3.5 text-slate-400"></svg>
+                    <svg lucideArrowRight class="size-3.5 text-[#929EAA]"></svg>
                   </button>
                 </td>
               </tr>
             } @empty {
               <tr>
-                <td colspan="5" class="py-12 text-center text-slate-400">
-                  <div class="size-10 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-2">
+                <td colspan="5" class="py-12 text-center text-[#62707C]">
+                  <div class="size-10 rounded-full bg-[#11161A] text-[#62707C] border border-[#222A2F] flex items-center justify-center mx-auto mb-2">
                     <svg lucideClock class="size-5"></svg>
                   </div>
-                  <p class="text-xs font-semibold text-slate-700">Nenhum documento encontrado</p>
-                  <p class="text-[11px] text-slate-400 mt-0.5">Tente ajustar a busca ou os filtros de tipo e status.</p>
+                  <p class="text-xs font-semibold text-white">Nenhum documento encontrado</p>
+                  <p class="text-[11px] text-[#929EAA] mt-0.5">Tente ajustar a busca ou os filtros de tipo e status.</p>
                   @if (searchTerm() || selectedTypeFilter() !== 'ALL' || selectedStatusFilter() !== 'ALL') {
                     <button
                       (click)="clearSearch()"
-                      class="mt-3 text-xs font-semibold text-emerald-600 hover:underline cursor-pointer"
+                      class="mt-3 text-xs font-semibold text-[#FF6B00] hover:underline cursor-pointer"
                     >
                       Limpar filtros
                     </button>
@@ -276,26 +276,26 @@
 
       <!-- BARRA DE PAGINAÇÃO SERVER-SIDE / MAXIMUM 10 -->
       @if (totalItems() > 0) {
-        <div class="px-5 py-3.5 bg-slate-50/90 border-t border-slate-100 flex flex-col md:flex-row items-center justify-between gap-4 text-xs">
+        <div class="px-5 py-3.5 bg-[#0B0E11] border-t border-[#222A2F] flex flex-col md:flex-row items-center justify-between gap-4 text-xs">
           <!-- Resumo de Itens -->
-          <div class="text-slate-500 font-medium">
-            Mostrando <span class="font-bold text-slate-800">{{ startIndex() }}</span> a
-            <span class="font-bold text-slate-800">{{ endIndex() }}</span> de
-            <span class="font-bold text-slate-800">{{ totalItems() | number }}</span> documentos
+          <div class="text-[#929EAA] font-medium">
+            Mostrando <span class="font-bold text-white">{{ startIndex() }}</span> a
+            <span class="font-bold text-white">{{ endIndex() }}</span> de
+            <span class="font-bold text-white">{{ totalItems() | number }}</span> documentos
           </div>
 
           @if (totalItems() > 10) {
             <div class="flex flex-wrap items-center gap-4">
               <!-- Seletor de Limite por Página -->
               <div class="flex items-center gap-2">
-                <span class="text-slate-500 text-[11px]">Itens por página:</span>
-                <div class="inline-flex rounded-lg border border-slate-200 bg-white p-0.5 shadow-2xs">
+                <span class="text-[#929EAA] text-[11px]">Itens por página:</span>
+                <div class="inline-flex rounded-lg border border-[#222A2F] bg-[#11161A] p-0.5 shadow-2xs">
                   @for (size of pageSizeOptions; track size) {
                     <button
                       type="button"
                       (click)="setPageSize(size)"
                       class="px-2.5 py-1 rounded-md text-xs font-semibold transition-all cursor-pointer"
-                      [ngClass]="pageSize() === size ? 'bg-slate-900 text-white shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'"
+                      [ngClass]="pageSize() === size ? 'bg-[#FF6B00] text-[#080B0C] font-bold shadow-xs' : 'text-[#929EAA] hover:text-white hover:bg-[#171D21]'"
                     >
                       {{ size }}
                     </button>
@@ -311,7 +311,7 @@
                   (click)="setPage(1)"
                   [disabled]="currentPage() === 1"
                   title="Primeira página"
-                  class="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:hover:bg-white transition-colors cursor-pointer disabled:cursor-not-allowed shadow-2xs"
+                  class="p-1.5 rounded-lg border border-[#222A2F] bg-[#11161A] text-[#929EAA] hover:text-white hover:bg-[#171D21] disabled:opacity-30 disabled:hover:bg-[#11161A] transition-colors cursor-pointer disabled:cursor-not-allowed shadow-2xs"
                 >
                   <svg lucideChevronsLeft class="size-3.5"></svg>
                 </button>
@@ -322,7 +322,7 @@
                   (click)="prevPage()"
                   [disabled]="currentPage() === 1"
                   title="Página anterior"
-                  class="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:hover:bg-white transition-colors cursor-pointer disabled:cursor-not-allowed shadow-2xs"
+                  class="p-1.5 rounded-lg border border-[#222A2F] bg-[#11161A] text-[#929EAA] hover:text-white hover:bg-[#171D21] disabled:opacity-30 disabled:hover:bg-[#11161A] transition-colors cursor-pointer disabled:cursor-not-allowed shadow-2xs"
                 >
                   <svg lucideChevronLeft class="size-3.5"></svg>
                 </button>
@@ -331,13 +331,13 @@
                 <div class="flex items-center gap-1 px-1">
                   @for (pageNum of pageNumbers(); track $index) {
                     @if (pageNum === '...') {
-                      <span class="px-2 py-1 text-slate-400 text-xs font-mono">...</span>
+                      <span class="px-2 py-1 text-[#62707C] text-xs font-mono">...</span>
                     } @else {
                       <button
                         type="button"
                         (click)="setPage(pageNum)"
                         class="min-w-[30px] h-7.5 px-2 rounded-lg text-xs font-semibold transition-all cursor-pointer"
-                        [ngClass]="currentPage() === pageNum ? 'bg-emerald-600 text-white shadow-2xs' : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-100'"
+                        [ngClass]="currentPage() === pageNum ? 'bg-[#FF6B00] text-[#080B0C] font-bold shadow-xs' : 'bg-[#11161A] text-[#929EAA] border border-[#222A2F] hover:bg-[#171D21] hover:text-white'"
                       >
                         {{ pageNum }}
                       </button>
@@ -351,7 +351,7 @@
                   (click)="nextPage()"
                   [disabled]="currentPage() === totalPages()"
                   title="Próxima página"
-                  class="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:hover:bg-white transition-colors cursor-pointer disabled:cursor-not-allowed shadow-2xs"
+                  class="p-1.5 rounded-lg border border-[#222A2F] bg-[#11161A] text-[#929EAA] hover:text-white hover:bg-[#171D21] disabled:opacity-30 disabled:hover:bg-[#11161A] transition-colors cursor-pointer disabled:cursor-not-allowed shadow-2xs"
                 >
                   <svg lucideChevronRight class="size-3.5"></svg>
                 </button>
@@ -362,7 +362,7 @@
                   (click)="setPage(totalPages())"
                   [disabled]="currentPage() === totalPages()"
                   title="Última página"
-                  class="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:hover:bg-white transition-colors cursor-pointer disabled:cursor-not-allowed shadow-2xs"
+                  class="p-1.5 rounded-lg border border-[#222A2F] bg-[#11161A] text-[#929EAA] hover:text-white hover:bg-[#171D21] disabled:opacity-30 disabled:hover:bg-[#11161A] transition-colors cursor-pointer disabled:cursor-not-allowed shadow-2xs"
                 >
                   <svg lucideChevronsRight class="size-3.5"></svg>
                 </button>

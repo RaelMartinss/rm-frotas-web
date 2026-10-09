@@ -4,34 +4,34 @@
   "description": "Cockpit Mobile e Operacional do Motorista RM Frotas",
   "start_url": "/motorista",
   "display": "standalone",
-  "background_color": "#0f172a",
-  "theme_color": "#0f172a",
+  "background_color": "#080B0C",
+  "theme_color": "#080B0C",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "/favicon-192x192.png?v=4",
+      "src": "/favicon-192x192.png?v=5",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/favicon-512x512.png?v=4",
+      "src": "/favicon-512x512.png?v=5",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/apple-touch-icon.png?v=4",
+      "src": "/apple-touch-icon.png?v=5",
       "sizes": "180x180",
       "type": "image/png"
     },
     {
-      "src": "/favicon-32x32.png?v=4",
+      "src": "/favicon-32x32.png?v=5",
       "sizes": "32x32",
       "type": "image/png"
     },
     {
-      "src": "/favicon.ico?v=4",
+      "src": "/favicon.ico?v=5",
       "sizes": "48x48",
       "type": "image/x-icon"
     }

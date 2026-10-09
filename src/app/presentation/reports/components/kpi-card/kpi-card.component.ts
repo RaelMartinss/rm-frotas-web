@@ -9,20 +9,20 @@ import { CommonModule } from '@angular/common';
     <div
       class="p-5 rounded-2xl border transition-all duration-200 shadow-2xs"
       [ngClass]="{
-        'bg-white border-slate-200/80 text-slate-900': variant() === 'default',
-        'bg-rose-50/70 border-rose-200 text-rose-900': variant() === 'alert',
-        'bg-emerald-50/70 border-emerald-200 text-emerald-900': variant() === 'success',
-        'bg-amber-50/70 border-amber-200 text-amber-900': variant() === 'warning'
+        'bg-[#0F1215] border-[#222A2F] text-white': variant() === 'default',
+        'bg-rose-950/20 border-rose-500/30 text-rose-300': variant() === 'alert',
+        'bg-emerald-950/20 border-emerald-500/30 text-emerald-300': variant() === 'success',
+        'bg-amber-950/20 border-amber-500/30 text-amber-300': variant() === 'warning'
       }"
     >
       <div class="flex items-center justify-between gap-2 mb-2">
         <span
           class="text-[11px] font-bold uppercase tracking-wider"
           [ngClass]="{
-            'text-slate-500': variant() === 'default',
-            'text-rose-700': variant() === 'alert',
-            'text-emerald-700': variant() === 'success',
-            'text-amber-700': variant() === 'warning'
+            'text-[#62707C]': variant() === 'default',
+            'text-rose-400': variant() === 'alert',
+            'text-emerald-400': variant() === 'success',
+            'text-amber-400': variant() === 'warning'
           }"
         >
           {{ label() }}
@@ -31,10 +31,10 @@ import { CommonModule } from '@angular/common';
           <span
             class="text-[10px] font-semibold px-2 py-0.5 rounded-full"
             [ngClass]="{
-              'bg-slate-100 text-slate-600': variant() === 'default',
-              'bg-rose-100 text-rose-700 border border-rose-200': variant() === 'alert',
-              'bg-emerald-100 text-emerald-700 border border-emerald-200': variant() === 'success',
-              'bg-amber-100 text-amber-700 border border-amber-200': variant() === 'warning'
+              'bg-[#171D21] text-[#929EAA] border border-[#222A2F]': variant() === 'default',
+              'bg-rose-500/20 text-rose-300 border border-rose-500/30': variant() === 'alert',
+              'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30': variant() === 'success',
+              'bg-amber-500/20 text-amber-300 border border-amber-500/30': variant() === 'warning'
             }"
           >
             {{ badge() }}
@@ -42,7 +42,7 @@ import { CommonModule } from '@angular/common';
         }
       </div>
 
-      <div class="text-2xl sm:text-3xl font-bold font-mono tracking-tight">
+      <div class="text-2xl sm:text-3xl font-bold font-mono tracking-tight text-white">
         {{ value() }}
       </div>
 
@@ -50,10 +50,10 @@ import { CommonModule } from '@angular/common';
         <p
           class="mt-1 text-xs"
           [ngClass]="{
-            'text-slate-500': variant() === 'default',
-            'text-rose-600': variant() === 'alert',
-            'text-emerald-600': variant() === 'success',
-            'text-amber-600': variant() === 'warning'
+            'text-[#929EAA]': variant() === 'default',
+            'text-rose-400': variant() === 'alert',
+            'text-emerald-400': variant() === 'success',
+            'text-amber-400': variant() === 'warning'
           }"
         >
           {{ subtext() }}

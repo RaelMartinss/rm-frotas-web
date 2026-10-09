@@ -417,23 +417,23 @@ export class ClientListComponent implements OnInit {
 
   formatAuditAction(action: string): { label: string; color: string } {
     const map: Record<string, { label: string; color: string }> = {
-      IMPERSONATION_START: { label: 'Início de Suporte', color: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
-      IMPERSONATION_END: { label: 'Fim de Suporte', color: 'bg-slate-100 text-slate-700 border-slate-200' },
-      IMPERSONATION_EXPIRED: { label: 'Suporte Expirado', color: 'bg-amber-50 text-amber-700 border-amber-200' },
-      VEHICLE_LIST: { label: 'Visualizou Veículos', color: 'bg-blue-50 text-blue-700 border-blue-200' },
-      VEHICLE_VIEW: { label: 'Detalhes de Veículo', color: 'bg-blue-50 text-blue-700 border-blue-200' },
-      DRIVER_LIST: { label: 'Visualizou Motoristas', color: 'bg-indigo-50 text-indigo-700 border-indigo-200' },
-      DRIVER_VIEW: { label: 'Detalhes de Motorista', color: 'bg-indigo-50 text-indigo-700 border-indigo-200' },
-      TRIP_LIST: { label: 'Visualizou Viagens', color: 'bg-purple-50 text-purple-700 border-purple-200' },
-      TRIP_VIEW: { label: 'Detalhes de Viagem', color: 'bg-purple-50 text-purple-700 border-purple-200' },
-      MAINTENANCE_LIST: { label: 'Visualizou Manutenções', color: 'bg-orange-50 text-orange-700 border-orange-200' },
-      MAINTENANCE_VIEW: { label: 'Detalhes de Manutenção', color: 'bg-orange-50 text-orange-700 border-orange-200' },
-      FUEL_LIST: { label: 'Visualizou Abastecimentos', color: 'bg-teal-50 text-teal-700 border-teal-200' },
-      FUEL_VIEW: { label: 'Detalhes de Abastecimento', color: 'bg-teal-50 text-teal-700 border-teal-200' },
-      ODOMETER_VIEW: { label: 'Visualizou Odômetro', color: 'bg-cyan-50 text-cyan-700 border-cyan-200' },
-      DASHBOARD_VIEW: { label: 'Visualizou Dashboard', color: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+      IMPERSONATION_START: { label: 'Início de Suporte', color: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' },
+      IMPERSONATION_END: { label: 'Fim de Suporte', color: 'bg-[#171D21] text-[#929EAA] border-[#222A2F]' },
+      IMPERSONATION_EXPIRED: { label: 'Suporte Expirado', color: 'bg-amber-500/10 text-amber-400 border-amber-500/30' },
+      VEHICLE_LIST: { label: 'Visualizou Veículos', color: 'bg-blue-500/10 text-blue-400 border-blue-500/30' },
+      VEHICLE_VIEW: { label: 'Detalhes de Veículo', color: 'bg-blue-500/10 text-blue-400 border-blue-500/30' },
+      DRIVER_LIST: { label: 'Visualizou Motoristas', color: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/30' },
+      DRIVER_VIEW: { label: 'Detalhes de Motorista', color: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/30' },
+      TRIP_LIST: { label: 'Visualizou Viagens', color: 'bg-purple-500/10 text-purple-400 border-purple-500/30' },
+      TRIP_VIEW: { label: 'Detalhes de Viagem', color: 'bg-purple-500/10 text-purple-400 border-purple-500/30' },
+      MAINTENANCE_LIST: { label: 'Visualizou Manutenções', color: 'bg-[#FF6B00]/10 text-[#FF6B00] border-[#FF6B00]/30' },
+      MAINTENANCE_VIEW: { label: 'Detalhes de Manutenção', color: 'bg-[#FF6B00]/10 text-[#FF6B00] border-[#FF6B00]/30' },
+      FUEL_LIST: { label: 'Visualizou Abastecimentos', color: 'bg-teal-500/10 text-teal-400 border-teal-500/30' },
+      FUEL_VIEW: { label: 'Detalhes de Abastecimento', color: 'bg-teal-500/10 text-teal-400 border-teal-500/30' },
+      ODOMETER_VIEW: { label: 'Visualizou Odômetro', color: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30' },
+      DASHBOARD_VIEW: { label: 'Visualizou Dashboard', color: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' },
     };
 
-    return map[action] || { label: action, color: 'bg-slate-50 text-slate-600 border-slate-200' };
+    return map[action] || { label: action, color: 'bg-[#171D21] text-[#929EAA] border-[#222A2F]' };
   }
 }

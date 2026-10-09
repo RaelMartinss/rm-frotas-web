@@ -17,8 +17,10 @@
       <div class="h-16 flex items-center px-5 border-b border-[#222A2F]">
         <a routerLink="/dashboard" class="flex items-center gap-3 group">
           <img
-            src="/images/rm_logo_hd.png"
+            src="/images/rm_logo_nav.png"
             alt="RM Frotas"
+            width="54"
+            height="28"
             class="h-7 w-auto object-contain transition-transform duration-200 group-hover:scale-105 [filter:hue-rotate(215deg)_saturate(1.2)]"
           />
           <div class="flex flex-col justify-center">
@@ -340,7 +342,7 @@
                   [routerLink]="notif.link"
                   (click)="markNotificationAsRead(notif.id); closeNotifications()"
                   class="p-3.5 flex gap-3 hover:bg-[#171D21] transition-colors cursor-pointer group"
-                  [class.bg-[#171D21]/30]="!notif.read"
+                  [class.bg-white/5]="!notif.read"
                 >
                   <!-- Ícone por categoria e tipo -->
                   <div class="mt-0.5 shrink-0">
@@ -464,19 +466,16 @@
             (click)="executeCommand(item)"
             (mouseenter)="selectedIndex.set(idx)"
             class="flex items-center justify-between p-3 rounded-xl cursor-pointer transition-colors"
-            [class.bg-[#FF6B00]/15]="selectedIndex() === idx"
-            [class.text-[#FF6B00]]="selectedIndex() === idx"
-            [class.hover:bg-[#171D21]]="selectedIndex() !== idx"
+            [ngClass]="selectedIndex() === idx
+              ? 'bg-[#FF6B00]/15 text-[#FF6B00]'
+              : 'hover:bg-[#171D21] text-white'"
           >
             <div class="flex items-center gap-3 min-w-0">
               <div
                 class="size-8 rounded-lg flex items-center justify-center shrink-0 border"
-                [class.bg-[#FF6B00]]="selectedIndex() === idx"
-                [class.text-white]="selectedIndex() === idx"
-                [class.border-[#FF6B00]]="selectedIndex() === idx"
-                [class.bg-[#171D21]]="selectedIndex() !== idx"
-                [class.text-[#929EAA]]="selectedIndex() !== idx"
-                [class.border-[#222A2F]]="selectedIndex() !== idx"
+                [ngClass]="selectedIndex() === idx
+                  ? 'bg-[#FF6B00] text-white border-[#FF6B00]'
+                  : 'bg-[#171D21] text-[#929EAA] border-[#222A2F]'"
               >
                 @if (item.icon === 'dashboard') { <svg lucideLayoutDashboard class="size-4"></svg> }
                 @else if (item.icon === 'truck') { <svg lucideTruck class="size-4"></svg> }
@@ -496,11 +495,11 @@
               </div>
 
               <div class="min-w-0">
-                <p class="text-xs font-bold text-white truncate" [class.text-[#FF6B00]]="selectedIndex() === idx">
+                <p class="text-xs font-bold truncate" [ngClass]="selectedIndex() === idx ? 'text-[#FF6B00]' : 'text-white'">
                   {{ item.title }}
                 </p>
                 @if (item.subtitle) {
-                  <p class="text-[11px] text-slate-500 truncate" [class.text-emerald-700/80]="selectedIndex() === idx">
+                  <p class="text-[11px] truncate" [ngClass]="selectedIndex() === idx ? 'text-[#FF6B00]/70' : 'text-[#8E9DA8]'">
                     {{ item.subtitle }}
                   </p>
                 }

@@ -20,27 +20,27 @@ import {
   ],
   template: `
     @if (isOpen && maintenance) {
-      <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-150">
-        <div class="bg-white rounded-2xl border border-slate-200/90 shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-150">
+      <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-150">
+        <div class="bg-[#0F1215] rounded-2xl border border-[#222A2F] shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-150">
           <div class="p-6 text-center space-y-4">
-            <div class="size-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto border border-amber-200">
+            <div class="size-12 rounded-2xl bg-amber-500/10 text-amber-400 flex items-center justify-center mx-auto border border-amber-500/30">
               <svg lucidePlay class="size-6"></svg>
             </div>
             <div>
-              <h3 class="text-base font-bold text-slate-800">Iniciar Manutenção</h3>
-              <p class="text-xs text-slate-500 mt-1">
-                Deseja colocar esta ordem em andamento? O veículo <strong>{{ maintenance?.vehicle?.plate }}</strong> será marcado como <strong>Em Manutenção</strong> e ficará indisponível para viagens.
+              <h3 class="text-base font-bold text-white">Iniciar Manutenção</h3>
+              <p class="text-xs text-[#8E9DA8] mt-1 leading-relaxed">
+                Deseja colocar esta ordem em andamento? O veículo <strong class="text-white font-mono">{{ maintenance?.vehicle?.plate }}</strong> será marcado como <strong class="text-amber-400">Em Manutenção</strong> e ficará indisponível para viagens.
               </p>
             </div>
 
-            <div class="p-4 bg-slate-50 rounded-xl border border-slate-200/70 text-left space-y-1.5 text-xs">
-              <div><span class="text-slate-400">Tipo:</span> <span class="font-semibold text-slate-700">{{ maintenance?.type }}</span></div>
-              <div><span class="text-slate-400">Descrição:</span> <span class="text-slate-800 font-medium">{{ maintenance?.description }}</span></div>
+            <div class="p-4 bg-[#11161A] rounded-xl border border-[#222A2F] text-left space-y-1.5 text-xs">
+              <div><span class="text-[#8E9DA8]">Tipo:</span> <span class="font-semibold text-white ml-1.5">{{ maintenance?.type }}</span></div>
+              <div><span class="text-[#8E9DA8]">Descrição:</span> <span class="text-white font-medium ml-1.5">{{ maintenance?.description }}</span></div>
             </div>
 
             @if (isVehicleInUse) {
-              <div class="p-3 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-2.5 text-amber-800 text-xs text-left">
-                <svg lucideAlertTriangle class="size-4 text-amber-600 shrink-0 mt-0.5"></svg>
+              <div class="p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl flex items-start gap-2.5 text-amber-300 text-xs text-left">
+                <svg lucideAlertTriangle class="size-4 text-amber-400 shrink-0 mt-0.5"></svg>
                 <div>
                   <strong class="font-semibold block">Veículo em Viagem / Uso</strong>
                   <span>Este veículo está atualmente em viagem. Conclua ou finalize a viagem antes de iniciar a manutenção.</span>
@@ -49,8 +49,8 @@ import {
             }
 
             @if (errorMessage) {
-              <div class="p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-center gap-2 text-rose-800 text-xs text-left">
-                <svg lucideAlertCircle class="size-4 text-rose-600 shrink-0"></svg>
+              <div class="p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl flex items-center gap-2 text-rose-300 text-xs text-left">
+                <svg lucideAlertCircle class="size-4 text-rose-400 shrink-0"></svg>
                 <span>{{ errorMessage }}</span>
               </div>
             }
@@ -60,7 +60,7 @@ import {
                 type="button"
                 (click)="onClose()"
                 [disabled]="isLoading"
-                class="flex-1 py-2.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+                class="flex-1 py-2.5 text-xs font-semibold text-[#8E9DA8] hover:text-white bg-[#171D21] hover:bg-[#222A2F] border border-[#222A2F] rounded-xl transition-colors cursor-pointer"
               >
                 Voltar
               </button>
@@ -69,7 +69,7 @@ import {
                 (click)="onConfirm()"
                 [disabled]="isLoading || isVehicleInUse"
                 [title]="isVehicleInUse ? 'Veículo em viagem: finalize a viagem antes de iniciar a manutenção' : 'Confirmar Início'"
-                class="flex-1 py-2.5 text-xs font-semibold text-white bg-amber-600 hover:bg-amber-700 rounded-xl transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-xs"
+                class="flex-1 py-2.5 text-xs font-bold text-black bg-amber-500 hover:bg-amber-400 rounded-xl transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-xs"
               >
                 @if (isLoading) {
                   <svg lucideLoader2 class="size-4 animate-spin"></svg>

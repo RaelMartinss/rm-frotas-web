@@ -16,12 +16,12 @@ import {
   ],
   template: `
     @if (isOpen && maintenance) {
-      <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-150">
-        <div class="bg-white rounded-2xl border border-slate-200/90 shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-150 flex flex-col max-h-[90vh]">
+      <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-150">
+        <div class="bg-[#0F1215] rounded-2xl border border-[#222A2F] shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-150 flex flex-col max-h-[90vh]">
           <!-- HEADER DO MODAL -->
-          <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 shrink-0">
-            <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
-              <div class="size-7 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center border border-slate-200">
+          <div class="px-6 py-4 border-b border-[#222A2F] flex items-center justify-between bg-[#11161A] shrink-0">
+            <h2 class="text-base font-bold text-white flex items-center gap-2">
+              <div class="size-7 rounded-lg bg-[#FF6B00]/10 text-[#FF6B00] flex items-center justify-center border border-[#FF6B00]/20">
                 <svg lucideWrench class="size-4"></svg>
               </div>
               Detalhes da Manutenção
@@ -29,7 +29,7 @@ import {
             <button
               type="button"
               (click)="onClose()"
-              class="text-slate-400 hover:text-slate-600 p-1 rounded-lg transition-colors cursor-pointer"
+              class="text-[#8E9DA8] hover:text-white hover:bg-[#171D21] p-1.5 rounded-lg transition-colors cursor-pointer"
             >
               <svg lucideX class="size-5"></svg>
             </button>
@@ -37,12 +37,12 @@ import {
 
           <div class="p-6 overflow-y-auto space-y-4">
             <!-- Resumo do Veículo e Status -->
-            <div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-200/80">
+            <div class="flex items-center justify-between p-4 bg-[#11161A] rounded-xl border border-[#222A2F]">
               <div>
-                <div class="font-extrabold text-base text-slate-900">{{ maintenance?.vehicle?.plate }}</div>
-                <div class="text-xs text-slate-500">{{ maintenance?.vehicle?.brand }} {{ maintenance?.vehicle?.model }}</div>
+                <div class="font-extrabold text-base text-white font-mono">{{ maintenance?.vehicle?.plate }}</div>
+                <div class="text-xs text-[#8E9DA8]">{{ maintenance?.vehicle?.brand }} {{ maintenance?.vehicle?.model }}</div>
               </div>
-              <div class="flex flex-col items-end gap-1">
+              <div class="flex flex-col items-end gap-1.5">
                 <span
                   class="px-2.5 py-1 rounded-full text-[10px] font-semibold inline-flex items-center gap-1.5 border"
                   [ngClass]="getStatusClass(maintenance!.status)"
@@ -61,36 +61,36 @@ import {
 
             <!-- Dados Principais -->
             <div class="grid grid-cols-2 gap-3 text-xs">
-              <div class="p-3 bg-white rounded-xl border border-slate-200">
-                <span class="text-[11px] text-slate-400">Oficina / Prestador</span>
-                <div class="font-semibold text-slate-800 mt-0.5">{{ maintenance?.serviceProvider || 'Não informado' }}</div>
+              <div class="p-3 bg-[#11161A] rounded-xl border border-[#222A2F]">
+                <span class="text-[11px] text-[#8E9DA8]">Oficina / Prestador</span>
+                <div class="font-semibold text-white mt-0.5">{{ maintenance?.serviceProvider || 'Não informado' }}</div>
               </div>
-              <div class="p-3 bg-white rounded-xl border border-slate-200">
-                <span class="text-[11px] text-slate-400">Odômetro no Serviço</span>
-                <div class="font-semibold text-slate-800 mt-0.5">
+              <div class="p-3 bg-[#11161A] rounded-xl border border-[#222A2F]">
+                <span class="text-[11px] text-[#8E9DA8]">Odômetro no Serviço</span>
+                <div class="font-semibold text-white mt-0.5 font-mono">
                   {{ (maintenance?.odometerAtService | number) ? (maintenance?.odometerAtService | number) + ' km' : 'Não registrado' }}
                 </div>
               </div>
             </div>
 
             <!-- Descrição -->
-            <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 text-xs">
-              <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Descrição / Motivo</span>
-              <p class="text-slate-800 mt-1 whitespace-pre-wrap">{{ maintenance?.description }}</p>
+            <div class="p-3.5 bg-[#11161A] rounded-xl border border-[#222A2F] text-xs">
+              <span class="text-[11px] font-semibold text-[#8E9DA8] uppercase tracking-wider">Descrição / Motivo</span>
+              <p class="text-white mt-1 whitespace-pre-wrap leading-relaxed">{{ maintenance?.description }}</p>
             </div>
 
             <!-- Peças e Serviços -->
             @if (maintenance?.items && maintenance!.items!.length > 0) {
               <div>
-                <h4 class="text-xs font-bold text-slate-800 mb-2">Itens / Serviços Detalhados</h4>
-                <div class="divide-y divide-slate-100 border border-slate-200 rounded-xl overflow-hidden">
+                <h4 class="text-xs font-bold text-white mb-2">Itens / Serviços Detalhados</h4>
+                <div class="divide-y divide-[#222A2F] border border-[#222A2F] rounded-xl overflow-hidden">
                   @for (item of maintenance!.items!; track item.id || $index) {
-                    <div class="p-2.5 bg-white flex items-center justify-between text-xs">
+                    <div class="p-2.5 bg-[#11161A] flex items-center justify-between text-xs">
                       <div>
-                        <span class="font-medium text-slate-800">{{ item.name }}</span>
-                        <span class="text-slate-400 text-[11px] ml-1.5">({{ item.quantity }}x)</span>
+                        <span class="font-medium text-white">{{ item.name }}</span>
+                        <span class="text-[#8E9DA8] text-[11px] ml-1.5">({{ item.quantity }}x)</span>
                       </div>
-                      <span class="font-semibold text-slate-700">
+                      <span class="font-semibold text-[#CAD2D9] font-mono">
                         {{ (item.cost * (item.quantity || 1)) | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
                       </span>
                     </div>
@@ -100,9 +100,9 @@ import {
             }
 
             <!-- Total -->
-            <div class="p-4 bg-emerald-50/70 rounded-xl border border-emerald-200 flex items-center justify-between">
-              <span class="text-xs font-bold text-emerald-950">Valor Total da Manutenção:</span>
-              <span class="text-lg font-extrabold text-emerald-800">
+            <div class="p-4 bg-[#FF6B00]/10 rounded-xl border border-[#FF6B00]/30 flex items-center justify-between">
+              <span class="text-xs font-bold text-[#FF6B00]">Valor Total da Manutenção:</span>
+              <span class="text-lg font-black text-white font-mono">
                 {{ maintenance?.cost | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
               </span>
             </div>
@@ -111,7 +111,7 @@ import {
               <button
                 type="button"
                 (click)="onClose()"
-                class="px-5 py-2.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer"
+                class="px-5 py-2.5 text-xs font-semibold text-white bg-[#171D21] hover:bg-[#222A2F] border border-[#222A2F] rounded-xl transition-colors cursor-pointer"
               >
                 Fechar
               </button>
@@ -150,15 +150,15 @@ export class MaintenanceDetailsModalComponent {
   getStatusClass(status: MaintenanceStatus): string {
     switch (status) {
       case 'AGENDADA':
-        return 'bg-blue-50 text-blue-700 border-blue-200/80';
+        return 'bg-blue-500/10 text-blue-400 border-blue-500/30';
       case 'EM_ANDAMENTO':
-        return 'bg-amber-50 text-amber-700 border-amber-200/80';
+        return 'bg-amber-500/10 text-amber-400 border-amber-500/30';
       case 'CONCLUIDA':
-        return 'bg-emerald-50 text-emerald-700 border-emerald-200/80';
+        return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30';
       case 'CANCELADA':
-        return 'bg-slate-100 text-slate-600 border-slate-200';
+        return 'bg-rose-500/10 text-rose-400 border-rose-500/30';
       default:
-        return 'bg-slate-50 text-slate-700 border-slate-200';
+        return 'bg-[#171D21] text-[#929EAA] border-[#222A2F]';
     }
   }
 
@@ -171,7 +171,7 @@ export class MaintenanceDetailsModalComponent {
       case 'CONCLUIDA':
         return 'bg-emerald-500';
       case 'CANCELADA':
-        return 'bg-slate-400';
+        return 'bg-rose-500';
       default:
         return 'bg-slate-400';
     }
@@ -183,7 +183,7 @@ export class MaintenanceDetailsModalComponent {
 
   getTypeClass(type: MaintenanceType): string {
     return type === 'PREVENTIVA'
-      ? 'bg-purple-50 text-purple-700 border-purple-200/60'
-      : 'bg-rose-50 text-rose-700 border-rose-200/60';
+      ? 'bg-purple-500/10 text-purple-400 border-purple-500/30'
+      : 'bg-rose-500/10 text-rose-400 border-rose-500/30';
   }
 }

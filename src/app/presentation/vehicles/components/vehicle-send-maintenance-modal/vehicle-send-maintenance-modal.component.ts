@@ -33,15 +33,15 @@ import {
       maxWidth="lg"
       (close)="onClose()"
     >
-      <div header-icon class="size-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-200/60">
+      <div header-icon class="size-7 rounded-lg bg-[#FF6B00]/10 text-[#FF6B00] flex items-center justify-center border border-[#FF6B00]/20 shadow-2xs">
         <svg lucideWrench class="size-4"></svg>
       </div>
 
       <form [formGroup]="sendMaintenanceForm" (ngSubmit)="confirmSendMaintenance()" class="p-6 space-y-4">
         <!-- Veículo Selecionado (Card de Destaque) -->
-        <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80 flex items-center justify-between">
+        <div class="p-3.5 bg-[#11161A] rounded-xl border border-[#222A2F] flex items-center justify-between">
           <div class="flex items-center gap-3">
-            <div class="size-9 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-700 font-mono font-bold text-xs shadow-2xs p-1">
+            <div class="size-9 rounded-lg bg-[#0F1215] border border-[#222A2F] flex items-center justify-center text-white font-mono font-bold text-xs shadow-2xs p-1">
               @if (getBrandLogo(vehicle()?.brand); as logo) {
                 <img [src]="logo" [alt]="vehicle()?.brand ?? ''" class="size-full object-contain" />
               } @else {
@@ -50,11 +50,11 @@ import {
             </div>
             <div>
               <div class="flex items-center gap-2">
-                <span class="font-bold text-slate-900 font-mono text-sm">{{ vehicle()?.plate }}</span>
-                <span class="text-xs text-slate-500 font-medium">• {{ vehicle()?.brand }} {{ vehicle()?.model }}</span>
+                <span class="font-bold text-white font-mono text-sm">{{ vehicle()?.plate }}</span>
+                <span class="text-xs text-[#8E9DA8] font-medium">• {{ vehicle()?.brand }} {{ vehicle()?.model }}</span>
               </div>
-              <div class="text-[11px] text-slate-500 mt-0.5">
-                KM Atual: <span class="font-mono font-semibold text-slate-700">{{ vehicle()?.currentKm | number }} km</span>
+              <div class="text-[11px] text-[#8E9DA8] mt-0.5">
+                KM Atual: <span class="font-mono font-semibold text-white">{{ vehicle()?.currentKm | number }} km</span>
               </div>
             </div>
           </div>
@@ -63,10 +63,10 @@ import {
         <div class="grid grid-cols-2 gap-3">
           <!-- Tipo -->
           <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">Tipo de Manutenção *</label>
+            <label class="block text-xs font-semibold text-[#8E9DA8] mb-1">Tipo de Manutenção *</label>
             <select
               formControlName="type"
-              class="w-full text-xs bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all cursor-pointer"
+              class="w-full text-xs bg-[#11161A] border border-[#222A2F] rounded-xl px-3 py-2.5 text-white focus:outline-hidden focus:border-[#FF6B00] transition-all cursor-pointer [&>option]:bg-[#11161A] [&>option]:text-white"
             >
               <option value="PREVENTIVA">Preventiva (Revisão periódica)</option>
               <option value="CORRETIVA">Corretiva (Reparo de avaria)</option>
@@ -75,56 +75,56 @@ import {
 
           <!-- Data Prevista -->
           <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">Data Prevista</label>
+            <label class="block text-xs font-semibold text-[#8E9DA8] mb-1">Data Prevista</label>
             <input
               type="date"
               formControlName="scheduledDate"
-              class="w-full text-xs bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all"
+              class="w-full text-xs bg-[#11161A] border border-[#222A2F] rounded-xl px-3 py-2.5 text-white focus:outline-hidden focus:border-[#FF6B00] transition-all"
             />
           </div>
         </div>
 
         <!-- Descrição -->
         <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">Descrição do Serviço / Motivo *</label>
+          <label class="block text-xs font-semibold text-[#8E9DA8] mb-1">Descrição do Serviço / Motivo *</label>
           <textarea
             formControlName="description"
             rows="3"
             placeholder="Ex: Troca de óleo, pastilhas de freio, revisão do motor ou reparo emergencial..."
-            class="w-full text-xs bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all"
+            class="w-full text-xs bg-[#11161A] border border-[#222A2F] rounded-xl px-3 py-2 text-white focus:outline-hidden focus:border-[#FF6B00] transition-all placeholder:text-[#62707C]"
           ></textarea>
           @if (sendMaintenanceForm.get('description')?.touched && sendMaintenanceForm.get('description')?.invalid) {
-            <p class="text-[11px] text-rose-600 mt-1">A descrição é obrigatória (mínimo 3 caracteres).</p>
+            <p class="text-[11px] text-rose-400 mt-1">A descrição é obrigatória (mínimo 3 caracteres).</p>
           }
         </div>
 
         <!-- Oficina / Prestador -->
         <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">Oficina / Prestador de Serviço</label>
+          <label class="block text-xs font-semibold text-[#8E9DA8] mb-1">Oficina / Prestador de Serviço</label>
           <input
             type="text"
             formControlName="serviceProvider"
             placeholder="Ex: Auto Mecânica Silva & Irmãos"
-            class="w-full text-xs bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all"
+            class="w-full text-xs bg-[#11161A] border border-[#222A2F] rounded-xl px-3 py-2.5 text-white focus:outline-hidden focus:border-[#FF6B00] transition-all placeholder:text-[#62707C]"
           />
         </div>
 
         <!-- Iniciar Imediatamente -->
-        <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 flex flex-col gap-2">
+        <div class="p-3.5 bg-[#11161A] rounded-xl border border-[#222A2F] flex flex-col gap-2">
           <div class="flex items-center gap-3">
             <input
               type="checkbox"
               id="sendStartImmediately"
               formControlName="startImmediately"
               [disabled]="isInUse()"
-              class="size-4 text-amber-600 rounded border-slate-300 focus:ring-amber-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              class="size-4 text-[#FF6B00] accent-[#FF6B00] rounded border-[#222A2F] focus:ring-[#FF6B00] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             />
-            <label for="sendStartImmediately" class="text-xs text-slate-700 font-medium cursor-pointer" [class.cursor-not-allowed]="isInUse()">
-              Iniciar manutenção imediatamente <span class="text-slate-400 font-normal">(altera status do veículo para "Em Manutenção")</span>
+            <label for="sendStartImmediately" class="text-xs text-[#CAD2D9] font-medium cursor-pointer" [class.cursor-not-allowed]="isInUse()">
+              Iniciar manutenção imediatamente <span class="text-[#62707C] font-normal">(altera status do veículo para "Em Manutenção")</span>
             </label>
           </div>
           @if (isInUse()) {
-            <p class="text-[11px] text-amber-700 flex items-center gap-1.5 pl-7 font-medium">
+            <p class="text-[11px] text-amber-400 flex items-center gap-1.5 pl-7 font-medium">
               <svg lucideAlertTriangle class="size-3.5 shrink-0"></svg>
               <span>Veículo em viagem: só é permitido registrar como agendamento futuro.</span>
             </p>
@@ -132,25 +132,25 @@ import {
         </div>
 
         @if (actionError()) {
-          <div class="p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-center gap-2 text-rose-800 text-xs">
-            <svg lucideAlertCircle class="size-4 text-rose-600 shrink-0"></svg>
+          <div class="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl flex items-center gap-2 text-rose-400 text-xs">
+            <svg lucideAlertCircle class="size-4 text-rose-400 shrink-0"></svg>
             <span>{{ actionError() }}</span>
           </div>
         }
 
-        <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+        <div class="flex items-center justify-end gap-3 pt-3 border-t border-[#222A2F]">
           <button
             type="button"
             (click)="onClose()"
             [disabled]="isActionLoading()"
-            class="px-4 py-2.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+            class="px-4 py-2.5 text-xs font-semibold text-[#8E9DA8] hover:text-white hover:bg-[#171D21] border border-[#222A2F] rounded-xl transition-colors cursor-pointer"
           >
             Cancelar
           </button>
           <button
             type="submit"
             [disabled]="isActionLoading()"
-            class="px-5 py-2.5 text-xs font-semibold text-white bg-amber-600 hover:bg-amber-700 rounded-xl transition-colors flex items-center gap-2 disabled:opacity-50 cursor-pointer shadow-xs"
+            class="px-5 py-2.5 text-xs font-bold text-[#080B0C] bg-[#FF6B00] hover:bg-[#E05D00] rounded-xl transition-colors flex items-center gap-2 disabled:opacity-50 cursor-pointer shadow-xs"
           >
             @if (isActionLoading()) {
               <svg lucideLoader2 class="size-4 animate-spin"></svg>

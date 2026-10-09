@@ -20,37 +20,37 @@ import {
   ],
   template: `
     @if (isOpen && maintenance) {
-      <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-150">
-        <div class="bg-white rounded-2xl border border-slate-200/90 shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-150">
+      <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-150">
+        <div class="bg-[#0F1215] rounded-2xl border border-[#222A2F] shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-150">
           <div class="p-6 text-center space-y-4">
-            <div class="size-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mx-auto border border-rose-200">
+            <div class="size-12 rounded-2xl bg-rose-500/10 text-rose-400 flex items-center justify-center mx-auto border border-rose-500/30">
               <svg lucideBan class="size-6"></svg>
             </div>
             <div>
-              <h3 class="text-base font-bold text-slate-800">Cancelar Manutenção</h3>
-              <p class="text-xs text-slate-500 mt-1">
+              <h3 class="text-base font-bold text-white">Cancelar Manutenção</h3>
+              <p class="text-xs text-[#8E9DA8] mt-1 leading-relaxed">
                 Tem certeza que deseja cancelar esta ordem de serviço?
                 @if (maintenance?.status === 'EM_ANDAMENTO') {
-                  <span>O veículo <strong>{{ maintenance?.vehicle?.plate }}</strong> será liberado e voltará a ficar <strong>Disponível</strong>.</span>
+                  <span> O veículo <strong class="text-white font-mono">{{ maintenance?.vehicle?.plate }}</strong> será liberado e voltará a ficar <strong class="text-emerald-400">Disponível</strong>.</span>
                 }
               </p>
             </div>
 
             <form [formGroup]="form">
               <div class="text-left">
-                <label class="block text-xs font-semibold text-slate-700 mb-1">Motivo do cancelamento (opcional)</label>
+                <label class="block text-xs font-semibold text-[#8E9DA8] mb-1">Motivo do cancelamento (opcional)</label>
                 <input
                   type="text"
                   formControlName="reason"
                   placeholder="Ex: Agendamento remarcado para outro mês..."
-                  class="w-full text-xs bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all"
+                  class="w-full text-xs bg-[#11161A] border border-[#222A2F] rounded-xl px-3 py-2 text-white placeholder:text-[#62707C] focus:outline-none focus:border-rose-500 transition-all"
                 />
               </div>
             </form>
 
             @if (errorMessage) {
-              <div class="p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-center gap-2 text-rose-800 text-xs text-left">
-                <svg lucideAlertCircle class="size-4 text-rose-600 shrink-0"></svg>
+              <div class="p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl flex items-center gap-2 text-rose-300 text-xs text-left">
+                <svg lucideAlertCircle class="size-4 text-rose-400 shrink-0"></svg>
                 <span>{{ errorMessage }}</span>
               </div>
             }
@@ -60,7 +60,7 @@ import {
                 type="button"
                 (click)="onClose()"
                 [disabled]="isLoading"
-                class="flex-1 py-2.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+                class="flex-1 py-2.5 text-xs font-semibold text-[#8E9DA8] hover:text-white bg-[#171D21] hover:bg-[#222A2F] border border-[#222A2F] rounded-xl transition-colors cursor-pointer"
               >
                 Voltar
               </button>

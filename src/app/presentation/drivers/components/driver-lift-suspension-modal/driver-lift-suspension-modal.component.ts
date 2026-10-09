@@ -22,52 +22,52 @@ import { Driver } from '../../../../domain/models/driver.model';
   ],
   template: `
     @if (isOpen() && driver()) {
-      <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-150">
-        <div class="bg-white rounded-2xl border border-slate-200/90 shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-150">
-          <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-emerald-50/50">
-            <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
-              <div class="size-7 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center border border-emerald-200/60">
+      <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-150">
+        <div class="bg-[#0F1215] rounded-2xl border border-[#222A2F] shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-150">
+          <div class="px-6 py-4 border-b border-[#222A2F] flex items-center justify-between bg-[#0B0E11]">
+            <h2 class="text-base font-bold text-white flex items-center gap-2">
+              <div class="size-7 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/20">
                 <svg lucideUserCheck class="size-4"></svg>
               </div>
               Reativar Condutor
             </h2>
-            <button (click)="close.emit()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg transition-colors cursor-pointer">
+            <button (click)="close.emit()" class="text-[#8E9DA8] hover:text-white p-1 rounded-lg transition-colors cursor-pointer">
               <svg lucideX class="size-5"></svg>
             </button>
           </div>
 
           <form [formGroup]="liftForm" (ngSubmit)="onSubmit()" class="p-6 space-y-4">
             @if (errorMessage()) {
-              <div class="p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-center gap-2 text-rose-800 text-xs text-left">
-                <svg lucideAlertCircle class="size-4 text-rose-600 shrink-0"></svg>
+              <div class="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl flex items-center gap-2 text-rose-400 text-xs text-left">
+                <svg lucideAlertCircle class="size-4 text-rose-400 shrink-0"></svg>
                 <span>{{ errorMessage() }}</span>
               </div>
             }
 
-            <div class="p-4 bg-slate-50 rounded-xl border border-slate-200/70 text-left space-y-2 text-xs">
+            <div class="p-4 bg-[#11161A] rounded-xl border border-[#222A2F] text-left space-y-2 text-xs">
               <div class="flex justify-between items-center">
-                <span class="text-slate-500">Motorista:</span>
-                <span class="font-bold text-slate-800">{{ driver()?.name }}</span>
+                <span class="text-[#8E9DA8]">Motorista:</span>
+                <span class="font-bold text-white">{{ driver()?.name }}</span>
               </div>
               <div class="flex justify-between items-center">
-                <span class="text-slate-500">CPF:</span>
-                <span class="font-mono text-slate-700">{{ driver()?.cpf }}</span>
+                <span class="text-[#8E9DA8]">CPF:</span>
+                <span class="font-mono text-white">{{ driver()?.cpf }}</span>
               </div>
               <div class="flex justify-between items-center">
-                <span class="text-slate-500">Status Atual:</span>
-                <span class="font-semibold text-rose-600">Suspenso</span>
+                <span class="text-[#8E9DA8]">Status Atual:</span>
+                <span class="font-semibold text-rose-400">Suspenso</span>
               </div>
             </div>
 
             <div>
-              <label class="block text-xs font-semibold text-slate-700 mb-1">
+              <label class="block text-xs font-semibold text-[#8E9DA8] mb-1">
                 Motivo do Encerramento / Justificativa (Opcional)
               </label>
               <textarea
                 formControlName="liftReason"
                 rows="2"
                 placeholder="Ex: CNH renovada e apresentada, processo concluído..."
-                class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all placeholder:text-slate-400"
+                class="w-full bg-[#11161A] border border-[#222A2F] rounded-xl p-3 text-xs text-white focus:outline-hidden focus:border-[#FF6B00] transition-all placeholder:text-[#8E9DA8]/40"
               ></textarea>
             </div>
 
@@ -76,14 +76,14 @@ import { Driver } from '../../../../domain/models/driver.model';
                 type="button"
                 (click)="close.emit()"
                 [disabled]="isLoading()"
-                class="flex-1 py-2.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+                class="flex-1 py-2.5 text-xs font-semibold text-[#8E9DA8] bg-[#171D21] hover:bg-[#222A2F] hover:text-white rounded-xl border border-[#222A2F] transition-colors cursor-pointer"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
                 [disabled]="isLoading()"
-                class="flex-1 py-2.5 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-colors flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer shadow-xs"
+                class="flex-1 py-2.5 text-xs font-bold text-[#080B0C] bg-[#FF6B00] hover:bg-[#E05D00] rounded-xl transition-colors flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer shadow-xs"
               >
                 @if (isLoading()) {
                   <svg lucideLoader2 class="size-4 animate-spin"></svg>

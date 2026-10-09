@@ -19,26 +19,26 @@ import {
   ],
   template: `
     @if (totalItems() > 0) {
-      <div class="px-5 py-3.5 bg-slate-50/90 border-t border-slate-100 flex flex-col md:flex-row items-center justify-between gap-4 text-xs">
+      <div class="px-5 py-3.5 bg-[#0B0E11] border-t border-[#222A2F] flex flex-col md:flex-row items-center justify-between gap-4 text-xs">
         <!-- Resumo de Itens -->
-        <div class="text-slate-500 font-medium">
-          Mostrando <span class="font-bold text-slate-800">{{ startIndex() }}</span> a
-          <span class="font-bold text-slate-800">{{ endIndex() }}</span> de
-          <span class="font-bold text-slate-800">{{ totalItems() | number }}</span> {{ itemLabel() }}
+        <div class="text-[#929EAA] font-medium">
+          Mostrando <span class="font-bold text-white">{{ startIndex() }}</span> a
+          <span class="font-bold text-white">{{ endIndex() }}</span> de
+          <span class="font-bold text-white">{{ totalItems() | number }}</span> {{ itemLabel() }}
         </div>
 
         @if (totalItems() > 10) {
           <div class="flex flex-wrap items-center gap-4">
             <!-- Seletor de Limite por Página -->
             <div class="flex items-center gap-2">
-              <span class="text-slate-500 text-[11px]">Itens por página:</span>
-              <div class="inline-flex rounded-lg border border-slate-200 bg-white p-0.5 shadow-2xs">
+              <span class="text-[#929EAA] text-[11px]">Itens por página:</span>
+              <div class="inline-flex rounded-lg border border-[#222A2F] bg-[#11161A] p-0.5 shadow-2xs">
                 @for (size of pageSizeOptions(); track size) {
                   <button
                     type="button"
                     (click)="onSelectPageSize(size)"
                     class="px-2.5 py-1 rounded-md text-xs font-semibold transition-all cursor-pointer"
-                    [ngClass]="pageSize() === size ? 'bg-slate-900 text-white shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'"
+                    [ngClass]="pageSize() === size ? 'bg-[#FF6B00] text-[#080B0C] font-bold shadow-xs' : 'text-[#929EAA] hover:text-white hover:bg-[#171D21]'"
                   >
                     {{ size }}
                   </button>
@@ -54,7 +54,7 @@ import {
                 (click)="goToPage(1)"
                 [disabled]="currentPage() === 1"
                 title="Primeira página"
-                class="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:hover:bg-white transition-colors cursor-pointer disabled:cursor-not-allowed shadow-2xs"
+                class="p-1.5 rounded-lg border border-[#222A2F] bg-[#11161A] text-[#929EAA] hover:text-white hover:bg-[#171D21] disabled:opacity-30 disabled:hover:bg-[#11161A] transition-colors cursor-pointer disabled:cursor-not-allowed shadow-2xs"
               >
                 <svg lucideChevronsLeft class="size-3.5"></svg>
               </button>
@@ -65,7 +65,7 @@ import {
                 (click)="goToPage(currentPage() - 1)"
                 [disabled]="currentPage() === 1"
                 title="Página anterior"
-                class="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:hover:bg-white transition-colors cursor-pointer disabled:cursor-not-allowed shadow-2xs"
+                class="p-1.5 rounded-lg border border-[#222A2F] bg-[#11161A] text-[#929EAA] hover:text-white hover:bg-[#171D21] disabled:opacity-30 disabled:hover:bg-[#11161A] transition-colors cursor-pointer disabled:cursor-not-allowed shadow-2xs"
               >
                 <svg lucideChevronLeft class="size-3.5"></svg>
               </button>
@@ -74,13 +74,13 @@ import {
               <div class="flex items-center gap-1 px-1">
                 @for (pageNum of pageNumbers(); track $index) {
                   @if (pageNum === '...') {
-                    <span class="px-2 py-1 text-slate-400 text-xs font-mono">...</span>
+                    <span class="px-2 py-1 text-[#62707C] text-xs font-mono">...</span>
                   } @else {
                     <button
                       type="button"
                       (click)="goToPage(+pageNum)"
                       class="min-w-[30px] h-7.5 px-2 rounded-lg text-xs font-semibold transition-all cursor-pointer"
-                      [ngClass]="currentPage() === +pageNum ? 'bg-emerald-600 text-white shadow-2xs' : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-100'"
+                      [ngClass]="currentPage() === +pageNum ? 'bg-[#FF6B00] text-[#080B0C] font-bold shadow-xs' : 'bg-[#11161A] text-[#929EAA] border border-[#222A2F] hover:bg-[#171D21] hover:text-white'"
                     >
                       {{ pageNum }}
                     </button>
@@ -94,7 +94,7 @@ import {
                 (click)="goToPage(currentPage() + 1)"
                 [disabled]="currentPage() === totalPages()"
                 title="Próxima página"
-                class="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:hover:bg-white transition-colors cursor-pointer disabled:cursor-not-allowed shadow-2xs"
+                class="p-1.5 rounded-lg border border-[#222A2F] bg-[#11161A] text-[#929EAA] hover:text-white hover:bg-[#171D21] disabled:opacity-30 disabled:hover:bg-[#11161A] transition-colors cursor-pointer disabled:cursor-not-allowed shadow-2xs"
               >
                 <svg lucideChevronRight class="size-3.5"></svg>
               </button>
@@ -105,7 +105,7 @@ import {
                 (click)="goToPage(totalPages())"
                 [disabled]="currentPage() === totalPages()"
                 title="Última página"
-                class="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:hover:bg-white transition-colors cursor-pointer disabled:cursor-not-allowed shadow-2xs"
+                class="p-1.5 rounded-lg border border-[#222A2F] bg-[#11161A] text-[#929EAA] hover:text-white hover:bg-[#171D21] disabled:opacity-30 disabled:hover:bg-[#11161A] transition-colors cursor-pointer disabled:cursor-not-allowed shadow-2xs"
               >
                 <svg lucideChevronsRight class="size-3.5"></svg>
               </button>

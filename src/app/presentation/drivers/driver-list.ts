@@ -262,16 +262,16 @@ export class DriverListComponent implements OnInit {
     switch (status) {
       case 'ACTIVE':
       case 'DISPONIVEL':
-        return 'bg-emerald-50 text-emerald-700 border-emerald-200/70';
+        return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30';
       case 'EM_VIAGEM':
-        return 'bg-blue-50 text-blue-700 border-blue-200/70';
+        return 'bg-blue-500/10 text-blue-400 border-blue-500/30';
       case 'INACTIVE':
       case 'FOLGA':
-        return 'bg-slate-100 text-slate-700 border-slate-200';
+        return 'bg-slate-500/10 text-[#929EAA] border-[#222A2F]';
       case 'SUSPENDED':
       case 'AFASTADO':
       default:
-        return 'bg-rose-50 text-rose-700 border-rose-200/70';
+        return 'bg-rose-500/10 text-rose-400 border-rose-500/30';
     }
   }
 

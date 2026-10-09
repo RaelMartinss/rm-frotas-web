@@ -37,18 +37,18 @@ interface ReportCardItem {
   template: `
     <div class="space-y-6 animate-in fade-in duration-200">
       <!-- CABEÇALHO EXECUTIVO -->
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-200/70 pb-5">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-[#222A2F] pb-5">
         <div>
           <div class="flex items-center gap-2 mb-1">
-            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/60">
-              <span class="size-1.5 rounded-full bg-emerald-500"></span>
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+              <span class="size-1.5 rounded-full bg-emerald-400"></span>
               Inteligência de Frota
             </span>
-            <span class="text-xs text-slate-400">•</span>
-            <span class="text-xs text-slate-500 font-medium">Relatórios Analíticos</span>
+            <span class="text-xs text-[#62707C]">•</span>
+            <span class="text-xs text-[#929EAA] font-medium">Relatórios Analíticos</span>
           </div>
-          <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Central de Relatórios</h1>
-          <p class="text-xs sm:text-sm text-slate-500 mt-0.5">
+          <h1 class="text-2xl sm:text-3xl font-black text-white tracking-tight">Central de Relatórios</h1>
+          <p class="text-xs sm:text-sm text-[#929EAA] mt-0.5">
             Métricas de desempenho financeiro, eficiência operacional e auditoria consolidada de custos.
           </p>
         </div>
@@ -61,33 +61,33 @@ interface ReportCardItem {
             <!-- CARD ATIVO -->
             <a
               [routerLink]="report.route"
-              class="group relative bg-white p-6 rounded-2xl border border-slate-200/90 shadow-2xs hover:shadow-md hover:border-emerald-500/50 transition-all duration-200 flex flex-col justify-between cursor-pointer"
+              class="group relative bg-[#0F1215] p-6 rounded-2xl border border-[#222A2F] shadow-2xs hover:shadow-md hover:border-[#FF6B00]/60 transition-all duration-200 flex flex-col justify-between cursor-pointer"
             >
               <div>
                 <div class="flex items-center justify-between gap-3 mb-4">
-                  <div class="size-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100 group-hover:scale-105 transition-transform duration-200 shadow-2xs">
+                  <div class="size-11 rounded-xl bg-[#171D21] text-[#FF6B00] flex items-center justify-center border border-[#222A2F] group-hover:scale-105 transition-transform duration-200 shadow-2xs">
                     @if (report.icon === 'trending') { <svg lucideTrendingUp class="size-5"></svg> }
                     @else if (report.icon === 'fuel') { <svg lucideFuel class="size-5"></svg> }
                     @else if (report.icon === 'wrench') { <svg lucideWrench class="size-5"></svg> }
                     @else { <svg lucideFileSpreadsheet class="size-5"></svg> }
                   </div>
 
-                  <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200/60">
+                  <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/30">
                     Disponível
                   </span>
                 </div>
 
-                <h3 class="text-lg font-bold text-slate-900 group-hover:text-emerald-700 transition-colors">
+                <h3 class="text-lg font-bold text-white group-hover:text-[#FF6B00] transition-colors">
                   {{ report.title }}
                 </h3>
-                <p class="text-xs sm:text-sm text-slate-500 mt-1.5 leading-relaxed">
+                <p class="text-xs sm:text-sm text-[#929EAA] mt-1.5 leading-relaxed">
                   {{ report.description }}
                 </p>
 
                 @if (report.metricsPreview) {
                   <div class="flex flex-wrap gap-1.5 mt-4">
                     @for (m of report.metricsPreview; track m) {
-                      <span class="text-[10px] font-medium bg-slate-50 text-slate-600 border border-slate-200 px-2 py-0.5 rounded-md">
+                      <span class="text-[10px] font-medium bg-[#11161A] text-[#CAD2D9] border border-[#222A2F] px-2 py-0.5 rounded-md">
                         {{ m }}
                       </span>
                     }
@@ -95,40 +95,40 @@ interface ReportCardItem {
                 }
               </div>
 
-              <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-emerald-600 group-hover:text-emerald-700">
+              <div class="mt-6 pt-4 border-t border-[#222A2F] flex items-center justify-between text-xs font-bold text-[#FF6B00] group-hover:text-[#E05D00]">
                 <span>Acessar relatório</span>
                 <svg lucideArrowRight class="size-4 transform group-hover:translate-x-1 transition-transform"></svg>
               </div>
             </a>
           } @else {
             <!-- CARD DESABILITADO (EM BREVE) -->
-            <div class="relative bg-slate-50/70 p-6 rounded-2xl border border-slate-200/60 flex flex-col justify-between opacity-80 select-none">
+            <div class="relative bg-[#0B0E11] p-6 rounded-2xl border border-[#222A2F]/60 flex flex-col justify-between opacity-60 select-none">
               <div>
                 <div class="flex items-center justify-between gap-3 mb-4">
-                  <div class="size-11 rounded-xl bg-slate-100 text-slate-400 flex items-center justify-center border border-slate-200">
+                  <div class="size-11 rounded-xl bg-[#11161A] text-[#62707C] flex items-center justify-center border border-[#222A2F]">
                     @if (report.icon === 'trending') { <svg lucideTrendingUp class="size-5"></svg> }
                     @else if (report.icon === 'fuel') { <svg lucideFuel class="size-5"></svg> }
                     @else if (report.icon === 'wrench') { <svg lucideWrench class="size-5"></svg> }
                     @else { <svg lucideFileSpreadsheet class="size-5"></svg> }
                   </div>
 
-                  <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-500 bg-slate-200/70 px-2.5 py-1 rounded-full border border-slate-300/40">
+                  <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-[#62707C] bg-[#171D21] px-2.5 py-1 rounded-full border border-[#222A2F]">
                     <svg lucideClock class="size-3"></svg>
                     {{ report.badge || 'Em breve' }}
                   </span>
                 </div>
 
-                <h3 class="text-lg font-bold text-slate-700">
+                <h3 class="text-lg font-bold text-[#62707C]">
                   {{ report.title }}
                 </h3>
-                <p class="text-xs sm:text-sm text-slate-500 mt-1.5 leading-relaxed">
+                <p class="text-xs sm:text-sm text-[#62707C] mt-1.5 leading-relaxed">
                   {{ report.description }}
                 </p>
 
                 @if (report.metricsPreview) {
                   <div class="flex flex-wrap gap-1.5 mt-4">
                     @for (m of report.metricsPreview; track m) {
-                      <span class="text-[10px] font-medium bg-slate-100/80 text-slate-400 border border-slate-200/60 px-2 py-0.5 rounded-md">
+                      <span class="text-[10px] font-medium bg-[#11161A] text-[#62707C] border border-[#222A2F]/60 px-2 py-0.5 rounded-md">
                         {{ m }}
                       </span>
                     }
@@ -136,7 +136,7 @@ interface ReportCardItem {
                 }
               </div>
 
-              <div class="mt-6 pt-4 border-t border-slate-200/50 flex items-center justify-between text-xs font-medium text-slate-400">
+              <div class="mt-6 pt-4 border-t border-[#222A2F]/60 flex items-center justify-between text-xs font-medium text-[#62707C]">
                 <span>Disponível em atualizações futuras</span>
                 <span class="text-[11px] font-mono">Slice planejado</span>
               </div>

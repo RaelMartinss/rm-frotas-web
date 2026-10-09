@@ -1,14 +1,14 @@
 <div class="space-y-6">
   <!-- CABEÇALHO DA PÁGINA -->
-  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#222A2F] pb-5">
     <div>
       <div class="flex items-center gap-2.5">
-        <div class="p-2 bg-emerald-500/10 text-emerald-600 rounded-xl border border-emerald-500/20">
+        <div class="p-2 bg-[#FF6B00]/10 text-[#FF6B00] rounded-xl border border-[#FF6B00]/20">
           <svg lucideFuel class="size-6"></svg>
         </div>
         <div>
-          <h1 class="text-xl font-bold text-slate-800 tracking-tight">Central de Abastecimentos</h1>
-          <p class="text-xs text-slate-400">Controle de consumo, eficiência energética (km/l), despesas e histórico da frota</p>
+          <h1 class="text-2xl sm:text-3xl font-bold text-white tracking-tight">Central de Abastecimentos</h1>
+          <p class="text-xs sm:text-sm text-[#929EAA] mt-0.5">Controle de consumo, eficiência energética (km/l), despesas e histórico da frota.</p>
         </div>
       </div>
     </div>
@@ -19,7 +19,7 @@
         <button
           type="button"
           (click)="openCreateModal()"
-          class="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-xl shadow-xs hover:shadow-sm transition-all cursor-pointer"
+          class="inline-flex items-center gap-2 px-4 py-2.5 bg-[#FF6B00] hover:bg-[#E05D00] text-[#080B0C] text-xs font-bold rounded-xl shadow-sm transition-all cursor-pointer"
         >
           <svg lucidePlus class="size-4"></svg>
           <span>Novo Abastecimento</span>
@@ -31,15 +31,15 @@
   <!-- CARDS DE MÉTRICAS (KPIS) -->
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
     <!-- Card 1: Gasto Total -->
-    <div class="p-4 bg-white rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-4">
-      <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl border border-emerald-100">
+    <div class="p-4 bg-[#0F1215] rounded-2xl border border-[#222A2F] shadow-xs flex items-center gap-4">
+      <div class="p-3 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20">
         <svg lucideDollarSign class="size-5"></svg>
       </div>
       <div>
-        <span class="text-[11px] font-medium text-slate-400">Gasto Total</span>
-        <div class="text-lg font-bold text-slate-800 font-mono">
+        <span class="text-[11px] font-medium text-[#929EAA]">Gasto Total</span>
+        <div class="text-lg font-bold text-white font-mono">
           @if (isStatsLoading()) {
-            <span class="text-slate-300 text-sm">Carregando...</span>
+            <span class="text-[#62707C] text-sm">Carregando...</span>
           } @else {
             {{ (stats()?.totalCost ?? 0) | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
           }
@@ -48,15 +48,15 @@
     </div>
 
     <!-- Card 2: Volume Total -->
-    <div class="p-4 bg-white rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-4">
-      <div class="p-3 bg-blue-50 text-blue-600 rounded-xl border border-blue-100">
+    <div class="p-4 bg-[#0F1215] rounded-2xl border border-[#222A2F] shadow-xs flex items-center gap-4">
+      <div class="p-3 bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/20">
         <svg lucideFuel class="size-5"></svg>
       </div>
       <div>
-        <span class="text-[11px] font-medium text-slate-400">Volume Total</span>
-        <div class="text-lg font-bold text-slate-800 font-mono">
+        <span class="text-[11px] font-medium text-[#929EAA]">Volume Total</span>
+        <div class="text-lg font-bold text-white font-mono">
           @if (isStatsLoading()) {
-            <span class="text-slate-300 text-sm">Carregando...</span>
+            <span class="text-[#62707C] text-sm">Carregando...</span>
           } @else {
             {{ (stats()?.totalLiters ?? 0) | number:'1.2-2' }} L
           }
@@ -65,15 +65,15 @@
     </div>
 
     <!-- Card 3: Preço Médio / Litro -->
-    <div class="p-4 bg-white rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-4">
-      <div class="p-3 bg-amber-50 text-amber-600 rounded-xl border border-amber-100">
+    <div class="p-4 bg-[#0F1215] rounded-2xl border border-[#222A2F] shadow-xs flex items-center gap-4">
+      <div class="p-3 bg-amber-500/10 text-amber-400 rounded-xl border border-amber-500/20">
         <svg lucideGauge class="size-5"></svg>
       </div>
       <div>
-        <span class="text-[11px] font-medium text-slate-400">Preço Médio / Litro</span>
-        <div class="text-lg font-bold text-slate-800 font-mono">
+        <span class="text-[11px] font-medium text-[#929EAA]">Preço Médio / Litro</span>
+        <div class="text-lg font-bold text-white font-mono">
           @if (isStatsLoading()) {
-            <span class="text-slate-300 text-sm">Carregando...</span>
+            <span class="text-[#62707C] text-sm">Carregando...</span>
           } @else {
             {{ (stats()?.averagePricePerLiter ?? 0) | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
           }
@@ -82,15 +82,15 @@
     </div>
 
     <!-- Card 4: Total de Registros -->
-    <div class="p-4 bg-white rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-4">
-      <div class="p-3 bg-purple-50 text-purple-600 rounded-xl border border-purple-100">
+    <div class="p-4 bg-[#0F1215] rounded-2xl border border-[#222A2F] shadow-xs flex items-center gap-4">
+      <div class="p-3 bg-purple-500/10 text-purple-400 rounded-xl border border-purple-500/20">
         <svg lucideLayers class="size-5"></svg>
       </div>
       <div>
-        <span class="text-[11px] font-medium text-slate-400">Abastecimentos</span>
-        <div class="text-lg font-bold text-slate-800 font-mono">
+        <span class="text-[11px] font-medium text-[#929EAA]">Abastecimentos</span>
+        <div class="text-lg font-bold text-white font-mono">
           @if (isStatsLoading()) {
-            <span class="text-slate-300 text-sm">Carregando...</span>
+            <span class="text-[#62707C] text-sm">Carregando...</span>
           } @else {
             {{ stats()?.totalRecords ?? 0 }}
           }
@@ -100,17 +100,17 @@
   </div>
 
   <!-- ABAS DE NAVEGAÇÃO -->
-  <div class="flex items-center gap-2 border-b border-slate-200">
+  <div class="flex items-center gap-2 border-b border-[#222A2F]">
     <button
       type="button"
       (click)="setTab('LIST')"
       class="px-4 py-2.5 text-xs font-semibold border-b-2 transition-all cursor-pointer flex items-center gap-2"
-      [ngClass]="activeTab() === 'LIST' ? 'border-emerald-600 text-emerald-700' : 'border-transparent text-slate-500 hover:text-slate-800'"
+      [ngClass]="activeTab() === 'LIST' ? 'border-[#FF6B00] text-white bg-[#171D21] rounded-t-lg' : 'border-transparent text-[#929EAA] hover:text-white'"
     >
       <svg lucideFuel class="size-4"></svg>
       <span>Histórico de Abastecimentos</span>
       @if (totalItems() > 0) {
-        <span class="px-1.5 py-0.5 rounded-full text-[10px] bg-slate-100 text-slate-600 font-mono font-bold">
+        <span class="px-1.5 py-0.5 rounded-full text-[10px] bg-[#11161A] text-[#929EAA] border border-[#222A2F] font-mono font-bold">
           {{ totalItems() }}
         </span>
       }
@@ -121,7 +121,7 @@
         type="button"
         (click)="setTab('REPORT')"
         class="px-4 py-2.5 text-xs font-semibold border-b-2 transition-all cursor-pointer flex items-center gap-2"
-        [ngClass]="activeTab() === 'REPORT' ? 'border-emerald-600 text-emerald-700' : 'border-transparent text-slate-500 hover:text-slate-800'"
+        [ngClass]="activeTab() === 'REPORT' ? 'border-[#FF6B00] text-white bg-[#171D21] rounded-t-lg' : 'border-transparent text-[#929EAA] hover:text-white'"
       >
         <svg lucideBarChart3 class="size-4"></svg>
         <span>Relatório de Eficiência (Km/L)</span>
@@ -132,7 +132,7 @@
   <!-- TAB 1: LISTAGEM E HISTÓRICO -->
   @if (activeTab() === 'LIST') {
     <!-- BARRA DE FILTROS -->
-    <div class="p-4 bg-white rounded-2xl border border-slate-200/80 shadow-xs" [formGroup]="filterForm">
+    <div class="p-4 bg-[#0F1215] rounded-2xl border border-[#222A2F] shadow-xs" [formGroup]="filterForm">
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3 text-xs items-center">
         <!-- Campo de Busca -->
         <div class="relative" [class.xl:col-span-2]="isDriverUser()">
@@ -140,16 +140,16 @@
             type="text"
             formControlName="search"
             placeholder="Buscar por posto, placa, motorista..."
-            class="w-full pl-9 pr-3 py-2 bg-slate-50 rounded-xl border border-slate-200 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+            class="w-full pl-9 pr-3 py-2 bg-[#11161A] rounded-xl border border-[#222A2F] text-white placeholder:text-[#62707C] focus:outline-none focus:border-[#FF6B00]"
           />
-          <svg lucideSearch class="size-4 text-slate-400 absolute left-3 top-2.5"></svg>
+          <svg lucideSearch class="size-4 text-[#62707C] absolute left-3 top-2.5"></svg>
         </div>
 
         <!-- Filtro: Veículo -->
         <div>
           <select
             formControlName="vehicleId"
-            class="w-full px-3 py-2 bg-slate-50 rounded-xl border border-slate-200 text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 cursor-pointer"
+            class="w-full px-3 py-2 bg-[#11161A] rounded-xl border border-[#222A2F] text-white focus:outline-none focus:border-[#FF6B00] cursor-pointer"
           >
             <option value="ALL">Todos os Veículos</option>
             @for (v of vehicles(); track v.id) {
@@ -163,7 +163,7 @@
           <div>
             <select
               formControlName="driverId"
-              class="w-full px-3 py-2 bg-slate-50 rounded-xl border border-slate-200 text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 cursor-pointer"
+              class="w-full px-3 py-2 bg-[#11161A] rounded-xl border border-[#222A2F] text-white focus:outline-none focus:border-[#FF6B00] cursor-pointer"
             >
               <option value="ALL">Todos os Motoristas</option>
               @for (d of drivers(); track d.id) {
@@ -177,7 +177,7 @@
         <div>
           <select
             formControlName="fuelType"
-            class="w-full px-3 py-2 bg-slate-50 rounded-xl border border-slate-200 text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 cursor-pointer"
+            class="w-full px-3 py-2 bg-[#11161A] rounded-xl border border-[#222A2F] text-white focus:outline-none focus:border-[#FF6B00] cursor-pointer"
           >
             <option value="ALL">Todos os Combustíveis</option>
             @for (ft of fuelTypes; track ft.value) {
@@ -190,7 +190,7 @@
         <div>
           <select
             formControlName="fullTank"
-            class="w-full px-3 py-2 bg-slate-50 rounded-xl border border-slate-200 text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 cursor-pointer"
+            class="w-full px-3 py-2 bg-[#11161A] rounded-xl border border-[#222A2F] text-white focus:outline-none focus:border-[#FF6B00] cursor-pointer"
           >
             <option value="ALL">Tanque Cheio: Todos</option>
             <option value="TRUE">Apenas Tanque Cheio (Sim)</option>
@@ -203,8 +203,8 @@
           <button
             type="button"
             (click)="clearFilters()"
-            class="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold border transition-all cursor-pointer shadow-2xs whitespace-nowrap"
-            [ngClass]="hasActiveFilters() ? 'text-rose-600 bg-rose-50 hover:bg-rose-100 border-rose-200/80 active:scale-95' : 'text-slate-500 bg-slate-50 hover:bg-slate-100 hover:text-slate-700 border-slate-200'"
+            class="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold border transition-all cursor-pointer shadow-xs whitespace-nowrap"
+            [ngClass]="hasActiveFilters() ? 'text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 border-rose-500/30 active:scale-95' : 'text-[#929EAA] bg-[#11161A] hover:bg-[#171D21] hover:text-white border-[#222A2F]'"
             title="Limpar todos os filtros"
           >
             <svg lucideRotateCcw class="size-3.5"></svg>
@@ -215,17 +215,17 @@
     </div>
 
     <!-- TABELA DE ABASTECIMENTOS -->
-    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+    <div class="bg-[#0F1215] rounded-2xl border border-[#222A2F] shadow-xs overflow-hidden">
       @if (isLoading()) {
-        <div class="py-20 flex flex-col items-center justify-center gap-3 text-slate-400">
-          <svg lucideLoader2 class="size-7 animate-spin text-emerald-600"></svg>
+        <div class="py-20 flex flex-col items-center justify-center gap-3 text-[#62707C]">
+          <svg lucideLoader2 class="size-7 animate-spin text-[#FF6B00]"></svg>
           <span class="text-xs font-medium">Carregando abastecimentos...</span>
         </div>
       } @else {
         <div class="overflow-x-auto min-h-[340px]">
           <table class="w-full text-left border-collapse">
             <thead>
-              <tr class="border-b border-slate-100 bg-slate-50/75 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+              <tr class="border-b border-[#222A2F] bg-[#11161A] text-[11px] font-bold text-[#929EAA] uppercase tracking-wider">
                 <th class="py-3 px-4">Data / Hora</th>
                 <th class="py-3 px-4">Veículo</th>
                 <th class="py-3 px-4">Motorista</th>
@@ -239,15 +239,15 @@
                 <th class="py-3 px-4 text-right">Ações</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-slate-100 text-xs">
+            <tbody class="divide-y divide-[#222A2F] text-xs">
               @for (r of fuelRecords(); track r.id) {
-                <tr class="hover:bg-slate-50/70 transition-colors">
+                <tr class="hover:bg-[#171D21] transition-colors">
                   <!-- Data -->
-                  <td class="py-3.5 px-4 font-mono text-slate-600 whitespace-nowrap">
+                  <td class="py-3.5 px-4 font-mono text-white whitespace-nowrap">
                     <div class="flex items-center gap-1.5">
                       <span>{{ r.fueledAt | date:'dd/MM/yyyy HH:mm' }}</span>
                       @if (r.receiptUrl) {
-                        <span title="Comprovante anexado" class="p-1 rounded-md bg-emerald-50 text-emerald-600 border border-emerald-200/60 inline-flex">
+                        <span title="Comprovante anexado" class="p-1 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 inline-flex">
                           <svg lucideCamera class="size-3"></svg>
                         </span>
                       }
@@ -256,12 +256,12 @@
 
                   <!-- Veículo -->
                   <td class="py-3.5 px-4">
-                    <div class="font-bold text-slate-800 font-mono">{{ r.vehicle?.plate || '—' }}</div>
-                    <div class="text-[11px] text-slate-400">{{ r.vehicle?.model }}</div>
+                    <div class="font-bold text-white font-mono">{{ r.vehicle?.plate || '—' }}</div>
+                    <div class="text-[11px] text-[#929EAA]">{{ r.vehicle?.model }}</div>
                   </td>
 
                   <!-- Motorista -->
-                  <td class="py-3.5 px-4 text-slate-700 font-medium">
+                  <td class="py-3.5 px-4 text-white font-medium">
                     {{ r.driver?.name || '—' }}
                   </td>
 
@@ -276,39 +276,39 @@
                   </td>
 
                   <!-- Litros -->
-                  <td class="py-3.5 px-4 text-right font-mono font-semibold text-slate-800 whitespace-nowrap">
+                  <td class="py-3.5 px-4 text-right font-mono font-semibold text-white whitespace-nowrap">
                     {{ r.liters | number:'1.2-2' }} L
                   </td>
 
                   <!-- Preço/L -->
-                  <td class="py-3.5 px-4 text-right font-mono text-slate-600 whitespace-nowrap">
+                  <td class="py-3.5 px-4 text-right font-mono text-[#929EAA] whitespace-nowrap">
                     {{ r.pricePerUnit | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
                   </td>
 
                   <!-- Total -->
-                  <td class="py-3.5 px-4 text-right font-mono font-bold text-emerald-700 whitespace-nowrap">
+                  <td class="py-3.5 px-4 text-right font-mono font-bold text-emerald-400 whitespace-nowrap">
                     {{ r.totalCost | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
                   </td>
 
                   <!-- Odômetro -->
-                  <td class="py-3.5 px-4 text-right font-mono text-slate-700 whitespace-nowrap">
+                  <td class="py-3.5 px-4 text-right font-mono text-white whitespace-nowrap">
                     {{ r.odometerAtFueling | number }} km
                   </td>
 
                   <!-- Posto -->
-                  <td class="py-3.5 px-4 text-slate-600 max-w-[150px] truncate" [title]="r.gasStation || ''">
+                  <td class="py-3.5 px-4 text-[#929EAA] max-w-[150px] truncate" [title]="r.gasStation || ''">
                     {{ r.gasStation || 'Não informado' }}
                   </td>
 
                   <!-- Tanque Cheio -->
                   <td class="py-3.5 px-4 text-center">
                     @if (r.fullTank) {
-                      <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
                         <svg lucideCheck class="size-3"></svg>
                         Sim
                       </span>
                     } @else {
-                      <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-100 text-slate-500">
+                      <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-[#11161A] text-[#929EAA] border border-[#222A2F]">
                         Parcial
                       </span>
                     }
@@ -321,10 +321,10 @@
                       <button
                         type="button"
                         (click)="openDetailsModal(r)"
-                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200/90 bg-white text-slate-700 hover:text-slate-900 hover:bg-slate-50 font-semibold text-xs transition-all shadow-2xs cursor-pointer hover:border-slate-300"
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#222A2F] bg-[#11161A] text-white hover:text-white hover:bg-[#171D21] font-semibold text-xs transition-all shadow-xs cursor-pointer hover:border-[#FF6B00]/40"
                         title="Ver Detalhes do Abastecimento"
                       >
-                        <svg lucideEye class="size-3.5 text-slate-500"></svg>
+                        <svg lucideEye class="size-3.5 text-[#929EAA]"></svg>
                         <span>Detalhes</span>
                       </button>
 
@@ -335,7 +335,7 @@
                             type="button"
                             (click)="$event.stopPropagation(); toggleDropdown(r.id)"
                             class="size-8 rounded-xl border transition-all cursor-pointer shadow-2xs flex items-center justify-center"
-                            [ngClass]="activeDropdownRecordId() === r.id ? 'border-slate-900 bg-white ring-2 ring-slate-900/10 text-slate-900 shadow-sm' : 'border-slate-200/90 bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-50 hover:border-slate-300'"
+                            [ngClass]="activeDropdownRecordId() === r.id ? 'border-[#FF6B00] bg-[#171D21] text-[#FF6B00] shadow-sm' : 'border-[#222A2F] bg-[#11161A] text-[#929EAA] hover:text-white hover:bg-[#171D21] hover:border-[#FF6B00]/40'"
                             title="Mais opções"
                             aria-label="Mais opções"
                           >
@@ -346,27 +346,27 @@
                           @if (activeDropdownRecordId() === r.id) {
                             <div
                               (click)="$event.stopPropagation()"
-                              class="absolute right-0 w-44 rounded-2xl bg-white p-1.5 shadow-xl border border-slate-100 ring-1 ring-slate-900/5 z-50 animate-in fade-in zoom-in-95 duration-100 text-left"
+                              class="absolute right-0 w-44 rounded-2xl bg-[#0F1215] p-1.5 shadow-2xl border border-[#222A2F] ring-1 ring-white/5 z-50 animate-in fade-in zoom-in-95 duration-100 text-left"
                               [ngClass]="$index >= fuelRecords().length - 2 && fuelRecords().length > 2 ? 'bottom-full mb-1.5 origin-bottom-right' : 'top-full mt-1.5 origin-top-right'"
                             >
                               <button
                                 type="button"
                                 (click)="openEditModal(r); closeDropdown()"
-                                class="flex items-center gap-2.5 w-full px-3 py-2 text-xs font-semibold text-slate-700 rounded-xl hover:bg-slate-50 hover:text-slate-900 transition-colors cursor-pointer text-left"
+                                class="flex items-center gap-2.5 w-full px-3 py-2 text-xs font-semibold text-[#929EAA] rounded-xl hover:bg-[#171D21] hover:text-white transition-colors cursor-pointer text-left"
                               >
-                                <svg lucideEdit class="size-4 text-blue-500 shrink-0"></svg>
+                                <svg lucideEdit class="size-4 text-blue-400 shrink-0"></svg>
                                 <span>Editar</span>
                               </button>
 
                               @if (!isDriverUser()) {
-                                <div class="my-1 border-t border-slate-100"></div>
+                                <div class="my-1 border-t border-[#222A2F]"></div>
 
                                 <button
                                   type="button"
                                   (click)="openDeleteModal(r); closeDropdown()"
-                                  class="flex items-center gap-2.5 w-full px-3 py-2 text-xs font-semibold text-rose-600 rounded-xl hover:bg-rose-50 transition-colors cursor-pointer text-left"
+                                  class="flex items-center gap-2.5 w-full px-3 py-2 text-xs font-semibold text-rose-400 rounded-xl hover:bg-rose-500/10 transition-colors cursor-pointer text-left"
                                 >
-                                  <svg lucideTrash2 class="size-4 text-rose-500 shrink-0"></svg>
+                                  <svg lucideTrash2 class="size-4 text-rose-400 shrink-0"></svg>
                                   <span>Excluir</span>
                                 </button>
                               }
@@ -379,12 +379,12 @@
                 </tr>
               } @empty {
                 <tr>
-                  <td colspan="11" class="py-16 text-center text-slate-400">
-                    <div class="size-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-2">
+                  <td colspan="11" class="py-16 text-center text-[#62707C]">
+                    <div class="size-12 rounded-2xl bg-[#11161A] text-[#62707C] border border-[#222A2F] flex items-center justify-center mx-auto mb-2">
                       <svg lucideFuel class="size-6"></svg>
                     </div>
-                    <p class="text-xs font-semibold text-slate-700">Nenhum abastecimento encontrado</p>
-                    <p class="text-[11px] text-slate-400 mt-0.5">Tente ajustar os filtros de busca ou cadastre um novo registro.</p>
+                    <p class="text-xs font-semibold text-white">Nenhum abastecimento encontrado</p>
+                    <p class="text-[11px] text-[#929EAA] mt-0.5">Tente ajustar os filtros de busca ou cadastre um novo registro.</p>
                   </td>
                 </tr>
               }

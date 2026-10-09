@@ -10,22 +10,22 @@ import { LucideArrowLeft } from '@lucide/angular';
   template: `
     <div class="space-y-6 animate-in fade-in duration-200">
       <!-- HEADER -->
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-200/70 pb-5">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-[#222A2F] pb-5">
         <div>
           @if (showBackButton()) {
             <a
               [routerLink]="backRoute()"
-              class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-emerald-600 transition-colors mb-2 cursor-pointer"
+              class="inline-flex items-center gap-1.5 text-xs font-semibold text-[#929EAA] hover:text-[#FF6B00] transition-colors mb-2 cursor-pointer"
             >
               <svg lucideArrowLeft class="size-3.5"></svg>
               <span>{{ backLabel() }}</span>
             </a>
           }
-          <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
+          <h1 class="text-2xl sm:text-3xl font-black text-white tracking-tight flex items-center gap-2.5">
             {{ title() }}
           </h1>
           @if (description()) {
-            <p class="text-xs sm:text-sm text-slate-500 mt-1 max-w-3xl">
+            <p class="text-xs sm:text-sm text-[#929EAA] mt-1 max-w-3xl">
               {{ description() }}
             </p>
           }
@@ -37,7 +37,7 @@ import { LucideArrowLeft } from '@lucide/angular';
       </div>
 
       <!-- FILTERS SLOT -->
-      <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-2xs">
+      <div class="bg-[#0F1215] rounded-2xl border border-[#222A2F] p-4 shadow-2xs">
         <ng-content select="[filters]"></ng-content>
       </div>
 

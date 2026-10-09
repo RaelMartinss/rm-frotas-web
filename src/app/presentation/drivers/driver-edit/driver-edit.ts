@@ -288,21 +288,21 @@ export class DriverEditComponent implements OnInit {
     today.setHours(0, 0, 0, 0);
 
     if (exp < today) {
-      return { label: 'CNH VENCIDA', class: 'bg-rose-50 text-rose-700 border-rose-200/80', dotClass: 'bg-rose-500', isExpired: true, isSoon: false };
+      return { label: 'CNH VENCIDA', class: 'bg-rose-950/30 text-rose-400 border-rose-500/30', dotClass: 'bg-rose-500', isExpired: true, isSoon: false };
     }
 
     const diffDays = Math.ceil((exp.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
     if (diffDays <= 30) {
       return {
         label: `VENCE EM ${diffDays} DIAS`,
-        class: 'bg-amber-50 text-amber-700 border-amber-200/80',
+        class: 'bg-amber-950/30 text-amber-400 border-amber-500/30',
         dotClass: 'bg-amber-500',
         isExpired: false,
         isSoon: true,
       };
     }
 
-    return { label: 'CNH VÁLIDA', class: 'bg-emerald-50 text-emerald-700 border-emerald-200/80', dotClass: 'bg-emerald-500', isExpired: false, isSoon: false };
+    return { label: 'CNH VÁLIDA', class: 'bg-emerald-950/30 text-emerald-400 border-emerald-500/30', dotClass: 'bg-emerald-500', isExpired: false, isSoon: false };
   }
 
   get driverStatusLabel(): string {
@@ -329,17 +329,17 @@ export class DriverEditComponent implements OnInit {
     switch (s) {
       case 'ACTIVE':
       case 'DISPONIVEL':
-        return 'bg-emerald-50 text-emerald-700 border-emerald-200/70';
+        return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
       case 'EM_VIAGEM':
-        return 'bg-blue-50 text-blue-700 border-blue-200/70';
+        return 'bg-blue-500/10 text-blue-400 border-blue-500/20';
       case 'INACTIVE':
       case 'FOLGA':
-        return 'bg-slate-100 text-slate-700 border-slate-200';
+        return 'bg-[#171D21] text-[#8E9DA8] border-[#222A2F]';
       case 'SUSPENDED':
       case 'AFASTADO':
-        return 'bg-rose-50 text-rose-700 border-rose-200/70';
+        return 'bg-rose-500/10 text-rose-400 border-rose-500/20';
       default:
-        return 'bg-emerald-50 text-emerald-700 border-emerald-200/70';
+        return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
     }
   }
 
