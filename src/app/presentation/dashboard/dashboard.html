@@ -158,7 +158,7 @@
 
         <div class="mt-4 pt-3 border-t border-[#222A2F]">
           <div class="w-full bg-[#11161A] h-1.5 rounded-full overflow-hidden mb-2">
-            <div class="bg-slate-600 h-full rounded-full w-full"></div>
+            <div class="bg-[#FF6B00] h-full rounded-full w-full"></div>
           </div>
           <div class="flex items-center justify-between text-[11px] text-[#929EAA] font-medium">
             <span>Ativos cadastrados</span>
@@ -170,12 +170,12 @@
       <!-- Card 2: Prontos / Disponíveis -->
       <a
         routerLink="/veiculos"
-        class="bg-[#0F1215] p-5 rounded-2xl border border-[#222A2F] shadow-2xs hover:shadow-xs hover:border-[#FF6B00]/60 transition-all flex flex-col justify-between group cursor-pointer"
+        class="bg-[#0F1215] p-5 rounded-2xl border border-[#222A2F] shadow-2xs hover:shadow-xs hover:border-emerald-500/50 transition-all flex flex-col justify-between group cursor-pointer"
       >
         <div>
           <div class="flex items-center justify-between">
-            <span class="text-xs font-semibold text-[#FF6B00] uppercase tracking-wider">Disponíveis</span>
-            <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-[#FF6B00]/15 text-[#FF6B00] border border-[#FF6B00]/30">
+            <span class="text-xs font-semibold text-emerald-400 uppercase tracking-wider">Disponíveis</span>
+            <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
               {{ summary.kpis.availablePercentage }}%
             </span>
           </div>
@@ -188,7 +188,7 @@
         <div class="mt-4 pt-3 border-t border-[#222A2F]">
           <div class="w-full bg-[#11161A] h-1.5 rounded-full overflow-hidden mb-2">
             <div
-              class="bg-[#FF6B00] h-full rounded-full transition-all duration-500"
+              class="bg-emerald-500 h-full rounded-full transition-all duration-500"
               [style.width.%]="summary.kpis.availablePercentage"
             ></div>
           </div>
@@ -292,7 +292,7 @@
           <div class="grid grid-cols-3 gap-2 mt-4 pt-4 border-t border-[#222A2F] text-center">
             <div class="p-2 rounded-xl bg-[#11161A] border border-[#222A2F]">
               <div class="flex items-center justify-center gap-1.5 text-[11px] text-[#929EAA] font-medium mb-0.5">
-                <span class="size-2 rounded-full bg-[#FF6B00]"></span>
+                <span class="size-2 rounded-full bg-emerald-500"></span>
                 <span>Livres</span>
               </div>
               <span class="text-xs font-bold text-white">{{ summary.kpis.availableVehicles }}</span>
@@ -326,7 +326,7 @@
               <p class="text-[11px] text-[#929EAA]">Volume de saídas e conclusões nos últimos 7 dias</p>
             </div>
             <div class="flex items-center gap-1.5 text-xs text-[#929EAA]">
-              <span class="size-2 rounded-full bg-[#FF6B00]"></span>
+              <span class="size-2 rounded-full bg-emerald-500"></span>
               <span class="text-[11px] font-medium text-[#929EAA]">Semana Atual</span>
             </div>
           </div>

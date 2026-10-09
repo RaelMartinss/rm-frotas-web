@@ -180,8 +180,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
             datasets: [
               {
                 data: total > 0 ? [availableVehicles, inMaintenanceVehicles, unavailableVehicles] : [1, 0, 0],
-                backgroundColor: total > 0 ? ['#FF6B00', '#F59E0B', '#3EBAF4'] : ['#222A2F'],
-                hoverBackgroundColor: total > 0 ? ['#E05D00', '#D97706', '#0284C7'] : ['#323F4B'],
+                backgroundColor: total > 0 ? ['#10B981', '#F59E0B', '#3EBAF4'] : ['#222A2F'],
+                hoverBackgroundColor: total > 0 ? ['#059669', '#D97706', '#0284C7'] : ['#323F4B'],
                 borderWidth: 3,
                 borderColor: '#0F1215',
                 hoverOffset: 4
@@ -238,7 +238,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
               {
                 label: 'Viagens Concluídas',
                 data: completedTrips,
-                backgroundColor: '#FF6B00',
+                backgroundColor: '#10B981',
                 borderRadius: 6,
                 barPercentage: 0.6,
                 categoryPercentage: 0.7
@@ -246,7 +246,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
               {
                 label: 'Em Andamento',
                 data: ongoingTrips,
-                backgroundColor: '#3EBAF4',
+                backgroundColor: '#F59E0B',
                 borderRadius: 6,
                 barPercentage: 0.6,
                 categoryPercentage: 0.7
