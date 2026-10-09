@@ -8,7 +8,7 @@ if (environment.sentryDsn) {
   Sentry.init({
     dsn: environment.sentryDsn,
     environment: environment.production ? 'production' : 'development',
-    release: 'rm-frotas-web@1.0.17',
+    release: 'rm-frotas-web@1.0.35',
   });
 }
 
