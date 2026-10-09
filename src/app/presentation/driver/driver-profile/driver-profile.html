@@ -2,11 +2,11 @@
 
   <!-- TOPO: TÍTULO DA PÁGINA + ENGRENAGEM DE CONFIGURAÇÕES -->
   <div class="flex items-center justify-between pt-1">
-    <h1 class="text-base font-bold text-white tracking-tight">Perfil do Motorista</h1>
+    <h1 class="text-base font-bold text-[#E7EBEE] tracking-tight">Perfil do Motorista</h1>
 
     <a
       routerLink="/motorista/configuracoes"
-      class="size-9 rounded-xl bg-slate-900/80 border border-slate-800 text-slate-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer shadow-xs active:scale-95"
+      class="size-9 rounded-xl bg-[#11161A] border border-[#222A2F] text-[#8E9DA8] hover:text-white flex items-center justify-center transition-colors cursor-pointer shadow-xs active:scale-95"
       title="Configurações da Conta"
     >
       <svg lucideSettings class="size-4.5"></svg>
@@ -15,16 +15,16 @@
 
   <!-- BANNER HERO COM CAMINHÃO PANORÂMICO AO FUNDO -->
   <div
-    class="relative rounded-3xl overflow-hidden border border-slate-800/80 shadow-2xl p-4 sm:p-5"
+    class="relative rounded-3xl overflow-hidden border border-[#222A2F] shadow-2xl p-4 sm:p-5"
     style="background-image: url('images/truck-hero-bg.png'); background-size: cover; background-position: 70% 12%;"
   >
     <!-- Gradiente escurecendo a esquerda para legibilidade perfeita dos textos -->
-    <div class="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/80 to-slate-950/20 pointer-events-none"></div>
+    <div class="absolute inset-0 bg-gradient-to-r from-[#080B0C]/95 via-[#080B0C]/80 to-[#080B0C]/30 pointer-events-none"></div>
 
     <div class="relative z-10 flex items-center gap-4">
-      <!-- Avatar Grande com Ring Verde Esmeralda e Botão de Câmera -->
+      <!-- Avatar Grande com Ring Laranja Industrial e Botão de Câmera -->
       <div class="relative shrink-0">
-        <div class="size-20 sm:size-24 rounded-full ring-2 ring-emerald-500/80 border-2 border-slate-950 shadow-xl overflow-hidden bg-emerald-500/20 text-emerald-400 font-bold text-2xl sm:text-3xl flex items-center justify-center backdrop-blur-md">
+        <div class="size-20 sm:size-24 rounded-full ring-2 ring-[#FF6B00]/80 border-2 border-[#080B0C] shadow-xl overflow-hidden bg-[#FF6B00]/20 text-[#FF6B00] font-bold text-2xl sm:text-3xl flex items-center justify-center backdrop-blur-md">
           @if (driverPhoto()) {
             <img [src]="driverPhoto()" class="w-full h-full object-cover" alt="Foto do motorista" />
           } @else {
@@ -32,8 +32,8 @@
           }
 
           @if (isUploadingPhoto()) {
-            <div class="absolute inset-0 bg-slate-950/80 flex items-center justify-center">
-              <svg lucideLoader2 class="size-6 animate-spin text-emerald-400"></svg>
+            <div class="absolute inset-0 bg-[#080B0C]/80 flex items-center justify-center">
+              <svg lucideLoader2 class="size-6 animate-spin text-[#FF6B00]"></svg>
             </div>
           }
         </div>
@@ -42,7 +42,7 @@
         <button
           type="button"
           (click)="photoOptionsModal.showModal()"
-          class="absolute bottom-0 right-0 size-7.5 rounded-full bg-emerald-500 hover:bg-emerald-400 active:scale-90 text-slate-950 flex items-center justify-center shadow-lg border-2 border-slate-950 transition-all cursor-pointer"
+          class="absolute bottom-0 right-0 size-7.5 rounded-full bg-[#FF6B00] hover:bg-[#FF7A1A] active:scale-90 text-black flex items-center justify-center shadow-lg border-2 border-[#080B0C] transition-all cursor-pointer font-bold"
           title="Alterar foto de perfil"
         >
           <svg lucideCamera class="size-3.5"></svg>
@@ -51,7 +51,7 @@
 
       <!-- Informações do Motorista -->
       <div class="min-w-0 flex-1">
-        <h2 class="text-base sm:text-lg font-bold text-white truncate tracking-tight">
+        <h2 class="text-base sm:text-lg font-bold text-[#E7EBEE] truncate tracking-tight">
           {{ summary()?.driver?.name || currentUser()?.name || 'Motorista' }}
         </h2>
 
@@ -64,79 +64,79 @@
         </div>
 
         <!-- Cargo -->
-        <span class="text-xs text-slate-300 font-medium block mt-1.5 leading-none">
+        <span class="text-xs text-[#8E9DA8] font-medium block mt-1.5 leading-none">
           Motorista
         </span>
       </div>
     </div>
   </div>
 
-  <!-- LINHA DE DADOS DOCUMENTAIS (3 COLUNAS - 100% REAIS DO BANCO) -->
-  <div class="bg-[#0A1020]/90 border border-slate-800/80 rounded-2xl p-3.5 grid grid-cols-3 gap-2 shadow-xs">
+  <!-- LINHA DE DADOS DOCUMENTAIS (3 COLUNAS) -->
+  <div class="bg-[#11161A] border border-[#222A2F] rounded-2xl p-3.5 grid grid-cols-3 gap-2 shadow-xs">
     <!-- 1. CPF -->
     <div class="space-y-1 min-w-0">
-      <div class="flex items-center gap-1.5 text-slate-400">
+      <div class="flex items-center gap-1.5 text-[#8E9DA8]">
         <svg lucideUser class="size-3.5 shrink-0"></svg>
         <span class="text-[10px] font-semibold uppercase tracking-wider">CPF</span>
       </div>
-      <p class="text-xs font-bold text-white font-mono truncate">
+      <p class="text-xs font-bold text-[#E7EBEE] font-mono truncate">
         {{ formatCpf(summary()?.driver?.cpf) }}
       </p>
     </div>
 
     <!-- 2. CNH -->
-    <div class="space-y-1 min-w-0 border-x border-slate-800/80 px-2">
-      <div class="flex items-center gap-1.5 text-slate-400">
+    <div class="space-y-1 min-w-0 border-x border-[#222A2F] px-2">
+      <div class="flex items-center gap-1.5 text-[#8E9DA8]">
         <svg lucideCreditCard class="size-3.5 shrink-0"></svg>
         <span class="text-[10px] font-semibold uppercase tracking-wider">CNH</span>
       </div>
-      <p class="text-xs font-bold text-white font-mono truncate">
+      <p class="text-xs font-bold text-[#E7EBEE] font-mono truncate">
         {{ maskCnh(summary()?.driver?.cnhNumber) }}
       </p>
-      <p class="text-[10px] text-slate-400 font-medium leading-tight truncate">
+      <p class="text-[10px] text-[#8E9DA8] font-medium leading-tight truncate">
         Categoria: {{ summary()?.driver?.cnhCategory || '---' }}
       </p>
     </div>
 
     <!-- 3. Validade CNH -->
     <div class="space-y-1 min-w-0 pl-1">
-      <div class="flex items-center gap-1.5 text-slate-400">
+      <div class="flex items-center gap-1.5 text-[#8E9DA8]">
         <svg lucideCalendar class="size-3.5 shrink-0"></svg>
         <span class="text-[10px] font-semibold uppercase tracking-wider truncate">Validade CNH</span>
       </div>
-      <p class="text-xs font-bold text-white font-mono">
+      <p class="text-xs font-bold text-[#E7EBEE] font-mono">
         {{ (summary()?.driver?.cnhExpirationDateIso || summary()?.driver?.cnhExpirationDate) ? ((summary()?.driver?.cnhExpirationDateIso || summary()?.driver?.cnhExpirationDate) | date:'dd/MM/yyyy') : '---' }}
       </p>
     </div>
   </div>
 
-  <!-- CARDS DE STATUS ATUAL (2 COLUNAS: VEÍCULO ATUAL + ÚLTIMA VIAGEM - DADOS REAIS) -->
+  <!-- CARDS DE STATUS ATUAL -->
   <div class="grid grid-cols-2 gap-2.5">
     <!-- 1. Veículo Atual -->
-    <div class="bg-[#0A1020]/90 border border-slate-800/80 rounded-2xl p-3 flex flex-col justify-between shadow-xs">
+    <div class="bg-[#11161A] border border-[#222A2F] rounded-2xl p-3 flex flex-col justify-between shadow-xs">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-2 min-w-0">
-          <div class="size-8 rounded-xl bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 flex items-center justify-center shrink-0">
+          <div class="size-8 rounded-xl bg-[#FF6B00]/15 text-[#FF6B00] border border-[#FF6B00]/25 flex items-center justify-center shrink-0">
             <svg lucideTruck class="size-4"></svg>
           </div>
-          <span class="text-[11px] text-slate-400 font-medium truncate">Veículo atual</span>
+          <span class="text-[11px] text-[#8E9DA8] font-medium truncate">Veículo atual</span>
         </div>
-        <svg lucideChevronRight class="size-4 text-slate-600 shrink-0"></svg>
+        <svg lucideChevronRight class="size-4 text-[#8E9DA8] shrink-0"></svg>
       </div>
 
       <div class="mt-2.5">
         @if (summary()?.trip?.vehicle; as vehicle) {
-          <span class="text-sm font-black text-white font-mono block leading-none">
+          <span class="text-sm font-black text-[#E7EBEE] font-mono block leading-none">
             {{ vehicle.plate }}
           </span>
-          <span class="text-[10px] text-slate-400 font-medium block mt-1 truncate">
+          <span class="text-[10px] text-[#8E9DA8] font-medium block mt-1 truncate">
             {{ vehicle.model || vehicle.brand || 'Veículo' }}@if (vehicle.currentKm) { • {{ vehicle.currentKm | number }} km }
           </span>
         } @else {
-          <span class="text-xs font-semibold text-slate-400 block leading-tight">
+          <span class="text-xs font-semibold text-[#8E9DA8] block leading-tight">
             Sem veículo
           </span>
-          <span class="text-[10px] text-slate-500 font-medium block mt-1">
+          <span class="text-[10px] text-[#8E9DA8] font-medium block mt-1">
             Aguardando viagem
           </span>
         }
@@ -144,33 +144,33 @@
     </div>
 
     <!-- 2. Última Viagem -->
-    <div class="bg-[#0A1020]/90 border border-slate-800/80 rounded-2xl p-3 flex flex-col justify-between shadow-xs">
+    <div class="bg-[#11161A] border border-[#222A2F] rounded-2xl p-3 flex flex-col justify-between shadow-xs">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-2 min-w-0">
-          <div class="size-8 rounded-xl bg-blue-500/15 text-blue-400 border border-blue-500/25 flex items-center justify-center shrink-0">
+          <div class="size-8 rounded-xl bg-[#1E262B] text-[#CAD2D9] border border-[#222A2F] flex items-center justify-center shrink-0">
             <svg lucideMapPin class="size-4"></svg>
           </div>
-          <span class="text-[11px] text-slate-400 font-medium truncate">Última viagem</span>
+          <span class="text-[11px] text-[#8E9DA8] font-medium truncate">Última viagem</span>
         </div>
-        <svg lucideChevronRight class="size-4 text-slate-600 shrink-0"></svg>
+        <svg lucideChevronRight class="size-4 text-[#8E9DA8] shrink-0"></svg>
       </div>
 
       <div class="mt-2.5">
         @if (summary()?.trip; as trip) {
-          <span class="text-xs font-bold text-white block leading-tight truncate">
+          <span class="text-xs font-bold text-[#E7EBEE] block leading-tight truncate">
             {{ trip.originCity }} ({{ trip.originState }}) ➔ {{ trip.destinationCity }} ({{ trip.destinationState }})
           </span>
           <span class="text-[10px] font-medium block mt-1 truncate">
-            <span class="text-slate-400">{{ (trip.startedAt || trip.scheduledDate || trip.createdAt) | date:'dd/MM HH:mm' }} • </span>
-            <span class="text-emerald-400 font-semibold">
+            <span class="text-[#8E9DA8]">{{ (trip.startedAt || trip.scheduledDate || trip.createdAt) | date:'dd/MM HH:mm' }} • </span>
+            <span class="text-[#FF6B00] font-semibold">
               {{ (trip.status === 'IN_PROGRESS' || trip.status === 'EM_ANDAMENTO') ? 'Em andamento' : 'Concluída' }}
             </span>
           </span>
         } @else {
-          <span class="text-xs font-semibold text-slate-400 block leading-tight">
+          <span class="text-xs font-semibold text-[#8E9DA8] block leading-tight">
             Nenhuma viagem
           </span>
-          <span class="text-[10px] text-slate-500 font-medium block mt-1">
+          <span class="text-[10px] text-[#8E9DA8] font-medium block mt-1">
             Sem rota ativa
           </span>
         }
@@ -178,14 +178,14 @@
     </div>
   </div>
 
-  <!-- SEÇÃO: ESTATÍSTICAS DO MOTORISTA (2 CARDS: ABASTECIMENTOS E VIAGENS - DADOS REAIS DO BANCO) -->
+  <!-- SEÇÃO: ESTATÍSTICAS DO MOTORISTA -->
   <div class="space-y-2">
     <div class="flex items-center justify-between px-0.5">
       <div class="flex items-center gap-2">
-        <svg lucideTrendingUp class="size-4 text-emerald-400"></svg>
-        <h3 class="text-xs font-bold text-white uppercase tracking-wider">Estatísticas do motorista</h3>
+        <svg lucideTrendingUp class="size-4 text-[#FF6B00]"></svg>
+        <h3 class="text-xs font-bold text-[#E7EBEE] uppercase tracking-wider">Estatísticas do motorista</h3>
       </div>
-      <a routerLink="/motorista/historico" class="text-xs font-bold text-blue-400 hover:text-blue-300 inline-flex items-center gap-1 transition-colors">
+      <a routerLink="/motorista/historico" class="text-xs font-bold text-[#FF6B00] hover:text-[#FF7A1A] inline-flex items-center gap-1 transition-colors">
         <span>Ver todas</span>
         <svg lucideArrowRight class="size-3.5"></svg>
       </a>
@@ -193,36 +193,36 @@
 
     <div class="grid grid-cols-2 gap-2.5">
       <!-- 1. Abastecimentos -->
-      <div class="bg-[#0A1020]/90 border border-slate-800/80 rounded-2xl p-3.5 flex flex-col justify-between shadow-xs">
-        <div class="size-8 rounded-xl bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 flex items-center justify-center">
+      <div class="bg-[#11161A] border border-[#222A2F] rounded-2xl p-3.5 flex flex-col justify-between shadow-xs">
+        <div class="size-8 rounded-xl bg-[#FF6B00]/15 text-[#FF6B00] border border-[#FF6B00]/25 flex items-center justify-center">
           <svg lucideFuel class="size-4"></svg>
         </div>
         <div class="mt-2.5">
-          <span class="text-xs text-slate-300 font-medium block leading-tight">
+          <span class="text-xs text-[#CAD2D9] font-medium block leading-tight">
             Abastecimentos
           </span>
-          <span class="text-2xl font-black text-white font-mono leading-none block mt-1">
+          <span class="text-2xl font-black text-[#E7EBEE] font-mono leading-none block mt-1">
             {{ summary()?.monthFuelingsCount ?? 0 }}
           </span>
-          <span class="text-[10px] text-slate-400 font-medium block mt-1">
+          <span class="text-[10px] text-[#8E9DA8] font-medium block mt-1">
             últimos 30 dias
           </span>
         </div>
       </div>
 
       <!-- 2. Viagens -->
-      <div class="bg-[#0A1020]/90 border border-slate-800/80 rounded-2xl p-3.5 flex flex-col justify-between shadow-xs">
-        <div class="size-8 rounded-full bg-blue-500/15 text-blue-400 border border-blue-500/25 flex items-center justify-center">
+      <div class="bg-[#11161A] border border-[#222A2F] rounded-2xl p-3.5 flex flex-col justify-between shadow-xs">
+        <div class="size-8 rounded-full bg-[#1E262B] text-[#CAD2D9] border border-[#222A2F] flex items-center justify-center">
           <svg lucideMapPin class="size-4"></svg>
         </div>
         <div class="mt-2.5">
-          <span class="text-xs text-slate-300 font-medium block leading-tight">
+          <span class="text-xs text-[#CAD2D9] font-medium block leading-tight">
             Viagens
           </span>
-          <span class="text-2xl font-black text-white font-mono leading-none block mt-1">
+          <span class="text-2xl font-black text-[#E7EBEE] font-mono leading-none block mt-1">
             {{ summary()?.recentTripsCount ?? 0 }}
           </span>
-          <span class="text-[10px] text-slate-400 font-medium block mt-1">
+          <span class="text-[10px] text-[#8E9DA8] font-medium block mt-1">
             últimos 30 dias
           </span>
         </div>
@@ -234,11 +234,11 @@
 <!-- ========================================== -->
 <!-- MODAL: OPÇÕES DE FOTO (CÂMERA / GALERIA)   -->
 <!-- ========================================== -->
-<dialog #photoOptionsModal class="backdrop:bg-slate-950/80 bg-transparent p-4 w-full max-w-sm rounded-3xl m-auto shadow-2xl">
-  <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 space-y-4 text-slate-100">
+<dialog #photoOptionsModal class="backdrop:bg-[#080B0C]/80 bg-transparent p-4 w-full max-w-sm rounded-3xl m-auto shadow-2xl">
+  <div class="bg-[#0F1215] border border-[#222A2F] rounded-3xl p-5 space-y-4 text-[#CAD2D9]">
     <div class="flex items-center justify-between">
-      <h3 class="text-sm font-bold text-white">Alterar foto do perfil</h3>
-      <button (click)="photoOptionsModal.close()" class="text-slate-400 hover:text-white p-1">
+      <h3 class="text-sm font-bold text-[#E7EBEE]">Alterar foto do perfil</h3>
+      <button (click)="photoOptionsModal.close()" class="text-[#8E9DA8] hover:text-white p-1">
         <svg lucideX class="size-4"></svg>
       </button>
     </div>
@@ -248,9 +248,9 @@
       <button
         type="button"
         (click)="cameraInput.click(); photoOptionsModal.close()"
-        class="w-full py-3 px-4 bg-slate-800 hover:bg-slate-700 active:scale-98 rounded-xl font-bold text-xs text-white flex items-center gap-3 transition-colors cursor-pointer"
+        class="w-full py-3 px-4 bg-[#1E262B] hover:bg-[#253036] active:scale-98 rounded-xl font-bold text-xs text-[#E7EBEE] flex items-center gap-3 transition-colors cursor-pointer border border-[#222A2F]"
       >
-        <div class="size-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+        <div class="size-8 rounded-lg bg-[#FF6B00]/20 text-[#FF6B00] flex items-center justify-center">
           <svg lucideCamera class="size-4"></svg>
         </div>
         <span>Tirar Foto com a Câmera</span>
@@ -260,9 +260,9 @@
       <button
         type="button"
         (click)="galleryInput.click(); photoOptionsModal.close()"
-        class="w-full py-3 px-4 bg-slate-800 hover:bg-slate-700 active:scale-98 rounded-xl font-bold text-xs text-white flex items-center gap-3 transition-colors cursor-pointer"
+        class="w-full py-3 px-4 bg-[#1E262B] hover:bg-[#253036] active:scale-98 rounded-xl font-bold text-xs text-[#E7EBEE] flex items-center gap-3 transition-colors cursor-pointer border border-[#222A2F]"
       >
-        <div class="size-8 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center">
+        <div class="size-8 rounded-lg bg-[#161B1E] text-[#8E9DA8] flex items-center justify-center">
           <svg lucideCamera class="size-4"></svg>
         </div>
         <span>Escolher da Galeria</span>

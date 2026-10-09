@@ -1,4 +1,4 @@
-<div class="min-h-screen min-h-dvh bg-[#070D18] text-slate-100 flex flex-col font-sans antialiased relative">
+<div class="min-h-screen min-h-dvh bg-[#080B0C] text-[#E7EBEE] flex flex-col font-sans antialiased relative">
 
   @if (shouldShowHeader()) {
     <!-- BANNER PANORÂMICO: CAMINHÃO OCUPA HEADER + CARD DE VIAGEM (topo ~540px) -->
@@ -8,11 +8,11 @@
         style="background-image: url('images/truck-hero-bg.png'); background-position: 70% 10%;"
       ></div>
       <!-- Gradiente inferior: funde suavemente com o fundo escuro -->
-      <div class="absolute inset-0 bg-gradient-to-t from-[#070D18] via-[#070D18]/55 to-transparent"></div>
+      <div class="absolute inset-0 bg-gradient-to-t from-[#080B0C] via-[#080B0C]/55 to-transparent"></div>
       <!-- Gradiente lateral esquerdo: escurece onde ficam os textos -->
-      <div class="absolute inset-0 bg-gradient-to-r from-[#070D18]/75 via-[#070D18]/15 to-transparent"></div>
+      <div class="absolute inset-0 bg-gradient-to-r from-[#080B0C]/75 via-[#080B0C]/15 to-transparent"></div>
       <!-- Gradiente topo: suaviza barra de status do Android -->
-      <div class="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-[#070D18]/55 to-transparent"></div>
+      <div class="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-[#080B0C]/55 to-transparent"></div>
     </div>
 
     <!-- CABEÇALHO DO PERFIL (TRANSPARENTE SOBRE O TRUCK BANNER) -->
@@ -22,8 +22,8 @@
         title="Toque para ver perfil do motorista"
         class="flex items-start gap-3 min-w-0 text-left cursor-pointer hover:opacity-85 active:scale-95 transition-all p-1 -m-1 rounded-2xl"
       >
-        <!-- Avatar do Motorista: foto se houver, ou círculo com iniciais com fundo verde translúcido -->
-        <div class="size-11 rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-base flex items-center justify-center shrink-0 border border-emerald-500/30 shadow-xs backdrop-blur-md overflow-hidden">
+        <!-- Avatar do Motorista: foto se houver, ou círculo com iniciais com fundo laranja translúcido -->
+        <div class="size-11 rounded-full bg-[#FF6B00]/15 text-[#FF6B00] font-bold text-base flex items-center justify-center shrink-0 border border-[#FF6B00]/30 shadow-xs backdrop-blur-md overflow-hidden">
           @if (driverPhoto()) {
             <img [src]="driverPhoto()" class="w-full h-full object-cover" alt="Foto do motorista" />
           } @else {
@@ -37,7 +37,7 @@
           </span>
 
           <!-- Linha 2: Subtítulo simplificado apenas como Motorista -->
-          <span class="text-xs text-emerald-400 font-medium block leading-snug">
+          <span class="text-xs text-[#FF6B00] font-medium block leading-snug">
             Motorista
           </span>
         </div>
@@ -66,7 +66,7 @@
         >
           <svg lucideBell class="size-5"></svg>
           @if (notificationService.unreadCount() > 0) {
-            <span class="absolute top-1 right-1 min-w-4 h-4 px-1 rounded-full bg-rose-500 text-white font-bold text-[10px] flex items-center justify-center leading-none ring-2 ring-[#070D18] shadow-xs">
+            <span class="absolute top-1 right-1 min-w-4 h-4 px-1 rounded-full bg-rose-500 text-white font-bold text-[10px] flex items-center justify-center leading-none ring-2 ring-[#080B0C] shadow-xs">
               {{ notificationService.unreadCount() }}
             </span>
           }
@@ -139,24 +139,23 @@
     [style.transition]="isDragging() ? 'none' : 'height 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.2s ease-out'"
   >
     <div
-      class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900/95 border shadow-xl backdrop-blur-md transition-all duration-200"
+      class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#0F1215]/95 border shadow-xl backdrop-blur-md transition-all duration-200"
       [ngClass]="{
-        'border-slate-800 text-slate-400': !isReadyToRefresh() && !isRefreshing() && !isSuccess(),
-        'border-emerald-500/60 text-emerald-400 shadow-emerald-500/10 scale-105': isReadyToRefresh() || isRefreshing(),
-        'border-emerald-400 text-emerald-300 bg-emerald-950/40 shadow-emerald-500/20 scale-105': isSuccess()
+        'border-[#222A2F] text-[#8E9DA8]': !isReadyToRefresh() && !isRefreshing() && !isSuccess(),
+        'border-[#FF6B00]/60 text-[#FF6B00] shadow-[#FF6B00]/10 scale-105': isReadyToRefresh() || isRefreshing(),
+        'border-[#FF6B00] text-[#FF6B00] bg-[#FF6B00]/10 shadow-[#FF6B00]/20 scale-105': isSuccess()
       }"
     >
       <!-- Ícone Circular com Rotação ou Spinner ou Check -->
       <div
         class="size-5 rounded-full flex items-center justify-center transition-colors"
         [ngClass]="{
-          'text-slate-400': !isReadyToRefresh() && !isRefreshing() && !isSuccess(),
-          'text-emerald-400': isReadyToRefresh() || isRefreshing(),
-          'text-emerald-300': isSuccess()
+          'text-[#8E9DA8]': !isReadyToRefresh() && !isRefreshing() && !isSuccess(),
+          'text-[#FF6B00]': isReadyToRefresh() || isRefreshing() || isSuccess()
         }"
       >
         @if (isSuccess()) {
-          <svg lucideCheck class="size-4 text-emerald-400 animate-in zoom-in-75 duration-200"></svg>
+          <svg lucideCheck class="size-4 text-[#FF6B00] animate-in zoom-in-75 duration-200"></svg>
         } @else {
           <svg
             lucideRefreshCw
@@ -197,18 +196,18 @@
   </main>
 
   <!-- BARRA DE NAVEGAÇÃO INFERIOR MOBILE (THUMB ZONE - 3 ITENS) -->
-  <nav class="fixed bottom-0 inset-x-0 bg-[#070D18]/95 backdrop-blur-md border-t border-slate-800/80 z-30 max-w-lg mx-auto pb-safe-bottom">
+  <nav class="fixed bottom-0 inset-x-0 bg-[#080B0C]/95 backdrop-blur-md border-t border-[#222A2F] z-30 max-w-lg mx-auto pb-safe-bottom">
     <div class="grid grid-cols-3 h-16 px-4">
       <!-- 1. Início -->
       <a
         routerLink="/motorista"
         (click)="closeProfile()"
         class="flex flex-col items-center justify-center gap-0.5 transition-colors cursor-pointer pt-1.5"
-        [ngClass]="isCurrentTab('home') ? 'text-emerald-400 font-bold' : 'text-slate-400 hover:text-white'"
+        [ngClass]="isCurrentTab('home') ? 'text-[#FF6B00] font-bold' : 'text-[#8E9DA8] hover:text-white'"
       >
         <svg lucideHome class="size-5"></svg>
         <span class="text-[11px] leading-tight">Início</span>
-        <span class="h-0.5 w-8 rounded-full mt-0.5 transition-all" [ngClass]="isCurrentTab('home') ? 'bg-emerald-400' : 'bg-transparent'"></span>
+        <span class="h-0.5 w-8 rounded-full mt-0.5 transition-all" [ngClass]="isCurrentTab('home') ? 'bg-[#FF6B00]' : 'bg-transparent'"></span>
       </a>
 
       <!-- 2. Histórico -->
@@ -216,30 +215,30 @@
         routerLink="/motorista/historico"
         (click)="closeProfile()"
         class="flex flex-col items-center justify-center gap-0.5 transition-colors cursor-pointer pt-1.5 relative"
-        [ngClass]="isCurrentTab('history') ? 'text-emerald-400 font-bold' : 'text-slate-400 hover:text-white'"
+        [ngClass]="isCurrentTab('history') ? 'text-[#FF6B00] font-bold' : 'text-[#8E9DA8] hover:text-white'"
       >
         <div class="relative">
           <svg lucideClock class="size-5"></svg>
           @if (pendingReceipts() > 0 || pendingQueueCount() > 0) {
-            <span class="absolute -top-1.5 -right-2 px-1.5 py-0.2 bg-amber-500 text-slate-950 font-black text-[9px] rounded-full border border-slate-900 animate-pulse">
+            <span class="absolute -top-1.5 -right-2 px-1.5 py-0.2 bg-[#FF6B00] text-[#080B0C] font-black text-[9px] rounded-full border border-[#080B0C] animate-pulse">
               {{ pendingReceipts() + pendingQueueCount() }}
             </span>
           }
 
         </div>
         <span class="text-[11px] leading-tight">Histórico</span>
-        <span class="h-0.5 w-8 rounded-full mt-0.5 transition-all" [ngClass]="isCurrentTab('history') ? 'bg-emerald-400' : 'bg-transparent'"></span>
+        <span class="h-0.5 w-8 rounded-full mt-0.5 transition-all" [ngClass]="isCurrentTab('history') ? 'bg-[#FF6B00]' : 'bg-transparent'"></span>
       </a>
 
       <!-- 3. Perfil -->
       <a
         routerLink="/motorista/perfil"
         class="flex flex-col items-center justify-center gap-0.5 transition-colors cursor-pointer pt-1.5"
-        [ngClass]="isCurrentTab('profile') ? 'text-emerald-400 font-bold' : 'text-slate-400 hover:text-white'"
+        [ngClass]="isCurrentTab('profile') ? 'text-[#FF6B00] font-bold' : 'text-[#8E9DA8] hover:text-white'"
       >
         <svg lucideUser class="size-5"></svg>
         <span class="text-[11px] leading-tight">Perfil</span>
-        <span class="h-0.5 w-8 rounded-full mt-0.5 transition-all" [ngClass]="isCurrentTab('profile') ? 'bg-emerald-400' : 'bg-transparent'"></span>
+        <span class="h-0.5 w-8 rounded-full mt-0.5 transition-all" [ngClass]="isCurrentTab('profile') ? 'bg-[#FF6B00]' : 'bg-transparent'"></span>
       </a>
     </div>
   </nav>
@@ -247,22 +246,22 @@
   <!-- MODAL / DRAWER DA CENTRAL DE NOTIFICAÇÕES -->
   @if (notificationService.isPanelOpen()) {
     <div
-      class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-slate-950/80 backdrop-blur-xs p-0 sm:p-4 animate-in fade-in duration-200"
+      class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-[#080B0C]/80 backdrop-blur-xs p-0 sm:p-4 animate-in fade-in duration-200"
       (click)="notificationService.closePanel()"
     >
       <div
-        class="bg-slate-900 border border-slate-800 rounded-t-3xl sm:rounded-3xl max-w-md w-full max-h-[85vh] flex flex-col shadow-2xl relative animate-in slide-in-from-bottom duration-250"
+        class="bg-[#0F1215] border border-[#222A2F] rounded-t-3xl sm:rounded-3xl max-w-md w-full max-h-[85vh] flex flex-col shadow-2xl relative animate-in slide-in-from-bottom duration-250"
         (click)="$event.stopPropagation()"
       >
         <!-- Header da Central de Notificações -->
-        <div class="p-4 border-b border-slate-800 flex items-center justify-between">
+        <div class="p-4 border-b border-[#222A2F] flex items-center justify-between">
           <div class="flex items-center gap-2">
-            <div class="size-8 rounded-xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center">
+            <div class="size-8 rounded-xl bg-[#FF6B00]/15 text-[#FF6B00] flex items-center justify-center">
               <svg lucideBell class="size-4"></svg>
             </div>
             <div>
-              <h3 class="text-xs font-bold text-white">Central de Notificações</h3>
-              <p class="text-[10px] text-slate-400">Avisos e comunicados da frota</p>
+              <h3 class="text-xs font-bold text-[#E7EBEE]">Central de Notificações</h3>
+              <p class="text-[10px] text-[#8E9DA8]">Avisos e comunicados da frota</p>
             </div>
           </div>
 
@@ -271,21 +270,21 @@
               <button
                 (click)="notificationService.markAllAsRead()"
                 title="Marcar todas como lidas"
-                class="p-1.5 text-slate-400 hover:text-emerald-400 hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+                class="p-1.5 text-[#8E9DA8] hover:text-[#FF6B00] hover:bg-[#161B1E] rounded-lg transition-colors cursor-pointer"
               >
                 <svg lucideCheckCheck class="size-4"></svg>
               </button>
               <button
                 (click)="notificationService.clearAll()"
                 title="Limpar todas"
-                class="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+                class="p-1.5 text-[#8E9DA8] hover:text-rose-400 hover:bg-[#161B1E] rounded-lg transition-colors cursor-pointer"
               >
                 <svg lucideTrash2 class="size-4"></svg>
               </button>
             }
             <button
               (click)="notificationService.closePanel()"
-              class="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+              class="p-1.5 text-[#8E9DA8] hover:text-white hover:bg-[#161B1E] rounded-lg transition-colors cursor-pointer"
             >
               <svg lucideX class="size-4"></svg>
             </button>
@@ -293,16 +292,16 @@
         </div>
 
         <!-- Lista de Notificações -->
-        <div class="p-4 space-y-2.5 overflow-y-auto flex-1 divide-y divide-slate-800/60">
+        <div class="p-4 space-y-2.5 overflow-y-auto flex-1 divide-y divide-[#222A2F]/60">
           @for (item of notificationService.notifications(); track item.id) {
             <div
               (click)="notificationService.markAsRead(item.id)"
               class="pt-2.5 first:pt-0 flex items-start gap-3 p-2.5 rounded-xl transition-colors cursor-pointer"
-              [ngClass]="item.read ? 'bg-transparent' : 'bg-slate-800/40 border border-emerald-500/20'"
+              [ngClass]="item.read ? 'bg-transparent' : 'bg-[#161B1E]/60 border border-[#FF6B00]/25'"
             >
               <div
                 class="size-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5"
-                [ngClass]="item.type === 'NEW_TRIP' ? 'bg-emerald-500/20 text-emerald-400' : item.type === 'PENDING_RECEIPT' ? 'bg-amber-500/20 text-amber-400' : 'bg-blue-500/20 text-blue-400'"
+                [ngClass]="item.type === 'NEW_TRIP' ? 'bg-[#FF6B00]/15 text-[#FF6B00]' : item.type === 'PENDING_RECEIPT' ? 'bg-amber-500/15 text-amber-400' : 'bg-blue-500/15 text-blue-400'"
               >
                 @if (item.type === 'NEW_TRIP') {
                   <svg lucideTruck class="size-4"></svg>
@@ -315,23 +314,23 @@
 
               <div class="flex-1 min-w-0">
                 <div class="flex items-center justify-between gap-1">
-                  <p class="text-xs font-bold text-white truncate">{{ item.title }}</p>
-                  <span class="text-[9px] text-slate-400 shrink-0 font-mono">{{ item.timestamp | date:'HH:mm' }}</span>
+                  <p class="text-xs font-bold text-[#E7EBEE] truncate">{{ item.title }}</p>
+                  <span class="text-[9px] text-[#8E9DA8] shrink-0 font-mono">{{ item.timestamp | date:'HH:mm' }}</span>
                 </div>
-                <p class="text-[11px] text-slate-300 mt-0.5 leading-relaxed">{{ item.body }}</p>
+                <p class="text-[11px] text-[#CAD2D9] mt-0.5 leading-relaxed">{{ item.body }}</p>
               </div>
 
               @if (!item.read) {
-                <span class="size-1.5 rounded-full bg-emerald-400 shrink-0 mt-2"></span>
+                <span class="size-1.5 rounded-full bg-[#FF6B00] shrink-0 mt-2"></span>
               }
             </div>
           } @empty {
             <div class="py-12 text-center space-y-2">
-              <div class="size-10 rounded-2xl bg-slate-800 text-slate-400 flex items-center justify-center mx-auto">
+              <div class="size-10 rounded-2xl bg-[#161B1E] text-[#8E9DA8] flex items-center justify-center mx-auto border border-[#222A2F]">
                 <svg lucideBell class="size-5"></svg>
               </div>
-              <p class="text-xs font-bold text-white">Nenhuma notificação</p>
-              <p class="text-[11px] text-slate-400">Você está em dia com todas as suas tarefas.</p>
+              <p class="text-xs font-bold text-[#E7EBEE]">Nenhuma notificação</p>
+              <p class="text-[11px] text-[#8E9DA8]">Você está em dia com todas as suas tarefas.</p>
             </div>
           }
         </div>
@@ -342,39 +341,39 @@
   <!-- MODAL DE ATUALIZAÇÃO NATIVA ALINHADO ÀS CORES DO APP -->
   @if (updateService.hasUpdate() && !updateService.isDismissed()) {
     <div
-      class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/85 backdrop-blur-sm p-4 animate-in fade-in duration-200"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-[#080B0C]/85 backdrop-blur-sm p-4 animate-in fade-in duration-200"
       (click)="updateService.dismiss()"
     >
       <div
-        class="bg-slate-900 border border-slate-800 text-white rounded-3xl p-6 sm:p-7 max-w-sm w-full text-center shadow-2xl relative animate-in zoom-in-95 duration-200"
+        class="bg-[#0F1215] border border-[#222A2F] text-[#E7EBEE] rounded-3xl p-6 sm:p-7 max-w-sm w-full text-center shadow-2xl relative animate-in zoom-in-95 duration-200"
         (click)="$event.stopPropagation()"
       >
         <!-- Botão Fechar -->
         <button
           (click)="updateService.dismiss()"
           title="Fechar"
-          class="absolute top-4 right-4 p-1.5 text-slate-400 hover:text-white rounded-full hover:bg-slate-800 transition-colors cursor-pointer"
+          class="absolute top-4 right-4 p-1.5 text-[#8E9DA8] hover:text-white rounded-full hover:bg-[#161B1E] transition-colors cursor-pointer"
         >
           <svg lucideX class="size-4"></svg>
         </button>
 
         <!-- Ícone do Smartphone com Checkmark no centro -->
-        <div class="size-16 mx-auto mb-4 rounded-2xl bg-emerald-500/15 flex items-center justify-center border border-emerald-500/30 shadow-md">
-          <svg class="size-8 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <div class="size-16 mx-auto mb-4 rounded-2xl bg-[#FF6B00]/15 flex items-center justify-center border border-[#FF6B00]/30 shadow-md">
+          <svg class="size-8 text-[#FF6B00]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect width="14" height="20" x="5" y="2" rx="2" ry="2"/>
             <path d="M12 18h.01"/>
-            <path d="m9 10 2 2 4-4" stroke="#10b981" stroke-width="2.5"/>
+            <path d="m9 10 2 2 4-4" stroke="#FF6B00" stroke-width="2.5"/>
           </svg>
         </div>
 
         <!-- Título -->
-        <h2 class="text-base sm:text-lg font-bold text-white leading-snug mb-2">
+        <h2 class="text-base sm:text-lg font-bold text-[#E7EBEE] leading-snug mb-2">
           Temos uma nova versão do aplicativo para você ;)
         </h2>
 
         <!-- Subtítulo -->
-        <p class="text-xs sm:text-sm text-slate-400 mb-6 leading-relaxed">
-          Se ainda não atualizou, baixe a nova versão <span class="font-bold text-emerald-400">v{{ updateService.latestVersion() }}</span> para continuar aproveitando todos os recursos.
+        <p class="text-xs sm:text-sm text-[#8E9DA8] mb-6 leading-relaxed">
+          Se ainda não atualizou, baixe a nova versão <span class="font-bold text-[#FF6B00]">v{{ updateService.latestVersion() }}</span> para continuar aproveitando todos os recursos.
         </p>
 
         <!-- Mensagem de Erro (se houver) -->
@@ -386,29 +385,29 @@
 
         <!-- Botão ATUALIZAR ou Barra de Progresso de Download -->
         @if (updateService.isDownloading()) {
-          <div class="space-y-3 bg-slate-800/80 p-4 rounded-2xl border border-slate-700/60">
-            <div class="flex items-center justify-between text-xs font-bold text-slate-200">
+          <div class="space-y-3 bg-[#161B1E] p-4 rounded-2xl border border-[#222A2F]">
+            <div class="flex items-center justify-between text-xs font-bold text-[#E7EBEE]">
               <span class="flex items-center gap-1.5">
-                <span class="size-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span class="size-2 rounded-full bg-[#FF6B00] animate-pulse"></span>
                 Baixando atualização...
               </span>
-              <span class="font-mono text-emerald-400 font-bold">{{ updateService.downloadProgress() }}%</span>
+              <span class="font-mono text-[#FF6B00] font-bold">{{ updateService.downloadProgress() }}%</span>
             </div>
-            <div class="w-full bg-slate-700/80 rounded-full h-2.5 overflow-hidden">
+            <div class="w-full bg-[#222A2F] rounded-full h-2.5 overflow-hidden">
               <div
-                class="bg-emerald-500 h-full transition-all duration-150 rounded-full shadow-xs shadow-emerald-500/50"
+                class="bg-[#FF6B00] h-full transition-all duration-150 rounded-full shadow-xs shadow-[#FF6B00]/50"
                 [style.width.%]="updateService.downloadProgress()"
               ></div>
             </div>
-            <p class="text-[11px] text-slate-400 font-medium">
+            <p class="text-[11px] text-[#8E9DA8] font-medium">
               O instalador abrirá automaticamente ao concluir.
             </p>
           </div>
         } @else {
-          <!-- Botão ATUALIZAR no verde esmeralda padrão da RM Frotas -->
+          <!-- Botão ATUALIZAR no Laranja Industrial padrão da RM Frotas -->
           <button
             (click)="updateService.downloadAndInstall()"
-            class="w-full py-3.5 px-6 rounded-2xl bg-emerald-500 hover:bg-emerald-400 active:scale-[0.98] text-slate-950 font-black text-sm tracking-wider uppercase shadow-lg shadow-emerald-500/25 transition-all cursor-pointer flex items-center justify-center gap-2"
+            class="w-full py-3.5 px-6 rounded-2xl bg-[#FF6B00] hover:bg-[#FF7A1A] active:scale-[0.98] text-black font-black text-sm tracking-wider uppercase shadow-lg shadow-[#FF6B00]/25 transition-all cursor-pointer flex items-center justify-center gap-2"
           >
             <svg lucideDownload class="size-4"></svg>
             <span>ATUALIZAR</span>
@@ -418,7 +417,7 @@
         <!-- Lembrar mais tarde -->
         <button
           (click)="updateService.dismiss()"
-          class="mt-3.5 text-xs font-semibold text-slate-400 hover:text-slate-300 transition-colors cursor-pointer block mx-auto"
+          class="mt-3.5 text-xs font-semibold text-[#8E9DA8] hover:text-[#CAD2D9] transition-colors cursor-pointer block mx-auto"
         >
           Lembrar mais tarde
         </button>
@@ -429,28 +428,28 @@
   <!-- MODAL / PAINEL DE INFORMAÇÕES DO MOTORISTA & VERSÃO DO APP -->
   @if (isProfileOpen()) {
     <div
-      class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-slate-950/80 backdrop-blur-xs p-0 sm:p-4 animate-in fade-in duration-200"
+      class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-[#080B0C]/80 backdrop-blur-xs p-0 sm:p-4 animate-in fade-in duration-200"
       (click)="closeProfile()"
     >
       <div
-        class="bg-slate-900 border border-slate-800 rounded-t-3xl sm:rounded-3xl max-w-md w-full max-h-[90vh] flex flex-col shadow-2xl relative animate-in slide-in-from-bottom duration-250"
+        class="bg-[#0F1215] border border-[#222A2F] rounded-t-3xl sm:rounded-3xl max-w-md w-full max-h-[90vh] flex flex-col shadow-2xl relative animate-in slide-in-from-bottom duration-250"
         (click)="$event.stopPropagation()"
       >
         <!-- Header do Painel -->
-        <div class="p-4 border-b border-slate-800 flex items-center justify-between">
+        <div class="p-4 border-b border-[#222A2F] flex items-center justify-between">
           <div class="flex items-center gap-2">
-            <div class="size-8 rounded-xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center font-bold">
+            <div class="size-8 rounded-xl bg-[#FF6B00]/15 text-[#FF6B00] flex items-center justify-center font-bold">
               <svg lucideInfo class="size-4"></svg>
             </div>
             <div>
-              <h3 class="text-xs font-bold text-white">Painel do Motorista</h3>
-              <p class="text-[10px] text-slate-400">Informações da conta e versão instalada</p>
+              <h3 class="text-xs font-bold text-[#E7EBEE]">Painel do Motorista</h3>
+              <p class="text-[10px] text-[#8E9DA8]">Informações da conta e versão instalada</p>
             </div>
           </div>
 
           <button
             (click)="closeProfile()"
-            class="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+            class="p-1.5 text-[#8E9DA8] hover:text-white hover:bg-[#161B1E] rounded-lg transition-colors cursor-pointer"
           >
             <svg lucideX class="size-4"></svg>
           </button>
@@ -459,8 +458,8 @@
         <!-- Conteúdo do Painel -->
         <div class="p-4 space-y-4 overflow-y-auto flex-1">
           <!-- Card de Identificação com Avatar Grande e Upload de Foto -->
-          <div class="flex items-center gap-3.5 bg-slate-800/50 border border-slate-700/60 p-3.5 rounded-2xl">
-            <div class="relative group size-16 rounded-2xl bg-emerald-500 text-slate-950 flex items-center justify-center font-black text-xl shrink-0 shadow-md ring-2 ring-emerald-500/30 overflow-hidden">
+          <div class="flex items-center gap-3.5 bg-[#161B1E] border border-[#222A2F] p-3.5 rounded-2xl">
+            <div class="relative group size-16 rounded-2xl bg-[#FF6B00] text-black flex items-center justify-center font-black text-xl shrink-0 shadow-md ring-2 ring-[#FF6B00]/30 overflow-hidden">
               @if (driverPhoto()) {
                 <img [src]="driverPhoto()" class="w-full h-full object-cover" alt="Foto do perfil" />
               } @else {
@@ -468,14 +467,14 @@
               }
 
               @if (isUploadingPhoto()) {
-                <div class="absolute inset-0 bg-slate-950/70 flex items-center justify-center">
-                  <svg lucideLoader2 class="size-5 animate-spin text-emerald-400"></svg>
+                <div class="absolute inset-0 bg-black/70 flex items-center justify-center">
+                  <svg lucideLoader2 class="size-5 animate-spin text-[#FF6B00]"></svg>
                 </div>
               } @else {
                 <button
                   type="button"
                   (click)="mobileGalleryInput.click()"
-                  class="absolute inset-0 bg-slate-950/65 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center gap-0.5 transition-opacity cursor-pointer text-white backdrop-blur-xs"
+                  class="absolute inset-0 bg-black/65 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center gap-0.5 transition-opacity cursor-pointer text-white backdrop-blur-xs"
                   title="Alterar foto (Galeria ou Câmera)"
                 >
                   <svg lucideImage class="size-4"></svg>
@@ -505,30 +504,30 @@
 
             <div class="min-w-0 flex-1">
               <div class="flex items-center gap-1.5">
-                <h4 class="text-sm font-bold text-white truncate">{{ driverDisplayName() }}</h4>
+                <h4 class="text-sm font-bold text-[#E7EBEE] truncate">{{ driverDisplayName() }}</h4>
                 <span class="size-2 rounded-full bg-emerald-400 shrink-0"></span>
               </div>
-              <p class="text-xs text-emerald-400 font-medium truncate">{{ currentUser()?.clientName || 'RM Frotas Matriz' }}</p>
+              <p class="text-xs text-[#FF6B00] font-medium truncate">{{ currentUser()?.clientName || 'RM Frotas Matriz' }}</p>
 
               <!-- Ações de Foto: Câmera vs Galeria vs Remover -->
               <div class="flex items-center gap-2 mt-2 flex-wrap">
                 <button
                   type="button"
                   (click)="mobileCameraInput.click()"
-                  class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-950/70 hover:bg-emerald-900/80 text-emerald-300 border border-emerald-700/50 text-[11px] font-semibold transition-colors cursor-pointer"
+                  class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#FF6B00]/15 hover:bg-[#FF6B00]/25 text-[#FF6B00] border border-[#FF6B00]/30 text-[11px] font-semibold transition-colors cursor-pointer"
                   title="Tirar foto com a câmera"
                 >
-                  <svg lucideCamera class="size-3 text-emerald-400"></svg>
+                  <svg lucideCamera class="size-3 text-[#FF6B00]"></svg>
                   <span>Câmera</span>
                 </button>
 
                 <button
                   type="button"
                   (click)="mobileGalleryInput.click()"
-                  class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-[11px] font-semibold transition-colors cursor-pointer"
+                  class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#1E262B] hover:bg-[#253036] text-[#CAD2D9] border border-[#222A2F] text-[11px] font-semibold transition-colors cursor-pointer"
                   title="Escolher foto salva na galeria"
                 >
-                  <svg lucideImage class="size-3 text-slate-300"></svg>
+                  <svg lucideImage class="size-3 text-[#8E9DA8]"></svg>
                   <span>Galeria</span>
                 </button>
 
@@ -549,13 +548,13 @@
 
           <!-- Detalhes do Usuário -->
           <div class="space-y-2 text-xs">
-            <div class="bg-slate-800/30 border border-slate-800 px-3.5 py-2.5 rounded-xl flex items-center justify-between">
-              <span class="text-slate-400 text-[11px]">E-mail</span>
-              <span class="text-white font-medium text-[11px] truncate max-w-[200px]">{{ currentUser()?.email }}</span>
+            <div class="bg-[#161B1E]/60 border border-[#222A2F] px-3.5 py-2.5 rounded-xl flex items-center justify-between">
+              <span class="text-[#8E9DA8] text-[11px]">E-mail</span>
+              <span class="text-[#E7EBEE] font-medium text-[11px] truncate max-w-[200px]">{{ currentUser()?.email }}</span>
             </div>
 
-            <div class="bg-slate-800/30 border border-slate-800 px-3.5 py-2.5 rounded-xl flex items-center justify-between">
-              <span class="text-slate-400 text-[11px]">Status da Conexão</span>
+            <div class="bg-[#161B1E]/60 border border-[#222A2F] px-3.5 py-2.5 rounded-xl flex items-center justify-between">
+              <span class="text-[#8E9DA8] text-[11px]">Status da Conexão</span>
               @if (isOnline()) {
                 <span class="text-emerald-400 font-semibold text-[11px] flex items-center gap-1">
                   <span class="size-1.5 rounded-full bg-emerald-400"></span> Online
@@ -567,37 +566,37 @@
               }
             </div>
 
-            <div class="bg-slate-800/30 border border-slate-800 px-3.5 py-2.5 rounded-xl flex items-center justify-between">
-              <span class="text-slate-400 text-[11px]">Comprovantes Pendentes</span>
-              <span class="font-bold text-[11px]" [ngClass]="pendingReceipts() > 0 ? 'text-amber-400' : 'text-slate-300'">
+            <div class="bg-[#161B1E]/60 border border-[#222A2F] px-3.5 py-2.5 rounded-xl flex items-center justify-between">
+              <span class="text-[#8E9DA8] text-[11px]">Comprovantes Pendentes</span>
+              <span class="font-bold text-[11px]" [ngClass]="pendingReceipts() > 0 ? 'text-amber-400' : 'text-[#CAD2D9]'">
                 {{ pendingReceipts() }} pendente(s)
               </span>
             </div>
 
-            <div class="bg-slate-800/30 border border-slate-800 px-3.5 py-2.5 rounded-xl flex items-center justify-between">
-              <span class="text-slate-400 text-[11px]">Fila Offline</span>
-              <span class="font-bold text-[11px]" [ngClass]="pendingQueueCount() > 0 ? 'text-amber-400' : 'text-slate-300'">
+            <div class="bg-[#161B1E]/60 border border-[#222A2F] px-3.5 py-2.5 rounded-xl flex items-center justify-between">
+              <span class="text-[#8E9DA8] text-[11px]">Fila Offline</span>
+              <span class="font-bold text-[11px]" [ngClass]="pendingQueueCount() > 0 ? 'text-amber-400' : 'text-[#CAD2D9]'">
                 {{ pendingQueueCount() }} pendente(s)
               </span>
             </div>
 
           </div>
 
-          <!-- SEÇÃO DA VERSÃO DO APP (BEM EMBAIXO COMO PEDIDO) -->
-          <div class="pt-2 border-t border-slate-800/80">
-            <div class="bg-gradient-to-br from-slate-800/80 to-slate-900 border border-slate-700/60 rounded-2xl p-4 space-y-3 shadow-inner">
+          <!-- SEÇÃO DA VERSÃO DO APP -->
+          <div class="pt-2 border-t border-[#222A2F]">
+            <div class="bg-[#161B1E] border border-[#222A2F] rounded-2xl p-4 space-y-3 shadow-inner">
               <div class="flex items-center justify-between">
                 <div>
-                  <span class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold block">Versão Atual do App</span>
-                  <span class="text-base font-black text-white font-mono tracking-tight">v{{ updateService.currentVersion() }}</span>
+                  <span class="text-[10px] text-[#8E9DA8] uppercase tracking-wider font-semibold block">Versão Atual do App</span>
+                  <span class="text-base font-black text-[#E7EBEE] font-mono tracking-tight">v{{ updateService.currentVersion() }}</span>
                 </div>
 
                 @if (updateService.hasUpdate()) {
-                  <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/40 animate-pulse">
+                  <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-[#FF6B00]/15 text-[#FF6B00] border border-[#FF6B00]/30 animate-pulse">
                     Nova v{{ updateService.latestVersion() }} disponível
                   </span>
                 } @else {
-                  <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">
+                  <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
                     Versão Atualizada
                   </span>
                 }
@@ -607,7 +606,7 @@
               @if (updateService.hasUpdate()) {
                 <button
                   (click)="updateService.downloadAndInstall(); closeProfile()"
-                  class="w-full py-2.5 px-3 rounded-xl bg-purple-600 hover:bg-purple-500 active:scale-[0.98] text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-md shadow-purple-900/40"
+                  class="w-full py-2.5 px-3 rounded-xl bg-[#FF6B00] hover:bg-[#FF7A1A] active:scale-[0.98] text-black font-black text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-md shadow-[#FF6B00]/25"
                 >
                   <svg lucideDownload class="size-3.5"></svg>
                   <span>Baixar e Atualizar para v{{ updateService.latestVersion() }}</span>
@@ -616,13 +615,13 @@
                 <button
                   (click)="checkUpdatesManually()"
                   [disabled]="updateService.isChecking()"
-                  class="w-full py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 active:scale-[0.98] text-slate-300 text-xs font-medium flex items-center justify-center gap-1.5 transition-all cursor-pointer disabled:opacity-50"
+                  class="w-full py-2 px-3 rounded-xl bg-[#1E262B] hover:bg-[#253036] active:scale-[0.98] text-[#CAD2D9] text-xs font-medium flex items-center justify-center gap-1.5 transition-all cursor-pointer disabled:opacity-50 border border-[#222A2F]"
                 >
                   @if (updateService.isChecking()) {
-                    <span class="size-3 border-2 border-slate-400 border-t-white rounded-full animate-spin"></span>
+                    <span class="size-3 border-2 border-[#8E9DA8] border-t-[#FF6B00] rounded-full animate-spin"></span>
                     <span>Consultando GitHub...</span>
                   } @else {
-                    <svg lucideSparkles class="size-3 text-emerald-400"></svg>
+                    <svg lucideSparkles class="size-3 text-[#FF6B00]"></svg>
                     <span>Checar se há nova versão</span>
                   }
                 </button>
@@ -630,7 +629,7 @@
 
               <!-- Mensagem de Status da Verificação -->
               @if (updateService.checkStatusMessage()) {
-                <div class="text-[11px] text-center font-semibold text-purple-300 bg-purple-950/60 border border-purple-800/60 rounded-xl py-1.5 px-2 animate-in fade-in">
+                <div class="text-[11px] text-center font-semibold text-[#FF6B00] bg-[#FF6B00]/10 border border-[#FF6B00]/20 rounded-xl py-1.5 px-2 animate-in fade-in">
                   {{ updateService.checkStatusMessage() }}
                 </div>
               }

@@ -34,12 +34,12 @@
   <!-- SKELETON LOADING -->
   @if (loading()) {
     <div class="space-y-4 animate-pulse">
-      <div class="h-44 bg-slate-900/80 rounded-3xl border border-slate-800"></div>
+      <div class="h-44 bg-[#11161A] rounded-3xl border border-[#222A2F]"></div>
       <div class="grid grid-cols-2 gap-3">
-        <div class="h-28 bg-slate-900/80 rounded-2xl border border-slate-800"></div>
-        <div class="h-28 bg-slate-900/80 rounded-2xl border border-slate-800"></div>
-        <div class="h-28 bg-slate-900/80 rounded-2xl border border-slate-800"></div>
-        <div class="h-28 bg-slate-900/80 rounded-2xl border border-slate-800"></div>
+        <div class="h-28 bg-[#11161A] rounded-2xl border border-[#222A2F]"></div>
+        <div class="h-28 bg-[#11161A] rounded-2xl border border-[#222A2F]"></div>
+        <div class="h-28 bg-[#11161A] rounded-2xl border border-[#222A2F]"></div>
+        <div class="h-28 bg-[#11161A] rounded-2xl border border-[#222A2F]"></div>
       </div>
     </div>
   }
@@ -100,32 +100,32 @@
         <a
           routerLink="/motorista/historico"
           [queryParams]="{ tab: 'fuel' }"
-          class="px-3 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs rounded-xl shadow-xs transition-colors shrink-0 cursor-pointer"
+          class="px-3 py-2 bg-[#FF6B00] hover:bg-[#FF7A1A] text-black font-black text-xs rounded-xl shadow-xs transition-colors shrink-0 cursor-pointer"
         >
           Anexar
         </a>
       </div>
     }
 
-    <!-- CARD 1: VIAGEM EM DESTAQUE (TRANSPARENTE — TRUCK BANNER DO LAYOUT É O FUNDO) -->
+    <!-- CARD 1: VIAGEM EM DESTAQUE -->
     @if (summary.trip; as trip) {
       <div
-        class="relative rounded-3xl overflow-hidden border p-5 mt-2 "
-        [class.border-emerald-500/30]="trip.status === 'IN_PROGRESS' || trip.status === 'EM_ANDAMENTO'"
-        [class.border-white/10]="trip.status !== 'IN_PROGRESS' && trip.status !== 'EM_ANDAMENTO'"
+        class="relative rounded-3xl overflow-hidden border p-5 mt-2 bg-[#11161A]/85 backdrop-blur-md"
+        [class.border-[#FF6B00]/40]="trip.status === 'IN_PROGRESS' || trip.status === 'EM_ANDAMENTO'"
+        [class.border-[#222A2F]]="trip.status !== 'IN_PROGRESS' && trip.status !== 'EM_ANDAMENTO'"
       >
-        <!-- Conteúdo do Card (z-10 para ficar acima do banner do layout) -->
+        <!-- Conteúdo do Card -->
         <div class="relative z-10 space-y-4">
 
           <!-- Topo do Card: Badge de Status [Em rota] / [Programada] + GPS Ativo -->
           <div class="flex items-center gap-2">
             @if (trip.status === 'IN_PROGRESS' || trip.status === 'EM_ANDAMENTO') {
-              <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-[#062822]/90 text-emerald-400 border border-emerald-500/30 backdrop-blur-md">
+              <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-[#FF6B00]/15 text-[#FF6B00] border border-[#FF6B00]/30 backdrop-blur-md">
                 <svg lucideTruck class="size-3.5"></svg>
                 <span>Em rota</span>
               </span>
             } @else {
-              <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-[#0A1A3A]/90 text-blue-400 border border-blue-500/30 backdrop-blur-md">
+              <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-[#161B1E] text-[#8E9DA8] border border-[#222A2F] backdrop-blur-md">
                 <svg lucideTruck class="size-3.5"></svg>
                 <span>Programada</span>
               </span>
@@ -141,32 +141,23 @@
 
           <!-- Rota em Destaque: Origem (UF) → Destino (UF) -->
           <div class="flex justify-between items-center gap-2">
-            <div class="flex items-center gap-2 text-[14px] sm:text-[10px] font-bold text-white tracking-tight">
+            <div class="flex items-center gap-2 text-[14px] sm:text-[10px] font-bold text-[#E7EBEE] tracking-tight">
               <span>{{ trip.originCity }} ({{ trip.originState }})</span>
-              <svg lucideArrowRight class="size-4 text-emerald-400 shrink-0"></svg>
+              <svg lucideArrowRight class="size-4 text-[#FF6B00] shrink-0"></svg>
               <span>{{ trip.destinationCity }} ({{ trip.destinationState }})</span>
             </div>
-            <!-- <div class="flex justify-end -mt-1">
-            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold font-mono bg-slate-900/85 text-white border border-slate-700/60 backdrop-blur-md shadow-xs">
-              <svg lucideTruck class="size-3.5 text-slate-300"></svg>
-              <span>{{ trip.vehicle?.plate || 'BR-222' }}</span>
-            </span>
-          </div>-->
           </div>
 
-          <!-- Pill da Placa separada abaixo dos horários (visível na área escura do card) -->
-
-
-          <!-- Horários (Saída e Chegada Prevista) + Pill da Placa -->
+          <!-- Horários (Saída e Chegada Prevista) -->
           <div class="grid grid-cols-2 gap-3 pt-0.5">
             <!-- Saída -->
             <div class="flex items-center gap-2.5">
-              <div class="size-8 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center shrink-0">
+              <div class="size-8 rounded-lg bg-[#FF6B00]/15 text-[#FF6B00] border border-[#FF6B00]/25 flex items-center justify-center shrink-0">
                 <svg lucideCalendar class="size-4"></svg>
               </div>
               <div class="min-w-0">
-                <span class="text-[11px] text-slate-400 block leading-tight">Saída</span>
-                <span class="text-xs font-bold text-white font-mono block leading-tight mt-0.5">
+                <span class="text-[11px] text-[#8E9DA8] block leading-tight">Saída</span>
+                <span class="text-xs font-bold text-[#E7EBEE] font-mono block leading-tight mt-0.5">
                   {{ (trip.startedAt || trip.createdAt) | date:'dd/MM HH:mm' }}
                 </span>
               </div>
@@ -174,19 +165,17 @@
 
             <!-- Chegada Prevista -->
             <div class="flex items-center gap-2.5">
-              <div class="size-8 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20 flex items-center justify-center shrink-0">
+              <div class="size-8 rounded-lg bg-[#1E262B] text-[#CAD2D9] border border-[#222A2F] flex items-center justify-center shrink-0">
                 <svg lucideClock class="size-4"></svg>
               </div>
               <div class="min-w-0">
-                <span class="text-[11px] text-slate-400 block leading-tight">Chegada prevista</span>
-                <span class="text-xs font-bold text-white font-mono block leading-tight mt-0.5">
+                <span class="text-[11px] text-[#8E9DA8] block leading-tight">Chegada prevista</span>
+                <span class="text-xs font-bold text-[#E7EBEE] font-mono block leading-tight mt-0.5">
                   {{ (trip.scheduledDate || trip.createdAt) | date:'dd/MM HH:mm' }}
                 </span>
               </div>
             </div>
           </div>
-
-
 
           <!-- Botões de Ação da Viagem -->
           <div class="space-y-2.5 pt-1">
@@ -194,13 +183,13 @@
               @if (cnhStatus().canStartTrip) {
                 <button
                   (click)="openStartTripModal()"
-                  class="w-full py-3.5 px-4 bg-[#10b981] hover:bg-[#059669] active:scale-[0.98] text-white font-semibold text-sm rounded-2xl shadow-lg shadow-emerald-500/25 flex items-center justify-between transition-all cursor-pointer"
+                  class="w-full py-3.5 px-4 bg-[#FF6B00] hover:bg-[#FF7A1A] active:scale-[0.98] text-black font-black text-sm rounded-2xl shadow-lg shadow-[#FF6B00]/25 flex items-center justify-between transition-all cursor-pointer"
                 >
                   <div class="flex items-center gap-2.5">
-                    <div class="size-7 rounded-full bg-white text-[#10b981] flex items-center justify-center shrink-0 shadow-sm">
+                    <div class="size-7 rounded-full bg-black text-[#FF6B00] flex items-center justify-center shrink-0 shadow-sm">
                       <svg lucidePlay class="size-3.5 fill-current ml-0.5"></svg>
                     </div>
-                    <span class="font-bold">Iniciar viagem</span>
+                    <span class="font-black">Iniciar viagem</span>
                   </div>
                   <svg lucideArrowRight class="size-5"></svg>
                 </button>
@@ -223,13 +212,13 @@
             } @else if (trip.status === 'IN_PROGRESS' || trip.status === 'EM_ANDAMENTO') {
               <button
                 (click)="openCompleteTripModal()"
-                class="w-full py-3.5 px-4 bg-[#10b981] hover:bg-[#059669] active:scale-[0.98] text-white font-semibold text-sm rounded-2xl shadow-lg shadow-emerald-500/25 flex items-center justify-between transition-all cursor-pointer"
+                class="w-full py-3.5 px-4 bg-[#FF6B00] hover:bg-[#FF7A1A] active:scale-[0.98] text-black font-black text-sm rounded-2xl shadow-lg shadow-[#FF6B00]/25 flex items-center justify-between transition-all cursor-pointer"
               >
                 <div class="flex items-center gap-2.5">
-                  <div class="size-7 rounded-full bg-white text-[#10b981] flex items-center justify-center shrink-0 shadow-sm">
-                    <svg lucidePlay class="size-3.5 fill-current ml-0.5"></svg>
+                  <div class="size-7 rounded-full bg-black text-[#FF6B00] flex items-center justify-center shrink-0 shadow-sm">
+                    <svg lucideCheckCircle2 class="size-4"></svg>
                   </div>
-                  <span class="font-bold">Concluir viagem</span>
+                  <span class="font-black">Concluir viagem</span>
                 </div>
                 <svg lucideArrowRight class="size-5"></svg>
               </button>
@@ -239,13 +228,13 @@
             <button
               type="button"
               (click)="openMap(trip)"
-              class="w-full py-3 px-4 bg-[#070D18]/70 hover:bg-[#070D18]/90 backdrop-blur-sm border border-white/10 rounded-2xl flex items-center justify-between text-left transition-colors cursor-pointer"
+              class="w-full py-3 px-4 bg-[#161B1E] hover:bg-[#1E262B] border border-[#222A2F] rounded-2xl flex items-center justify-between text-left transition-colors cursor-pointer"
             >
               <div class="flex items-center gap-2.5">
-                <svg lucideMapPin class="size-4 text-emerald-400"></svg>
-                <span class="text-xs font-semibold text-slate-200">Ver no mapa</span>
+                <svg lucideMapPin class="size-4 text-[#FF6B00]"></svg>
+                <span class="text-xs font-semibold text-[#CAD2D9]">Ver no mapa</span>
               </div>
-              <svg lucideChevronRight class="size-4 text-slate-400"></svg>
+              <svg lucideChevronRight class="size-4 text-[#8E9DA8]"></svg>
             </button>
           </div>
 
@@ -255,19 +244,19 @@
 
     <!-- NENHUMA VIAGEM ATIVA -->
     @else {
-      <div class="bg-slate-900/90 rounded-3xl p-6 border border-slate-800 text-center space-y-3">
-        <div class="size-12 rounded-2xl bg-slate-800 text-slate-400 flex items-center justify-center mx-auto">
+      <div class="bg-[#11161A] rounded-3xl p-6 border border-[#222A2F] text-center space-y-3">
+        <div class="size-12 rounded-2xl bg-[#161B1E] text-[#8E9DA8] border border-[#222A2F] flex items-center justify-center mx-auto">
           <svg lucideTruck class="size-6"></svg>
         </div>
         <div>
-          <h2 class="text-sm font-bold text-white">Nenhuma Viagem Ativa</h2>
-          <p class="text-xs text-slate-400 mt-1 max-w-xs mx-auto">
+          <h2 class="text-sm font-bold text-[#E7EBEE]">Nenhuma Viagem Ativa</h2>
+          <p class="text-xs text-[#8E9DA8] mt-1 max-w-xs mx-auto">
             Você não possui viagens em andamento ou escaladas no momento. Aguarde o despacho do gestor da frota.
           </p>
         </div>
         <button
           (click)="loadData(true)"
-          class="inline-flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl transition-colors cursor-pointer"
+          class="inline-flex items-center gap-2 px-4 py-2 bg-[#161B1E] hover:bg-[#1E262B] text-[#CAD2D9] border border-[#222A2F] text-xs font-semibold rounded-xl transition-colors cursor-pointer"
         >
           <svg lucideRefreshCw class="size-3.5" [class.animate-spin]="refreshing()"></svg>
           <span>Verificar novas viagens</span>
@@ -275,118 +264,116 @@
       </div>
     }
 
-
-    <!-- SEÇÃO AÇÕES RÁPIDAS (COM ÍCONE DE RAIO VERDE E CARDS SEM TEXTO CORTADO) -->
+    <!-- SEÇÃO AÇÕES RÁPIDAS -->
     <div class="space-y-2.5">
       <div class="flex items-center gap-2 px-0.5">
-        <svg lucideZap class="size-4 text-emerald-400 fill-emerald-400"></svg>
-        <h3 class="text-sm font-bold text-white">Ações rápidas</h3>
+        <svg lucideZap class="size-4 text-[#FF6B00] fill-[#FF6B00]"></svg>
+        <h3 class="text-sm font-bold text-[#E7EBEE]">Ações rápidas</h3>
       </div>
 
       <div class="grid grid-cols-2 gap-2.5">
         <!-- 1. Abastecer -->
         <a
           routerLink="/motorista/abastecimento"
-          class="bg-[#0A1020]/90 hover:bg-[#121B35]/90 active:scale-[0.98] border border-slate-800/80 p-3 rounded-2xl flex items-center justify-between text-left transition-all group cursor-pointer shadow-xs"
+          class="bg-[#11161A] hover:bg-[#161B1E] active:scale-[0.98] border border-[#222A2F] p-3 rounded-2xl flex items-center justify-between text-left transition-all group cursor-pointer shadow-xs"
         >
           <div class="flex items-center gap-2.5 min-w-0 flex-1">
-            <div class="size-10 rounded-xl bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 flex items-center justify-center shrink-0">
+            <div class="size-10 rounded-xl bg-[#FF6B00]/15 text-[#FF6B00] border border-[#FF6B00]/25 flex items-center justify-center shrink-0">
               <svg lucideFuel class="size-5"></svg>
             </div>
             <div class="min-w-0 flex-1">
-              <p class="text-xs font-bold text-white group-hover:text-emerald-400 transition-colors leading-tight">Abastecer</p>
-              <p class="text-[10px] text-slate-400 leading-tight mt-0.5">Cupom e odômetro</p>
+              <p class="text-xs font-bold text-[#E7EBEE] group-hover:text-[#FF6B00] transition-colors leading-tight">Abastecer</p>
+              <p class="text-[10px] text-[#8E9DA8] leading-tight mt-0.5">Cupom e odômetro</p>
             </div>
           </div>
-          <svg lucideChevronRight class="size-4 text-slate-500 group-hover:text-white shrink-0 ml-1 transition-colors"></svg>
+          <svg lucideChevronRight class="size-4 text-[#8E9DA8] group-hover:text-white shrink-0 ml-1 transition-colors"></svg>
         </a>
 
         <!-- 2. SOS / Alerta -->
         <button
           (click)="openIncidentModal()"
-          class="bg-[#0A1020]/90 hover:bg-[#121B35]/90 active:scale-[0.98] border border-slate-800/80 p-3 rounded-2xl flex items-center justify-between text-left transition-all group cursor-pointer shadow-xs"
+          class="bg-[#11161A] hover:bg-[#161B1E] active:scale-[0.98] border border-[#222A2F] p-3 rounded-2xl flex items-center justify-between text-left transition-all group cursor-pointer shadow-xs"
         >
           <div class="flex items-center gap-2.5 min-w-0 flex-1">
             <div class="size-10 rounded-xl bg-rose-500/15 text-rose-400 border border-rose-500/25 flex items-center justify-center shrink-0">
               <svg lucideShieldAlert class="size-5"></svg>
             </div>
             <div class="min-w-0 flex-1">
-              <p class="text-xs font-bold text-white group-hover:text-rose-400 transition-colors leading-tight">SOS / Alerta</p>
-              <p class="text-[10px] text-slate-400 leading-tight mt-0.5">Reportar avaria</p>
+              <p class="text-xs font-bold text-[#E7EBEE] group-hover:text-rose-400 transition-colors leading-tight">SOS / Alerta</p>
+              <p class="text-[10px] text-[#8E9DA8] leading-tight mt-0.5">Reportar avaria</p>
             </div>
           </div>
-          <svg lucideChevronRight class="size-4 text-slate-500 group-hover:text-white shrink-0 ml-1 transition-colors"></svg>
+          <svg lucideChevronRight class="size-4 text-[#8E9DA8] group-hover:text-white shrink-0 ml-1 transition-colors"></svg>
         </button>
 
         <!-- 3. Documentos -->
         <button
           (click)="openDocsModal()"
-          class="bg-[#0A1020]/90 hover:bg-[#121B35]/90 active:scale-[0.98] border border-slate-800/80 p-3 rounded-2xl flex items-center justify-between text-left transition-all group cursor-pointer shadow-xs"
+          class="bg-[#11161A] hover:bg-[#161B1E] active:scale-[0.98] border border-[#222A2F] p-3 rounded-2xl flex items-center justify-between text-left transition-all group cursor-pointer shadow-xs"
         >
           <div class="flex items-center gap-2.5 min-w-0 flex-1">
-            <div class="size-10 rounded-xl bg-blue-500/15 text-blue-400 border border-blue-500/25 flex items-center justify-center shrink-0">
+            <div class="size-10 rounded-xl bg-[#1E262B] text-[#CAD2D9] border border-[#222A2F] flex items-center justify-center shrink-0">
               <svg lucideFileText class="size-5"></svg>
             </div>
             <div class="min-w-0 flex-1">
-              <p class="text-xs font-bold text-white group-hover:text-blue-400 transition-colors leading-tight">Documentos</p>
-              <p class="text-[10px] text-slate-400 leading-tight mt-0.5">CRLV e CNH</p>
+              <p class="text-xs font-bold text-[#E7EBEE] group-hover:text-white transition-colors leading-tight">Documentos</p>
+              <p class="text-[10px] text-[#8E9DA8] leading-tight mt-0.5">CRLV e CNH</p>
             </div>
           </div>
-          <svg lucideChevronRight class="size-4 text-slate-500 group-hover:text-white shrink-0 ml-1 transition-colors"></svg>
+          <svg lucideChevronRight class="size-4 text-[#8E9DA8] group-hover:text-white shrink-0 ml-1 transition-colors"></svg>
         </button>
 
         <!-- 4. Checklist -->
         <button
           (click)="openChecklistModal()"
-          class="bg-[#0A1020]/90 hover:bg-[#121B35]/90 active:scale-[0.98] border border-slate-800/80 p-3 rounded-2xl flex items-center justify-between text-left transition-all group cursor-pointer shadow-xs"
+          class="bg-[#11161A] hover:bg-[#161B1E] active:scale-[0.98] border border-[#222A2F] p-3 rounded-2xl flex items-center justify-between text-left transition-all group cursor-pointer shadow-xs"
         >
           <div class="flex items-center gap-2.5 min-w-0 flex-1">
             <div class="size-10 rounded-xl bg-amber-500/15 text-amber-400 border border-amber-500/25 flex items-center justify-center shrink-0">
               <svg lucideCheckSquare class="size-5"></svg>
             </div>
             <div class="min-w-0 flex-1">
-              <p class="text-xs font-bold text-white group-hover:text-amber-400 transition-colors leading-tight">Checklist</p>
-              <p class="text-[10px] text-slate-400 leading-tight mt-0.5">Inspeção pré-viagem</p>
+              <p class="text-xs font-bold text-[#E7EBEE] group-hover:text-amber-400 transition-colors leading-tight">Checklist</p>
+              <p class="text-[10px] text-[#8E9DA8] leading-tight mt-0.5">Inspeção pré-viagem</p>
             </div>
           </div>
-          <svg lucideChevronRight class="size-4 text-slate-500 group-hover:text-white shrink-0 ml-1 transition-colors"></svg>
+          <svg lucideChevronRight class="size-4 text-[#8E9DA8] group-hover:text-white shrink-0 ml-1 transition-colors"></svg>
         </button>
       </div>
     </div>
   }
 </div>
-
 <!-- ========================================== -->
 <!-- MODAL: INICIAR VIAGEM                      -->
 <!-- ========================================== -->
 @if (startTripModalOpen()) {
-  <div class="fixed inset-0 z-[60] bg-slate-950/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-3 pb-8 sm:p-4 animate-in fade-in">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 sm:p-6 w-full max-w-sm max-h-[85vh] overflow-y-auto space-y-4 shadow-2xl animate-in slide-in-from-bottom-4">
+  <div class="fixed inset-0 z-[60] bg-[#080B0C]/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-3 pb-8 sm:p-4 animate-in fade-in">
+    <div class="bg-[#0F1215] border border-[#222A2F] rounded-3xl p-5 sm:p-6 w-full max-w-sm max-h-[85vh] overflow-y-auto space-y-4 shadow-2xl animate-in slide-in-from-bottom-4">
       <div class="flex items-center justify-between">
-        <h3 class="text-base font-bold text-white flex items-center gap-2">
-          <svg lucideNavigation class="size-5 text-emerald-400"></svg>
+        <h3 class="text-base font-bold text-[#E7EBEE] flex items-center gap-2">
+          <svg lucideNavigation class="size-5 text-[#FF6B00]"></svg>
           Iniciar Viagem
         </h3>
-        <button (click)="startTripModalOpen.set(false)" class="text-slate-400 hover:text-white p-1">
+        <button (click)="startTripModalOpen.set(false)" class="text-[#8E9DA8] hover:text-white p-1">
           <svg lucideX class="size-4"></svg>
         </button>
       </div>
 
-      <p class="text-xs text-slate-300">
+      <p class="text-xs text-[#CAD2D9]">
         Deseja confirmar o início desta rota? O status do veículo passará para <strong>EM USO</strong>.
       </p>
 
       <div class="grid grid-cols-2 gap-2 pt-2">
         <button
           (click)="startTripModalOpen.set(false)"
-          class="py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs rounded-xl transition-colors cursor-pointer"
+          class="py-3 bg-[#1E262B] hover:bg-[#253036] text-[#CAD2D9] font-bold text-xs rounded-xl transition-colors cursor-pointer"
         >
           Cancelar
         </button>
         <button
           (click)="confirmStartTrip()"
           [disabled]="actionLoading()"
-          class="py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs rounded-xl shadow-md transition-colors cursor-pointer disabled:opacity-50"
+          class="py-3 bg-[#FF6B00] hover:bg-[#FF7A1A] text-black font-black text-xs rounded-xl shadow-md transition-colors cursor-pointer disabled:opacity-50"
         >
           {{ actionLoading() ? 'Iniciando...' : 'Confirmar Saída' }}
         </button>
@@ -399,29 +386,29 @@
 <!-- MODAL: CONCLUIR VIAGEM (KM FINAL)          -->
 <!-- ========================================== -->
 @if (completeTripModalOpen()) {
-  <div class="fixed inset-0 z-[60] bg-slate-950/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-3 pb-8 sm:p-4 animate-in fade-in">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 sm:p-6 w-full max-w-sm max-h-[85vh] overflow-y-auto space-y-4 shadow-2xl animate-in slide-in-from-bottom-4">
+  <div class="fixed inset-0 z-[60] bg-[#080B0C]/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-3 pb-8 sm:p-4 animate-in fade-in">
+    <div class="bg-[#0F1215] border border-[#222A2F] rounded-3xl p-5 sm:p-6 w-full max-w-sm max-h-[85vh] overflow-y-auto space-y-4 shadow-2xl animate-in slide-in-from-bottom-4">
       <div class="flex items-center justify-between">
-        <h3 class="text-base font-bold text-white flex items-center gap-2">
-          <svg lucideCheckCircle2 class="size-5 text-rose-400"></svg>
+        <h3 class="text-base font-bold text-[#E7EBEE] flex items-center gap-2">
+          <svg lucideCheckCircle2 class="size-5 text-[#FF6B00]"></svg>
           Finalizar Viagem
         </h3>
-        <button (click)="completeTripModalOpen.set(false)" class="text-slate-400 hover:text-white p-1">
+        <button (click)="completeTripModalOpen.set(false)" class="text-[#8E9DA8] hover:text-white p-1">
           <svg lucideX class="size-4"></svg>
         </button>
       </div>
 
-      <p class="text-xs text-slate-300">
+      <p class="text-xs text-[#CAD2D9]">
         Informe a quilometragem final no odômetro do veículo para liberar o caminhão:
       </p>
 
       <div>
-        <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">KM Final do Odômetro</label>
+        <label class="block text-[11px] font-bold text-[#8E9DA8] uppercase mb-1">KM Final do Odômetro</label>
         <input
           type="number"
           [ngModel]="completeKm()"
           (ngModelChange)="completeKm.set($event)"
-          class="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl px-4 py-3 text-lg font-mono font-bold text-white focus:outline-hidden"
+          class="w-full bg-[#080B0C] border border-[#222A2F] focus:border-[#FF6B00] rounded-xl px-4 py-3 text-lg font-mono font-bold text-[#E7EBEE] focus:outline-hidden"
           placeholder="ex: 120500"
         />
       </div>
@@ -429,14 +416,14 @@
       <div class="grid grid-cols-2 gap-2 pt-2">
         <button
           (click)="completeTripModalOpen.set(false)"
-          class="py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs rounded-xl transition-colors cursor-pointer"
+          class="py-3 bg-[#1E262B] hover:bg-[#253036] text-[#CAD2D9] font-bold text-xs rounded-xl transition-colors cursor-pointer"
         >
           Voltar
         </button>
         <button
           (click)="confirmCompleteTrip()"
           [disabled]="actionLoading()"
-          class="py-3 bg-rose-600 hover:bg-rose-500 text-white font-black text-xs rounded-xl shadow-md transition-colors cursor-pointer disabled:opacity-50"
+          class="py-3 bg-[#FF6B00] hover:bg-[#FF7A1A] text-black font-black text-xs rounded-xl shadow-md transition-colors cursor-pointer disabled:opacity-50"
         >
           {{ actionLoading() ? 'Finalizando...' : 'Concluir Chegada' }}
         </button>
@@ -445,14 +432,12 @@
   </div>
 }
 
-
-
 <!-- ========================================== -->
 <!-- MODAL: REPORTAR INCIDENTE / SOS            -->
 <!-- ========================================== -->
 @if (incidentModalOpen()) {
-  <div class="fixed inset-0 z-[60] bg-slate-950/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-3 pb-8 sm:p-4 animate-in fade-in">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 sm:p-6 w-full max-w-sm max-h-[85vh] overflow-y-auto space-y-4 shadow-2xl animate-in slide-in-from-bottom-4">
+  <div class="fixed inset-0 z-[60] bg-[#080B0C]/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-3 pb-8 sm:p-4 animate-in fade-in">
+    <div class="bg-[#0F1215] border border-[#222A2F] rounded-3xl p-5 sm:p-6 w-full max-w-sm max-h-[85vh] overflow-y-auto space-y-4 shadow-2xl animate-in slide-in-from-bottom-4">
 
       <!-- ========================================== -->
       <!-- ETAPA 1: FORMULÁRIO DE SOS (GPS + FOTO)    -->
@@ -463,7 +448,7 @@
             <svg lucideShieldAlert class="size-5 text-rose-400"></svg>
             Reportar SOS / Ocorrência
           </h3>
-          <button (click)="incidentModalOpen.set(false)" class="text-slate-400 hover:text-white p-1">
+          <button (click)="incidentModalOpen.set(false)" class="text-[#8E9DA8] hover:text-white p-1">
             <svg lucideX class="size-4"></svg>
           </button>
         </div>
@@ -471,9 +456,9 @@
         <div class="space-y-3">
           <!-- 1. GPS Automático -->
           <div
-            class="p-2.5 rounded-xl border bg-slate-950/80 flex items-center justify-between gap-2 text-xs transition-colors"
+            class="p-2.5 rounded-xl border bg-[#080B0C] flex items-center justify-between gap-2 text-xs transition-colors"
             [class.border-emerald-500/40]="incidentGps()"
-            [class.border-slate-800]="!incidentGps()"
+            [class.border-[#222A2F]]="!incidentGps()"
           >
             <div class="flex items-center gap-2 min-w-0">
               <div
@@ -487,16 +472,16 @@
               </div>
               <div class="min-w-0 truncate text-[11px]">
                 @if (incidentGps(); as gps) {
-                  <p class="font-bold text-emerald-400">GPS Detectado Automaticamente</p>
-                  <p class="text-slate-400 font-mono text-[10px] truncate">
+                  <p class="font-bold text-emerald-400">GPS Detectado</p>
+                  <p class="text-[#8E9DA8] font-mono text-[10px] truncate">
                     Lat: {{ gps.latitude.toFixed(4) }} • Lng: {{ gps.longitude.toFixed(4) }}
                   </p>
                 } @else if (isDetectingGps()) {
                   <p class="font-semibold text-amber-300 animate-pulse">Obtendo coordenadas GPS...</p>
-                  <p class="text-slate-400 text-[10px]">Aguarde sinal de satélite</p>
+                  <p class="text-[#8E9DA8] text-[10px]">Aguarde sinal de satélite</p>
                 } @else {
-                  <p class="font-semibold text-slate-300">Localização por Rota Ativa</p>
-                  <p class="text-slate-400 text-[10px]">GPS de emergência pronto</p>
+                  <p class="font-semibold text-[#CAD2D9]">Localização por Rota Ativa</p>
+                  <p class="text-[#8E9DA8] text-[10px]">GPS de emergência pronto</p>
                 }
               </div>
             </div>
@@ -504,7 +489,7 @@
             <button
               type="button"
               (click)="detectCurrentGps()"
-              class="p-1.5 text-slate-400 hover:text-white bg-slate-800 rounded-lg shrink-0 cursor-pointer"
+              class="p-1.5 text-[#8E9DA8] hover:text-white bg-[#1E262B] rounded-lg shrink-0 cursor-pointer"
               title="Atualizar GPS"
             >
               <svg lucideRefreshCw class="size-3.5" [class.animate-spin]="isDetectingGps()"></svg>
@@ -513,7 +498,7 @@
 
           <!-- 2. Categoria da Ocorrência -->
           <div>
-            <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Tipo de Ocorrência</label>
+            <label class="block text-[11px] font-bold text-[#8E9DA8] uppercase mb-1">Tipo de Ocorrência</label>
             <div class="grid grid-cols-3 gap-1.5">
               @for (cat of ['PNEU', 'MECANICA', 'ELETRICA', 'ACIDENTE', 'ATRASO', 'OUTRO']; track cat) {
                 <button
@@ -523,9 +508,9 @@
                   [class.bg-rose-500]="incidentCategory() === cat"
                   [class.text-white]="incidentCategory() === cat"
                   [class.border-rose-400]="incidentCategory() === cat"
-                  [class.bg-slate-950]="incidentCategory() !== cat"
-                  [class.text-slate-400]="incidentCategory() !== cat"
-                  [class.border-slate-800]="incidentCategory() !== cat"
+                  [class.bg-[#080B0C]]="incidentCategory() !== cat"
+                  [class.text-[#8E9DA8]]="incidentCategory() !== cat"
+                  [class.border-[#222A2F]]="incidentCategory() !== cat"
                 >
                   {{ cat }}
                 </button>
@@ -535,12 +520,12 @@
 
           <!-- 3. Foto da Avaria / Danos com Câmera -->
           <div>
-            <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Foto da Avaria / Danos (Câmera)</label>
+            <label class="block text-[11px] font-bold text-[#8E9DA8] uppercase mb-1">Foto da Avaria / Danos (Câmera)</label>
             @if (!incidentPhoto()) {
-              <label class="flex flex-col items-center justify-center p-3 border-2 border-dashed border-slate-800 hover:border-rose-500/50 rounded-2xl bg-slate-950/60 cursor-pointer transition-colors">
+              <label class="flex flex-col items-center justify-center p-3 border-2 border-dashed border-[#222A2F] hover:border-rose-500/50 rounded-2xl bg-[#080B0C] cursor-pointer transition-colors">
                 <svg lucideCamera class="size-6 text-rose-400 mb-1"></svg>
-                <span class="text-xs font-semibold text-slate-300">Tirar foto da avaria</span>
-                <span class="text-[10px] text-slate-500">Pneu rasgado, peça quebrada, colisão...</span>
+                <span class="text-xs font-semibold text-[#CAD2D9]">Tirar foto da avaria</span>
+                <span class="text-[10px] text-[#8E9DA8]">Pneu rasgado, peça quebrada, colisão...</span>
                 <input
                   type="file"
                   accept="image/*"
@@ -550,12 +535,12 @@
                 />
               </label>
             } @else {
-              <div class="relative rounded-2xl overflow-hidden border border-rose-500/40 bg-slate-950 p-2 flex items-center justify-between">
+              <div class="relative rounded-2xl overflow-hidden border border-rose-500/40 bg-[#080B0C] p-2 flex items-center justify-between">
                 <div class="flex items-center gap-2.5 min-w-0">
-                  <img [src]="incidentPhoto()" alt="Foto da avaria" class="size-12 rounded-xl object-cover border border-slate-800 shrink-0" />
+                  <img [src]="incidentPhoto()" alt="Foto da avaria" class="size-12 rounded-xl object-cover border border-[#222A2F] shrink-0" />
                   <div class="min-w-0">
                     <p class="text-xs font-bold text-emerald-400">✓ Foto anexada com sucesso</p>
-                    <p class="text-[10px] text-slate-400 truncate">Evidência registrada para o gestor</p>
+                    <p class="text-[10px] text-[#8E9DA8] truncate">Evidência registrada para o gestor</p>
                   </div>
                 </div>
                 <button
@@ -572,12 +557,12 @@
 
           <!-- 4. Descrição / Detalhes (Opcional) -->
           <div>
-            <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Detalhes Adicionais (Opcional)</label>
+            <label class="block text-[11px] font-bold text-[#8E9DA8] uppercase mb-1">Detalhes Adicionais (Opcional)</label>
             <textarea
               rows="2"
               [ngModel]="incidentDescription()"
               (ngModelChange)="incidentDescription.set($event)"
-              class="w-full bg-slate-950 border border-slate-800 focus:border-rose-500 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-hidden"
+              class="w-full bg-[#080B0C] border border-[#222A2F] focus:border-rose-500 rounded-xl px-3.5 py-2 text-xs text-[#E7EBEE] focus:outline-hidden"
               placeholder="Ex: Pneu traseiro estourou no acostamento..."
             ></textarea>
           </div>
@@ -587,7 +572,7 @@
           <button
             type="button"
             (click)="incidentModalOpen.set(false)"
-            class="py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs rounded-xl transition-colors cursor-pointer"
+            class="py-3 bg-[#1E262B] hover:bg-[#253036] text-[#CAD2D9] font-bold text-xs rounded-xl transition-colors cursor-pointer"
           >
             Cancelar
           </button>
@@ -616,40 +601,40 @@
               <span>🔴</span>
               <span>OCORRÊNCIA ENVIADA</span>
             </h3>
-            <p class="text-xs text-slate-300 font-medium">
+            <p class="text-xs text-[#CAD2D9] font-medium">
               Seu chamado foi registrado e nossa central já foi acionada.
             </p>
           </div>
 
           <!-- Card Estruturado com os Dados do Alerta -->
-          <div class="p-4 rounded-2xl bg-slate-950 border border-rose-500/30 space-y-2.5 text-xs">
-            <div class="flex items-center justify-between pb-2 border-b border-slate-900">
-              <span class="text-[11px] text-slate-400 uppercase font-bold">Protocolo</span>
+          <div class="p-4 rounded-2xl bg-[#080B0C] border border-rose-500/30 space-y-2.5 text-xs">
+            <div class="flex items-center justify-between pb-2 border-b border-[#222A2F]">
+              <span class="text-[11px] text-[#8E9DA8] uppercase font-bold">Protocolo</span>
               <span class="font-mono font-black text-sm text-rose-300 px-2 py-0.5 rounded-md bg-rose-950/60 border border-rose-500/30">
                 {{ lastSubmittedIncident()?.protocol || '#004821' }}
               </span>
             </div>
 
             <div class="flex items-center justify-between">
-              <span class="text-slate-400">Tipo:</span>
-              <span class="font-bold text-white uppercase">{{ lastSubmittedIncident()?.category }}</span>
+              <span class="text-[#8E9DA8]">Tipo:</span>
+              <span class="font-bold text-[#E7EBEE] uppercase">{{ lastSubmittedIncident()?.category }}</span>
             </div>
 
             <div class="flex items-center justify-between">
-              <span class="text-slate-400">Horário:</span>
-              <span class="font-mono font-bold text-slate-200">
+              <span class="text-[#8E9DA8]">Horário:</span>
+              <span class="font-mono font-bold text-[#CAD2D9]">
                 {{ lastSubmittedIncident()?.recordedAt | date:'HH:mm • dd/MM' }}
               </span>
             </div>
 
             <div class="flex items-start justify-between gap-2">
-              <span class="text-slate-400 shrink-0">Localização:</span>
-              <div class="text-right font-semibold text-slate-200 text-[11px] truncate">
+              <span class="text-[#8E9DA8] shrink-0">Localização:</span>
+              <div class="text-right font-semibold text-[#CAD2D9] text-[11px] truncate">
                 @if (lastSubmittedIncident()?.latitude; as lat) {
                   <a
                     [href]="'https://maps.google.com/?q=' + lat + ',' + lastSubmittedIncident()?.longitude"
                     target="_blank"
-                    class="text-blue-400 hover:underline inline-flex items-center gap-1 font-mono text-[10px]"
+                    class="text-[#FF6B00] hover:underline inline-flex items-center gap-1 font-mono text-[10px]"
                   >
                     <svg lucideMapPin class="size-3"></svg>
                     <span>{{ lat.toFixed(4) }}, {{ lastSubmittedIncident()?.longitude?.toFixed(4) }}</span>
@@ -660,8 +645,8 @@
               </div>
             </div>
 
-            <div class="pt-2 border-t border-slate-900 flex items-center justify-between">
-              <span class="text-slate-400">Status:</span>
+            <div class="pt-2 border-t border-[#222A2F] flex items-center justify-between">
+              <span class="text-[#8E9DA8]">Status:</span>
               <span class="inline-flex items-center gap-1.5 text-emerald-400 font-bold text-[11px]">
                 <span class="size-2 rounded-full bg-emerald-400 animate-ping"></span>
                 Central foi notificada
@@ -669,9 +654,9 @@
             </div>
 
             @if (lastSubmittedIncident()?.photoUrl; as photo) {
-              <div class="pt-2 border-t border-slate-900 flex items-center gap-2.5">
-                <img [src]="photo" alt="Foto da avaria" class="size-11 rounded-xl object-cover border border-slate-800 shrink-0" />
-                <div class="text-[10px] text-slate-400 leading-tight">
+              <div class="pt-2 border-t border-[#222A2F] flex items-center gap-2.5">
+                <img [src]="photo" alt="Foto da avaria" class="size-11 rounded-xl object-cover border border-[#222A2F] shrink-0" />
+                <div class="text-[10px] text-[#8E9DA8] leading-tight">
                   <span class="text-emerald-400 font-semibold block">Foto anexada ao chamado</span>
                   <span>Evidência salva para a equipe de socorro</span>
                 </div>
@@ -692,7 +677,7 @@
             <button
               type="button"
               (click)="incidentModalOpen.set(false)"
-              class="w-full py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs rounded-xl transition-colors cursor-pointer"
+              class="w-full py-3 bg-[#1E262B] hover:bg-[#253036] text-[#CAD2D9] font-bold text-xs rounded-xl transition-colors cursor-pointer"
             >
               Concluir / Voltar ao Início
             </button>
@@ -707,43 +692,43 @@
 <!-- MODAL: DOCUMENTOS DO VEÍCULO (CRLV / CNH)  -->
 <!-- ========================================== -->
 @if (docsModalOpen()) {
-  <div class="fixed inset-0 z-[60] bg-slate-950/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-3 pb-8 sm:p-4 animate-in fade-in">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 sm:p-6 w-full max-w-sm max-h-[85vh] overflow-y-auto space-y-4 shadow-2xl animate-in slide-in-from-bottom-4">
+  <div class="fixed inset-0 z-[60] bg-[#080B0C]/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-3 pb-8 sm:p-4 animate-in fade-in">
+    <div class="bg-[#0F1215] border border-[#222A2F] rounded-3xl p-5 sm:p-6 w-full max-w-sm max-h-[85vh] overflow-y-auto space-y-4 shadow-2xl animate-in slide-in-from-bottom-4">
       <div class="flex items-center justify-between">
-        <h3 class="text-base font-bold text-white flex items-center gap-2">
-          <svg lucideFileText class="size-5 text-blue-400"></svg>
+        <h3 class="text-base font-bold text-[#E7EBEE] flex items-center gap-2">
+          <svg lucideFileText class="size-5 text-[#FF6B00]"></svg>
           Documentação de Viagem
         </h3>
-        <button (click)="docsModalOpen.set(false)" class="text-slate-400 hover:text-white p-1">
+        <button (click)="docsModalOpen.set(false)" class="text-[#8E9DA8] hover:text-white p-1">
           <svg lucideX class="size-4"></svg>
         </button>
       </div>
 
       @if (data()?.trip?.vehicle; as veh) {
-        <div class="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 space-y-2 text-xs">
-          <p class="text-[10px] text-slate-400 font-bold uppercase">Veículo Atual</p>
-          <p class="text-sm font-bold text-white">{{ veh.brand ? veh.brand + ' ' : '' }}{{ veh.model }} ({{ veh.year }})</p>
+        <div class="p-3.5 rounded-2xl bg-[#080B0C] border border-[#222A2F] space-y-2 text-xs">
+          <p class="text-[10px] text-[#8E9DA8] font-bold uppercase">Veículo Atual</p>
+          <p class="text-sm font-bold text-[#E7EBEE]">{{ veh.brand ? veh.brand + ' ' : '' }}{{ veh.model }} ({{ veh.year }})</p>
           <div class="flex items-center justify-between pt-1">
-            <span class="text-slate-400">Placa:</span>
-            <span class="font-mono font-bold text-emerald-400">{{ veh.plate }}</span>
+            <span class="text-[#8E9DA8]">Placa:</span>
+            <span class="font-mono font-bold text-[#FF6B00]">{{ veh.plate }}</span>
           </div>
           @if (veh.renavam) {
             <div class="flex items-center justify-between">
-              <span class="text-slate-400">RENAVAM:</span>
-              <span class="font-mono font-bold text-slate-200">{{ veh.renavam }}</span>
+              <span class="text-[#8E9DA8]">RENAVAM:</span>
+              <span class="font-mono font-bold text-[#CAD2D9]">{{ veh.renavam }}</span>
             </div>
           }
           <div class="flex items-center justify-between">
-            <span class="text-slate-400">Vencimento CRLV:</span>
-            <span class="font-semibold text-slate-200">{{ veh.crlvExpiration || 'Não informado' }}</span>
+            <span class="text-[#8E9DA8]">Vencimento CRLV:</span>
+            <span class="font-semibold text-[#CAD2D9]">{{ veh.crlvExpiration || 'Não informado' }}</span>
           </div>
         </div>
       }
 
       @if (data()?.driver; as drv) {
-        <div class="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 space-y-2 text-xs">
+        <div class="p-3.5 rounded-2xl bg-[#080B0C] border border-[#222A2F] space-y-2 text-xs">
           <div class="flex items-center justify-between">
-            <p class="text-[10px] text-slate-400 font-bold uppercase">Motorista (Sua Habilitação)</p>
+            <p class="text-[10px] text-[#8E9DA8] font-bold uppercase">Motorista (Sua Habilitação)</p>
             <span
               class="px-2 py-0.5 rounded-full text-[10px] font-bold"
               [class]="cnhStatus().badgeClass"
@@ -751,19 +736,19 @@
               {{ cnhStatus().badgeText }}
             </span>
           </div>
-          <p class="text-sm font-bold text-white">{{ drv.name }}</p>
+          <p class="text-sm font-bold text-[#E7EBEE]">{{ drv.name }}</p>
           <div class="flex items-center justify-between pt-1">
-            <span class="text-slate-400">CNH:</span>
-            <span class="font-mono text-slate-200">{{ drv.cnhNumber }} (Cat. {{ drv.cnhCategory }})</span>
+            <span class="text-[#8E9DA8]">CNH:</span>
+            <span class="font-mono text-[#CAD2D9]">{{ drv.cnhNumber }} (Cat. {{ drv.cnhCategory }})</span>
           </div>
           <div class="flex items-center justify-between">
-            <span class="text-slate-400">Vencimento:</span>
-            <span class="font-semibold text-slate-200">
+            <span class="text-[#8E9DA8]">Vencimento:</span>
+            <span class="font-semibold text-[#CAD2D9]">
               {{ drv.cnhExpirationDate }}
             </span>
           </div>
           @if (!cnhStatus().canStartTrip) {
-            <p class="text-[11px] text-rose-400 font-medium pt-1.5 border-t border-slate-900 leading-tight">
+            <p class="text-[11px] text-rose-400 font-medium pt-1.5 border-t border-[#222A2F] leading-tight">
               {{ cnhStatus().blockReason }}
             </p>
           }
@@ -772,7 +757,7 @@
 
       <button
         (click)="docsModalOpen.set(false)"
-        class="w-full py-3 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs rounded-xl transition-colors cursor-pointer"
+        class="w-full py-3 bg-[#1E262B] hover:bg-[#253036] text-[#CAD2D9] font-bold text-xs rounded-xl transition-colors cursor-pointer"
       >
         Fechar
       </button>
@@ -784,40 +769,40 @@
 <!-- MODAL: CHECKLIST VEICULAR RÁPIDO           -->
 <!-- ========================================== -->
 @if (checklistModalOpen()) {
-  <div class="fixed inset-0 z-[60] bg-slate-950/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-3 pb-8 sm:p-4 animate-in fade-in">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 sm:p-6 w-full max-w-sm max-h-[85vh] overflow-y-auto space-y-4 shadow-2xl animate-in slide-in-from-bottom-4">
+  <div class="fixed inset-0 z-[60] bg-[#080B0C]/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-3 pb-8 sm:p-4 animate-in fade-in">
+    <div class="bg-[#0F1215] border border-[#222A2F] rounded-3xl p-5 sm:p-6 w-full max-w-sm max-h-[85vh] overflow-y-auto space-y-4 shadow-2xl animate-in slide-in-from-bottom-4">
       <div class="flex items-center justify-between">
-        <h3 class="text-base font-bold text-white flex items-center gap-2">
-          <svg lucideCheckSquare class="size-5 text-amber-400"></svg>
+        <h3 class="text-base font-bold text-[#E7EBEE] flex items-center gap-2">
+          <svg lucideCheckSquare class="size-5 text-[#FF6B00]"></svg>
           Checklist Pré-Viagem
         </h3>
-        <button (click)="checklistModalOpen.set(false)" class="text-slate-400 hover:text-white p-1">
+        <button (click)="checklistModalOpen.set(false)" class="text-[#8E9DA8] hover:text-white p-1">
           <svg lucideX class="size-4"></svg>
         </button>
       </div>
 
       <div class="space-y-2 text-xs">
-        <label class="flex items-center gap-3 p-3 rounded-xl bg-slate-950 border border-slate-800 cursor-pointer">
-          <input type="checkbox" [ngModel]="checklistPneus()" (ngModelChange)="checklistPneus.set($event)" class="size-4 rounded accent-emerald-500" />
-          <span class="text-slate-200 font-medium">Calibragem e estado dos pneus</span>
+        <label class="flex items-center gap-3 p-3 rounded-xl bg-[#080B0C] border border-[#222A2F] cursor-pointer">
+          <input type="checkbox" [ngModel]="checklistPneus()" (ngModelChange)="checklistPneus.set($event)" class="size-4 rounded accent-[#FF6B00]" />
+          <span class="text-[#CAD2D9] font-medium">Calibragem e estado dos pneus</span>
         </label>
-        <label class="flex items-center gap-3 p-3 rounded-xl bg-slate-950 border border-slate-800 cursor-pointer">
-          <input type="checkbox" [ngModel]="checklistOleo()" (ngModelChange)="checklistOleo.set($event)" class="size-4 rounded accent-emerald-500" />
-          <span class="text-slate-200 font-medium">Nível de óleo e arrefecimento</span>
+        <label class="flex items-center gap-3 p-3 rounded-xl bg-[#080B0C] border border-[#222A2F] cursor-pointer">
+          <input type="checkbox" [ngModel]="checklistOleo()" (ngModelChange)="checklistOleo.set($event)" class="size-4 rounded accent-[#FF6B00]" />
+          <span class="text-[#CAD2D9] font-medium">Nível de óleo e arrefecimento</span>
         </label>
-        <label class="flex items-center gap-3 p-3 rounded-xl bg-slate-950 border border-slate-800 cursor-pointer">
-          <input type="checkbox" [ngModel]="checklistLuzes()" (ngModelChange)="checklistLuzes.set($event)" class="size-4 rounded accent-emerald-500" />
-          <span class="text-slate-200 font-medium">Faróis, setas e luz de freio</span>
+        <label class="flex items-center gap-3 p-3 rounded-xl bg-[#080B0C] border border-[#222A2F] cursor-pointer">
+          <input type="checkbox" [ngModel]="checklistLuzes()" (ngModelChange)="checklistLuzes.set($event)" class="size-4 rounded accent-[#FF6B00]" />
+          <span class="text-[#CAD2D9] font-medium">Faróis, setas e luz de freio</span>
         </label>
-        <label class="flex items-center gap-3 p-3 rounded-xl bg-slate-950 border border-slate-800 cursor-pointer">
-          <input type="checkbox" [ngModel]="checklistFreios()" (ngModelChange)="checklistFreios.set($event)" class="size-4 rounded accent-emerald-500" />
-          <span class="text-slate-200 font-medium">Freios e estepe de emergência</span>
+        <label class="flex items-center gap-3 p-3 rounded-xl bg-[#080B0C] border border-[#222A2F] cursor-pointer">
+          <input type="checkbox" [ngModel]="checklistFreios()" (ngModelChange)="checklistFreios.set($event)" class="size-4 rounded accent-[#FF6B00]" />
+          <span class="text-[#CAD2D9] font-medium">Freios e estepe de emergência</span>
         </label>
       </div>
 
       <button
         (click)="saveChecklist()"
-        class="w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs rounded-xl shadow-md transition-colors cursor-pointer"
+        class="w-full py-3 bg-[#FF6B00] hover:bg-[#FF7A1A] text-black font-black text-xs rounded-xl shadow-md transition-colors cursor-pointer"
       >
         Confirmar Inspeção
       </button>
