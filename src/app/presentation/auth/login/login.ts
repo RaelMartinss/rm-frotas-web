@@ -2,6 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { Capacitor } from '@capacitor/core';
 import { IAuthRepository } from '../../../domain/repositories/auth.repository.interface';
 import {
   LucideMail,
@@ -53,6 +54,7 @@ export class LoginComponent {
   showPassword = signal<boolean>(false);
   readonly currentYear = new Date().getFullYear();
   readonly appVersion = '2.3.1';
+  readonly isNative = Capacitor.isNativePlatform();
 
   // Signals para Modal "Esqueci minha senha"
   isForgotPasswordModalOpen = signal<boolean>(false);
