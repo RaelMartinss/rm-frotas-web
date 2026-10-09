@@ -1,15 +1,30 @@
+import { inject } from '@angular/core';
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { guestGuard } from './core/guards/guest.guard';
 import { mustChangePasswordGuard } from './core/guards/must-change-password.guard';
 import { superAdminGuard } from './core/guards/super-admin.guard';
 import { reportsGuard } from './core/guards/reports.guard';
+import { AuthStateService } from './core/services/auth-state.service';
 
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: 'dashboard',
-    pathMatch: 'full'
+    pathMatch: 'full',
+    redirectTo: () => {
+      const authState = inject(AuthStateService);
+      const user = authState.getUser();
+      if (!authState.isAuthenticated()) {
+        return 'login';
+      }
+      if (user?.role === 'DRIVER') {
+        return 'motorista';
+      }
+      if (user?.role === 'SUPER_ADMIN') {
+        return 'clientes';
+      }
+      return 'dashboard';
+    }
   },
   {
     path: 'login',

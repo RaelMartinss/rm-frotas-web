@@ -3,7 +3,7 @@ import { registerLocaleData } from '@angular/common';
 import localePt from '@angular/common/locales/pt';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { firstValueFrom, of, catchError } from 'rxjs';
+import { firstValueFrom, of, catchError, timeout } from 'rxjs';
 import { routes } from './app.routes';
 import { tokenInterceptor } from './core/interceptors/token.interceptor';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
@@ -68,40 +68,75 @@ export const appConfig: ApplicationConfig = {
       const offlineQueue = inject(OfflineQueueService);
       const fuelHandler = inject(FuelRecordActionHandler);
 
-      offlineQueue.registerHandler(fuelHandler);
+      try {
+        offlineQueue.registerHandler(fuelHandler);
+      } catch (e) {
+        console.warn('Erro ao registrar handler da fila offline:', e);
+      }
 
       if (Capacitor.isNativePlatform()) {
         try {
-          const { value } = await Preferences.get({ key: 'rm_frotas_refresh_token' });
+          const timeoutPref = new Promise<{ value: string | null }>((resolve) =>
+            setTimeout(() => resolve({ value: null }), 1200)
+          );
+          const prefPromise = Preferences.get({ key: 'rm_frotas_refresh_token' });
+          const { value } = await Promise.race([prefPromise, timeoutPref]);
           if (value && !authState.getRefreshToken()) {
             localStorage.setItem('rm_frotas_refresh_token', value);
           }
         } catch {}
       }
 
-      const savedUser = authState.getUser();
       const hasRefreshToken = !!authState.getRefreshToken();
 
+      // No mobile nativo, se não há refresh token, não realiza chamada de rede bloqueante
+      if (Capacitor.isNativePlatform() && !hasRefreshToken) {
+        authState.setInitialized();
+        return;
+      }
+
+      const savedUser = authState.getUser();
       if (Capacitor.isNativePlatform() && hasRefreshToken && savedUser?.role === 'DRIVER') {
-        const canBiometric = await biometricAuth.isAvailable();
-        if (canBiometric) {
-          const authenticated = await biometricAuth.verify(
-            'Confirme sua biometria para acessar sua conta de motorista'
+        try {
+          const timeoutBioCheck = new Promise<boolean>((resolve) =>
+            setTimeout(() => resolve(false), 1200)
           );
-          if (!authenticated) {
-            authState.setInitialized();
-            return;
+          const canBiometric = await Promise.race([
+            biometricAuth.isAvailable(),
+            timeoutBioCheck
+          ]);
+
+          if (canBiometric) {
+            const timeoutVerify = new Promise<boolean>((resolve) =>
+              setTimeout(() => resolve(false), 5000)
+            );
+            const authenticated = await Promise.race([
+              biometricAuth.verify('Confirme sua biometria para acessar sua conta de motorista'),
+              timeoutVerify
+            ]);
+
+            if (!authenticated) {
+              authState.setInitialized();
+              return;
+            }
           }
+        } catch (bioErr) {
+          console.warn('Erro na autenticação biométrica:', bioErr);
         }
       }
 
-      return firstValueFrom(
-        authRepository.refresh().pipe(
-          catchError(() => of(null))
-        )
-      ).finally(() => {
+      try {
+        await firstValueFrom(
+          authRepository.refresh().pipe(
+            timeout({ first: 3000 }),
+            catchError(() => of(null))
+          )
+        );
+      } catch (err) {
+        console.warn('Erro ou timeout ao sincronizar autenticação:', err);
+      } finally {
         authState.setInitialized();
-      });
+      }
     })
   ]
 };

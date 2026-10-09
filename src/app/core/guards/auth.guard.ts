@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
 import { Router, CanActivateFn } from '@angular/router';
 import { of } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { map, catchError, timeout } from 'rxjs/operators';
 import { IAuthRepository } from '../../domain/repositories/auth.repository.interface';
 import { AuthStateService } from '../services/auth-state.service';
 
@@ -28,8 +28,14 @@ export const authGuard: CanActivateFn = (route, state) => {
     return checkUserPasswordChange();
   }
 
-  // Se a página foi recarregada (F5), recupera a sessão via cookie HttpOnly
+  // Se o app já foi inicializado (provideAppInitializer já tentou restaurar sessão), não repete requisição de refresh
+  if (authState.isInitialized()) {
+    return router.createUrlTree(['/login']);
+  }
+
+  // Se a página foi recarregada (F5), recupera a sessão via cookie HttpOnly com timeout estrito
   return authRepository.refresh().pipe(
+    timeout({ first: 2500 }),
     map(() => checkUserPasswordChange()),
     catchError(() => of(router.createUrlTree(['/login'])))
   );
