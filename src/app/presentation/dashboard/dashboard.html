@@ -357,21 +357,22 @@
                     <button
                       type="button"
                       (click)="selectPeriod(opt.value)"
-                      class="w-full text-left px-3.5 py-2 text-xs flex items-center justify-between hover:bg-[#171D21] transition-colors cursor-pointer group"
-                      [class.bg-[#171D21]/80]="tripsPeriod() === opt.value"
+                      class="w-full text-left px-3.5 py-2.5 text-xs flex items-center justify-between hover:bg-[#171D21] transition-colors cursor-pointer group"
+                      [ngClass]="tripsPeriod() === opt.value ? 'bg-[#171D21]' : ''"
                     >
-                      <div>
-                        <p
-                          class="font-semibold text-xs leading-tight"
-                          [class.text-[#FF6B00]="tripsPeriod() === opt.value"
-                          [class.text-[#E7EBEE]="tripsPeriod() !== opt.value"
+                      <div class="flex flex-col">
+                        <span
+                          class="font-semibold text-xs leading-tight transition-colors"
+                          [ngClass]="tripsPeriod() === opt.value ? 'text-[#FF6B00]' : 'text-white group-hover:text-white'"
                         >
                           {{ opt.label }}
-                        </p>
-                        <p class="text-[10px] text-[#62707C] mt-0.5">{{ opt.description }}</p>
+                        </span>
+                        <span class="text-[10px] text-[#929EAA] mt-0.5">
+                          {{ opt.description }}
+                        </span>
                       </div>
                       @if (tripsPeriod() === opt.value) {
-                        <span class="size-1.5 rounded-full bg-[#FF6B00] shrink-0 ml-2"></span>
+                        <span class="size-2 rounded-full bg-[#FF6B00] shrink-0 ml-2"></span>
                       }
                     </button>
                   }

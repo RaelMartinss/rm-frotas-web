@@ -157,7 +157,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
   selectPeriod(period: TripsPeriod): void {
     this.tripsPeriod.set(period);
     this.periodDropdownOpen.set(false);
+    // 1. Atualização imediata do gráfico
     this.renderActivityChart();
+    // 2. Consulta à API conectada (backend rm-frotas)
+    this.dashboardRepository.getSummary(period).subscribe({
+      next: (summary) => {
+        this.data.set(summary);
+        setTimeout(() => this.renderActivityChart(), 20);
+      },
+      error: () => {}
+    });
   }
 
   @HostListener('document:click')
@@ -186,7 +195,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   loadDashboardDataSilent(): void {
-    this.dashboardRepository.getSummary().subscribe({
+    this.dashboardRepository.getSummary(this.tripsPeriod()).subscribe({
       next: (summary) => {
         this.data.set(summary);
         setTimeout(() => this.renderCharts(), 50);
@@ -203,7 +212,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
     this.error.set(null);
 
-    this.dashboardRepository.getSummary().subscribe({
+    this.dashboardRepository.getSummary(this.tripsPeriod()).subscribe({
       next: (summary) => {
         this.data.set(summary);
         this.loading.set(false);
@@ -301,6 +310,21 @@ export class DashboardComponent implements OnInit, OnDestroy {
   } {
     const summary = this.data();
     const weekly = summary?.weeklyActivity;
+
+    // Se o backend retornou dados para o período selecionado:
+    if (weekly?.days && weekly.days.length > 0) {
+      const isMatchingPeriod =
+        (period === 'SEMANA' && weekly.days.length === 7) ||
+        (period === 'MES' && weekly.days.length === 4) ||
+        (period === '6_MESES' && weekly.days.length === 6);
+
+      if (isMatchingPeriod) {
+        const labels = weekly.days.map((d) => d.day);
+        const completedTrips = weekly.days.map((d) => d.completedTrips);
+        const ongoingTrips = weekly.days.map((d) => d.ongoingTrips);
+        return { labels, completedTrips, ongoingTrips };
+      }
+    }
 
     if (period === 'SEMANA') {
       const labels = weekly?.days?.map((d) => d.day) || ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];

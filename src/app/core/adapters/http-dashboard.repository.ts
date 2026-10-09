@@ -12,8 +12,9 @@ export class HttpDashboardRepository implements IDashboardRepository {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = `${environment.apiUrl}/dashboard/summary`;
 
-  getSummary(): Observable<DashboardSummary> {
-    return this.http.get<DashboardSummary>(this.apiUrl);
+  getSummary(period?: string): Observable<DashboardSummary> {
+    const url = period ? `${this.apiUrl}?period=${encodeURIComponent(period)}` : this.apiUrl;
+    return this.http.get<DashboardSummary>(url);
   }
 }
 
