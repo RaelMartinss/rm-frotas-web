@@ -171,41 +171,60 @@ export class TripTrackingComponent implements OnInit, AfterViewInit, OnDestroy {
     return Math.min(95, Math.max(10, Math.round(dist * 2.5)));
   });
 
-  // Linha do tempo / Últimos eventos
+  // Linha do tempo / Últimos eventos baseados 100% nos dados reais de telemetria
   readonly recentEvents = computed<TimelineEvent[]>(() => {
-    const pings = this.routeData()?.pings || [];
+    const data = this.routeData();
+    const pings = data?.pings || [];
     if (pings.length === 0) return [];
 
     const events: TimelineEvent[] = [];
-    const latest = pings[pings.length - 1];
 
-    // 1. Posicionamento mais recente
+    // 1. Se a viagem foi finalizada (evento de conclusão)
+    if (data?.completedAt) {
+      events.push({
+        time: this.formatTime(data.completedAt),
+        title: 'Viagem finalizada',
+        description: data.destinationCity
+          ? `Chegada registrada em ${data.destinationCity} (${data.destinationState || 'Destino'})`
+          : 'Entrega / destino concluído com sucesso',
+        type: 'start',
+      });
+    }
+
+    // 2. Última posição registrada em tempo real
+    const latest = pings[pings.length - 1];
+    const isStopped = this.isStopped();
     events.push({
-      time: new Date(latest.recordedAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
-      title: 'Posicionamento atualizado',
-      description: `${latest.speed && latest.speed > 0 ? `${Math.round(latest.speed)} km/h • ` : ''}${this.routeData()?.vehiclePlate || 'Veículo em rota'}`,
-      type: 'update',
+      time: this.formatTime(latest.recordedAt),
+      title: isStopped ? 'Veículo parado' : 'Em deslocamento',
+      description: isStopped
+        ? `Parado • ${data?.vehiclePlate || 'Veículo'}`
+        : `${this.currentSpeed()} km/h • Rota ativa (${data?.vehiclePlate || 'Veículo'})`,
+      type: isStopped ? 'stop' : 'update',
     });
 
-    // 2. Parada recente se houver
-    const stoppedPing = [...pings].reverse().find(p => p.movementState === 'STOPPED');
-    if (stoppedPing && stoppedPing.id !== latest.id) {
+    // 3. Paradas reais detectadas ao longo da rota (agrupadas e cronológicas)
+    const { stops } = this.processPingsForDisplay(pings);
+    // Ordena paradas da mais recente para a mais antiga (limite nas últimas 3 paradas relevantes)
+    const recentStops = [...stops].reverse().slice(0, 3);
+    for (const stop of recentStops) {
       events.push({
-        time: new Date(stoppedPing.recordedAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
-        title: 'Parada para abastecimento / descanso',
-        description: 'Veículo com velocidade nula detectada',
+        time: stop.startTime,
+        title: `Parada de ${stop.durationMinutes} min`,
+        description: `Intervalo das ${stop.startTime} às ${stop.endTime}`,
         type: 'stop',
       });
     }
 
-    // 3. Início da viagem
+    // 4. Início da viagem / partida inicial
     const firstPing = pings[0];
+    const startTimestamp = data?.startedAt || firstPing.recordedAt;
     events.push({
-      time: new Date(firstPing.recordedAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
-      title: 'Início do rastreamento',
-      description: this.routeData()?.originCity
-        ? `${this.routeData()?.originCity} (${this.routeData()?.originState || 'Origem'})`
-        : 'Partida inicial registrada',
+      time: this.formatTime(startTimestamp),
+      title: 'Início da viagem',
+      description: data?.originCity
+        ? `Partida de ${data.originCity} (${data.originState || 'Origem'})`
+        : 'Início do rastreamento GPS',
       type: 'start',
     });
 
