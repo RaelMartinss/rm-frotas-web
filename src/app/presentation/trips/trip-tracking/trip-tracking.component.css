@@ -3,7 +3,16 @@
   width: 100%;
 }
 
-/* Custom Marker Leaflet styles */
+/* Dark Theme Filter para Tiles OpenStreetMap (sem API key e com todas as ruas nítidas) */
+::ng-deep .leaflet-tile-pane {
+  filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.7);
+}
+
+::ng-deep .leaflet-container {
+  background-color: #080B0C !important;
+}
+
+/* Custom Marker Leaflet styles - isolados dos filtros */
 ::ng-deep .custom-truck-marker,
 ::ng-deep .custom-start-marker,
 ::ng-deep .custom-stop-marker {

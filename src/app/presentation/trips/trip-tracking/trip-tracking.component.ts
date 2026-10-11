@@ -269,16 +269,15 @@ export class TripTrackingComponent implements OnInit, AfterViewInit, OnDestroy {
   private initMap(): void {
     if (!this.mapContainerRef || this.map) return;
 
-    // CartoDB Dark Matter para harmonia visual 100% com o tema Dark Industrial RM Frotas
+    // OpenStreetMap padrão com filtro CSS Dark Industrial: 100% gratuito, sem limite e sem exigência de API Key
     this.map = L.map(this.mapContainerRef.nativeElement, {
       zoomControl: true,
       attributionControl: true,
     }).setView([-2.9986, -47.3536], 12);
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png', {
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
-      subdomains: 'abcd',
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" class="text-slate-400">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions" target="_blank" class="text-slate-400">CARTO</a>',
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" class="text-slate-400">OpenStreetMap</a> contributors',
     }).addTo(this.map);
   }
 
