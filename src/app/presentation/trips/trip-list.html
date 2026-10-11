@@ -975,15 +975,6 @@
   (confirm)="confirmCancelTrip()"
 />
 
-<!-- MODAL DE VISUALIZAÇÃO DE MAPA E ROTA -->
-@if (tripToViewRoute(); as trip) {
-  <app-trip-map-modal
-    [trip]="trip"
-    [vehiclePlate]="trip.vehiclePlate || getVehiclePlate(trip.vehicleId)"
-    [driverName]="trip.driverName || getDriverName(trip.driverId)"
-    (close)="closeRouteMap()"
-  />
-}
 
 <!-- MODAL DE INSPEÇÃO DE FOTO DE AVARIA SOS -->
 <app-trip-incident-photo-modal

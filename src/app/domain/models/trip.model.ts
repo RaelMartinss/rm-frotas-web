@@ -109,13 +109,29 @@ export interface TripLocationPing {
 export interface TripRouteResponse {
   tripId: string;
   status: string;
+  driverId?: string;
   driverName: string;
+  driverPhone?: string | null;
+  driverCnh?: string | null;
+  driverPhotoUrl?: string | null;
+  vehicleId?: string;
   vehiclePlate: string;
   vehicleModel: string;
+  vehicleBrand?: string | null;
+  vehicleCurrentKm?: number | null;
+  origin?: string;
+  originCity?: string;
+  originState?: string;
   originAddress: string;
+  destination?: string;
+  destinationCity?: string;
+  destinationState?: string;
   destinationAddress: string;
+  scheduledDate?: string | null;
+  estimatedArrivalDate?: string | null;
   startedAt?: string | null;
   completedAt?: string | null;
+  createdAt?: string | null;
   pings: TripLocationPing[];
 }
 

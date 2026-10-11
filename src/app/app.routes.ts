@@ -151,6 +151,18 @@ export const routes: Routes = [
           import('./presentation/trips/trip-list').then((m) => m.TripListComponent)
       },
       {
+        path: 'viagens/:id/rastreamento',
+        loadComponent: () =>
+          import('./presentation/trips/trip-tracking/trip-tracking.component').then(
+            (m) => m.TripTrackingComponent
+          )
+      },
+      {
+        path: 'viagens/:id/rota',
+        redirectTo: 'viagens/:id/rastreamento',
+        pathMatch: 'full'
+      },
+      {
         path: 'perfil',
         loadComponent: () =>
           import('./presentation/profile/profile').then((m) => m.ProfileComponent)

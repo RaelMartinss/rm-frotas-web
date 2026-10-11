@@ -17,7 +17,6 @@ import { Vehicle } from '../../domain/models/vehicle.model';
 import { Driver } from '../../domain/models/driver.model';
 import { getVehicleBrandLogo } from '../../core/utils/vehicle-brand.util';
 import { PaginationComponent } from '../shared/components/pagination/pagination.component';
-import { TripMapModalComponent } from './components/trip-map-modal/trip-map-modal.component';
 import { TripFormModalComponent } from './components/trip-form-modal/trip-form-modal.component';
 import { TripFinishModalComponent } from './components/trip-finish-modal/trip-finish-modal.component';
 import { TripCancelModalComponent } from './components/trip-cancel-modal/trip-cancel-modal.component';
@@ -65,7 +64,6 @@ import {
     RouterLink,
     ReactiveFormsModule,
     PaginationComponent,
-    TripMapModalComponent,
     TripFormModalComponent,
     TripFinishModalComponent,
     TripCancelModalComponent,
@@ -758,11 +756,7 @@ export class TripListComponent implements OnInit, OnDestroy {
 
   openRouteMap(trip: Trip): void {
     this.closeDropdown();
-    this.tripToViewRoute.set(trip);
-  }
-
-  closeRouteMap(): void {
-    this.tripToViewRoute.set(null);
+    this.router.navigate(['/viagens', trip.id, 'rastreamento']);
   }
 
   saveTrip(payload: CreateTripDTO): void {
