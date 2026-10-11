@@ -85,9 +85,16 @@
   <!-- LAYOUT PRINCIPAL: MAPA (ESQUERDA) + PAINEL DE TELEMETRIA (DIREITA) -->
   <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
-    <!-- COLUNA ESQUERDA: MAPA EM DESTAQUE (lg:col-span-8) -->
-    <section class="lg:col-span-8 flex flex-col gap-4" aria-label="Visualização do Mapa da Rota">
-      <div class="relative w-full h-[520px] sm:h-[640px] rounded-3xl overflow-hidden border border-[#222A2F] bg-[#080B0C] shadow-2xl">
+    <!-- COLUNA DO MAPA (lg:col-span-8 OU w-full lg:col-span-12 SE EXPANDIDO) -->
+    <section
+      [ngClass]="isExpandedMap() ? 'lg:col-span-12' : 'lg:col-span-8'"
+      class="flex flex-col gap-4 transition-all duration-300"
+      aria-label="Visualização do Mapa da Rota"
+    >
+      <div
+        [ngClass]="isExpandedMap() ? 'h-[620px] sm:h-[780px]' : 'h-[520px] sm:h-[640px]'"
+        class="relative w-full rounded-3xl overflow-hidden border border-[#222A2F] bg-[#080B0C] shadow-2xl transition-all duration-300"
+      >
         
         <!-- MAP CONTAINER LEAFLET -->
         <div #mapContainer class="w-full h-full z-10" tabindex="0" aria-label="Mapa interativo Leaflet de rastreamento"></div>
@@ -105,14 +112,19 @@
             <svg lucideLocate class="size-4"></svg>
           </button>
 
+          <!-- BOTÃO EXPANDIR / RECOLHER MAPA (OCULTA OU EXIBE PAINEL LATERAL) -->
           <button
             type="button"
-            (click)="fitRouteBounds()"
+            (click)="toggleExpandMap()"
             class="size-9 rounded-xl bg-[#0F1215]/90 backdrop-blur-md border border-[#222A2F] hover:border-[#FF6B00]/50 text-[#929EAA] hover:text-[#FF6B00] flex items-center justify-center shadow-xl transition-all cursor-pointer"
-            title="Ajustar zoom na rota inteira"
-            aria-label="Ajustar zoom para ver toda a rota"
+            [title]="isExpandedMap() ? 'Restaurar painel lateral' : 'Expandir mapa (ocultar painel lateral)'"
+            [attr.aria-label]="isExpandedMap() ? 'Restaurar painel lateral' : 'Expandir mapa ocultando painel'"
           >
-            <svg lucideMaximize2 class="size-4"></svg>
+            @if (isExpandedMap()) {
+              <svg lucideMinimize2 class="size-4 text-[#FF6B00]"></svg>
+            } @else {
+              <svg lucideMaximize2 class="size-4"></svg>
+            }
           </button>
         </div>
 
@@ -164,8 +176,9 @@
       </div>
     </section>
 
-    <!-- COLUNA DIREITA: PAINEL LATERAL DO OPERADOR (lg:col-span-4) -->
-    <aside class="lg:col-span-4 space-y-4" aria-label="Painel de Telemetria e Operações">
+    <!-- COLUNA DIREITA: PAINEL LATERAL DO OPERADOR (OCULTA NO MODO EXPANDIDO) -->
+    @if (!isExpandedMap()) {
+      <aside class="lg:col-span-4 space-y-4 animate-in fade-in duration-200" aria-label="Painel de Telemetria e Operações">
 
       <!-- 1. CARD PRINCIPAL: VEÍCULO & TELEMETRIA ATUAL (PRIORIDADE OPERACIONAL) -->
       <div class="p-5 rounded-3xl bg-[#0F1215] border border-[#222A2F] shadow-xl space-y-4">
@@ -375,6 +388,7 @@
       </div>
 
     </aside>
+    }
 
   </div>
 

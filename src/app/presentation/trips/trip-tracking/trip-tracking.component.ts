@@ -30,6 +30,7 @@ import {
   LucideMessageCircle,
   LucideCheck,
   LucideMaximize2,
+  LucideMinimize2,
 } from '@lucide/angular';
 
 interface FormattedStop {
@@ -67,6 +68,7 @@ interface TimelineEvent {
     LucideMessageCircle,
     LucideCheck,
     LucideMaximize2,
+    LucideMinimize2,
   ],
   templateUrl: './trip-tracking.component.html',
   styleUrl: './trip-tracking.component.css',
@@ -85,6 +87,7 @@ export class TripTrackingComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly errorMessage = signal<string | null>(null);
   readonly driverPhotoFailed = signal<boolean>(false);
   readonly copiedCoords = signal<boolean>(false);
+  readonly isExpandedMap = signal<boolean>(false);
 
   // Status dinâmico
   readonly isLiveTracking = computed(() => {
@@ -288,6 +291,18 @@ export class TripTrackingComponent implements OnInit, AfterViewInit, OnDestroy {
     const ping = this.latestPing();
     if (!ping || !this.map) return;
     this.map.flyTo([ping.latitude, ping.longitude], 16, { animate: true, duration: 1 });
+  }
+
+  /**
+   * Alterna entre modo normal (com painel lateral) e tela expandida (mapa cobrindo toda a largura)
+   */
+  toggleExpandMap(): void {
+    this.isExpandedMap.update((val) => !val);
+    setTimeout(() => {
+      if (this.map) {
+        this.map.invalidateSize();
+      }
+    }, 150);
   }
 
   /**
