@@ -10,26 +10,26 @@ import {
   ViewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import * as L from 'leaflet';
 import { ITripRepository } from '../../../domain/repositories/trip.repository.interface';
 import { TripRouteResponse, TripLocationPing } from '../../../domain/models/trip.model';
 import {
   LucideArrowLeft,
-  LucideNavigation,
   LucideRefreshCw,
   LucideRadio,
   LucideAlertTriangle,
   LucideTruck,
   LucideUser,
-  LucideClock,
-  LucideGauge,
   LucidePhone,
-  LucideCreditCard,
   LucideMapPin,
   LucideActivity,
-  LucideLayers,
   LucideCheckCircle2,
+  LucideLocate,
+  LucideCopy,
+  LucideMessageCircle,
+  LucideCheck,
+  LucideMaximize2,
 } from '@lucide/angular';
 
 interface FormattedStop {
@@ -62,6 +62,11 @@ interface TimelineEvent {
     LucideMapPin,
     LucideActivity,
     LucideCheckCircle2,
+    LucideLocate,
+    LucideCopy,
+    LucideMessageCircle,
+    LucideCheck,
+    LucideMaximize2,
   ],
   templateUrl: './trip-tracking.component.html',
   styleUrl: './trip-tracking.component.css',
@@ -78,6 +83,8 @@ export class TripTrackingComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly loading = signal<boolean>(true);
   readonly refreshing = signal<boolean>(false);
   readonly errorMessage = signal<string | null>(null);
+  readonly driverPhotoFailed = signal<boolean>(false);
+  readonly copiedCoords = signal<boolean>(false);
 
   // Status dinâmico
   readonly isLiveTracking = computed(() => {
@@ -208,6 +215,7 @@ export class TripTrackingComponent implements OnInit, AfterViewInit, OnDestroy {
   private currentMarker: L.Marker | null = null;
   private stopMarkers: L.Marker[] = [];
   private pollInterval: any = null;
+  private resizeObserver: ResizeObserver | null = null;
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -224,16 +232,31 @@ export class TripTrackingComponent implements OnInit, AfterViewInit, OnDestroy {
       this.initMap();
       this.loadRoute(false);
       this.startPollingIfLive();
+      this.setupResizeObserver();
     }, 100);
   }
 
   ngOnDestroy(): void {
     this.stopPolling();
     this.clearStopMarkers();
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+      this.resizeObserver = null;
+    }
     if (this.map) {
       this.map.remove();
       this.map = null;
     }
+  }
+
+  private setupResizeObserver(): void {
+    if (!this.mapContainerRef?.nativeElement) return;
+    this.resizeObserver = new ResizeObserver(() => {
+      if (this.map) {
+        this.map.invalidateSize();
+      }
+    });
+    this.resizeObserver.observe(this.mapContainerRef.nativeElement);
   }
 
   private clearStopMarkers(): void {
@@ -246,16 +269,77 @@ export class TripTrackingComponent implements OnInit, AfterViewInit, OnDestroy {
   private initMap(): void {
     if (!this.mapContainerRef || this.map) return;
 
-    // Inicializa o mapa com estilo escuro (CartoDB Dark Matter) combinando perfeitamente com o portal
+    // CartoDB Dark Matter para harmonia visual 100% com o tema Dark Industrial RM Frotas
     this.map = L.map(this.mapContainerRef.nativeElement, {
       zoomControl: true,
       attributionControl: true,
     }).setView([-2.9986, -47.3536], 12);
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png', {
       maxZoom: 19,
-      attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+      subdomains: 'abcd',
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" class="text-slate-400">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions" target="_blank" class="text-slate-400">CARTO</a>',
     }).addTo(this.map);
+  }
+
+  /**
+   * Centraliza o mapa diretamente no veículo atual
+   */
+  centerOnVehicle(): void {
+    const ping = this.latestPing();
+    if (!ping || !this.map) return;
+    this.map.flyTo([ping.latitude, ping.longitude], 16, { animate: true, duration: 1 });
+  }
+
+  /**
+   * Ajusta o zoom para enquadrar a rota inteira
+   */
+  fitRouteBounds(): void {
+    if (!this.map) return;
+    if (this.polyline && this.polyline.getLatLngs().length > 0) {
+      this.map.fitBounds(this.polyline.getBounds(), { padding: [50, 50], maxZoom: 16 });
+    } else {
+      const ping = this.latestPing();
+      if (ping) {
+        this.map.setView([ping.latitude, ping.longitude], 15);
+      }
+    }
+  }
+
+  /**
+   * Copia as coordenadas atuais do veículo para o clipboard
+   */
+  copyCoordinates(): void {
+    const ping = this.latestPing();
+    if (!ping) return;
+    const text = `${ping.latitude.toFixed(6)}, ${ping.longitude.toFixed(6)}`;
+    navigator.clipboard.writeText(text).then(() => {
+      this.copiedCoords.set(true);
+      setTimeout(() => this.copiedCoords.set(false), 2500);
+    });
+  }
+
+  /**
+   * Gera o link direto para conversa no WhatsApp com o motorista
+   */
+  getWhatsAppUrl(): string | null {
+    const phone = this.routeData()?.driverPhone;
+    if (!phone) return null;
+    const cleanNumber = phone.replace(/\D/g, '');
+    const fullNumber = cleanNumber.startsWith('55') ? cleanNumber : `55${cleanNumber}`;
+    const plate = this.routeData()?.vehiclePlate || '';
+    const msg = encodeURIComponent(`Olá, sou da central de operações RM Frotas acompanhando a viagem com o veículo ${plate}. Tudo bem?`);
+    return `https://wa.me/${fullNumber}?text=${msg}`;
+  }
+
+  /**
+   * Formata telefone para URI tel:
+   */
+  getTelUrl(): string | null {
+    const phone = this.routeData()?.driverPhone;
+    if (!phone) return null;
+    const cleanNumber = phone.replace(/\D/g, '');
+    return `tel:${cleanNumber}`;
   }
 
   loadRoute(isRefresh = false): void {
@@ -322,10 +406,15 @@ export class TripTrackingComponent implements OnInit, AfterViewInit, OnDestroy {
 
       const stopMarker = L.marker([stop.latitude, stop.longitude], { icon: stopIcon })
         .bindPopup(`
-          <div class="p-1.5 text-xs text-slate-800 font-sans">
-            <strong class="text-amber-600 font-bold">🛑 Parada Detectada</strong><br/>
-            <strong>Duração:</strong> ${stop.durationMinutes} min<br/>
-            <strong>Horário:</strong> ${stop.startTime} às ${stop.endTime}
+          <div class="p-2 text-xs font-sans text-slate-200">
+            <div class="flex items-center gap-1.5 font-bold text-amber-400 mb-1">
+              <span>🛑</span>
+              <span>Parada Registrada</span>
+            </div>
+            <div class="space-y-0.5 text-[11px] text-slate-300">
+              <div><span class="text-slate-400">Duração:</span> <strong class="text-white">${stop.durationMinutes} min</strong></div>
+              <div><span class="text-slate-400">Horário:</span> ${stop.startTime} às ${stop.endTime}</div>
+            </div>
           </div>
         `)
         .addTo(this.map);
@@ -343,7 +432,12 @@ export class TripTrackingComponent implements OnInit, AfterViewInit, OnDestroy {
         iconAnchor: [12, 12],
       });
       this.startMarker = L.marker(startPoint, { icon: startIcon })
-        .bindPopup(`<strong>Origem:</strong> ${data.originAddress}`)
+        .bindPopup(`
+          <div class="p-2 text-xs font-sans text-slate-200">
+            <strong class="text-emerald-400 block mb-1">🟢 Ponto de Partida</strong>
+            <p class="text-[11px] text-slate-300">${data.originAddress}</p>
+          </div>
+        `)
         .addTo(this.map);
     }
 
@@ -385,12 +479,19 @@ export class TripTrackingComponent implements OnInit, AfterViewInit, OnDestroy {
     });
 
     const popupHtml = `
-      <div class="p-1.5 text-xs text-slate-800 font-sans">
-        <strong class="text-sm font-bold">${data.vehiclePlate} (${data.vehicleModel})</strong><br/>
-        <strong>Motorista:</strong> ${data.driverName}<br/>
-        <strong>Status:</strong> ${isStopped ? '🛑 Parado' : '🟢 Em movimento'}<br/>
-        ${latestPing.speed ? `<strong>Velocidade:</strong> ${Math.round(latestPing.speed)} km/h<br/>` : ''}
-        <strong>Último ping:</strong> ${formattedTime}
+      <div class="p-2 text-xs font-sans text-slate-200">
+        <div class="font-bold text-white text-sm flex items-center gap-1.5 mb-1">
+          <span>${data.vehiclePlate}</span>
+          <span class="text-[10px] px-1.5 py-0.5 rounded ${isStopped ? 'bg-amber-500/20 text-amber-300' : 'bg-emerald-500/20 text-emerald-300'} font-normal">
+            ${isStopped ? 'Parado' : 'Em movimento'}
+          </span>
+        </div>
+        <div class="space-y-0.5 text-[11px] text-slate-300">
+          <div><span class="text-slate-400">Modelo:</span> ${data.vehicleModel || 'Caminhão'}</div>
+          <div><span class="text-slate-400">Motorista:</span> <strong class="text-white">${data.driverName}</strong></div>
+          ${latestPing.speed ? `<div><span class="text-slate-400">Velocidade:</span> <strong class="text-white">${Math.round(latestPing.speed)} km/h</strong></div>` : ''}
+          <div><span class="text-slate-400">Atualizado:</span> ${formattedTime}</div>
+        </div>
       </div>
     `;
 

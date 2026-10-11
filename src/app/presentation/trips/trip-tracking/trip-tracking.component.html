@@ -1,13 +1,14 @@
 <div class="space-y-6 animate-in fade-in duration-300 pb-10">
 
   <!-- CABEÇALHO DA PÁGINA (DESIGN SYSTEM RM FROTAS) -->
-  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+  <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
     <div class="flex items-center gap-3.5">
       <button
         type="button"
         (click)="goBack()"
         class="size-10 rounded-2xl bg-[#11161A] hover:bg-[#171D21] border border-[#222A2F] hover:border-[#FF6B00]/40 flex items-center justify-center text-[#929EAA] hover:text-white transition-all cursor-pointer shadow-xs shrink-0"
         title="Voltar para Viagens"
+        aria-label="Voltar para listagem de viagens"
       >
         <svg lucideArrowLeft class="size-4.5"></svg>
       </button>
@@ -47,24 +48,35 @@
       </div>
     </div>
 
-    <!-- Botão de Refresh Manual -->
+    <!-- Ações do Topo: Atualizar e Centralizar -->
     <div class="flex items-center gap-2 self-start sm:self-auto">
+      <button
+        type="button"
+        (click)="centerOnVehicle()"
+        [disabled]="!latestPing()"
+        class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-[#222A2F] bg-[#11161A] text-[#929EAA] hover:bg-[#171D21] hover:text-emerald-400 transition-all text-xs font-semibold cursor-pointer shadow-xs disabled:opacity-50 disabled:cursor-not-allowed"
+        title="Focar no veículo no mapa"
+      >
+        <svg lucideLocate class="size-3.5 text-emerald-400"></svg>
+        <span class="hidden sm:inline">Focar Veículo</span>
+      </button>
+
       <button
         type="button"
         (click)="loadRoute(true)"
         [disabled]="refreshing()"
-        class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-[#222A2F] bg-[#11161A] text-[#929EAA] hover:bg-[#171D21] hover:text-white transition-all text-xs font-semibold cursor-pointer shadow-xs"
+        class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-[#222A2F] bg-[#11161A] text-[#929EAA] hover:bg-[#171D21] hover:text-white transition-all text-xs font-semibold cursor-pointer shadow-xs disabled:opacity-50"
         title="Atualizar telemetria"
       >
         <svg lucideRefreshCw class="size-3.5" [class.animate-spin]="refreshing()"></svg>
         <span>{{ refreshing() ? 'Atualizando...' : 'Atualizar' }}</span>
       </button>
     </div>
-  </div>
+  </header>
 
   <!-- ALERTA DE ERRO -->
   @if (errorMessage()) {
-    <div class="p-4 bg-rose-950/60 border border-rose-500/40 text-rose-200 rounded-2xl text-xs flex items-center gap-3 shadow-lg">
+    <div class="p-4 bg-rose-950/60 border border-rose-500/40 text-rose-200 rounded-2xl text-xs flex items-center gap-3 shadow-lg" role="alert">
       <svg lucideAlertTriangle class="size-5 text-rose-400 shrink-0"></svg>
       <span class="flex-1 font-medium">{{ errorMessage() }}</span>
     </div>
@@ -74,11 +86,35 @@
   <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
     <!-- COLUNA ESQUERDA: MAPA EM DESTAQUE (lg:col-span-8) -->
-    <div class="lg:col-span-8 flex flex-col gap-4">
-      <div class="relative w-full h-[520px] sm:h-[620px] rounded-3xl overflow-hidden border border-[#222A2F] bg-[#080B0C] shadow-2xl">
+    <section class="lg:col-span-8 flex flex-col gap-4" aria-label="Visualização do Mapa da Rota">
+      <div class="relative w-full h-[520px] sm:h-[640px] rounded-3xl overflow-hidden border border-[#222A2F] bg-[#080B0C] shadow-2xl">
         
         <!-- MAP CONTAINER LEAFLET -->
-        <div #mapContainer class="w-full h-full z-10"></div>
+        <div #mapContainer class="w-full h-full z-10" tabindex="0" aria-label="Mapa interativo Leaflet de rastreamento"></div>
+
+        <!-- BOTÕES DE CONTROLE RÁPIDO FLUTUANTES NO MAPA -->
+        <div class="absolute top-4 right-4 z-20 flex flex-col gap-2">
+          <button
+            type="button"
+            (click)="centerOnVehicle()"
+            [disabled]="!latestPing()"
+            class="size-9 rounded-xl bg-[#0F1215]/90 backdrop-blur-md border border-[#222A2F] hover:border-emerald-500/50 text-[#929EAA] hover:text-emerald-400 flex items-center justify-center shadow-xl transition-all cursor-pointer disabled:opacity-50"
+            title="Centralizar no veículo"
+            aria-label="Centralizar veículo"
+          >
+            <svg lucideLocate class="size-4"></svg>
+          </button>
+
+          <button
+            type="button"
+            (click)="fitRouteBounds()"
+            class="size-9 rounded-xl bg-[#0F1215]/90 backdrop-blur-md border border-[#222A2F] hover:border-[#FF6B00]/50 text-[#929EAA] hover:text-[#FF6B00] flex items-center justify-center shadow-xl transition-all cursor-pointer"
+            title="Ajustar zoom na rota inteira"
+            aria-label="Ajustar zoom para ver toda a rota"
+          >
+            <svg lucideMaximize2 class="size-4"></svg>
+          </button>
+        </div>
 
         <!-- MENSAGEM SE NÃO HÁ PINGS -->
         @if (!loading() && (!routeData()?.pings?.length)) {
@@ -98,19 +134,19 @@
                 <div class="flex items-center gap-2 min-w-0">
                   <span class="size-2 rounded-full bg-emerald-500 shrink-0"></span>
                   <span class="text-[#8E9DA8] font-semibold shrink-0">Origem:</span>
-                  <span class="text-white font-medium truncate">{{ data.originAddress }}</span>
+                  <span class="text-white font-medium truncate" [title]="data.originAddress">{{ data.originAddress }}</span>
                 </div>
                 <div class="flex items-center gap-2 min-w-0">
                   <span class="size-2 rounded-full bg-[#FF6B00] shrink-0"></span>
                   <span class="text-[#8E9DA8] font-semibold shrink-0">Destino:</span>
-                  <span class="text-white font-medium truncate">{{ data.destinationAddress }}</span>
+                  <span class="text-white font-medium truncate" [title]="data.destinationAddress">{{ data.destinationAddress }}</span>
                 </div>
               </div>
 
               <!-- Contador de Pontos e Último Ping -->
               <div class="flex items-center justify-between md:justify-end gap-5 border-t md:border-t-0 md:border-l border-[#222A2F] pt-3 md:pt-0 md:pl-5 shrink-0">
                 <div class="text-center md:text-right">
-                  <span class="text-[10px] text-[#8E9DA8] block font-bold uppercase tracking-wider">Pontos Coletados</span>
+                  <span class="text-[10px] text-[#8E9DA8] block font-bold uppercase tracking-wider">Pontos GPS</span>
                   <span class="text-base font-black text-[#FF6B00] font-mono">{{ data.pings.length }}</span>
                 </div>
                 <div class="h-8 w-px bg-[#222A2F]"></div>
@@ -126,18 +162,107 @@
           </div>
         }
       </div>
-    </div>
+    </section>
 
     <!-- COLUNA DIREITA: PAINEL LATERAL DO OPERADOR (lg:col-span-4) -->
-    <div class="lg:col-span-4 space-y-4">
+    <aside class="lg:col-span-4 space-y-4" aria-label="Painel de Telemetria e Operações">
 
-      <!-- 1. CARD DO MOTORISTA -->
+      <!-- 1. CARD PRINCIPAL: VEÍCULO & TELEMETRIA ATUAL (PRIORIDADE OPERACIONAL) -->
+      <div class="p-5 rounded-3xl bg-[#0F1215] border border-[#222A2F] shadow-xl space-y-4">
+        
+        <!-- Identificação do veículo -->
+        <div class="flex items-center justify-between gap-3">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="size-11 rounded-2xl bg-[#FF6B00]/10 border border-[#FF6B00]/30 flex items-center justify-center text-[#FF6B00] shrink-0">
+              <svg lucideTruck class="size-5"></svg>
+            </div>
+            <div class="min-w-0">
+              <span class="text-base font-black text-white font-mono block tracking-wide truncate">
+                {{ routeData()?.vehiclePlate || '---' }}
+              </span>
+              <span class="text-xs text-[#929EAA] truncate block">
+                {{ routeData()?.vehicleBrand || '' }} {{ routeData()?.vehicleModel || 'Caminhão da Frota' }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Status Dinâmico Em Movimento / Parado -->
+          <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-bold shrink-0"
+            [ngClass]="!isStopped() ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-amber-500/10 border-amber-500/30 text-amber-400'">
+            <span class="size-2 rounded-full" [ngClass]="!isStopped() ? 'bg-emerald-400 animate-ping' : 'bg-amber-400'"></span>
+            <span>{{ !isStopped() ? 'Em movimento' : 'Parado' }}</span>
+          </div>
+        </div>
+
+        <div class="h-px bg-[#222A2F]"></div>
+
+        <!-- Métricas Rápidas: Velocidade, Distância e Duração -->
+        <div class="grid grid-cols-3 gap-2.5">
+          <div class="p-3 rounded-2xl bg-[#11161A] border border-[#222A2F] text-center">
+            <span class="text-[9px] text-[#8E9DA8] block font-bold uppercase tracking-wider">Velocidade</span>
+            <span class="text-base font-black text-white font-mono mt-0.5 block">
+              {{ currentSpeed() }} <span class="text-[10px] text-[#8E9DA8] font-normal">km/h</span>
+            </span>
+          </div>
+
+          <div class="p-3 rounded-2xl bg-[#11161A] border border-[#222A2F] text-center">
+            <span class="text-[9px] text-[#8E9DA8] block font-bold uppercase tracking-wider">Distância</span>
+            <span class="text-base font-black text-white font-mono mt-0.5 block">
+              {{ totalDistanceKm() }} <span class="text-[10px] text-[#8E9DA8] font-normal">km</span>
+            </span>
+          </div>
+
+          <div class="p-3 rounded-2xl bg-[#11161A] border border-[#222A2F] text-center">
+            <span class="text-[9px] text-[#8E9DA8] block font-bold uppercase tracking-wider">Tempo</span>
+            <span class="text-base font-black text-white font-mono mt-0.5 block">
+              {{ tripDurationFormatted() }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Posição Geográfica Atual + Ação Rápida de Copiar Coordenadas -->
+        @if (latestPing(); as ping) {
+          <div class="p-3.5 rounded-2xl bg-[#11161A] border border-[#222A2F] flex items-center justify-between gap-3">
+            <div class="min-w-0">
+              <div class="flex items-center gap-1.5 text-xs text-[#929EAA]">
+                <svg lucideMapPin class="size-3.5 text-[#FF6B00] shrink-0"></svg>
+                <span class="font-semibold text-white">Posição atual</span>
+              </div>
+              <p class="text-[11px] font-mono text-[#8E9DA8] mt-0.5 truncate">
+                {{ ping.latitude.toFixed(5) }}, {{ ping.longitude.toFixed(5) }}
+              </p>
+            </div>
+
+            <button
+              type="button"
+              (click)="copyCoordinates()"
+              class="size-8 rounded-xl bg-[#171D21] hover:bg-[#222A2F] border border-[#222A2F] flex items-center justify-center text-[#929EAA] hover:text-white transition-all cursor-pointer shrink-0"
+              title="Copiar coordenadas"
+              aria-label="Copiar coordenadas GPS"
+            >
+              @if (copiedCoords()) {
+                <svg lucideCheck class="size-4 text-emerald-400"></svg>
+              } @else {
+                <svg lucideCopy class="size-4"></svg>
+              }
+            </button>
+          </div>
+        }
+
+      </div>
+
+      <!-- 2. CARD DO MOTORISTA COM AÇÕES DE DESPACHO E CONTATO DIRETO -->
       <div class="p-5 rounded-3xl bg-[#0F1215] border border-[#222A2F] shadow-xl space-y-3.5">
         <div class="flex items-center gap-3.5">
-          <!-- Foto / Avatar -->
+          <!-- Foto / Avatar com Fallback Gracioso -->
           <div class="relative size-12 rounded-2xl bg-[#171D21] border border-[#222A2F] overflow-hidden flex items-center justify-center shrink-0">
-            @if (routeData()?.driverPhotoUrl) {
-              <img [src]="routeData()?.driverPhotoUrl" [alt]="routeData()?.driverName" class="size-full object-cover" />
+            @if (routeData()?.driverPhotoUrl && !driverPhotoFailed()) {
+              <img
+                [src]="routeData()?.driverPhotoUrl"
+                [alt]="routeData()?.driverName || 'Motorista'"
+                (error)="driverPhotoFailed.set(true)"
+                class="size-full object-cover"
+              />
             } @else {
               <svg lucideUser class="size-6 text-[#929EAA]"></svg>
             }
@@ -146,8 +271,8 @@
           <!-- Dados do motorista -->
           <div class="min-w-0 flex-1">
             <div class="flex items-center gap-2">
-              <h3 class="text-sm font-bold text-white truncate">{{ routeData()?.driverName || 'Motorista' }}</h3>
-              <span class="size-2 rounded-full bg-emerald-400 shrink-0" title="Motorista ativo"></span>
+              <h2 class="text-sm font-bold text-white truncate">{{ routeData()?.driverName || 'Motorista' }}</h2>
+              <span class="size-2 rounded-full bg-emerald-400 shrink-0" title="Motorista escalado"></span>
             </div>
             
             <p class="text-xs text-[#929EAA] mt-0.5 truncate">
@@ -166,85 +291,49 @@
             }
           </div>
         </div>
-      </div>
 
-      <!-- 2. CARD DO VEÍCULO & TELEMETRIA ATUAL -->
-      <div class="p-5 rounded-3xl bg-[#0F1215] border border-[#222A2F] shadow-xl space-y-4">
-        
-        <!-- Identificação do veículo -->
-        <div class="flex items-center justify-between gap-3">
-          <div class="flex items-center gap-3 min-w-0">
-            <div class="size-11 rounded-2xl bg-[#FF6B00]/10 border border-[#FF6B00]/30 flex items-center justify-center text-[#FF6B00] shrink-0">
-              <svg lucideTruck class="size-5"></svg>
-            </div>
-            <div class="min-w-0">
-              <span class="text-sm font-black text-white font-mono block truncate">
-                {{ routeData()?.vehiclePlate || '---' }}
-              </span>
-              <span class="text-xs text-[#929EAA] truncate block">
-                {{ routeData()?.vehicleBrand || '' }} {{ routeData()?.vehicleModel || 'Caminhão da Frota' }}
-              </span>
-            </div>
-          </div>
-        </div>
+        <!-- Ações Operacionais de Contato (WhatsApp & Telefone) -->
+        @if (routeData()?.driverPhone) {
+          <div class="grid grid-cols-2 gap-2 pt-1 border-t border-[#222A2F]">
+            <a
+              [href]="getWhatsAppUrl()"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-xs font-bold transition-all text-center"
+              title="Abrir conversa no WhatsApp"
+            >
+              <svg lucideMessageCircle class="size-3.5"></svg>
+              <span>WhatsApp</span>
+            </a>
 
-        <div class="h-px bg-[#222A2F]"></div>
-
-        <!-- Status e Velocidade em Tempo Real -->
-        <div class="flex items-center justify-between gap-3">
-          <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-bold"
-            [ngClass]="!isStopped() ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-amber-500/10 border-amber-500/30 text-amber-400'">
-            <span class="size-2 rounded-full" [ngClass]="!isStopped() ? 'bg-emerald-400 animate-ping' : 'bg-amber-400'"></span>
-            <span>{{ !isStopped() ? 'Em movimento' : 'Parado' }}</span>
-          </div>
-
-          <div class="text-right">
-            <span class="text-[10px] text-[#8E9DA8] block font-bold uppercase tracking-wider">Velocidade</span>
-            <span class="text-lg font-black text-white font-mono">{{ currentSpeed() }} <span class="text-xs text-[#8E9DA8] font-normal">km/h</span></span>
-          </div>
-        </div>
-
-        <!-- Posição Geográfica Atual -->
-        @if (latestPing(); as ping) {
-          <div class="p-3 rounded-2xl bg-[#11161A] border border-[#222A2F] space-y-1">
-            <div class="flex items-center gap-1.5 text-xs text-[#929EAA]">
-              <svg lucideMapPin class="size-3.5 text-[#FF6B00] shrink-0"></svg>
-              <span class="font-semibold text-white">Posição atual</span>
-            </div>
-            <p class="text-[11px] font-mono text-[#8E9DA8]">
-              Lat: {{ ping.latitude.toFixed(5) }} • Lng: {{ ping.longitude.toFixed(5) }}
-            </p>
+            <a
+              [href]="getTelUrl()"
+              class="flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-[#11161A] hover:bg-[#171D21] border border-[#222A2F] text-[#CAD2D9] hover:text-white text-xs font-bold transition-all text-center"
+              title="Ligar para o motorista"
+            >
+              <svg lucidePhone class="size-3.5 text-[#FF6B00]"></svg>
+              <span>Ligar</span>
+            </a>
           </div>
         }
-
-        <!-- Métricas Rápidas: Distância Percorrida e Tempo de Viagem -->
-        <div class="grid grid-cols-2 gap-3 pt-1">
-          <div class="p-3.5 rounded-2xl bg-[#11161A] border border-[#222A2F] text-center">
-            <span class="text-[10px] text-[#8E9DA8] block font-bold uppercase tracking-wider">Distância</span>
-            <span class="text-base font-black text-white font-mono mt-0.5 block">
-              {{ totalDistanceKm() }} <span class="text-xs text-[#8E9DA8]">km</span>
-            </span>
-          </div>
-
-          <div class="p-3.5 rounded-2xl bg-[#11161A] border border-[#222A2F] text-center">
-            <span class="text-[10px] text-[#8E9DA8] block font-bold uppercase tracking-wider">Tempo</span>
-            <span class="text-base font-black text-white font-mono mt-0.5 block">
-              {{ tripDurationFormatted() }}
-            </span>
-          </div>
-        </div>
-
       </div>
 
       <!-- 3. PROGRESSO DA ROTA -->
       <div class="p-5 rounded-3xl bg-[#0F1215] border border-[#222A2F] shadow-xl space-y-3.5">
         <div class="flex items-center justify-between text-xs">
-          <span class="font-bold text-white">Progresso da rota</span>
+          <h2 class="font-bold text-white text-xs">Progresso da rota</h2>
           <span class="font-mono font-bold text-[#FF6B00]">{{ routeProgressPercent() }}%</span>
         </div>
 
-        <!-- Barra de Progresso com degradê RM Frotas -->
-        <div class="w-full h-2.5 bg-[#171D21] rounded-full overflow-hidden border border-[#222A2F]">
+        <!-- Barra de Progresso com degradê RM Frotas e Acessibilidade ARIA -->
+        <div
+          class="w-full h-2.5 bg-[#171D21] rounded-full overflow-hidden border border-[#222A2F]"
+          role="progressbar"
+          [attr.aria-valuenow]="routeProgressPercent()"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          [attr.aria-label]="'Progresso da viagem: ' + routeProgressPercent() + '%'"
+        >
           <div
             class="h-full bg-gradient-to-r from-emerald-500 to-[#FF6B00] rounded-full transition-all duration-500"
             [style.width.%]="routeProgressPercent()"
@@ -259,10 +348,10 @@
 
       <!-- 4. LINHA DO TEMPO: ÚLTIMOS EVENTOS -->
       <div class="p-5 rounded-3xl bg-[#0F1215] border border-[#222A2F] shadow-xl space-y-4">
-        <h4 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
+        <h2 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
           <svg lucideActivity class="size-3.5 text-[#FF6B00]"></svg>
           <span>Últimos Eventos</span>
-        </h4>
+        </h2>
 
         <div class="space-y-4 relative pl-3 before:absolute before:left-1.5 before:top-2 before:bottom-2 before:w-px before:bg-[#222A2F]">
           @for (event of recentEvents(); track $index) {
@@ -285,7 +374,7 @@
         </div>
       </div>
 
-    </div>
+    </aside>
 
   </div>
 
