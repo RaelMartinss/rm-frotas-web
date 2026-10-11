@@ -221,6 +221,7 @@ export class TripTrackingComponent implements OnInit, AfterViewInit, OnDestroy {
   private stopMarkers: L.Marker[] = [];
   private pollInterval: any = null;
   private resizeObserver: ResizeObserver | null = null;
+  private hasInitialFitBounds = false;
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -538,10 +539,15 @@ export class TripTrackingComponent implements OnInit, AfterViewInit, OnDestroy {
         .addTo(this.map);
     }
 
-    if (routeLatLngs.length > 1) {
-      this.map.fitBounds(this.polyline.getBounds(), { padding: [50, 50], maxZoom: 16 });
-    } else {
-      this.map.setView(latestPoint, 15);
+    // Só enquadra o mapa automaticamente na PRIMEIRA carga.
+    // Nas atualizações periódicas/automáticas, preserva rigorosamente o zoom e a posição escolhidos pelo usuário!
+    if (!this.hasInitialFitBounds) {
+      if (routeLatLngs.length > 1) {
+        this.map.fitBounds(this.polyline.getBounds(), { padding: [50, 50], maxZoom: 16 });
+      } else {
+        this.map.setView(latestPoint, 15);
+      }
+      this.hasInitialFitBounds = true;
     }
   }
 
