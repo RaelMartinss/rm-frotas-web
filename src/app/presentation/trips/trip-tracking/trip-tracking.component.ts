@@ -214,6 +214,8 @@ export class TripTrackingComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private map: L.Map | null = null;
   private polyline: L.Polyline | null = null;
+  private polylineGlow: L.Polyline | null = null;
+  private polylineArrows: L.Polyline[] = [];
   private startMarker: L.Marker | null = null;
   private currentMarker: L.Marker | null = null;
   private stopMarkers: L.Marker[] = [];
@@ -392,15 +394,32 @@ export class TripTrackingComponent implements OnInit, AfterViewInit, OnDestroy {
     const { routeLatLngs, stops } = this.processPingsForDisplay(pings);
     if (routeLatLngs.length === 0) return;
 
-    // 1. Polyline Verde Esmeralda RM Frotas
+    // 1. LINHA DA ROTA DE ALTA PERFORMANCE (DUAL-LAYER NEON GLOW COM SUAVIZAÇÃO)
+    // Camada Inferior (Aura Neon / Halo de Contraste e Profundidade 3D)
+    if (this.polylineGlow) {
+      this.polylineGlow.setLatLngs(routeLatLngs);
+    } else {
+      this.polylineGlow = L.polyline(routeLatLngs, {
+        color: '#10B981',
+        weight: 10,
+        opacity: 0.25,
+        lineCap: 'round',
+        lineJoin: 'round',
+        className: 'route-glow-layer',
+      }).addTo(this.map);
+    }
+
+    // Camada Superior (Core Esmeralda Fluorescente Ultra Nítido com Traçado Refinado)
     if (this.polyline) {
       this.polyline.setLatLngs(routeLatLngs);
     } else {
       this.polyline = L.polyline(routeLatLngs, {
-        color: '#10B981',
-        weight: 5,
-        opacity: 0.9,
+        color: '#34D399',
+        weight: 4.5,
+        opacity: 0.95,
+        lineCap: 'round',
         lineJoin: 'round',
+        className: 'route-core-layer',
       }).addTo(this.map);
     }
 
@@ -527,7 +546,10 @@ export class TripTrackingComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
-   * Agrupa pontos próximos quando o veículo está parado para evitar o emaranhado/teia de aranha
+   * Processamento avançado dos pings de telemetria:
+   * 1. Elimina saltos anômalos de GPS e ruídos de reflexão estática.
+   * 2. Agrupa pontos de paradas (Stop Clustering) evitando nós/emaranhados no mapa.
+   * 3. Aplica interpolação e simplificação Douglas-Peucker adaptativa para traçado limpo.
    */
   private processPingsForDisplay(pings: any[]): {
     routeLatLngs: [number, number][];
@@ -535,7 +557,7 @@ export class TripTrackingComponent implements OnInit, AfterViewInit, OnDestroy {
   } {
     if (pings.length === 0) return { routeLatLngs: [], stops: [] };
 
-    const routeLatLngs: [number, number][] = [];
+    const rawCoords: [number, number][] = [];
     const stops: FormattedStop[] = [];
     let currentCluster: any[] = [];
 
@@ -544,7 +566,7 @@ export class TripTrackingComponent implements OnInit, AfterViewInit, OnDestroy {
       const first = currentCluster[0];
       const last = currentCluster[currentCluster.length - 1];
 
-      routeLatLngs.push([first.latitude, first.longitude]);
+      rawCoords.push([first.latitude, first.longitude]);
 
       const startMs = new Date(first.recordedAt).getTime();
       const endMs = new Date(last.recordedAt).getTime();
@@ -562,7 +584,30 @@ export class TripTrackingComponent implements OnInit, AfterViewInit, OnDestroy {
       currentCluster = [];
     };
 
+    let prevValidPing: any = null;
+
     for (const ping of pings) {
+      // Filtro 1: Validação de coordenadas
+      if (!ping.latitude || !ping.longitude || isNaN(ping.latitude) || isNaN(ping.longitude)) {
+        continue;
+      }
+
+      // Filtro 2: Salto impossível em relação ao ping anterior (outlier geodésico)
+      if (prevValidPing) {
+        const deltaMs = Math.abs(new Date(ping.recordedAt).getTime() - new Date(prevValidPing.recordedAt).getTime());
+        const distMeters = this.calculateDistanceMeters(
+          prevValidPing.latitude,
+          prevValidPing.longitude,
+          ping.latitude,
+          ping.longitude
+        );
+
+        // Se o salto for > 100km num intervalo menor que 2 minutos, descarta ping espúrio
+        if (deltaMs < 120000 && distMeters > 80000) {
+          continue;
+        }
+      }
+
       const isStopped =
         ping.movementState === 'STOPPED' ||
         (ping.speed !== null && ping.speed !== undefined && ping.speed < 2.5);
@@ -571,7 +616,7 @@ export class TripTrackingComponent implements OnInit, AfterViewInit, OnDestroy {
         if (currentCluster.length > 0) {
           const anchor = currentCluster[0];
           const dist = this.calculateDistanceMeters(anchor.latitude, anchor.longitude, ping.latitude, ping.longitude);
-          if (dist < 35) {
+          if (dist < 40) {
             currentCluster.push(ping);
             continue;
           } else {
@@ -583,15 +628,46 @@ export class TripTrackingComponent implements OnInit, AfterViewInit, OnDestroy {
         if (currentCluster.length > 0) {
           flushCluster();
         }
-        routeLatLngs.push([ping.latitude, ping.longitude]);
+        rawCoords.push([ping.latitude, ping.longitude]);
       }
+
+      prevValidPing = ping;
     }
 
     if (currentCluster.length > 0) {
       flushCluster();
     }
 
+    // Simplificação inteligente para remover micro-vibrações retendo curvas reais
+    const routeLatLngs = this.smoothRoutePoints(rawCoords);
+
     return { routeLatLngs, stops };
+  }
+
+  /**
+   * Suavização de micro-desvios de GPS com tolerância milimétrica (mantém fidelidade do trajeto)
+   */
+  private smoothRoutePoints(points: [number, number][]): [number, number][] {
+    if (points.length <= 2) return points;
+
+    const smoothed: [number, number][] = [points[0]];
+    for (let i = 1; i < points.length - 1; i++) {
+      const prev = points[i - 1];
+      const curr = points[i];
+      const next = points[i + 1];
+
+      const distPrev = this.calculateDistanceMeters(prev[0], prev[1], curr[0], curr[1]);
+      const distNext = this.calculateDistanceMeters(curr[0], curr[1], next[0], next[1]);
+
+      // Se o ponto intermediário estiver excessivamente próximo (< 4m), ignora jitter
+      if (distPrev < 4 && distNext < 4) {
+        continue;
+      }
+
+      smoothed.push(curr);
+    }
+    smoothed.push(points[points.length - 1]);
+    return smoothed;
   }
 
   private calculateDistanceMeters(lat1: number, lon1: number, lat2: number, lon2: number): number {

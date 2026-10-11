@@ -20,6 +20,27 @@
   border: none !important;
 }
 
+/* Polylines de Alto Desempenho e Efeito Neon Glow */
+::ng-deep .route-glow-layer {
+  filter: blur(3px);
+  pointer-events: none;
+}
+
+::ng-deep .route-core-layer {
+  filter: drop-shadow(0 0 4px rgba(16, 185, 129, 0.7));
+  stroke-dasharray: 10000;
+  animation: routePulse 12s ease-in-out infinite alternate;
+}
+
+@keyframes routePulse {
+  0% {
+    stroke-opacity: 0.9;
+  }
+  100% {
+    stroke-opacity: 1;
+  }
+}
+
 /* Custom Popup Dark Theme */
 ::ng-deep .leaflet-popup-content-wrapper {
   background-color: #0F1215 !important;
