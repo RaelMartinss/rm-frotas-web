@@ -215,6 +215,50 @@ export class RoutingService {
     );
   }
 
+  /**
+   * Snaps a series of raw GPS pings to official road geometries (Map Matching).
+   * Eliminates zigzagging GPS noise, building crossing, and multipath drift.
+   */
+  matchTelemetriesToRoads(points: [number, number][]): Observable<[number, number][] | null> {
+    if (!points || points.length < 2) {
+      return of(null);
+    }
+
+    // Amostragem inteligente se houver muitos pontos (evita estourar limite de URL do OSRM)
+    // OSRM aceita até ~100 pontos por chunk de match confortavelmente
+    let sampled = points;
+    if (points.length > 90) {
+      const step = Math.ceil(points.length / 90);
+      sampled = points.filter((_, idx) => idx % step === 0 || idx === points.length - 1);
+    }
+
+    // Coordenadas formatadas como lng,lat;lng,lat...
+    const coordsParam = sampled.map(([lat, lng]) => `${lng},${lat}`).join(';');
+    const url = `https://router.project-osrm.org/match/v1/driving/${coordsParam}?overview=full&geometries=geojson&gaps=ignore&tidy=true`;
+
+    return this.http.get<any>(url).pipe(
+      map((res) => {
+        if (!res || res.code !== 'Ok' || !res.matchings || res.matchings.length === 0) {
+          return null;
+        }
+
+        const snappedCoords: [number, number][] = [];
+        for (const matching of res.matchings) {
+          const coords = matching.geometry?.coordinates || [];
+          for (const c of coords) {
+            snappedCoords.push([c[1], c[0]]);
+          }
+        }
+
+        return snappedCoords.length > 0 ? snappedCoords : null;
+      }),
+      catchError((err) => {
+        console.warn('[RoutingService] OSRM map-matching unavailable:', err);
+        return of(null);
+      })
+    );
+  }
+
   private formatDuration(seconds: number): string {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);

@@ -14,6 +14,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import * as L from 'leaflet';
 import { ITripRepository } from '../../../domain/repositories/trip.repository.interface';
 import { TripRouteResponse, TripLocationPing } from '../../../domain/models/trip.model';
+import { RoutingService } from '../../../core/services/routing.service';
 import {
   LucideArrowLeft,
   LucideRefreshCw,
@@ -77,6 +78,7 @@ export class TripTrackingComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly tripRepository = inject(ITripRepository);
+  private readonly routingService = inject(RoutingService);
 
   @ViewChild('mapContainer', { static: false }) mapContainerRef!: ElementRef<HTMLDivElement>;
 
@@ -413,6 +415,36 @@ export class TripTrackingComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  private updateRoutePolylines(coords: [number, number][]): void {
+    if (!this.map) return;
+
+    if (this.polylineGlow) {
+      this.polylineGlow.setLatLngs(coords);
+    } else {
+      this.polylineGlow = L.polyline(coords, {
+        color: '#10B981',
+        weight: 10,
+        opacity: 0.25,
+        lineCap: 'round',
+        lineJoin: 'round',
+        className: 'route-glow-layer',
+      }).addTo(this.map);
+    }
+
+    if (this.polyline) {
+      this.polyline.setLatLngs(coords);
+    } else {
+      this.polyline = L.polyline(coords, {
+        color: '#34D399',
+        weight: 4.5,
+        opacity: 0.95,
+        lineCap: 'round',
+        lineJoin: 'round',
+        className: 'route-core-layer',
+      }).addTo(this.map);
+    }
+  }
+
   private renderRouteOnMap(data: TripRouteResponse): void {
     if (!this.map) return;
     this.map.invalidateSize();
@@ -423,33 +455,21 @@ export class TripTrackingComponent implements OnInit, AfterViewInit, OnDestroy {
     const { routeLatLngs, stops } = this.processPingsForDisplay(pings);
     if (routeLatLngs.length === 0) return;
 
-    // 1. LINHA DA ROTA DE ALTA PERFORMANCE (DUAL-LAYER NEON GLOW COM SUAVIZAÇÃO)
-    // Camada Inferior (Aura Neon / Halo de Contraste e Profundidade 3D)
-    if (this.polylineGlow) {
-      this.polylineGlow.setLatLngs(routeLatLngs);
-    } else {
-      this.polylineGlow = L.polyline(routeLatLngs, {
-        color: '#10B981',
-        weight: 10,
-        opacity: 0.25,
-        lineCap: 'round',
-        lineJoin: 'round',
-        className: 'route-glow-layer',
-      }).addTo(this.map);
-    }
+    // Renderiza inicialmente com os pontos suavizados
+    this.updateRoutePolylines(routeLatLngs);
 
-    // Camada Superior (Core Esmeralda Fluorescente Ultra Nítido com Traçado Refinado)
-    if (this.polyline) {
-      this.polyline.setLatLngs(routeLatLngs);
-    } else {
-      this.polyline = L.polyline(routeLatLngs, {
-        color: '#34D399',
-        weight: 4.5,
-        opacity: 0.95,
-        lineCap: 'round',
-        lineJoin: 'round',
-        className: 'route-core-layer',
-      }).addTo(this.map);
+    // Encaixa as coordenadas com precisão milimétrica nas ruas/rodovias via OSRM Map-Matching
+    if (routeLatLngs.length >= 2) {
+      this.routingService.matchTelemetriesToRoads(routeLatLngs).subscribe({
+        next: (matchedCoords) => {
+          if (matchedCoords && matchedCoords.length > 0) {
+            this.updateRoutePolylines(matchedCoords);
+          }
+        },
+        error: () => {
+          // Mantém o traçado suavizado se o serviço OSRM estiver momentaneamente fora
+        },
+      });
     }
 
     // 2. Marcadores de Paradas Detectadas em Tempo Real
@@ -605,7 +625,7 @@ export class TripTrackingComponent implements OnInit, AfterViewInit, OnDestroy {
     // Só enquadra o mapa automaticamente na PRIMEIRA carga.
     // Nas atualizações periódicas/automáticas, preserva rigorosamente o zoom e a posição escolhidos pelo usuário!
     if (!this.hasInitialFitBounds) {
-      if (routeLatLngs.length > 1) {
+      if (routeLatLngs.length > 1 && this.polyline) {
         this.map.fitBounds(this.polyline.getBounds(), { padding: [50, 50], maxZoom: 16 });
       } else {
         this.map.setView(latestPoint, 15);
