@@ -190,15 +190,15 @@
         </div>
 
         <!-- LISTAGEM VERTICAL CONECTADA ESTILO GOOGLE MAPS -->
-        <div class="relative pl-6 sm:pl-8 space-y-4">
+        <div class="relative pl-7 sm:pl-8 space-y-4">
           
-          <!-- Linha conectora vertical entre pontos -->
-          <div class="absolute left-2.5 sm:left-3.5 top-5 bottom-5 w-0.5 bg-gradient-to-b from-emerald-500 via-[#FF6B00] to-rose-500"></div>
+          <!-- Linha conectora vertical entre pontos centrada perfeitamente no centro das bolas -->
+          <div class="absolute left-3 top-6 bottom-6 w-0.5 -translate-x-1/2 bg-gradient-to-b from-emerald-500 via-[#FF6B00] to-rose-500 pointer-events-none"></div>
 
           <!-- PONTO A: ORIGEM (PARTIDA) -->
           <div class="relative p-4 rounded-2xl bg-[#11161A] border border-[#222A2F] hover:border-emerald-500/40 transition-all space-y-2.5">
             <!-- Marcador indicador A -->
-            <div class="absolute -left-6 sm:-left-8 top-4 size-5 rounded-full bg-emerald-500 border-2 border-[#0F1215] flex items-center justify-center text-white text-[9px] font-black shadow-md">
+            <div class="absolute -left-7 sm:-left-8 top-4 size-6 rounded-full bg-emerald-500 border-2 border-[#0F1215] flex items-center justify-center text-white text-[10px] font-black shadow-md z-10">
               A
             </div>
 
@@ -261,7 +261,7 @@
               <div [formGroupName]="$index" class="relative p-4 rounded-2xl bg-[#11161A] border border-[#222A2F] hover:border-[#FF6B00]/40 transition-all space-y-2.5">
                 
                 <!-- Marcador indicador intermediário -->
-                <div class="absolute -left-6 sm:-left-8 top-4 size-5 rounded-full bg-[#FF6B00] border-2 border-[#0F1215] flex items-center justify-center text-white text-[9px] font-black shadow-md">
+                <div class="absolute -left-7 sm:-left-8 top-4 size-6 rounded-full bg-[#FF6B00] border-2 border-[#0F1215] flex items-center justify-center text-white text-[10px] font-black shadow-md z-10">
                   {{ $index + 1 }}
                 </div>
 
@@ -397,7 +397,7 @@
           <!-- PONTO B: DESTINO FINAL -->
           <div class="relative p-4 rounded-2xl bg-[#11161A] border border-[#222A2F] hover:border-rose-500/40 transition-all space-y-2.5">
             <!-- Marcador indicador B -->
-            <div class="absolute -left-6 sm:-left-8 top-4 size-5 rounded-full bg-rose-500 border-2 border-[#0F1215] flex items-center justify-center text-white text-[9px] font-black shadow-md">
+            <div class="absolute -left-7 sm:-left-8 top-4 size-6 rounded-full bg-rose-500 border-2 border-[#0F1215] flex items-center justify-center text-white text-[10px] font-black shadow-md z-10">
               B
             </div>
 
