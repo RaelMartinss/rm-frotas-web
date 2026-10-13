@@ -16,16 +16,16 @@
       <div>
         <div class="flex items-center gap-2.5 flex-wrap">
           <h1 class="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center gap-2">
-            <span>Nova Viagem & Planejamento de Itinerário</span>
+            <span>Nova Viagem & Planejamento de Rota</span>
           </h1>
 
           <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#171D21] text-[#FF6B00] border border-[#222A2F]">
-            DESPACHO OPERACIONAL
+            DESPACHO INTELIGENTE
           </span>
         </div>
 
         <p class="text-xs text-[#929EAA] mt-1">
-          Escale o veículo, defina o condutor e monte o itinerário com postos homologados e paradas da Lei do Motorista.
+          Escale o veículo, defina a rota curva real via rodovias e adicione paradas clicando diretamente no mapa.
         </p>
       </div>
     </div>
@@ -65,10 +65,10 @@
     </div>
   }
 
-  <!-- GRID PRINCIPAL: FORMULÁRIO (ESQUERDA) + PRÉ-VISUALIZAÇÃO DA ROTA NO MAPA (DIREITA) -->
+  <!-- GRID PRINCIPAL: FORMULÁRIO (ESQUERDA) + PRÉ-VISUALIZAÇÃO INTERATIVA NO MAPA (DIREITA) -->
   <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
-    <!-- COLUNA ESQUERDA: FORMULÁRIO INTELIGENTE (lg:col-span-7) -->
+    <!-- COLUNA ESQUERDA: FORMULÁRIO E ITINERÁRIO (lg:col-span-7) -->
     <form [formGroup]="tripForm" class="lg:col-span-7 space-y-5">
 
       <!-- 1. CARD: VEÍCULO E MOTORISTA -->
@@ -168,124 +168,216 @@
         </div>
       </section>
 
-      <!-- 2. CARD: ORIGEM E DESTINO FINAL -->
-      <section class="p-5 sm:p-6 rounded-3xl bg-[#0F1215] border border-[#222A2F] shadow-xl space-y-4">
-        <div class="flex items-center justify-between pb-2 border-b border-[#222A2F]">
-          <h2 class="text-sm font-bold text-white flex items-center gap-2">
-            <span class="size-7 rounded-xl bg-[#171D21] border border-[#222A2F] text-[#FF6B00] flex items-center justify-center text-xs">2</span>
-            <span>Origem & Destino Final</span>
-          </h2>
+      <!-- 2. CARD ESTILO GOOGLE MAPS: TRAJETÓRIO INTERATIVO (ORIGEM, PARADAS E DESTINO) -->
+      <section class="p-5 sm:p-6 rounded-3xl bg-[#0F1215] border border-[#222A2F] shadow-xl space-y-5">
+        <div class="flex items-center justify-between pb-3 border-b border-[#222A2F]">
+          <div>
+            <h2 class="text-sm font-bold text-white flex items-center gap-2">
+              <span class="size-7 rounded-xl bg-[#171D21] border border-[#222A2F] text-[#FF6B00] flex items-center justify-center text-xs">2</span>
+              <span>Itinerário & Traçado de Rodovias</span>
+            </h2>
+            <p class="text-[11px] text-[#929EAA] mt-0.5 ml-9">
+              Adicione paradas intermediárias ou clique diretamente no mapa à direita para marcar o local exato.
+            </p>
+          </div>
+
+          <!-- Botão de Guia Interativo -->
+          @if (isMapPickerActive()) {
+            <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-[#FF6B00]/15 text-[#FF6B00] border border-[#FF6B00]/30 animate-pulse flex items-center gap-1">
+              <svg lucideMousePointer class="size-3"></svg> Clique no mapa
+            </span>
+          }
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <!-- Ponto de Partida -->
-          <div class="p-4 rounded-2xl bg-[#11161A] border border-[#222A2F] space-y-3">
-            <div class="flex items-center gap-2 text-xs font-bold text-emerald-400">
-              <span class="size-2 rounded-full bg-emerald-400"></span>
-              <span>Ponto de Partida (Origem)</span>
+        <!-- LISTAGEM VERTICAL CONECTADA ESTILO GOOGLE MAPS -->
+        <div class="relative pl-6 sm:pl-8 space-y-4">
+          
+          <!-- Linha conectora vertical entre pontos -->
+          <div class="absolute left-2.5 sm:left-3.5 top-5 bottom-5 w-0.5 bg-gradient-to-b from-emerald-500 via-[#FF6B00] to-rose-500"></div>
+
+          <!-- PONTO A: ORIGEM (PARTIDA) -->
+          <div class="relative p-4 rounded-2xl bg-[#11161A] border border-[#222A2F] hover:border-emerald-500/40 transition-all space-y-2.5">
+            <!-- Marcador indicador A -->
+            <div class="absolute -left-6 sm:-left-8 top-4 size-5 rounded-full bg-emerald-500 border-2 border-[#0F1215] flex items-center justify-center text-white text-[9px] font-black shadow-md">
+              A
             </div>
 
-            <div class="grid grid-cols-3 gap-2.5">
-              <div class="col-span-2">
-                <label class="block text-[11px] font-medium text-[#929EAA] mb-1">Cidade <span class="text-rose-400">*</span></label>
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+                <svg lucideMapPin class="size-3.5"></svg> Ponto de Partida (Origem)
+              </span>
+
+              <button
+                type="button"
+                (click)="startPickingOnMap('origin')"
+                class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-semibold bg-[#171D21] hover:bg-emerald-950/40 border border-[#222A2F] hover:border-emerald-500/40 text-[#CAD2D9] hover:text-emerald-300 transition-all cursor-pointer"
+                title="Selecionar ponto de origem no mapa"
+              >
+                <svg lucideMousePointer class="size-3 text-emerald-400"></svg>
+                <span>Escolher no Mapa</span>
+              </button>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
+              <div class="sm:col-span-5">
+                <label class="block text-[10px] font-medium text-[#929EAA] mb-1">Cidade <span class="text-rose-400">*</span></label>
                 <input
                   type="text"
                   formControlName="originCity"
                   placeholder="Ex: Paragominas"
-                  class="w-full bg-[#0B0E11] border rounded-xl px-3 py-2 text-xs text-white focus:outline-hidden focus:border-[#FF6B00]"
+                  class="w-full bg-[#0B0E11] border rounded-xl px-3 py-1.5 text-xs text-white focus:outline-hidden focus:border-[#FF6B00]"
                   [ngClass]="(tripForm.get('originCity')?.invalid && tripForm.get('originCity')?.touched) ? 'border-rose-500 bg-rose-950/20' : 'border-[#222A2F]'"
                 />
               </div>
-              <div>
-                <label class="block text-[11px] font-medium text-[#929EAA] mb-1">UF <span class="text-rose-400">*</span></label>
+
+              <div class="sm:col-span-2">
+                <label class="block text-[10px] font-medium text-[#929EAA] mb-1">UF <span class="text-rose-400">*</span></label>
                 <select
                   formControlName="originState"
-                  class="w-full bg-[#0B0E11] border border-[#222A2F] rounded-xl px-2.5 py-2 text-xs text-white focus:outline-hidden focus:border-[#FF6B00] cursor-pointer"
+                  class="w-full bg-[#0B0E11] border border-[#222A2F] rounded-xl px-2 py-1.5 text-xs text-white focus:outline-hidden focus:border-[#FF6B00] cursor-pointer"
                 >
                   @for (uf of states(); track uf) {
                     <option [value]="uf" class="bg-[#11161A] text-white">{{ uf }}</option>
                   }
                 </select>
               </div>
-            </div>
 
-            <div>
-              <label class="block text-[11px] font-medium text-[#929EAA] mb-1">Logradouro / Pátio <span class="text-rose-400">*</span></label>
-              <input
-                type="text"
-                formControlName="originAddress"
-                placeholder="Ex: Pátio Central - Rodovia PA-125, Km 02"
-                class="w-full bg-[#0B0E11] border rounded-xl px-3 py-2 text-xs text-white focus:outline-hidden focus:border-[#FF6B00]"
-                [ngClass]="(tripForm.get('originAddress')?.invalid && tripForm.get('originAddress')?.touched) ? 'border-rose-500 bg-rose-950/20' : 'border-[#222A2F]'"
-              />
-            </div>
-          </div>
-
-          <!-- Ponto de Chegada -->
-          <div class="p-4 rounded-2xl bg-[#11161A] border border-[#222A2F] space-y-3">
-            <div class="flex items-center gap-2 text-xs font-bold text-rose-400">
-              <span class="size-2 rounded-full bg-rose-400"></span>
-              <span>Ponto de Chegada (Destino)</span>
-            </div>
-
-            <div class="grid grid-cols-3 gap-2.5">
-              <div class="col-span-2">
-                <label class="block text-[11px] font-medium text-[#929EAA] mb-1">Cidade <span class="text-rose-400">*</span></label>
+              <div class="sm:col-span-5">
+                <label class="block text-[10px] font-medium text-[#929EAA] mb-1">Pátio / Endereço de Coleta <span class="text-rose-400">*</span></label>
                 <input
                   type="text"
-                  formControlName="destinationCity"
-                  placeholder="Ex: São Luís"
-                  class="w-full bg-[#0B0E11] border rounded-xl px-3 py-2 text-xs text-white focus:outline-hidden focus:border-[#FF6B00]"
-                  [ngClass]="(tripForm.get('destinationCity')?.invalid && tripForm.get('destinationCity')?.touched) ? 'border-rose-500 bg-rose-950/20' : 'border-[#222A2F]'"
+                  formControlName="originAddress"
+                  placeholder="Ex: Rodovia PA-125, Km 02"
+                  class="w-full bg-[#0B0E11] border rounded-xl px-3 py-1.5 text-xs text-white focus:outline-hidden focus:border-[#FF6B00]"
+                  [ngClass]="(tripForm.get('originAddress')?.invalid && tripForm.get('originAddress')?.touched) ? 'border-rose-500 bg-rose-950/20' : 'border-[#222A2F]'"
                 />
               </div>
-              <div>
-                <label class="block text-[11px] font-medium text-[#929EAA] mb-1">UF <span class="text-rose-400">*</span></label>
-                <select
-                  formControlName="destinationState"
-                  class="w-full bg-[#0B0E11] border border-[#222A2F] rounded-xl px-2.5 py-2 text-xs text-white focus:outline-hidden focus:border-[#FF6B00] cursor-pointer"
-                >
-                  @for (uf of states(); track uf) {
-                    <option [value]="uf" class="bg-[#11161A] text-white">{{ uf }}</option>
-                  }
-                </select>
+            </div>
+          </div>
+
+          <!-- WAYPOINTS INTERMEDIÁRIOS (PARADAS, POSTOS, DESCANSO) -->
+          <div formArrayName="waypoints" class="space-y-3">
+            @for (wp of waypoints.controls; track $index) {
+              <div [formGroupName]="$index" class="relative p-4 rounded-2xl bg-[#11161A] border border-[#222A2F] hover:border-[#FF6B00]/40 transition-all space-y-2.5">
+                
+                <!-- Marcador indicador intermediário -->
+                <div class="absolute -left-6 sm:-left-8 top-4 size-5 rounded-full bg-[#FF6B00] border-2 border-[#0F1215] flex items-center justify-center text-white text-[9px] font-black shadow-md">
+                  {{ $index + 1 }}
+                </div>
+
+                <div class="flex items-center justify-between gap-2">
+                  <div class="flex items-center gap-2">
+                    @if (wp.get('type')?.value === 'FUEL') {
+                      <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                        <svg lucideFuel class="size-3"></svg> POSTO HOMOLOGADO
+                      </span>
+                    } @else if (wp.get('type')?.value === 'REST') {
+                      <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-blue-500/15 text-blue-400 border border-blue-500/30">
+                        <svg lucideCoffee class="size-3"></svg> PONTO DE DESCANSO
+                      </span>
+                    } @else {
+                      <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-[#171D21] text-[#929EAA] border border-[#222A2F]">
+                        <svg lucidePackage class="size-3 text-[#FF6B00]"></svg> PARADA PROGRAMADA
+                      </span>
+                    }
+                  </div>
+
+                  <div class="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      (click)="startPickingOnMap('waypoint', $index)"
+                      class="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-semibold bg-[#171D21] hover:bg-[#FF6B00]/20 border border-[#222A2F] hover:border-[#FF6B00]/40 text-[#CAD2D9] hover:text-[#FF6B00] transition-all cursor-pointer"
+                      title="Clique no mapa para posicionar este ponto"
+                    >
+                      <svg lucideMousePointer class="size-3 text-[#FF6B00]"></svg>
+                      <span>No Mapa</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      (click)="removeWaypoint($index)"
+                      class="size-6 rounded-lg bg-[#0F1215] hover:bg-rose-950/40 border border-[#222A2F] hover:border-rose-500/50 text-[#929EAA] hover:text-rose-400 flex items-center justify-center transition-all cursor-pointer"
+                      title="Remover ponto"
+                    >
+                      <svg lucideTrash2 class="size-3"></svg>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
+                  <div class="sm:col-span-5">
+                    <label class="block text-[10px] font-medium text-[#929EAA] mb-1">Nome do Ponto <span class="text-rose-400">*</span></label>
+                    <input
+                      type="text"
+                      formControlName="title"
+                      placeholder="Ex: Posto Graal ou Ponto de Apoio"
+                      class="w-full bg-[#0B0E11] border border-[#222A2F] rounded-xl px-3 py-1.5 text-xs text-white focus:outline-hidden focus:border-[#FF6B00]"
+                    />
+                  </div>
+
+                  <div class="sm:col-span-5">
+                    <label class="block text-[10px] font-medium text-[#929EAA] mb-1">Cidade <span class="text-rose-400">*</span></label>
+                    <input
+                      type="text"
+                      formControlName="city"
+                      placeholder="Ex: Açailândia"
+                      class="w-full bg-[#0B0E11] border border-[#222A2F] rounded-xl px-3 py-1.5 text-xs text-white focus:outline-hidden focus:border-[#FF6B00]"
+                    />
+                  </div>
+
+                  <div class="sm:col-span-2">
+                    <label class="block text-[10px] font-medium text-[#929EAA] mb-1">UF</label>
+                    <select
+                      formControlName="state"
+                      class="w-full bg-[#0B0E11] border border-[#222A2F] rounded-xl px-2 py-1.5 text-xs text-white focus:outline-hidden focus:border-[#FF6B00] cursor-pointer"
+                    >
+                      @for (uf of states(); track uf) {
+                        <option [value]="uf" class="bg-[#11161A] text-white">{{ uf }}</option>
+                      }
+                    </select>
+                  </div>
+                </div>
+
+                <!-- Detalhes Opcionais -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <div>
+                    <input
+                      type="text"
+                      formControlName="address"
+                      placeholder="Rodovia / Km (ex: BR-010 Km 299)"
+                      class="w-full bg-[#0B0E11] border border-[#222A2F] rounded-xl px-3 py-1 text-[11px] text-[#CAD2D9] focus:outline-hidden focus:border-[#FF6B00]"
+                    />
+                  </div>
+                  <div>
+                    <input
+                      type="text"
+                      formControlName="notes"
+                      placeholder="Instruções para o condutor"
+                      class="w-full bg-[#0B0E11] border border-[#222A2F] rounded-xl px-3 py-1 text-[11px] text-[#CAD2D9] focus:outline-hidden focus:border-[#FF6B00]"
+                    />
+                  </div>
+                </div>
+
               </div>
-            </div>
-
-            <div>
-              <label class="block text-[11px] font-medium text-[#929EAA] mb-1">Logradouro / Galpão <span class="text-rose-400">*</span></label>
-              <input
-                type="text"
-                formControlName="destinationAddress"
-                placeholder="Ex: Terminal de Cargas - Av. dos Portugueses"
-                class="w-full bg-[#0B0E11] border rounded-xl px-3 py-2 text-xs text-white focus:outline-hidden focus:border-[#FF6B00]"
-                [ngClass]="(tripForm.get('destinationAddress')?.invalid && tripForm.get('destinationAddress')?.touched) ? 'border-rose-500 bg-rose-950/20' : 'border-[#222A2F]'"
-              />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- 3. CARD: ITINERÁRIO & PONTOS DE PARADA PLANEJADOS (O CORAÇÃO DO REQUISITO) -->
-      <section class="p-5 sm:p-6 rounded-3xl bg-[#0F1215] border border-[#222A2F] shadow-xl space-y-4">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-[#222A2F]">
-          <div>
-            <h2 class="text-sm font-bold text-white flex items-center gap-2">
-              <span class="size-7 rounded-xl bg-[#171D21] border border-[#222A2F] text-[#FF6B00] flex items-center justify-center text-xs">3</span>
-              <span>Itinerário & Pontos de Parada Intermediários</span>
-            </h2>
-            <p class="text-[11px] text-[#929EAA] mt-0.5 ml-9">
-              Defina postos de combustível credenciados, pontos de descanso da Lei 13.103 ou coletas intermediárias.
-            </p>
+            }
           </div>
 
-          <!-- Botões Rápidos de Adicionar Parada -->
-          <div class="flex items-center gap-2 flex-wrap ml-9 sm:ml-0">
+          <!-- BOTÃO ESTILO GOOGLE MAPS: + ADICIONAR DESTINO / PARADA -->
+          <div class="flex items-center gap-2 pt-1 pb-1">
+            <button
+              type="button"
+              (click)="addWaypoint('STOP')"
+              class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#171D21] hover:bg-[#222A2F] border border-[#222A2F] text-white hover:text-[#FF6B00] text-xs font-bold transition-all cursor-pointer shadow-xs"
+            >
+              <svg lucidePlus class="size-3.5 text-[#FF6B00]"></svg>
+              <span>+ Adicionar Destino / Parada</span>
+            </button>
+
             <button
               type="button"
               (click)="addWaypoint('FUEL')"
-              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-bold transition-all cursor-pointer"
-              title="Adicionar posto de combustível"
+              class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-semibold transition-all cursor-pointer"
+              title="Adicionar Posto Homologado"
             >
               <svg lucideFuel class="size-3.5"></svg>
               <span>+ Posto</span>
@@ -294,197 +386,186 @@
             <button
               type="button"
               (click)="addWaypoint('REST')"
-              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/30 text-blue-300 text-xs font-bold transition-all cursor-pointer"
-              title="Adicionar ponto de descanso obrigatório"
+              class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/30 text-blue-300 text-xs font-semibold transition-all cursor-pointer"
+              title="Adicionar Descanso Lei 13.103"
             >
               <svg lucideCoffee class="size-3.5"></svg>
               <span>+ Descanso</span>
             </button>
-
-            <button
-              type="button"
-              (click)="addWaypoint('STOP')"
-              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#171D21] hover:bg-[#222A2F] border border-[#222A2F] text-[#CAD2D9] hover:text-white text-xs font-bold transition-all cursor-pointer"
-              title="Adicionar entrega/coleta"
-            >
-              <svg lucidePackage class="size-3.5 text-[#FF6B00]"></svg>
-              <span>+ Coleta/Parada</span>
-            </button>
           </div>
-        </div>
 
-        <!-- LISTA DINÂMICA DE WAYPOINTS -->
-        <div formArrayName="waypoints" class="space-y-3.5 pt-1">
-          @for (wp of waypoints.controls; track $index) {
-            <div [formGroupName]="$index" class="p-4 rounded-2xl bg-[#11161A] border border-[#222A2F] space-y-3 transition-all">
-              
-              <!-- Cabeçalho do Card da Parada -->
-              <div class="flex items-center justify-between gap-3">
-                <div class="flex items-center gap-2.5">
-                  <span class="size-6 rounded-lg bg-[#0F1215] border border-[#222A2F] text-[11px] font-black text-[#FF6B00] flex items-center justify-center">
-                    {{ $index + 1 }}
-                  </span>
+          <!-- PONTO B: DESTINO FINAL -->
+          <div class="relative p-4 rounded-2xl bg-[#11161A] border border-[#222A2F] hover:border-rose-500/40 transition-all space-y-2.5">
+            <!-- Marcador indicador B -->
+            <div class="absolute -left-6 sm:-left-8 top-4 size-5 rounded-full bg-rose-500 border-2 border-[#0F1215] flex items-center justify-center text-white text-[9px] font-black shadow-md">
+              B
+            </div>
 
-                  <!-- Badge do Tipo de Parada -->
-                  @if (wp.get('type')?.value === 'FUEL') {
-                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-500/15 text-amber-400 border border-amber-500/30">
-                      <svg lucideFuel class="size-3"></svg> POSTO HOMOLOGADO
-                    </span>
-                  } @else if (wp.get('type')?.value === 'REST') {
-                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-blue-500/15 text-blue-400 border border-blue-500/30">
-                      <svg lucideCoffee class="size-3"></svg> PONTO DE DESCANSO
-                    </span>
-                  } @else {
-                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-[#171D21] text-[#929EAA] border border-[#222A2F]">
-                      <svg lucidePackage class="size-3 text-[#FF6B00]"></svg> PARADA PROGRAMADA
-                    </span>
-                  }
-                </div>
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-rose-400 flex items-center gap-1.5">
+                <svg lucideMapPin class="size-3.5"></svg> Ponto de Chegada (Destino Final)
+              </span>
 
-                <!-- Botão Remover Parada -->
-                <button
-                  type="button"
-                  (click)="removeWaypoint($index)"
-                  class="size-7 rounded-lg bg-[#0F1215] hover:bg-rose-950/40 border border-[#222A2F] hover:border-rose-500/50 text-[#929EAA] hover:text-rose-400 flex items-center justify-center transition-all cursor-pointer"
-                  title="Remover ponto de parada"
+              <button
+                type="button"
+                (click)="startPickingOnMap('destination')"
+                class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-semibold bg-[#171D21] hover:bg-rose-950/40 border border-[#222A2F] hover:border-rose-500/40 text-[#CAD2D9] hover:text-rose-300 transition-all cursor-pointer"
+                title="Selecionar destino no mapa"
+              >
+                <svg lucideMousePointer class="size-3 text-rose-400"></svg>
+                <span>Escolher no Mapa</span>
+              </button>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
+              <div class="sm:col-span-5">
+                <label class="block text-[10px] font-medium text-[#929EAA] mb-1">Cidade <span class="text-rose-400">*</span></label>
+                <input
+                  type="text"
+                  formControlName="destinationCity"
+                  placeholder="Ex: São Luís"
+                  class="w-full bg-[#0B0E11] border rounded-xl px-3 py-1.5 text-xs text-white focus:outline-hidden focus:border-[#FF6B00]"
+                  [ngClass]="(tripForm.get('destinationCity')?.invalid && tripForm.get('destinationCity')?.touched) ? 'border-rose-500 bg-rose-950/20' : 'border-[#222A2F]'"
+                />
+              </div>
+
+              <div class="sm:col-span-2">
+                <label class="block text-[10px] font-medium text-[#929EAA] mb-1">UF <span class="text-rose-400">*</span></label>
+                <select
+                  formControlName="destinationState"
+                  class="w-full bg-[#0B0E11] border border-[#222A2F] rounded-xl px-2 py-1.5 text-xs text-white focus:outline-hidden focus:border-[#FF6B00] cursor-pointer"
                 >
-                  <svg lucideTrash2 class="size-3.5"></svg>
-                </button>
+                  @for (uf of states(); track uf) {
+                    <option [value]="uf" class="bg-[#11161A] text-white">{{ uf }}</option>
+                  }
+                </select>
               </div>
 
-              <!-- Campos da Parada -->
-              <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
-                <!-- Título / Identificação -->
-                <div class="sm:col-span-6">
-                  <label class="block text-[11px] font-medium text-[#929EAA] mb-1">Identificação / Nome do Ponto <span class="text-rose-400">*</span></label>
-                  <input
-                    type="text"
-                    formControlName="title"
-                    placeholder="Ex: Posto Graal Embaixador - BR-010 Km 299"
-                    class="w-full bg-[#0B0E11] border border-[#222A2F] rounded-xl px-3 py-2 text-xs text-white focus:outline-hidden focus:border-[#FF6B00]"
-                  />
-                </div>
-
-                <!-- Cidade -->
-                <div class="sm:col-span-4">
-                  <label class="block text-[11px] font-medium text-[#929EAA] mb-1">Cidade <span class="text-rose-400">*</span></label>
-                  <input
-                    type="text"
-                    formControlName="city"
-                    placeholder="Ex: Açailândia"
-                    class="w-full bg-[#0B0E11] border border-[#222A2F] rounded-xl px-3 py-2 text-xs text-white focus:outline-hidden focus:border-[#FF6B00]"
-                  />
-                </div>
-
-                <!-- UF -->
-                <div class="sm:col-span-2">
-                  <label class="block text-[11px] font-medium text-[#929EAA] mb-1">UF <span class="text-rose-400">*</span></label>
-                  <select
-                    formControlName="state"
-                    class="w-full bg-[#0B0E11] border border-[#222A2F] rounded-xl px-2 py-2 text-xs text-white focus:outline-hidden focus:border-[#FF6B00] cursor-pointer"
-                  >
-                    @for (uf of states(); track uf) {
-                      <option [value]="uf" class="bg-[#11161A] text-white">{{ uf }}</option>
-                    }
-                  </select>
-                </div>
+              <div class="sm:col-span-5">
+                <label class="block text-[10px] font-medium text-[#929EAA] mb-1">Galpão / Terminal de Entrega <span class="text-rose-400">*</span></label>
+                <input
+                  type="text"
+                  formControlName="destinationAddress"
+                  placeholder="Ex: Terminal Portuário de Itaqui"
+                  class="w-full bg-[#0B0E11] border rounded-xl px-3 py-1.5 text-xs text-white focus:outline-hidden focus:border-[#FF6B00]"
+                  [ngClass]="(tripForm.get('destinationAddress')?.invalid && tripForm.get('destinationAddress')?.touched) ? 'border-rose-500 bg-rose-950/20' : 'border-[#222A2F]'"
+                />
               </div>
-
-              <!-- Endereço / Rodovia e Instruções -->
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label class="block text-[10px] font-medium text-[#8E9DA8] mb-1">Rodovia / Endereço Completo</label>
-                  <input
-                    type="text"
-                    formControlName="address"
-                    placeholder="Ex: Rodovia Belém-Brasília, Km 350"
-                    class="w-full bg-[#0B0E11] border border-[#222A2F] rounded-xl px-3 py-1.5 text-xs text-white focus:outline-hidden focus:border-[#FF6B00]"
-                  />
-                </div>
-
-                <div>
-                  <label class="block text-[10px] font-medium text-[#8E9DA8] mb-1">Instruções para o Condutor</label>
-                  <input
-                    type="text"
-                    formControlName="notes"
-                    placeholder="Ex: Abastecimento de Diesel até o tanque cheio"
-                    class="w-full bg-[#0B0E11] border border-[#222A2F] rounded-xl px-3 py-1.5 text-xs text-white focus:outline-hidden focus:border-[#FF6B00]"
-                  />
-                </div>
-              </div>
-
             </div>
-          } @empty {
-            <div class="p-6 rounded-2xl bg-[#11161A]/60 border border-dashed border-[#222A2F] text-center space-y-2">
-              <div class="size-10 rounded-2xl bg-[#171D21] border border-[#222A2F] flex items-center justify-center text-[#929EAA] mx-auto">
-                <svg lucideNavigation class="size-5 text-[#FF6B00]"></svg>
-              </div>
-              <p class="text-xs font-semibold text-white">Nenhum ponto de parada intermediário adicionado</p>
-              <p class="text-[11px] text-[#929EAA] max-w-sm mx-auto">
-                A viagem seguirá rota direta de origem a destino. Você pode adicionar postos de abastecimento ou paradas de descanso usando os botões acima.
-              </p>
-            </div>
-          }
+          </div>
+
         </div>
       </section>
 
-      <!-- 4. CARD: OBSERVAÇÕES -->
+      <!-- 3. CARD: OBSERVAÇÕES -->
       <section class="p-5 sm:p-6 rounded-3xl bg-[#0F1215] border border-[#222A2F] shadow-xl space-y-3">
         <label class="block text-xs font-bold text-white">Observações Gerais do Despacho</label>
         <textarea
           formControlName="notes"
           rows="2"
-          placeholder="Ex: Carga prioritária, transporte de grãos, manter velocidade controlada..."
+          placeholder="Ex: Carga pesada de grãos, velocidade máxima 80km/h, conferir lacres nas paradas..."
           class="w-full bg-[#11161A] border border-[#222A2F] rounded-2xl p-3 text-xs text-white focus:outline-hidden focus:border-[#FF6B00] placeholder:text-[#62707C]"
         ></textarea>
       </section>
 
     </form>
 
-    <!-- COLUNA DIREITA: PRÉ-VISUALIZAÇÃO AO VIVO NO MAPA (lg:col-span-5) -->
-    <aside class="lg:col-span-5 space-y-4 lg:sticky lg:top-6" aria-label="Pré-visualização do Trajeto no Mapa">
+    <!-- COLUNA DIREITA: MAPA INTERATIVO ESTILO GOOGLE MAPS (lg:col-span-5) -->
+    <aside class="lg:col-span-5 space-y-4 lg:sticky lg:top-6" aria-label="Mapa Interativo e Pré-visualização da Rota">
       <div class="p-5 sm:p-6 rounded-3xl bg-[#0F1215] border border-[#222A2F] shadow-xl space-y-4">
         
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2">
             <div class="size-7 rounded-xl bg-[#171D21] border border-[#222A2F] text-[#FF6B00] flex items-center justify-center">
-              <svg lucideLocate class="size-4"></svg>
+              <svg lucideRoute class="size-4"></svg>
             </div>
-            <h2 class="text-xs font-bold text-white uppercase tracking-wider">Pré-visualização da Rota</h2>
+            <div>
+              <h2 class="text-xs font-bold text-white uppercase tracking-wider">Traçado Real de Rodovias</h2>
+              <p class="text-[10px] text-[#929EAA]">Geometria curva e curvas reais de tráfego</p>
+            </div>
           </div>
 
-          <span class="text-[11px] text-[#929EAA] font-mono">
-            {{ waypoints.length }} {{ waypoints.length === 1 ? 'parada' : 'paradas' }}
-          </span>
+          <button
+            type="button"
+            (click)="centerMapOnRoute()"
+            class="px-2.5 py-1 rounded-xl bg-[#171D21] hover:bg-[#222A2F] border border-[#222A2F] text-[11px] font-semibold text-[#CAD2D9] hover:text-white transition-all cursor-pointer flex items-center gap-1.5"
+            title="Ajustar enquadramento do mapa"
+          >
+            <svg lucideMaximize2 class="size-3"></svg>
+            <span>Enquadrar</span>
+          </button>
         </div>
 
-        <!-- CONTAINER DO MAPA LEAFLET -->
-        <div class="relative w-full h-[360px] sm:h-[420px] rounded-2xl overflow-hidden border border-[#222A2F] bg-[#080B0C] shadow-inner">
+        <!-- CONTAINER DO MAPA LEAFLET INTERATIVO -->
+        <div class="relative w-full h-[400px] sm:h-[460px] rounded-2xl overflow-hidden border border-[#222A2F] bg-[#080B0C] shadow-inner">
           <div #mapPreviewContainer class="w-full h-full z-10"></div>
 
-          <!-- Legenda Sobreposta no Mapa -->
-          <div class="absolute bottom-3 left-3 right-3 z-20 bg-[#0F1215]/95 backdrop-blur-md rounded-xl p-3 border border-[#222A2F] shadow-lg text-[11px]">
-            <div class="flex items-center justify-between text-white font-medium">
-              <div class="flex items-center gap-1.5 truncate">
-                <span class="size-2 rounded-full bg-emerald-400"></span>
-                <span class="truncate">{{ tripForm.get('originCity')?.value || 'Origem' }}</span>
-              </div>
-              <span class="text-[#FF6B00] font-bold">➔</span>
-              <div class="flex items-center gap-1.5 truncate">
-                <span class="size-2 rounded-full bg-rose-400"></span>
-                <span class="truncate">{{ tripForm.get('destinationCity')?.value || 'Destino' }}</span>
+          <!-- CARD FLUTUANTE DE RESUMO DA ROTA (ESTILO GOOGLE MAPS) -->
+          @if (routeStats(); as stats) {
+            <div class="absolute top-3 left-3 right-3 z-20 bg-[#0F1215]/95 backdrop-blur-md rounded-2xl p-3.5 border border-[#222A2F] shadow-2xl animate-in fade-in slide-in-from-top-2">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="size-9 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                    <svg lucideClock class="size-4.5"></svg>
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <span class="text-sm font-black text-white">{{ stats.duration }}</span>
+                      <span class="text-xs text-[#929EAA]">({{ stats.distanceKm }} km)</span>
+                    </div>
+                    <span class="text-[10px] text-emerald-400 font-semibold flex items-center gap-1">
+                      <span class="size-1.5 rounded-full bg-emerald-400"></span> Rota ideal pelas principais rodovias
+                    </span>
+                  </div>
+                </div>
+
+                <div class="text-right">
+                  <span class="text-[10px] font-bold text-[#929EAA] uppercase block">Paradas</span>
+                  <span class="text-xs font-bold text-[#FF6B00]">{{ waypoints.length }} intermediárias</span>
+                </div>
               </div>
             </div>
-          </div>
+          } @else if (calculatingRoute()) {
+            <div class="absolute top-3 left-3 right-3 z-20 bg-[#0F1215]/90 backdrop-blur-md rounded-2xl p-3 border border-[#222A2F] shadow-xl flex items-center gap-2.5 text-xs text-white">
+              <svg lucideLoader2 class="size-4 animate-spin text-[#FF6B00]"></svg>
+              <span>Calculando traçado real nas rodovias...</span>
+            </div>
+          }
+
+          <!-- AVISO MODO PICKER ATIVO -->
+          @if (isMapPickerActive()) {
+            <div class="absolute inset-x-3 bottom-3 z-20 bg-[#FF6B00] text-white rounded-xl p-2.5 text-xs font-bold text-center shadow-2xl flex items-center justify-between">
+              <span class="flex items-center gap-2">
+                <svg lucideMousePointer class="size-4"></svg>
+                <span>Clique em qualquer rodovia ou cidade para posicionar o ponto</span>
+              </span>
+              <button
+                type="button"
+                (click)="stopPickingOnMap()"
+                class="px-2 py-0.5 rounded-lg bg-black/30 hover:bg-black/50 text-[11px] text-white cursor-pointer"
+              >
+                Cancelar
+              </button>
+            </div>
+          } @else {
+            <!-- Mini Instrução Interativa Google Maps -->
+            <div class="absolute bottom-3 left-3 right-3 z-20 bg-[#0F1215]/90 backdrop-blur-md rounded-xl py-2 px-3 border border-[#222A2F] shadow-lg text-[10px] text-[#929EAA] flex items-center justify-between">
+              <span class="flex items-center gap-1.5">
+                <span class="size-2 rounded-full bg-[#FF6B00]"></span>
+                <span>Dica: Clique em qualquer local do mapa para adicionar paradas</span>
+              </span>
+              <span class="text-white font-medium">Leaflet + OSRM</span>
+            </div>
+          }
         </div>
 
         <!-- Dica de Conformidade com a Lei do Motorista -->
         <div class="p-3.5 rounded-2xl bg-[#11161A] border border-[#222A2F] flex items-start gap-3 text-xs">
           <svg lucideShield class="size-4 text-[#FF6B00] shrink-0 mt-0.5"></svg>
           <div class="space-y-0.5">
-            <span class="font-bold text-white block">Segurança & Lei nº 13.103</span>
+            <span class="font-bold text-white block">Sincronização com o App do Motorista</span>
             <p class="text-[11px] text-[#929EAA]">
-              O itinerário cadastrado será sincronizado em tempo real com o aplicativo do condutor, exibindo postos credenciados e paradas recomendadas.
+              O traçado detalhado e todos os waypoints (postos de combustível e repouso) são enviados instantaneamente para o smartphone do motorista.
             </p>
           </div>
         </div>
