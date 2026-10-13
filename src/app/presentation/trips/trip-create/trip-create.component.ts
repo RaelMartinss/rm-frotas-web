@@ -198,17 +198,17 @@ export class TripCreateComponent implements OnInit, AfterViewInit, OnDestroy {
       scheduledDate: [scheduledDefault, Validators.required],
       estimatedArrivalDate: [''],
       // Ponto de Partida
-      originAddress: ['Pátio Central - Rodovia PA-125, Km 02', Validators.required],
-      originCity: ['Paragominas', Validators.required],
+      originAddress: ['', Validators.required],
+      originCity: ['', Validators.required],
       originState: ['PA', Validators.required],
-      originLat: [-2.9986],
-      originLng: [-47.3536],
+      originLat: [null],
+      originLng: [null],
       // Ponto de Chegada
-      destinationAddress: ['Terminal de Cargas - Itaqui', Validators.required],
-      destinationCity: ['São Luís', Validators.required],
+      destinationAddress: ['', Validators.required],
+      destinationCity: ['', Validators.required],
       destinationState: ['MA', Validators.required],
-      destinationLat: [-2.5307],
-      destinationLng: [-44.3068],
+      destinationLat: [null],
+      destinationLng: [null],
       notes: [''],
       waypoints: this.fb.array([]),
     });
@@ -229,13 +229,13 @@ export class TripCreateComponent implements OnInit, AfterViewInit, OnDestroy {
 
     const group = this.fb.group({
       type: [type, Validators.required],
-      title: [defaultValues?.title || defaultTitle, Validators.required],
-      city: [defaultValues?.city || 'Açailândia', Validators.required],
-      state: [defaultValues?.state || 'MA', Validators.required],
-      address: [defaultValues?.address || 'BR-010'],
+      title: [defaultValues?.title || (type === 'STOP' ? '' : defaultTitle), Validators.required],
+      city: [defaultValues?.city || '', Validators.required],
+      state: [defaultValues?.state || 'PA', Validators.required],
+      address: [defaultValues?.address || ''],
       notes: [''],
-      lat: [defaultValues?.lat || -4.9458],
-      lng: [defaultValues?.lng || -47.4989],
+      lat: [defaultValues?.lat || null],
+      lng: [defaultValues?.lng || null],
     });
 
     this.waypoints.push(group);
@@ -474,65 +474,70 @@ export class TripCreateComponent implements OnInit, AfterViewInit, OnDestroy {
   private resolveOrderedPoints(): { coords: [number, number]; label: string; type: string }[] {
     const points: { coords: [number, number]; label: string; type: string }[] = [];
 
-    const originCity = (this.tripForm.get('originCity')?.value || '').trim().toLowerCase();
+    const originCity = (this.tripForm.get('originCity')?.value || '').trim();
     const originLat = this.tripForm.get('originLat')?.value;
     const originLng = this.tripForm.get('originLng')?.value;
 
-    let originCoord: PointCoordinate;
-    if (originLat && originLng) {
+    let originCoord: PointCoordinate | null = null;
+    if (originLat !== null && originLng !== null && !isNaN(originLat) && !isNaN(originLng)) {
       originCoord = { lat: originLat, lng: originLng };
-    } else {
-      originCoord = this.knownCoordinates[originCity] || { lat: -2.9986, lng: -47.3536 };
+    } else if (originCity) {
+      originCoord = this.knownCoordinates[originCity.toLowerCase()] || null;
     }
-    points.push({
-      coords: [originCoord.lat, originCoord.lng],
-      label: this.tripForm.get('originCity')?.value || 'Origem',
-      type: 'origin',
-    });
+
+    if (originCoord) {
+      points.push({
+        coords: [originCoord.lat, originCoord.lng],
+        label: originCity || 'Origem',
+        type: 'origin',
+      });
+    }
 
     // Waypoints intermediários
     const waypointsVal = this.waypoints.value;
     waypointsVal.forEach((w: any, idx: number) => {
-      let coord: PointCoordinate;
-      if (w.lat && w.lng) {
+      let coord: PointCoordinate | null = null;
+      if (w.lat !== null && w.lng !== null && !isNaN(w.lat) && !isNaN(w.lng)) {
         coord = { lat: w.lat, lng: w.lng };
-      } else {
+      } else if (w.city) {
         const cityKey = (w.city || '').trim().toLowerCase();
-        coord = this.knownCoordinates[cityKey] || {
-          lat: originCoord.lat + (idx + 1) * 0.4,
-          lng: originCoord.lng + (idx + 1) * 0.4,
-        };
+        coord = this.knownCoordinates[cityKey] || null;
       }
 
-      points.push({
-        coords: [coord.lat, coord.lng],
-        label: w.title || `Parada ${idx + 1}`,
-        type: w.type || 'STOP',
-      });
+      if (coord) {
+        points.push({
+          coords: [coord.lat, coord.lng],
+          label: w.title || `Parada ${idx + 1}`,
+          type: w.type || 'STOP',
+        });
+      }
     });
 
     // Destino final
-    const destCity = (this.tripForm.get('destinationCity')?.value || '').trim().toLowerCase();
+    const destCity = (this.tripForm.get('destinationCity')?.value || '').trim();
     const destLat = this.tripForm.get('destinationLat')?.value;
     const destLng = this.tripForm.get('destinationLng')?.value;
 
-    let destCoord: PointCoordinate;
-    if (destLat && destLng) {
+    let destCoord: PointCoordinate | null = null;
+    if (destLat !== null && destLng !== null && !isNaN(destLat) && !isNaN(destLng)) {
       destCoord = { lat: destLat, lng: destLng };
-    } else {
-      destCoord = this.knownCoordinates[destCity] || { lat: -2.5307, lng: -44.3068 };
+    } else if (destCity) {
+      destCoord = this.knownCoordinates[destCity.toLowerCase()] || null;
     }
-    points.push({
-      coords: [destCoord.lat, destCoord.lng],
-      label: this.tripForm.get('destinationCity')?.value || 'Destino Final',
-      type: 'destination',
-    });
+
+    if (destCoord) {
+      points.push({
+        coords: [destCoord.lat, destCoord.lng],
+        label: destCity || 'Destino Final',
+        type: 'destination',
+      });
+    }
 
     return points;
   }
 
   /**
-   * Atualiza as linhas e marcadores no mapa Leaflet com Traçado Real de Rodovia (OSRM Driving Engine)
+   * Atualiza as linhas e marcadores no mapa Leaflet com Traçado Real de Rodovias (OSRM Driving Engine)
    */
   updateMapPreview(): void {
     if (!this.map) return;
@@ -540,6 +545,19 @@ export class TripCreateComponent implements OnInit, AfterViewInit, OnDestroy {
     this.clearMarkers();
     const orderedPoints = this.resolveOrderedPoints();
     const stopLatLngs = orderedPoints.map((p) => p.coords);
+
+    if (stopLatLngs.length === 0) {
+      if (this.previewPolylineGlow) {
+        this.previewPolylineGlow.remove();
+        this.previewPolylineGlow = null;
+      }
+      if (this.previewPolylineCore) {
+        this.previewPolylineCore.remove();
+        this.previewPolylineCore = null;
+      }
+      this.routeStats.set(null);
+      return;
+    }
 
     // 1. Plotar Marcadores Estilizados no Mapa
     orderedPoints.forEach((p, idx) => {
@@ -590,6 +608,20 @@ export class TripCreateComponent implements OnInit, AfterViewInit, OnDestroy {
         .addTo(this.map!);
       this.previewMarkers.push(m);
     });
+
+    if (stopLatLngs.length === 1) {
+      this.map.setView(stopLatLngs[0], 11);
+      if (this.previewPolylineGlow) {
+        this.previewPolylineGlow.remove();
+        this.previewPolylineGlow = null;
+      }
+      if (this.previewPolylineCore) {
+        this.previewPolylineCore.remove();
+        this.previewPolylineCore = null;
+      }
+      this.routeStats.set(null);
+      return;
+    }
 
     // 2. Traçar a Rota Real nas Rodovias via OSRM Driving Engine
     this.calculatingRoute.set(true);
