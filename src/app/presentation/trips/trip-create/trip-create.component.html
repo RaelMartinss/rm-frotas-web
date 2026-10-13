@@ -68,8 +68,12 @@
   <!-- GRID PRINCIPAL: FORMULÁRIO (ESQUERDA) + PRÉ-VISUALIZAÇÃO INTERATIVA NO MAPA (DIREITA) -->
   <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
-    <!-- COLUNA ESQUERDA: FORMULÁRIO E ITINERÁRIO (lg:col-span-7) -->
-    <form [formGroup]="tripForm" class="lg:col-span-7 space-y-5">
+    <!-- COLUNA ESQUERDA: FORMULÁRIO E ITINERÁRIO (lg:col-span-7 OU OCULTO SE EXPANDIDO) -->
+    <form
+      [formGroup]="tripForm"
+      [ngClass]="isExpandedMap() ? 'hidden' : 'lg:col-span-7 block'"
+      class="space-y-5 transition-all duration-300"
+    >
 
       <!-- 1. CARD: VEÍCULO E MOTORISTA -->
       <section class="p-5 sm:p-6 rounded-3xl bg-[#0F1215] border border-[#222A2F] shadow-xl space-y-4">
@@ -470,11 +474,15 @@
 
     </form>
 
-    <!-- COLUNA DIREITA: MAPA INTERATIVO ESTILO GOOGLE MAPS (lg:col-span-5) -->
-    <aside class="lg:col-span-5 space-y-4 lg:sticky lg:top-6" aria-label="Mapa Interativo e Pré-visualização da Rota">
+    <!-- COLUNA DIREITA: MAPA INTERATIVO ESTILO GOOGLE MAPS (lg:col-span-5 OU lg:col-span-12 SE EXPANDIDO) -->
+    <aside
+      [ngClass]="isExpandedMap() ? 'lg:col-span-12' : 'lg:col-span-5 lg:sticky lg:top-6'"
+      class="space-y-4 transition-all duration-300"
+      aria-label="Mapa Interativo e Pré-visualização da Rota"
+    >
       <div class="p-5 sm:p-6 rounded-3xl bg-[#0F1215] border border-[#222A2F] shadow-xl space-y-4">
         
-        <div class="flex items-center justify-between">
+        <div class="flex items-center justify-between gap-3">
           <div class="flex items-center gap-2">
             <div class="size-7 rounded-xl bg-[#171D21] border border-[#222A2F] text-[#FF6B00] flex items-center justify-center">
               <svg lucideRoute class="size-4"></svg>
@@ -485,19 +493,41 @@
             </div>
           </div>
 
-          <button
-            type="button"
-            (click)="centerMapOnRoute()"
-            class="px-2.5 py-1 rounded-xl bg-[#171D21] hover:bg-[#222A2F] border border-[#222A2F] text-[11px] font-semibold text-[#CAD2D9] hover:text-white transition-all cursor-pointer flex items-center gap-1.5"
-            title="Ajustar enquadramento do mapa"
-          >
-            <svg lucideMaximize2 class="size-3"></svg>
-            <span>Enquadrar</span>
-          </button>
+          <div class="flex items-center gap-2">
+            <!-- Botão Centralizar / Enquadrar Toda a Rota -->
+            <button
+              type="button"
+              (click)="centerMapOnRoute()"
+              class="px-2.5 py-1.5 rounded-xl bg-[#171D21] hover:bg-[#222A2F] border border-[#222A2F] text-[11px] font-semibold text-[#CAD2D9] hover:text-white transition-all cursor-pointer flex items-center gap-1.5 shadow-xs"
+              title="Ajustar enquadramento do mapa"
+            >
+              <svg lucideLocate class="size-3.5 text-emerald-400"></svg>
+              <span>Enquadrar</span>
+            </button>
+
+            <!-- Botão Expandir / Recolher Tela Cheia -->
+            <button
+              type="button"
+              (click)="toggleExpandMap()"
+              class="px-2.5 py-1.5 rounded-xl bg-[#171D21] hover:bg-[#222A2F] border border-[#222A2F] text-[11px] font-semibold text-[#CAD2D9] hover:text-[#FF6B00] transition-all cursor-pointer flex items-center gap-1.5 shadow-xs"
+              [title]="isExpandedMap() ? 'Restaurar layout normal' : 'Expandir mapa em tela cheia'"
+            >
+              @if (isExpandedMap()) {
+                <svg lucideMinimize2 class="size-3.5 text-[#FF6B00]"></svg>
+                <span>Recolher</span>
+              } @else {
+                <svg lucideMaximize2 class="size-3.5 text-[#FF6B00]"></svg>
+                <span>Expandir</span>
+              }
+            </button>
+          </div>
         </div>
 
         <!-- CONTAINER DO MAPA LEAFLET INTERATIVO -->
-        <div class="relative w-full h-[400px] sm:h-[460px] rounded-2xl overflow-hidden border border-[#222A2F] bg-[#080B0C] shadow-inner">
+        <div
+          [ngClass]="isExpandedMap() ? 'h-[600px] sm:h-[720px]' : 'h-[400px] sm:h-[460px]'"
+          class="relative w-full rounded-2xl overflow-hidden border border-[#222A2F] bg-[#080B0C] shadow-inner transition-all duration-300"
+        >
           <div #mapPreviewContainer class="w-full h-full z-10"></div>
 
           <!-- CARD FLUTUANTE DE RESUMO DA ROTA (ESTILO GOOGLE MAPS) -->

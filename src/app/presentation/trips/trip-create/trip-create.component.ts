@@ -39,10 +39,12 @@ import {
   LucideCheck,
   LucideShield,
   LucideMapPin,
+  LucideLocate,
   LucidePlus,
   LucideMousePointer,
   LucideClock,
   LucideMaximize2,
+  LucideMinimize2,
   LucideRoute,
 } from '@lucide/angular';
 
@@ -72,10 +74,12 @@ export type SelectionTarget = 'origin' | 'destination' | 'waypoint';
     LucideCheck,
     LucideShield,
     LucideMapPin,
+    LucideLocate,
     LucidePlus,
     LucideMousePointer,
     LucideClock,
     LucideMaximize2,
+    LucideMinimize2,
     LucideRoute,
   ],
   templateUrl: './trip-create.component.html',
@@ -100,6 +104,7 @@ export class TripCreateComponent implements OnInit, AfterViewInit, OnDestroy {
   // Status do cálculo de traçado real
   readonly calculatingRoute = signal<boolean>(false);
   readonly routeStats = signal<{ distanceKm: number; duration: string } | null>(null);
+  readonly isExpandedMap = signal<boolean>(false);
 
   // Modo interativo de clique no mapa estilo Google Maps
   readonly isMapPickerActive = signal<boolean>(false);
@@ -643,9 +648,26 @@ export class TripCreateComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   centerMapOnRoute(): void {
-    if (this.map && this.previewPolylineCore) {
-      this.map.fitBounds(this.previewPolylineCore.getBounds(), { padding: [50, 50] });
+    if (!this.map) return;
+    if (this.previewPolylineCore && this.previewPolylineCore.getLatLngs().length > 0) {
+      this.map.fitBounds(this.previewPolylineCore.getBounds(), { padding: [50, 50], maxZoom: 16 });
+    } else {
+      const ordered = this.resolveOrderedPoints();
+      if (ordered.length > 0) {
+        const bounds = L.latLngBounds(ordered.map((o) => o.coords));
+        this.map.fitBounds(bounds, { padding: [50, 50], maxZoom: 16 });
+      }
     }
+  }
+
+  toggleExpandMap(): void {
+    this.isExpandedMap.update((val) => !val);
+    setTimeout(() => {
+      if (this.map) {
+        this.map.invalidateSize();
+        this.centerMapOnRoute();
+      }
+    }, 200);
   }
 
   onSubmit(): void {
