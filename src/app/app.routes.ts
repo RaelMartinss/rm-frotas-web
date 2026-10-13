@@ -151,6 +151,13 @@ export const routes: Routes = [
           import('./presentation/trips/trip-list').then((m) => m.TripListComponent)
       },
       {
+        path: 'viagens/nova',
+        loadComponent: () =>
+          import('./presentation/trips/trip-create/trip-create.component').then(
+            (m) => m.TripCreateComponent
+          )
+      },
+      {
         path: 'viagens/:id/rastreamento',
         loadComponent: () =>
           import('./presentation/trips/trip-tracking/trip-tracking.component').then(

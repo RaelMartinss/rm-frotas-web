@@ -1,0 +1,497 @@
+<div class="space-y-6 animate-in fade-in duration-300 pb-16">
+
+  <!-- CABEÇALHO DA PÁGINA (DESIGN SYSTEM RM FROTAS) -->
+  <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div class="flex items-center gap-3.5">
+      <button
+        type="button"
+        (click)="goBack()"
+        class="size-10 rounded-2xl bg-[#11161A] hover:bg-[#171D21] border border-[#222A2F] hover:border-[#FF6B00]/40 flex items-center justify-center text-[#929EAA] hover:text-white transition-all cursor-pointer shadow-xs shrink-0"
+        title="Voltar para Viagens"
+        aria-label="Voltar para listagem de viagens"
+      >
+        <svg lucideArrowLeft class="size-4.5"></svg>
+      </button>
+
+      <div>
+        <div class="flex items-center gap-2.5 flex-wrap">
+          <h1 class="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center gap-2">
+            <span>Nova Viagem & Planejamento de Itinerário</span>
+          </h1>
+
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#171D21] text-[#FF6B00] border border-[#222A2F]">
+            DESPACHO OPERACIONAL
+          </span>
+        </div>
+
+        <p class="text-xs text-[#929EAA] mt-1">
+          Escale o veículo, defina o condutor e monte o itinerário com postos homologados e paradas da Lei do Motorista.
+        </p>
+      </div>
+    </div>
+
+    <!-- Ações do Topo -->
+    <div class="flex items-center gap-2.5 self-start sm:self-auto">
+      <button
+        type="button"
+        (click)="goBack()"
+        class="px-4 py-2.5 rounded-xl border border-[#222A2F] bg-[#11161A] hover:bg-[#171D21] text-[#CAD2D9] hover:text-white transition-all text-xs font-semibold cursor-pointer shadow-xs"
+      >
+        Cancelar
+      </button>
+
+      <button
+        type="button"
+        (click)="onSubmit()"
+        [disabled]="submitting() || loadingAvailability()"
+        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#FF6B00] to-orange-500 hover:from-orange-500 hover:to-[#FF6B00] text-white text-xs font-black shadow-lg shadow-orange-950/30 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        @if (submitting()) {
+          <svg lucideLoader2 class="size-4 animate-spin"></svg>
+          <span>Lançando Viagem...</span>
+        } @else {
+          <svg lucideCheck class="size-4"></svg>
+          <span>Confirmar e Lançar Viagem</span>
+        }
+      </button>
+    </div>
+  </header>
+
+  <!-- MENSAGEM DE ERRO GERAL -->
+  @if (errorMessage()) {
+    <div class="p-4 bg-rose-950/60 border border-rose-500/40 text-rose-200 rounded-2xl text-xs flex items-center gap-3 shadow-lg" role="alert">
+      <svg lucideAlertCircle class="size-5 text-rose-400 shrink-0"></svg>
+      <span class="flex-1 font-medium">{{ errorMessage() }}</span>
+    </div>
+  }
+
+  <!-- GRID PRINCIPAL: FORMULÁRIO (ESQUERDA) + PRÉ-VISUALIZAÇÃO DA ROTA NO MAPA (DIREITA) -->
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+    <!-- COLUNA ESQUERDA: FORMULÁRIO INTELIGENTE (lg:col-span-7) -->
+    <form [formGroup]="tripForm" class="lg:col-span-7 space-y-5">
+
+      <!-- 1. CARD: VEÍCULO E MOTORISTA -->
+      <section class="p-5 sm:p-6 rounded-3xl bg-[#0F1215] border border-[#222A2F] shadow-xl space-y-4">
+        <div class="flex items-center justify-between pb-2 border-b border-[#222A2F]">
+          <h2 class="text-sm font-bold text-white flex items-center gap-2">
+            <span class="size-7 rounded-xl bg-[#171D21] border border-[#222A2F] text-[#FF6B00] flex items-center justify-center text-xs">1</span>
+            <span>Escalação de Veículo & Condutor</span>
+          </h2>
+          @if (loadingAvailability()) {
+            <span class="text-[11px] text-[#929EAA] flex items-center gap-1.5 font-medium">
+              <svg lucideLoader2 class="size-3 animate-spin text-[#FF6B00]"></svg> Verificando frota...
+            </span>
+          }
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- Veículo -->
+          <div>
+            <label class="block text-xs font-semibold text-[#CAD2D9] mb-1.5 flex items-center gap-1.5">
+              <svg lucideTruck class="size-3.5 text-[#FF6B00]"></svg>
+              <span>Veículo da Frota <span class="text-rose-400">*</span></span>
+            </label>
+            <select
+              formControlName="vehicleId"
+              class="w-full bg-[#11161A] border rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-hidden focus:border-[#FF6B00] transition-all disabled:opacity-60 cursor-pointer"
+              [disabled]="loadingAvailability()"
+              [ngClass]="(tripForm.get('vehicleId')?.invalid && tripForm.get('vehicleId')?.touched) ? 'border-rose-500 bg-rose-950/20' : 'border-[#222A2F]'"
+            >
+              <option value="" class="bg-[#11161A] text-white">
+                {{ loadingAvailability() ? 'Carregando frota...' : 'Selecione o caminhão...' }}
+              </option>
+              @for (v of availableVehicles(); track v.id) {
+                <option [value]="v.id" class="bg-[#11161A] text-white">
+                  {{ v.plate }} • {{ v.model }} ({{ v.brand || 'Frota' }})
+                </option>
+              }
+            </select>
+            @if (tripForm.get('vehicleId')?.touched && tripForm.get('vehicleId')?.errors?.['required']) {
+              <p class="text-[10px] text-rose-400 mt-1 font-medium">Selecione o veículo para o despacho.</p>
+            }
+          </div>
+
+          <!-- Motorista -->
+          <div>
+            <label class="block text-xs font-semibold text-[#CAD2D9] mb-1.5 flex items-center gap-1.5">
+              <svg lucideUser class="size-3.5 text-emerald-400"></svg>
+              <span>Motorista Escalado <span class="text-rose-400">*</span></span>
+            </label>
+            <select
+              formControlName="driverId"
+              class="w-full bg-[#11161A] border rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-hidden focus:border-[#FF6B00] transition-all disabled:opacity-60 cursor-pointer"
+              [disabled]="loadingAvailability()"
+              [ngClass]="(tripForm.get('driverId')?.invalid && tripForm.get('driverId')?.touched) ? 'border-rose-500 bg-rose-950/20' : 'border-[#222A2F]'"
+            >
+              <option value="" class="bg-[#11161A] text-white">
+                {{ loadingAvailability() ? 'Carregando motoristas...' : 'Selecione o condutor...' }}
+              </option>
+              @for (d of availableDrivers(); track d.id) {
+                <option [value]="d.id" class="bg-[#11161A] text-white">
+                  {{ d.name }} • CNH {{ d.cnhNumber || '---' }}
+                </option>
+              }
+            </select>
+            @if (tripForm.get('driverId')?.touched && tripForm.get('driverId')?.errors?.['required']) {
+              <p class="text-[10px] text-rose-400 mt-1 font-medium">Selecione o condutor responsável.</p>
+            }
+          </div>
+        </div>
+
+        <!-- Datas de Saída e Chegada -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+          <div class="p-3.5 rounded-2xl bg-[#11161A] border border-[#222A2F]">
+            <label class="block text-xs font-semibold text-[#CAD2D9] mb-1 flex items-center gap-1.5">
+              <svg lucideCalendar class="size-3.5 text-[#FF6B00]"></svg>
+              <span>Saída Prevista <span class="text-rose-400">*</span></span>
+            </label>
+            <input
+              type="datetime-local"
+              formControlName="scheduledDate"
+              class="w-full bg-[#0B0E11] border rounded-xl px-3 py-2 text-xs text-white focus:outline-hidden focus:border-[#FF6B00] transition-colors"
+              [ngClass]="(tripForm.get('scheduledDate')?.invalid && tripForm.get('scheduledDate')?.touched) ? 'border-rose-500 bg-rose-950/20' : 'border-[#222A2F]'"
+            />
+          </div>
+
+          <div class="p-3.5 rounded-2xl bg-[#11161A] border border-[#222A2F]">
+            <label class="block text-xs font-semibold text-[#CAD2D9] mb-1 flex items-center gap-1.5">
+              <svg lucideCalendar class="size-3.5 text-blue-400"></svg>
+              <span>Previsão de Chegada (Opcional)</span>
+            </label>
+            <input
+              type="datetime-local"
+              formControlName="estimatedArrivalDate"
+              class="w-full bg-[#0B0E11] border border-[#222A2F] rounded-xl px-3 py-2 text-xs text-white focus:outline-hidden focus:border-[#FF6B00] transition-colors"
+            />
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. CARD: ORIGEM E DESTINO FINAL -->
+      <section class="p-5 sm:p-6 rounded-3xl bg-[#0F1215] border border-[#222A2F] shadow-xl space-y-4">
+        <div class="flex items-center justify-between pb-2 border-b border-[#222A2F]">
+          <h2 class="text-sm font-bold text-white flex items-center gap-2">
+            <span class="size-7 rounded-xl bg-[#171D21] border border-[#222A2F] text-[#FF6B00] flex items-center justify-center text-xs">2</span>
+            <span>Origem & Destino Final</span>
+          </h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Ponto de Partida -->
+          <div class="p-4 rounded-2xl bg-[#11161A] border border-[#222A2F] space-y-3">
+            <div class="flex items-center gap-2 text-xs font-bold text-emerald-400">
+              <span class="size-2 rounded-full bg-emerald-400"></span>
+              <span>Ponto de Partida (Origem)</span>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2.5">
+              <div class="col-span-2">
+                <label class="block text-[11px] font-medium text-[#929EAA] mb-1">Cidade <span class="text-rose-400">*</span></label>
+                <input
+                  type="text"
+                  formControlName="originCity"
+                  placeholder="Ex: Paragominas"
+                  class="w-full bg-[#0B0E11] border rounded-xl px-3 py-2 text-xs text-white focus:outline-hidden focus:border-[#FF6B00]"
+                  [ngClass]="(tripForm.get('originCity')?.invalid && tripForm.get('originCity')?.touched) ? 'border-rose-500 bg-rose-950/20' : 'border-[#222A2F]'"
+                />
+              </div>
+              <div>
+                <label class="block text-[11px] font-medium text-[#929EAA] mb-1">UF <span class="text-rose-400">*</span></label>
+                <select
+                  formControlName="originState"
+                  class="w-full bg-[#0B0E11] border border-[#222A2F] rounded-xl px-2.5 py-2 text-xs text-white focus:outline-hidden focus:border-[#FF6B00] cursor-pointer"
+                >
+                  @for (uf of states(); track uf) {
+                    <option [value]="uf" class="bg-[#11161A] text-white">{{ uf }}</option>
+                  }
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-[11px] font-medium text-[#929EAA] mb-1">Logradouro / Pátio <span class="text-rose-400">*</span></label>
+              <input
+                type="text"
+                formControlName="originAddress"
+                placeholder="Ex: Pátio Central - Rodovia PA-125, Km 02"
+                class="w-full bg-[#0B0E11] border rounded-xl px-3 py-2 text-xs text-white focus:outline-hidden focus:border-[#FF6B00]"
+                [ngClass]="(tripForm.get('originAddress')?.invalid && tripForm.get('originAddress')?.touched) ? 'border-rose-500 bg-rose-950/20' : 'border-[#222A2F]'"
+              />
+            </div>
+          </div>
+
+          <!-- Ponto de Chegada -->
+          <div class="p-4 rounded-2xl bg-[#11161A] border border-[#222A2F] space-y-3">
+            <div class="flex items-center gap-2 text-xs font-bold text-rose-400">
+              <span class="size-2 rounded-full bg-rose-400"></span>
+              <span>Ponto de Chegada (Destino)</span>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2.5">
+              <div class="col-span-2">
+                <label class="block text-[11px] font-medium text-[#929EAA] mb-1">Cidade <span class="text-rose-400">*</span></label>
+                <input
+                  type="text"
+                  formControlName="destinationCity"
+                  placeholder="Ex: São Luís"
+                  class="w-full bg-[#0B0E11] border rounded-xl px-3 py-2 text-xs text-white focus:outline-hidden focus:border-[#FF6B00]"
+                  [ngClass]="(tripForm.get('destinationCity')?.invalid && tripForm.get('destinationCity')?.touched) ? 'border-rose-500 bg-rose-950/20' : 'border-[#222A2F]'"
+                />
+              </div>
+              <div>
+                <label class="block text-[11px] font-medium text-[#929EAA] mb-1">UF <span class="text-rose-400">*</span></label>
+                <select
+                  formControlName="destinationState"
+                  class="w-full bg-[#0B0E11] border border-[#222A2F] rounded-xl px-2.5 py-2 text-xs text-white focus:outline-hidden focus:border-[#FF6B00] cursor-pointer"
+                >
+                  @for (uf of states(); track uf) {
+                    <option [value]="uf" class="bg-[#11161A] text-white">{{ uf }}</option>
+                  }
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-[11px] font-medium text-[#929EAA] mb-1">Logradouro / Galpão <span class="text-rose-400">*</span></label>
+              <input
+                type="text"
+                formControlName="destinationAddress"
+                placeholder="Ex: Terminal de Cargas - Av. dos Portugueses"
+                class="w-full bg-[#0B0E11] border rounded-xl px-3 py-2 text-xs text-white focus:outline-hidden focus:border-[#FF6B00]"
+                [ngClass]="(tripForm.get('destinationAddress')?.invalid && tripForm.get('destinationAddress')?.touched) ? 'border-rose-500 bg-rose-950/20' : 'border-[#222A2F]'"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. CARD: ITINERÁRIO & PONTOS DE PARADA PLANEJADOS (O CORAÇÃO DO REQUISITO) -->
+      <section class="p-5 sm:p-6 rounded-3xl bg-[#0F1215] border border-[#222A2F] shadow-xl space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-[#222A2F]">
+          <div>
+            <h2 class="text-sm font-bold text-white flex items-center gap-2">
+              <span class="size-7 rounded-xl bg-[#171D21] border border-[#222A2F] text-[#FF6B00] flex items-center justify-center text-xs">3</span>
+              <span>Itinerário & Pontos de Parada Intermediários</span>
+            </h2>
+            <p class="text-[11px] text-[#929EAA] mt-0.5 ml-9">
+              Defina postos de combustível credenciados, pontos de descanso da Lei 13.103 ou coletas intermediárias.
+            </p>
+          </div>
+
+          <!-- Botões Rápidos de Adicionar Parada -->
+          <div class="flex items-center gap-2 flex-wrap ml-9 sm:ml-0">
+            <button
+              type="button"
+              (click)="addWaypoint('FUEL')"
+              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-bold transition-all cursor-pointer"
+              title="Adicionar posto de combustível"
+            >
+              <svg lucideFuel class="size-3.5"></svg>
+              <span>+ Posto</span>
+            </button>
+
+            <button
+              type="button"
+              (click)="addWaypoint('REST')"
+              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/30 text-blue-300 text-xs font-bold transition-all cursor-pointer"
+              title="Adicionar ponto de descanso obrigatório"
+            >
+              <svg lucideCoffee class="size-3.5"></svg>
+              <span>+ Descanso</span>
+            </button>
+
+            <button
+              type="button"
+              (click)="addWaypoint('STOP')"
+              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#171D21] hover:bg-[#222A2F] border border-[#222A2F] text-[#CAD2D9] hover:text-white text-xs font-bold transition-all cursor-pointer"
+              title="Adicionar entrega/coleta"
+            >
+              <svg lucidePackage class="size-3.5 text-[#FF6B00]"></svg>
+              <span>+ Coleta/Parada</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- LISTA DINÂMICA DE WAYPOINTS -->
+        <div formArrayName="waypoints" class="space-y-3.5 pt-1">
+          @for (wp of waypoints.controls; track $index) {
+            <div [formGroupName]="$index" class="p-4 rounded-2xl bg-[#11161A] border border-[#222A2F] space-y-3 transition-all">
+              
+              <!-- Cabeçalho do Card da Parada -->
+              <div class="flex items-center justify-between gap-3">
+                <div class="flex items-center gap-2.5">
+                  <span class="size-6 rounded-lg bg-[#0F1215] border border-[#222A2F] text-[11px] font-black text-[#FF6B00] flex items-center justify-center">
+                    {{ $index + 1 }}
+                  </span>
+
+                  <!-- Badge do Tipo de Parada -->
+                  @if (wp.get('type')?.value === 'FUEL') {
+                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                      <svg lucideFuel class="size-3"></svg> POSTO HOMOLOGADO
+                    </span>
+                  } @else if (wp.get('type')?.value === 'REST') {
+                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-blue-500/15 text-blue-400 border border-blue-500/30">
+                      <svg lucideCoffee class="size-3"></svg> PONTO DE DESCANSO
+                    </span>
+                  } @else {
+                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-[#171D21] text-[#929EAA] border border-[#222A2F]">
+                      <svg lucidePackage class="size-3 text-[#FF6B00]"></svg> PARADA PROGRAMADA
+                    </span>
+                  }
+                </div>
+
+                <!-- Botão Remover Parada -->
+                <button
+                  type="button"
+                  (click)="removeWaypoint($index)"
+                  class="size-7 rounded-lg bg-[#0F1215] hover:bg-rose-950/40 border border-[#222A2F] hover:border-rose-500/50 text-[#929EAA] hover:text-rose-400 flex items-center justify-center transition-all cursor-pointer"
+                  title="Remover ponto de parada"
+                >
+                  <svg lucideTrash2 class="size-3.5"></svg>
+                </button>
+              </div>
+
+              <!-- Campos da Parada -->
+              <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
+                <!-- Título / Identificação -->
+                <div class="sm:col-span-6">
+                  <label class="block text-[11px] font-medium text-[#929EAA] mb-1">Identificação / Nome do Ponto <span class="text-rose-400">*</span></label>
+                  <input
+                    type="text"
+                    formControlName="title"
+                    placeholder="Ex: Posto Graal Embaixador - BR-010 Km 299"
+                    class="w-full bg-[#0B0E11] border border-[#222A2F] rounded-xl px-3 py-2 text-xs text-white focus:outline-hidden focus:border-[#FF6B00]"
+                  />
+                </div>
+
+                <!-- Cidade -->
+                <div class="sm:col-span-4">
+                  <label class="block text-[11px] font-medium text-[#929EAA] mb-1">Cidade <span class="text-rose-400">*</span></label>
+                  <input
+                    type="text"
+                    formControlName="city"
+                    placeholder="Ex: Açailândia"
+                    class="w-full bg-[#0B0E11] border border-[#222A2F] rounded-xl px-3 py-2 text-xs text-white focus:outline-hidden focus:border-[#FF6B00]"
+                  />
+                </div>
+
+                <!-- UF -->
+                <div class="sm:col-span-2">
+                  <label class="block text-[11px] font-medium text-[#929EAA] mb-1">UF <span class="text-rose-400">*</span></label>
+                  <select
+                    formControlName="state"
+                    class="w-full bg-[#0B0E11] border border-[#222A2F] rounded-xl px-2 py-2 text-xs text-white focus:outline-hidden focus:border-[#FF6B00] cursor-pointer"
+                  >
+                    @for (uf of states(); track uf) {
+                      <option [value]="uf" class="bg-[#11161A] text-white">{{ uf }}</option>
+                    }
+                  </select>
+                </div>
+              </div>
+
+              <!-- Endereço / Rodovia e Instruções -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-[10px] font-medium text-[#8E9DA8] mb-1">Rodovia / Endereço Completo</label>
+                  <input
+                    type="text"
+                    formControlName="address"
+                    placeholder="Ex: Rodovia Belém-Brasília, Km 350"
+                    class="w-full bg-[#0B0E11] border border-[#222A2F] rounded-xl px-3 py-1.5 text-xs text-white focus:outline-hidden focus:border-[#FF6B00]"
+                  />
+                </div>
+
+                <div>
+                  <label class="block text-[10px] font-medium text-[#8E9DA8] mb-1">Instruções para o Condutor</label>
+                  <input
+                    type="text"
+                    formControlName="notes"
+                    placeholder="Ex: Abastecimento de Diesel até o tanque cheio"
+                    class="w-full bg-[#0B0E11] border border-[#222A2F] rounded-xl px-3 py-1.5 text-xs text-white focus:outline-hidden focus:border-[#FF6B00]"
+                  />
+                </div>
+              </div>
+
+            </div>
+          } @empty {
+            <div class="p-6 rounded-2xl bg-[#11161A]/60 border border-dashed border-[#222A2F] text-center space-y-2">
+              <div class="size-10 rounded-2xl bg-[#171D21] border border-[#222A2F] flex items-center justify-center text-[#929EAA] mx-auto">
+                <svg lucideNavigation class="size-5 text-[#FF6B00]"></svg>
+              </div>
+              <p class="text-xs font-semibold text-white">Nenhum ponto de parada intermediário adicionado</p>
+              <p class="text-[11px] text-[#929EAA] max-w-sm mx-auto">
+                A viagem seguirá rota direta de origem a destino. Você pode adicionar postos de abastecimento ou paradas de descanso usando os botões acima.
+              </p>
+            </div>
+          }
+        </div>
+      </section>
+
+      <!-- 4. CARD: OBSERVAÇÕES -->
+      <section class="p-5 sm:p-6 rounded-3xl bg-[#0F1215] border border-[#222A2F] shadow-xl space-y-3">
+        <label class="block text-xs font-bold text-white">Observações Gerais do Despacho</label>
+        <textarea
+          formControlName="notes"
+          rows="2"
+          placeholder="Ex: Carga prioritária, transporte de grãos, manter velocidade controlada..."
+          class="w-full bg-[#11161A] border border-[#222A2F] rounded-2xl p-3 text-xs text-white focus:outline-hidden focus:border-[#FF6B00] placeholder:text-[#62707C]"
+        ></textarea>
+      </section>
+
+    </form>
+
+    <!-- COLUNA DIREITA: PRÉ-VISUALIZAÇÃO AO VIVO NO MAPA (lg:col-span-5) -->
+    <aside class="lg:col-span-5 space-y-4 lg:sticky lg:top-6" aria-label="Pré-visualização do Trajeto no Mapa">
+      <div class="p-5 sm:p-6 rounded-3xl bg-[#0F1215] border border-[#222A2F] shadow-xl space-y-4">
+        
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <div class="size-7 rounded-xl bg-[#171D21] border border-[#222A2F] text-[#FF6B00] flex items-center justify-center">
+              <svg lucideLocate class="size-4"></svg>
+            </div>
+            <h2 class="text-xs font-bold text-white uppercase tracking-wider">Pré-visualização da Rota</h2>
+          </div>
+
+          <span class="text-[11px] text-[#929EAA] font-mono">
+            {{ waypoints.length }} {{ waypoints.length === 1 ? 'parada' : 'paradas' }}
+          </span>
+        </div>
+
+        <!-- CONTAINER DO MAPA LEAFLET -->
+        <div class="relative w-full h-[360px] sm:h-[420px] rounded-2xl overflow-hidden border border-[#222A2F] bg-[#080B0C] shadow-inner">
+          <div #mapPreviewContainer class="w-full h-full z-10"></div>
+
+          <!-- Legenda Sobreposta no Mapa -->
+          <div class="absolute bottom-3 left-3 right-3 z-20 bg-[#0F1215]/95 backdrop-blur-md rounded-xl p-3 border border-[#222A2F] shadow-lg text-[11px]">
+            <div class="flex items-center justify-between text-white font-medium">
+              <div class="flex items-center gap-1.5 truncate">
+                <span class="size-2 rounded-full bg-emerald-400"></span>
+                <span class="truncate">{{ tripForm.get('originCity')?.value || 'Origem' }}</span>
+              </div>
+              <span class="text-[#FF6B00] font-bold">➔</span>
+              <div class="flex items-center gap-1.5 truncate">
+                <span class="size-2 rounded-full bg-rose-400"></span>
+                <span class="truncate">{{ tripForm.get('destinationCity')?.value || 'Destino' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dica de Conformidade com a Lei do Motorista -->
+        <div class="p-3.5 rounded-2xl bg-[#11161A] border border-[#222A2F] flex items-start gap-3 text-xs">
+          <svg lucideShield class="size-4 text-[#FF6B00] shrink-0 mt-0.5"></svg>
+          <div class="space-y-0.5">
+            <span class="font-bold text-white block">Segurança & Lei nº 13.103</span>
+            <p class="text-[11px] text-[#929EAA]">
+              O itinerário cadastrado será sincronizado em tempo real com o aplicativo do condutor, exibindo postos credenciados e paradas recomendadas.
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </aside>
+
+  </div>
+
+</div>

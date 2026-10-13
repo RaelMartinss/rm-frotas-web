@@ -63,6 +63,19 @@ export interface Trip {
   fuelSupplies?: FuelSupply[];
 }
 
+export interface TripWaypoint {
+  id?: string;
+  order?: number;
+  type: 'FUEL' | 'REST' | 'STOP';
+  title: string;
+  address?: string | null;
+  city?: string | null;
+  state?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  notes?: string | null;
+}
+
 export interface CreateTripDTO {
   vehicleId: string;
   driverId: string;
@@ -71,6 +84,7 @@ export interface CreateTripDTO {
   scheduledDate?: string;
   estimatedArrivalDate?: string;
   notes?: string;
+  waypoints?: TripWaypoint[];
 }
 
 export interface CreateFuelSupplyDTO {
@@ -132,6 +146,7 @@ export interface TripRouteResponse {
   startedAt?: string | null;
   completedAt?: string | null;
   createdAt?: string | null;
+  waypoints?: TripWaypoint[];
   pings: TripLocationPing[];
 }
 

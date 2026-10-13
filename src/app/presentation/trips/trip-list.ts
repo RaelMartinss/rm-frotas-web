@@ -635,9 +635,7 @@ export class TripListComponent implements OnInit, OnDestroy {
   openTripModal(): void {
     if (this.impersonationService.isReadOnly()) return;
     this.closeDropdown();
-    this.errorMessage.set(null);
-    this.loadAvailability();
-    this.isTripModalOpen.set(true);
+    this.router.navigate(['/viagens/nova']);
   }
 
   closeTripModal(): void {

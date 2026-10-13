@@ -1,0 +1,44 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+/* Custom Marker Leaflet styles - isolados dos filtros */
+::ng-deep .custom-start-marker,
+::ng-deep .custom-stop-marker,
+::ng-deep .custom-dest-marker {
+  background: transparent !important;
+  border: none !important;
+}
+
+/* Dark Theme Filter para Tiles OpenStreetMap */
+::ng-deep .leaflet-tile-pane {
+  filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.7);
+}
+
+::ng-deep .leaflet-container {
+  background-color: #080B0C !important;
+}
+
+/* Linha da Rota Neon Glow */
+::ng-deep .preview-route-glow {
+  filter: blur(2.5px);
+  pointer-events: none;
+}
+
+::ng-deep .preview-route-core {
+  filter: drop-shadow(0 0 3px rgba(16, 185, 129, 0.7));
+}
+
+/* Custom Zoom controls */
+::ng-deep .leaflet-bar a {
+  background-color: #0F1215 !important;
+  border-color: #222A2F !important;
+  color: #929EAA !important;
+  transition: all 0.2s ease;
+}
+
+::ng-deep .leaflet-bar a:hover {
+  background-color: #171D21 !important;
+  color: #FFFFFF !important;
+}
