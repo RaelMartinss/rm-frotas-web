@@ -238,6 +238,7 @@ export class TripTrackingComponent implements OnInit, AfterViewInit, OnDestroy {
   private startMarker: L.Marker | null = null;
   private currentMarker: L.Marker | null = null;
   private stopMarkers: L.Marker[] = [];
+  private waypointMarkers: L.Marker[] = [];
   private pollInterval: any = null;
   private resizeObserver: ResizeObserver | null = null;
   private hasInitialFitBounds = false;
@@ -264,6 +265,7 @@ export class TripTrackingComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnDestroy(): void {
     this.stopPolling();
     this.clearStopMarkers();
+    this.clearWaypointMarkers();
     if (this.resizeObserver) {
       this.resizeObserver.disconnect();
       this.resizeObserver = null;
@@ -272,6 +274,13 @@ export class TripTrackingComponent implements OnInit, AfterViewInit, OnDestroy {
       this.map.remove();
       this.map = null;
     }
+  }
+
+  private clearWaypointMarkers(): void {
+    for (const marker of this.waypointMarkers) {
+      marker.remove();
+    }
+    this.waypointMarkers = [];
   }
 
   private setupResizeObserver(): void {
@@ -443,7 +452,7 @@ export class TripTrackingComponent implements OnInit, AfterViewInit, OnDestroy {
       }).addTo(this.map);
     }
 
-    // 2. Marcadores de Paradas
+    // 2. Marcadores de Paradas Detectadas em Tempo Real
     this.clearStopMarkers();
     for (const stop of stops) {
       const stopIcon = L.divIcon({
@@ -473,6 +482,41 @@ export class TripTrackingComponent implements OnInit, AfterViewInit, OnDestroy {
         .addTo(this.map);
 
       this.stopMarkers.push(stopMarker);
+    }
+
+    // 2.1. Marcadores de Pontos do Itinerário Planejado (Waypoints cadastrados)
+    this.clearWaypointMarkers();
+    const plannedWaypoints = data.waypoints || [];
+    for (const wp of plannedWaypoints) {
+      if (wp.latitude && wp.longitude) {
+        const isFuel = wp.type === 'FUEL';
+        const isRest = wp.type === 'REST';
+        const badgeColor = isFuel ? 'bg-amber-500' : isRest ? 'bg-blue-500' : 'bg-[#FF6B00]';
+        const iconSymbol = isFuel ? '⛽' : isRest ? '☕' : '📦';
+
+        const wpIcon = L.divIcon({
+          className: 'custom-waypoint-marker',
+          html: `
+            <div class="size-6 rounded-full ${badgeColor} border-2 border-[#0F1215] shadow-lg flex items-center justify-center text-white text-[10px] font-black cursor-pointer hover:scale-110 transition-transform" title="${wp.title}">
+              ${iconSymbol}
+            </div>
+          `,
+          iconSize: [24, 24],
+          iconAnchor: [12, 12],
+        });
+
+        const wpMarker = L.marker([wp.latitude, wp.longitude], { icon: wpIcon })
+          .bindPopup(`
+            <div class="p-2 text-xs font-sans text-slate-200">
+              <strong class="text-white block font-bold mb-0.5">${wp.title}</strong>
+              <span class="text-[10px] text-slate-400 block">${wp.city ? `${wp.city} (${wp.state || ''})` : 'Ponto planejado'}</span>
+              ${wp.notes ? `<p class="text-[11px] text-amber-300 mt-1">${wp.notes}</p>` : ''}
+            </div>
+          `)
+          .addTo(this.map);
+
+        this.waypointMarkers.push(wpMarker);
+      }
     }
 
     // 3. Marcador Origem
