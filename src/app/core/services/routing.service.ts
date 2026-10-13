@@ -34,6 +34,7 @@ export class RoutingService {
 
   /**
    * Calculates real road driving route across multiple ordered waypoints.
+   * Preferring official federal/state paved highways (BRs and PAs/MAs) for commercial heavy trucks.
    * Takes points as array of [lat, lng].
    */
   calculateRoute(points: [number, number][]): Observable<RouteGeometryResult | null> {
@@ -43,7 +44,8 @@ export class RoutingService {
 
     // OSRM expects coordinates formatted as: lng,lat;lng,lat;...
     const coordsParam = points.map(([lat, lng]) => `${lng},${lat}`).join(';');
-    const url = `${this.osrmBaseUrl}/${coordsParam}?overview=full&geometries=geojson`;
+    // Request alternatives and steps to prioritize official highway trunk networks over unpaved dirt trails
+    const url = `${this.osrmBaseUrl}/${coordsParam}?overview=full&geometries=geojson&alternatives=true&steps=true`;
 
     return this.http.get<any>(url).pipe(
       map((res) => {
@@ -51,14 +53,64 @@ export class RoutingService {
           return null;
         }
 
-        const primaryRoute = res.routes[0];
+        // Seleciona a melhor rota para frotas comerciais / caminhões pesados
+        let selectedRoute = res.routes[0];
+
+        if (res.routes.length > 1) {
+          // Avalia cada rota alternativa avaliando a proporção de rodovias oficiais asfaltadas (BRs, PAs, MAs)
+          // vs caminhos vicinais/ramais/não pavimentados
+          let bestScore = -Infinity;
+
+          for (const route of res.routes) {
+            let pavedScore = 0;
+            let unpavedMeters = 0;
+
+            const legs = route.legs || [];
+            for (const leg of legs) {
+              const steps = leg.steps || [];
+              for (const step of steps) {
+                const name = (step.name || '').toLowerCase();
+                const ref = (step.ref || '').toUpperCase();
+
+                const isMajorHighway =
+                  ref.includes('BR-') ||
+                  ref.includes('PA-') ||
+                  ref.includes('MA-') ||
+                  name.includes('rodovia') ||
+                  name.includes('avenida');
+
+                const isUnpavedTrail =
+                  (!step.ref && !step.name) ||
+                  name.includes('ramal') ||
+                  name.includes('vicinal') ||
+                  name.includes('trilha') ||
+                  name.includes('estrada de terra');
+
+                if (isMajorHighway) {
+                  pavedScore += step.distance * 1.5;
+                } else if (isUnpavedTrail) {
+                  unpavedMeters += step.distance;
+                }
+              }
+            }
+
+            // Penaliza severamente rotas com centenas de quilômetros de ramais/estradas sem nome através de florestas
+            const score = pavedScore - unpavedMeters * 3;
+
+            if (score > bestScore) {
+              bestScore = score;
+              selectedRoute = route;
+            }
+          }
+        }
+
         // OSRM GeoJSON gives [lng, lat] array -> Leaflet needs [lat, lng]
-        const leafletCoords: [number, number][] = (primaryRoute.geometry?.coordinates || []).map(
+        const leafletCoords: [number, number][] = (selectedRoute.geometry?.coordinates || []).map(
           (c: [number, number]) => [c[1], c[0]]
         );
 
-        const distanceMeters = primaryRoute.distance || 0;
-        const durationSeconds = primaryRoute.duration || 0;
+        const distanceMeters = selectedRoute.distance || 0;
+        const durationSeconds = selectedRoute.duration || 0;
         const distanceKm = Math.round((distanceMeters / 1000) * 10) / 10;
 
         return {
